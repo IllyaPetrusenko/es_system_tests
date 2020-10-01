@@ -1,6 +1,0 @@
-.idea/
-venv/
-.gitignore
-.tox/
-es_system_tests.egg-info/
-.pytest_cache/
