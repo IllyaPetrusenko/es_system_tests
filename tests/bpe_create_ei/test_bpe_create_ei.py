@@ -1,13 +1,12 @@
 import copy
 import datetime
 import fnmatch
-import json
 
+import pytest
 import requests
 from pytest_testrail.plugin import pytestrail
 
-from config import host
-from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
+
 from tests.bpe_create_ei.create_ei import bpe_create_ei
 from tests.bpe_create_ei.payloads import ei_full
 
@@ -1538,7 +1537,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response[1]['data']['operationDate'] == publicPoint['releases'][0]['date']
 
     @pytestrail.case('22160')
-    def test_22159_1(self):
+    def test_22160_1(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
 
@@ -1547,7 +1546,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
 
     @pytestrail.case('22160')
-    def test_22159_2(self):
+    def test_22160_2(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
         cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
@@ -1560,7 +1559,7 @@ class TestBpeCreateEI(object):
         assert token == True
 
     @pytestrail.case('22160')
-    def test_22159_3(self):
+    def test_22160_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
@@ -1568,3 +1567,270 @@ class TestBpeCreateEI(object):
         tender_id = fnmatch.fnmatch(publicPoint['releases'][0]['tender']['id'], '*')
         print(tender_id)
         assert tender_id == True
+
+    @pytestrail.case('22161')
+    def test_22161_1(self):
+        ei = copy.deepcopy(ei_full)
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+
+    @pytestrail.case('22161')
+    def test_22162_2(self):
+        ei = copy.deepcopy(ei_full)
+        create_ei_response = bpe_create_ei(ei)
+        cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                               '*')
+        token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                '*')
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert cpid == True
+        assert token == True
+
+    @pytestrail.case('22161')
+    def test_22163_3(self):
+        ei = copy.deepcopy(ei_full)
+        create_ei_response = bpe_create_ei(ei)
+        url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+
+        assert publicPoint['releases'][0]['tender']['status'] == 'planning'
+
+    @pytestrail.case('22162')
+    def test_22162_1(self):
+        ei = copy.deepcopy(ei_full)
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+
+    @pytestrail.case('22162')
+    def test_22162_2(self):
+        ei = copy.deepcopy(ei_full)
+        create_ei_response = bpe_create_ei(ei)
+        cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                               '*')
+        token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                '*')
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert cpid == True
+        assert token == True
+
+    @pytestrail.case('22162')
+    def test_22162_3(self):
+        ei = copy.deepcopy(ei_full)
+        create_ei_response = bpe_create_ei(ei)
+        url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+
+        assert publicPoint['releases'][0]['tender']['statusDetails'] == 'empty'
+
+    @pytestrail.case('22163')
+    def test_22163_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['id'] = '1010101010'
+        ei['buyer']['identifier']['scheme'] = 'MD-IDNO'
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+
+    @pytestrail.case('22163')
+    def test_22163_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['id'] = '1010101010'
+        ei['buyer']['identifier']['scheme'] = 'MD-IDNO'
+        create_ei_response = bpe_create_ei(ei)
+        cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                               '*')
+        token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                '*')
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert cpid == True
+        assert token == True
+
+    @pytestrail.case('22163')
+    def test_22163_3(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['id'] = '1010101010'
+        ei['buyer']['identifier']['scheme'] = 'MD-IDNO'
+        create_ei_response = bpe_create_ei(ei)
+        url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+
+        assert publicPoint['releases'][0]['buyer']['id'] == ei['buyer']['identifier']['scheme'] + '-' + \
+               ei['buyer']['identifier']['id']
+
+    @pytestrail.case('22164')
+    def test_22164_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['classification']['id'] = '24200000-6'
+        ei['planning']['budget']['id'] = ei['tender']['classification']['id']
+        ei['tender']['classification']['scheme'] = 'CPV'
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+
+    @pytestrail.case('22164')
+    def test_22164_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['classification']['id'] = '24200000-6'
+        ei['planning']['budget']['id'] = ei['tender']['classification']['id']
+        ei['tender']['classification']['scheme'] = 'CPV'
+        create_ei_response = bpe_create_ei(ei)
+        cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                               '*')
+        token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                '*')
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert cpid == True
+        assert token == True
+
+    @pytestrail.case('22164')
+    def test_22164_3(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['classification']['id'] = '24200000-6'
+        ei['planning']['budget']['id'] = ei['tender']['classification']['id']
+        ei['tender']['classification']['scheme'] = 'CPV'
+        create_ei_response = bpe_create_ei(ei)
+        url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+
+        assert publicPoint['releases'][0]['tender']['classification']['id'] == ei['tender']['classification']['id']
+
+    @pytestrail.case('22165')
+    def test_22165_1(self):
+        ei = copy.deepcopy(ei_full)
+        currentDate = datetime.datetime.now()
+        startDate = currentDate.strftime('%Y-%m-%dT%H:%M:%SZ')
+        duration_date = currentDate + datetime.timedelta(minutes=10)
+        endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+        ei['planning']['budget']['period']['startDate'] = startDate
+        ei['planning']['budget']['period']['endDate'] = endDate
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+
+
+    @pytestrail.case('22165')
+    def test_22165_2(self):
+        ei = copy.deepcopy(ei_full)
+        currentDate = datetime.datetime.now()
+        startDate = currentDate.strftime('%Y-%m-%dT%H:%M:%SZ')
+        duration_date = currentDate + datetime.timedelta(minutes=10)
+        endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+        ei['planning']['budget']['period']['startDate'] = startDate
+        ei['planning']['budget']['period']['endDate'] = endDate
+        create_ei_response = bpe_create_ei(ei)
+        cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                               '*')
+        token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                '*')
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert cpid == True
+        assert token == True
+
+    @pytestrail.case('22165')
+    def test_22165_3(self):
+        ei = copy.deepcopy(ei_full)
+        currentDate = datetime.datetime.now()
+        startDate = currentDate.strftime('%Y-%m-%dT%H:%M:%SZ')
+        duration_date = currentDate + datetime.timedelta(minutes=10)
+        endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+        ei['planning']['budget']['period']['startDate'] = startDate
+        ei['planning']['budget']['period']['endDate'] = endDate
+        create_ei_response = bpe_create_ei(ei)
+
+        url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+        result = publicPoint['releases'][0]['planning']['budget']['period']['endDate'] > \
+                 publicPoint['releases'][0]['planning']['budget']['period']['startDate']
+
+        assert publicPoint['releases'][0]['planning']['budget']['period']['startDate'] == \
+               ei['planning']['budget']['period'][
+                   'startDate']
+        assert publicPoint['releases'][0]['planning']['budget']['period']['endDate'] == \
+               ei['planning']['budget']['period'][
+                   'endDate']
+        assert result == True
+
+    @pytestrail.case('22166')
+    def test_22166_1(self):
+        ei = copy.deepcopy(ei_full)
+        currentDate = datetime.datetime.now()
+        startDate = currentDate.strftime('%Y/%m/%dT%H:%M:%SZ')
+        duration_date = currentDate + datetime.timedelta(minutes=10)
+        endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+        ei['planning']['budget']['period']['startDate'] = startDate
+        ei['planning']['budget']['period']['endDate'] = endDate
+        create_ei_response = bpe_create_ei(ei)
+        print(startDate)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+
+    @pytestrail.case('22166')
+    def test_22166_2(self):
+        ei = copy.deepcopy(ei_full)
+        currentDate = datetime.datetime.now()
+        startDate = currentDate.strftime('%Y/%m/%dT%H:%M:%SZ')
+        duration_date = currentDate + datetime.timedelta(minutes=10)
+        endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+        ei['planning']['budget']['period']['startDate'] = startDate
+        ei['planning']['budget']['period']['endDate'] = endDate
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
+        assert create_ei_response[1]['errors'][0]['description'] == f"com.fasterxml.jackson.databind.JsonMapping" \
+                                                                    f"Exception: Text '{startDate}' could not be " \
+                                                                    f"parsed at index 4 (through reference chain: " \
+                                                                    f"com.procurement.budget.model.dto.ei.request." \
+                                                                    f"EiCreate[\"planning\"]->com.procurement." \
+                                                                    f"budget.model.dto.ei.request.EiCreate$Planning" \
+                                                                    f"EiCreate[\"budget\"]->com.procurement.budget." \
+                                                                    f"model.dto.ei.request.EiCreate$PlanningEi" \
+                                                                    f"Create$BudgetEiCreate[\"period\"]->com." \
+                                                                    f"procurement.budget.model.dto.ocds." \
+                                                                    f"Period[\"startDate\"])"
+
+    @pytestrail.case('22168')
+    @pytest.mark.xfail(reason='This rule is not implemented')
+    def test_22168_1(self):
+        ei = copy.deepcopy(ei_full)
+        startDate = '2019-02-31T12:40:00Z'
+        endDate = '2020-12-31T12:40:00Z'
+        ei['planning']['budget']['period']['startDate'] = startDate
+        ei['planning']['budget']['period']['endDate'] = endDate
+        create_ei_response =bpe_create_ei(ei)
+
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+
+
+    @pytestrail.case('22168')
+    @pytest.mark.xfail(reason='This rule is not implemented')
+    def test_22168_2(self):
+        ei = copy.deepcopy(ei_full)
+        startDate = '2019-02-31T12:40:00Z'
+        endDate = '2020-12-31T12:40:00Z'
+        ei['planning']['budget']['period']['startDate'] = startDate
+        ei['planning']['budget']['period']['endDate'] = endDate
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.04.01.02'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid period.'
