@@ -9,6 +9,9 @@ mainSectoralActivity = ('AIRPORT_RELATED_ACTIVITIES', 'ELECTRICITY', 'EXPLORATIO
                         'EXPLORATION_EXTRACTION_GAS_OI',
                         'PORT_RELATED_ACTIVITIES', 'POSTAL_SERVICES', 'PRODUCTION_TRANSPORT_DISTRIBUTION_GAS_HEAT',
                         'RAILWAY_SERVICES', 'URBAN_RAILWAY_TRAMWAY_TROLLEYBUS_BUS_SERVICES', 'WATER',)
+cpv_goods = ('03100000-2', '39100000-3', '48600000-4',)
+cpv_works = ('45100000-8', '45200000-9', '45100000-8',)
+cpv_services = ('76100000-4', '76200000-5', '90900000-6',)
 
 ei_full = {
     "tender": {
