@@ -13,7 +13,7 @@ cpv_goods = ('03100000-2', '39100000-3', '48600000-4',)
 cpv_works = ('45100000-8', '45200000-9', '45100000-8',)
 cpv_services = ('76100000-4', '76200000-5', '90900000-6',)
 
-ei_full = {
+ei_update_full = {
     "tender": {
         "title": "EI_FULL_WORKS",
         "description": "description of finansical sourse",
@@ -84,7 +84,7 @@ ei_full = {
         "details": {
             "typeOfBuyer": f'{random.choice(typeOfBuyer)}',
             "mainGeneralActivity": f'{random.choice(mainGeneralActivity)}',
-            "mainSectoralActivity": f'{random.choice(mainSectoralActivity)}'
+            "mainSectoralActivity": f'WATER'
 
         }
     }
