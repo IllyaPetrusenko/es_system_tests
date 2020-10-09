@@ -28,11 +28,11 @@ import testrail
 client = testrail.APIClient('https://ustudiocompany.testrail.io')  # do not include index.php?/api/v2
 client.user = 'noreply@ustudio.company'  # TestRail email address
 client.password = 'add2uStudio'  # TestRail password or API token
-suite_id = 245
+suite_id = 246
 project_id = 13
 type_of_case = 'regression'
 
-cases = client.send_get(f'/get_cases/13&suite_id=245&filter={type_of_case}')
+cases = client.send_get(f'/get_cases/13&suite_id={suite_id}&filter={type_of_case}')
 li = []
 for case in cases:
     case_ids = case['id']
