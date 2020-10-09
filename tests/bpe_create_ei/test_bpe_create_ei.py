@@ -735,7 +735,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['country'][
                    'scheme'] == 'iso-alpha2'
@@ -773,7 +773,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['country'][
                    'uri'] == 'https://www.iso.org'
@@ -811,7 +811,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['country'][
                    'description'] == 'Moldova, Republica'
@@ -831,7 +831,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['buyer']['address']['addressDetails']['country']['id'] = 'UK'
         create_ei_response = bpe_create_ei(ei)
-        print(create_ei_response[1])
+
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
         assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.10'
         assert create_ei_response[1]['errors'][0]['description'] == 'Invalid country. '
@@ -871,7 +871,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['region']['scheme'] == 'CUATM'
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
@@ -919,7 +919,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['region']['scheme'] == 'CUATM'
 
@@ -961,7 +961,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['region'][
                    'uri'] == 'http://statistica.md'
@@ -1004,7 +1004,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['region'][
                    'description'] == 'Donduşeni'
@@ -1089,7 +1089,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['locality'][
                    'scheme'] == 'CUATM'
@@ -1179,7 +1179,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
                ei['buyer']['address']['addressDetails']['locality']['scheme']
@@ -1220,7 +1220,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['identifier']['scheme'] == ei['buyer']['identifier'][
             'scheme']
@@ -1278,7 +1278,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['details']['typeOfBuyer'] == ei['buyer']['details'][
             'typeOfBuyer']
@@ -1347,7 +1347,6 @@ class TestBpeCreateEI(object):
         create_ei_response = bpe_create_ei(ei)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
 
         assert publicPoint['releases'][0]['parties'][0]['details']['mainGeneralActivity'] == ei['buyer']['details'][
             'mainGeneralActivity']
@@ -1414,7 +1413,7 @@ class TestBpeCreateEI(object):
         create_ei_response = bpe_create_ei(ei)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
 
         assert publicPoint['releases'][0]['parties'][0]['details']['mainSectoralActivity'] == ei['buyer']['details'][
             'mainSectoralActivity']
@@ -1583,7 +1582,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
         tender_id = fnmatch.fnmatch(publicPoint['releases'][0]['tender']['id'], '*')
-        print(tender_id)
+
         assert tender_id == True
 
     @pytestrail.case('22161')
@@ -1793,7 +1792,7 @@ class TestBpeCreateEI(object):
         ei['planning']['budget']['period']['startDate'] = startDate
         ei['planning']['budget']['period']['endDate'] = endDate
         create_ei_response = bpe_create_ei(ei)
-        print(startDate)
+
         assert create_ei_response[0].text == 'ok'
         assert create_ei_response[0].status_code == 202
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
@@ -1896,7 +1895,7 @@ class TestBpeCreateEI(object):
         ei['planning']['budget']['period']['startDate'] = startDate
         ei['planning']['budget']['period']['endDate'] = endDate
         create_ei_response = bpe_create_ei(ei)
-        print(startDate)
+
         assert create_ei_response[0].text == 'ok'
         assert create_ei_response[0].status_code == 202
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
@@ -2054,7 +2053,7 @@ class TestBpeCreateEI(object):
     def test_22175_1(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
-        print(create_ei_response)
+
 
         assert create_ei_response[0].text == 'ok'
         assert create_ei_response[0].status_code == 202
@@ -2077,15 +2076,15 @@ class TestBpeCreateEI(object):
         create_ei_response = bpe_create_ei(ei)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
-        print(create_ei_response[1]['data']['operationDate'])
+
+
         assert publicPoint['releases'][0]['tag'][0] == 'compiled'
 
     @pytestrail.case('22176')
     def test_22176_1(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
-        print(create_ei_response)
+
 
         assert create_ei_response[0].text == 'ok'
         assert create_ei_response[0].status_code == 202
@@ -2179,7 +2178,7 @@ class TestBpeCreateEI(object):
     # timestamp = int(
     #     datetime.datetime.strptime(publicPoint['releases'][0]['date'], '%Y-%m-%dT%H:%M:%SZ').timestamp())
     # time= publicPoint['releases'][0]['date'].replace(tzinfo=DT.timezone.utc)
-    # print(dt)
+    #
 
     # assert publicPoint['releases'][0]['id'] ==
 
@@ -2239,11 +2238,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
-        print(url)
-        print()
-        print(startDate)
-        print()
-        print(endDate)
+
         assert publicPoint['releases'][0]['planning']['budget']['id'] == ei['planning']['budget']['id']
         assert publicPoint['releases'][0]['planning']['budget']['period']['startDate'] == \
                ei['planning']['budget']['period'][
@@ -2289,7 +2284,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
-        print(url)
+
         assert publicPoint['releases'][0]['tender']['title'] == ei['tender']['title']
         assert publicPoint['releases'][0]['tender']['classification']['id'] == ei['tender']['classification']['id']
 
@@ -2330,7 +2325,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
-        print(url)
+
         assert publicPoint['releases'][0]['parties'][0]['id'] == ei['buyer']['identifier']['scheme'] + '-' + \
                ei['buyer']['identifier']['id']
         assert publicPoint['releases'][0]['parties'][0]['roles'][0] == 'buyer'
@@ -2627,7 +2622,7 @@ class TestBpeCreateEI(object):
 
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-        print(url)
+
         assert publicPoint['releases'][0]['tender']['title'] == ei['tender']['title']
         assert publicPoint['releases'][0]['tender']['description'] == ei['tender']['description']
         assert publicPoint['releases'][0]['planning']['rationale'] == ei['planning']['rationale']
@@ -2804,7 +2799,7 @@ class TestBpeCreateEI(object):
 
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
-        print(url)
+
         assert publicPoint['records'][0]['compiledRelease']['tender']['mainProcurementCategory'] == 'goods'
 
     @pytestrail.case('22838')
@@ -2841,7 +2836,7 @@ class TestBpeCreateEI(object):
 
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
-        print(url)
+
         assert publicPoint['records'][0]['compiledRelease']['tender']['mainProcurementCategory'] == 'works'
 
     @pytestrail.case('22839')
@@ -2878,7 +2873,7 @@ class TestBpeCreateEI(object):
 
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
-        print(url)
+
         assert publicPoint['records'][0]['compiledRelease']['tender']['mainProcurementCategory'] == 'services'
 
     @pytestrail.case('22840')
@@ -2912,7 +2907,7 @@ class TestBpeCreateEI(object):
 
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
-        print(url)
+
         assert publicPoint['records'][0]['compiledRelease']['parties'][0]['address']['addressDetails']['country'][
                    'id'] == 'MD'
 
@@ -2947,7 +2942,7 @@ class TestBpeCreateEI(object):
 
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
-        print(url)
+
         assert publicPoint['records'][0]['compiledRelease']['parties'][0]['address']['addressDetails']['country'][
                    'scheme'] == 'iso-alpha2'
 
@@ -2982,7 +2977,7 @@ class TestBpeCreateEI(object):
 
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
-        print(url)
+
         assert publicPoint['records'][0]['compiledRelease']['parties'][0]['address']['addressDetails']['country'][
                    'description'] == 'Moldova, Republica'
 
@@ -3017,7 +3012,7 @@ class TestBpeCreateEI(object):
 
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
-        print(url)
+
         assert publicPoint['records'][0]['compiledRelease']['parties'][0]['address']['addressDetails']['country'][
                    'uri'] == 'https://www.iso.org'
 
