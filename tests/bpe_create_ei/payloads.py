@@ -89,3 +89,52 @@ ei_full = {
         }
     }
 }
+
+ei_obligatory = {
+    "tender": {
+        "title": "Cardurilor de acces pentru Bibliotecii Municipale B.P. Hasdeu ",
+        "classification": {
+            "id": "45100000-8"
+
+        }
+    },
+    "planning": {
+        "budget": {
+            "id": "45100000-8",
+            "period": {
+                "startDate": "2020-01-01T00:00:00Z",
+                "endDate": "2020-12-31T12:40:00Z"
+            }
+        }
+    },
+    "buyer": {
+        "name": "Directia Cultura a Primariei mun.Chisinau",
+        "identifier": {
+            "id": "123654789000",
+            "scheme": "MD-IDNO",
+            "legalName": "Directia Cultura a Primariei mun.Chisinau"
+        },
+        "address": {
+            "streetAddress": "str.Bucuresti 68",
+            "addressDetails": {
+                "country": {
+                    "id": "MD"
+                },
+                "region": {
+                    "id": "0101000"
+                },
+                "locality": {
+                    "scheme": "CUATM",
+                    "id": "0101000",
+                    "description": "mun.Chişinău"
+                }
+            }
+
+        },
+        "contactPoint": {
+            "name": "Dumitru Popa",
+            "email": "directiacultшra@yahoo.com",
+            "telephone": "022242290"
+        }
+    }
+}
