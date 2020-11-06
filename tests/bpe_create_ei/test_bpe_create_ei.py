@@ -2,6 +2,9 @@ import copy
 import datetime
 import fnmatch
 import random
+from uuid import uuid4, UUID
+import time
+
 import requests
 from pytest_testrail.plugin import pytestrail
 
@@ -584,6 +587,374 @@ class TestBpeCreateEI(object):
                                      'mdm.model.dto.data.OrganizationReference[\"contactPoint\"]->com.procurement.' \
                                      'mdm.model.dto.data.ContactPoint[\"telephone\"])'
 
+    @pytestrail.case('22132')
+    def test_22132_31(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['id']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item] value failed for JSON property id due to missing " \
+                                     "(therefore NULL) value for creator parameter id which is a non-nullable type\n " \
+                                     "at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: " \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->" \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"id\"])"
+
+    @pytestrail.case('22132')
+    def test_22132_32(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['description']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item] value failed for JSON property description due to " \
+                                     "missing (therefore NULL) value for creator parameter description which is a " \
+                                     "non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through " \
+                                     "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->" \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util." \
+                                     "ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item" \
+                                     "[\"description\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_33(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['classification']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item] value failed for JSON property classification due to " \
+                                     "missing (therefore NULL) value for creator parameter classification which is a " \
+                                     "non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through " \
+                                     "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->" \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util." \
+                                     "ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item" \
+                                     "[\"classification\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_34(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['classification']['id']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$Classification] value failed for JSON property id due to " \
+                                     "missing (therefore NULL) value for creator parameter id which is a non-nullable " \
+                                     "type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: " \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->" \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"classification\"]" \
+                                     "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Classification" \
+                                     "[\"id\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_35(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['additionalClassifications'][0]['id']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$AdditionalClassification] value failed for JSON property " \
+                                     "id due to missing (therefore NULL) value for creator parameter id which is a " \
+                                     "non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through " \
+                                     "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->" \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util." \
+                                     "ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item" \
+                                     "[\"additionalClassifications\"]->java.util.ArrayList[0]->com.procurement.mdm." \
+                                     "model.dto.data.ei.EIRequest$Tender$Item$AdditionalClassification[\"id\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_36(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['deliveryAddress']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item] value failed for JSON property deliveryAddress due to " \
+                                     "missing (therefore NULL) value for creator parameter deliveryAddress which is " \
+                                     "a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through " \
+                                     "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->" \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util." \
+                                     "ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item" \
+                                     "[\"deliveryAddress\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_37(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$DeliveryAddress] value failed for JSON property " \
+                                     "addressDetails due to missing (therefore NULL) value for creator parameter " \
+                                     "addressDetails which is a non-nullable type\n at [Source: UNKNOWN; line: -1, " \
+                                     "column: -1] (through reference chain: com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender" \
+                                     "[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data." \
+                                     "ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_38(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$DeliveryAddress$AddressDetails] value failed for JSON " \
+                                     "property country due to missing (therefore NULL) value for creator parameter " \
+                                     "country which is a non-nullable type\n at [Source: UNKNOWN; line: -1, " \
+                                     "column: -1] (through reference chain: com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender" \
+                                     "[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data." \
+                                     "ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails" \
+                                     "[\"country\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_39(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Country] value failed for " \
+                                     "JSON property id due to missing (therefore NULL) value for creator parameter " \
+                                     "id which is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] " \
+                                     "(through reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest" \
+                                     "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender" \
+                                     "[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data." \
+                                     "ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails" \
+                                     "[\"country\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$" \
+                                     "DeliveryAddress$AddressDetails$Country[\"id\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_40(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$DeliveryAddress$AddressDetails] value failed for JSON " \
+                                     "property region due to missing (therefore NULL) value for creator parameter " \
+                                     "region which is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: " \
+                                     "-1] (through reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest" \
+                                     "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]" \
+                                     "->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto." \
+                                     "data.ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com." \
+                                     "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress" \
+                                     "$AddressDetails[\"region\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_41(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Locality] value failed " \
+                                     "for JSON property scheme due to missing (therefore NULL) value for creator " \
+                                     "parameter scheme which is a non-nullable type\n at [Source: UNKNOWN; line: -1, " \
+                                     "column: -1] (through reference chain: com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender" \
+                                     "[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data." \
+                                     "ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails" \
+                                     "[\"locality\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$" \
+                                     "DeliveryAddress$AddressDetails$Locality[\"scheme\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_42(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data." \
+                                     "ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Region] value " \
+                                     "failed for JSON property id due to missing (therefore NULL) value for " \
+                                     "creator parameter id which is a non-nullable type\n at [Source: UNKNOWN; " \
+                                     "line: -1, column: -1] (through reference chain: com.procurement.mdm.model." \
+                                     "dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm." \
+                                     "model.dto.data.ei.EIRequest$Tender$Item[\"deliveryAddress\"]->com." \
+                                     "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress" \
+                                     "[\"addressDetails\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$" \
+                                     "Tender$Item$DeliveryAddress$AddressDetails[\"region\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address" \
+                                     "Details$Region[\"id\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_43(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Locality] value failed " \
+                                     "for JSON property id due to missing (therefore NULL) value for creator " \
+                                     "parameter id which is a non-nullable type\n at [Source: UNKNOWN; line: -1, " \
+                                     "column: -1] (through reference chain: com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender" \
+                                     "[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data." \
+                                     "ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails" \
+                                     "[\"locality\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$" \
+                                     "DeliveryAddress$AddressDetails$Locality[\"id\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_44(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['description']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Locality] value failed " \
+                                     "for JSON property description due to missing (therefore NULL) value for " \
+                                     "creator parameter description which is a non-nullable type\n at [Source: " \
+                                     "UNKNOWN; line: -1, column: -1] (through reference chain: com.procurement.mdm." \
+                                     "model.dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data." \
+                                     "ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm." \
+                                     "model.dto.data.ei.EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress" \
+                                     "[\"addressDetails\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$" \
+                                     "Item$DeliveryAddress$AddressDetails[\"locality\"]->com.procurement.mdm.model." \
+                                     "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Locality" \
+                                     "[\"description\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_45(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['quantity']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item] value failed for JSON property quantity due to missing " \
+                                     "(therefore NULL) value for creator parameter quantity which is a non-nullable " \
+                                     "type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: " \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->" \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"quantity\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_46(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['unit']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item] value failed for JSON property unit due to missing " \
+                                     "(therefore NULL) value for creator parameter unit which is a non-nullable " \
+                                     "type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: " \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->" \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"unit\"])"
+
+    @pytestrail.case('22132')
+    def test_22133_47(self):
+        ei = copy.deepcopy(ei_full)
+        del ei['tender']['items'][0]['unit']['id']
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$Unit] value failed for JSON property id due to missing " \
+                                     "(therefore NULL) value for creator parameter id which is a non-nullable " \
+                                     "type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: " \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->" \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"unit\"]->com." \
+                                     "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Unit[\"id\"])"
+
     @pytestrail.case('22133')
     def test_22133_1(self):
         ei = copy.deepcopy(ei_obligatory)
@@ -607,6 +978,7 @@ class TestBpeCreateEI(object):
     def test_22133_3(self):
         ei = copy.deepcopy(ei_obligatory)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -690,6 +1062,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['buyer']['address']['addressDetails']['country']['id'] = 'MD'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
@@ -732,10 +1105,10 @@ class TestBpeCreateEI(object):
         ei['buyer']['address']['addressDetails']['country']['id'] = 'MD'
         ei['buyer']['address']['addressDetails']['country']['scheme'] = 'sheme for test'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['country'][
                    'scheme'] == 'iso-alpha2'
@@ -770,10 +1143,10 @@ class TestBpeCreateEI(object):
         ei['buyer']['address']['addressDetails']['country']['id'] = 'MD'
         ei['buyer']['address']['addressDetails']['country']['uri'] = 'uri for test'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['country'][
                    'uri'] == 'https://www.iso.org'
@@ -808,10 +1181,10 @@ class TestBpeCreateEI(object):
         ei['buyer']['address']['addressDetails']['country']['id'] = 'MD'
         ei['buyer']['address']['addressDetails']['country']['description'] = 'description for test'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['country'][
                    'description'] == 'Moldova, Republica'
@@ -868,10 +1241,10 @@ class TestBpeCreateEI(object):
         ei['buyer']['address']['addressDetails']['region']['id'] = '3400000'
         ei['buyer']['address']['addressDetails']['locality']['id'] = '3401000'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['region']['scheme'] == 'CUATM'
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
@@ -916,10 +1289,10 @@ class TestBpeCreateEI(object):
         ei['buyer']['address']['addressDetails']['region']['scheme'] = 'other'
         ei['buyer']['address']['addressDetails']['locality']['id'] = '3401000'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['region']['scheme'] == 'CUATM'
 
@@ -958,10 +1331,10 @@ class TestBpeCreateEI(object):
         ei['buyer']['address']['addressDetails']['region']['url'] = 'test fro uri'
         ei['buyer']['address']['addressDetails']['locality']['id'] = '3401000'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['region'][
                    'uri'] == 'http://statistica.md'
@@ -1001,10 +1374,10 @@ class TestBpeCreateEI(object):
         ei['buyer']['address']['addressDetails']['region']['description'] = 'test for description'
         ei['buyer']['address']['addressDetails']['locality']['id'] = '3401000'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['region'][
                    'description'] == 'Donduşeni'
@@ -1086,10 +1459,10 @@ class TestBpeCreateEI(object):
         ei['buyer']['address']['addressDetails']['locality']['id'] = '3401000'
         ei['buyer']['address']['addressDetails']['locality']['scheme'] = 'CUATM'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['locality'][
                    'scheme'] == 'CUATM'
@@ -1176,10 +1549,10 @@ class TestBpeCreateEI(object):
         ei['buyer']['address']['addressDetails']['locality']['description'] = 'own locality'
         del ei['buyer']['address']['addressDetails']['locality']['uri']
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
                ei['buyer']['address']['addressDetails']['locality']['scheme']
@@ -1217,10 +1590,11 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['buyer']['identifier']['scheme'] = 'MD-IDNO'
         create_ei_response = bpe_create_ei(ei)
+
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['identifier']['scheme'] == ei['buyer']['identifier'][
             'scheme']
@@ -1275,10 +1649,10 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['buyer']['details']['typeOfBuyer'] = 'MINISTRY'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['details']['typeOfBuyer'] == ei['buyer']['details'][
             'typeOfBuyer']
@@ -1345,6 +1719,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['buyer']['details']['mainGeneralActivity'] = 'SOCIAL_PROTECTION'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -1411,9 +1786,9 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['buyer']['details']['mainSectoralActivity'] = 'WATER'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['details']['mainSectoralActivity'] == ei['buyer']['details'][
             'mainSectoralActivity']
@@ -1482,6 +1857,7 @@ class TestBpeCreateEI(object):
     def test_22157_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
                                'ocds-t1s2t3-MD-*')
@@ -1513,6 +1889,7 @@ class TestBpeCreateEI(object):
     def test_22158_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
         release_id = publicPoint['releases'][0]['id']
@@ -1548,6 +1925,7 @@ class TestBpeCreateEI(object):
     def test_22159_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -1579,6 +1957,7 @@ class TestBpeCreateEI(object):
     def test_22160_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
         tender_id = fnmatch.fnmatch(publicPoint['releases'][0]['tender']['id'], '*')
@@ -1595,7 +1974,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
 
     @pytestrail.case('22161')
-    def test_22162_2(self):
+    def test_22161_2(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
         cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
@@ -1608,9 +1987,10 @@ class TestBpeCreateEI(object):
         assert token == True
 
     @pytestrail.case('22161')
-    def test_22163_3(self):
+    def test_22161_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -1642,6 +2022,7 @@ class TestBpeCreateEI(object):
     def test_22162_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -1679,6 +2060,7 @@ class TestBpeCreateEI(object):
         ei['buyer']['identifier']['id'] = '1010101010'
         ei['buyer']['identifier']['scheme'] = 'MD-IDNO'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -1720,6 +2102,7 @@ class TestBpeCreateEI(object):
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         ei['tender']['classification']['scheme'] = 'CPV'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -1768,7 +2151,7 @@ class TestBpeCreateEI(object):
         ei['planning']['budget']['period']['startDate'] = startDate
         ei['planning']['budget']['period']['endDate'] = endDate
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
         result = publicPoint['releases'][0]['planning']['budget']['period']['endDate'] > \
@@ -2025,6 +2408,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['tender']['classification']['id'] = '45100000-8'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -2054,7 +2438,6 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
 
-
         assert create_ei_response[0].text == 'ok'
         assert create_ei_response[0].status_code == 202
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
@@ -2074,9 +2457,9 @@ class TestBpeCreateEI(object):
     def test_22175_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['tag'][0] == 'compiled'
 
@@ -2084,7 +2467,6 @@ class TestBpeCreateEI(object):
     def test_22176_1(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
-
 
         assert create_ei_response[0].text == 'ok'
         assert create_ei_response[0].status_code == 202
@@ -2105,6 +2487,7 @@ class TestBpeCreateEI(object):
     def test_22176_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -2134,6 +2517,7 @@ class TestBpeCreateEI(object):
     def test_22178_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -2166,6 +2550,8 @@ class TestBpeCreateEI(object):
     # def test_22180_3(self):
     #     ei = copy.deepcopy(ei_full)
     #     create_ei_response = bpe_create_ei(ei)
+    # time.sleep(1)
+
     #     url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
     #     publicPoint = requests.get(url=url).json()
     #     dt = DT.datetime.strptime(str(publicPoint['releases'][0]['date']), '%Y-%m-%dT%H:%M:%SZ')
@@ -2235,9 +2621,9 @@ class TestBpeCreateEI(object):
         ei['planning']['budget']['period']['startDate'] = startDate
         ei['planning']['budget']['period']['endDate'] = endDate
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['planning']['budget']['id'] == ei['planning']['budget']['id']
         assert publicPoint['releases'][0]['planning']['budget']['period']['startDate'] == \
@@ -2281,9 +2667,9 @@ class TestBpeCreateEI(object):
         ei['tender']['description'] = 'This is some text for field 22 orange'
         ei['tender']['classification']['id'] = ei['planning']['budget']['id']
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['tender']['title'] == ei['tender']['title']
         assert publicPoint['releases'][0]['tender']['classification']['id'] == ei['tender']['classification']['id']
@@ -2322,9 +2708,9 @@ class TestBpeCreateEI(object):
         ei['buyer']['identifier']['id'] = '5_channel'
         ei['buyer']['identifier']['scheme'] = 'MD-IDNO'
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
-
 
         assert publicPoint['releases'][0]['parties'][0]['id'] == ei['buyer']['identifier']['scheme'] + '-' + \
                ei['buyer']['identifier']['id']
@@ -2487,7 +2873,7 @@ class TestBpeCreateEI(object):
 
         ei.update({'procuringEntity': procuring_entity})
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -2520,7 +2906,7 @@ class TestBpeCreateEI(object):
     def test_22185_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -2619,7 +3005,7 @@ class TestBpeCreateEI(object):
         ei['buyer']['contactPoint']['uri'] = ''
 
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
@@ -2704,7 +3090,7 @@ class TestBpeCreateEI(object):
                                      'ei.EIRequest$Tender$Classification[\"id\"])'
 
     @pytestrail.case('22834')
-    def test_22833_1(self):
+    def test_22834_1(self):
         ei = copy.deepcopy(ei_full)
         ei['tender']['classification']['id'] = ''
         create_ei_response = bpe_create_ei(ei)
@@ -2714,7 +3100,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
 
     @pytestrail.case('22834')
-    def test_22833_2(self):
+    def test_22834_2(self):
         ei = copy.deepcopy(ei_full)
         ei['tender']['classification']['id'] = ''
         create_ei_response = bpe_create_ei(ei)
@@ -2796,7 +3182,7 @@ class TestBpeCreateEI(object):
         ei['tender']['classification']['id'] = f'{random.choice(copy.deepcopy(cpv_goods))}'
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
 
@@ -2833,7 +3219,7 @@ class TestBpeCreateEI(object):
         ei['tender']['classification']['id'] = f'{random.choice(copy.deepcopy(cpv_works))}'
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
 
@@ -2870,7 +3256,7 @@ class TestBpeCreateEI(object):
         ei['tender']['classification']['id'] = f'{random.choice(copy.deepcopy(cpv_services))}'
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
 
@@ -2904,7 +3290,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['buyer']['address']['addressDetails']['country']['id'] = 'MD'
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
 
@@ -2939,7 +3325,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['buyer']['address']['addressDetails']['country']['id'] = 'MD'
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
 
@@ -2974,7 +3360,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['buyer']['address']['addressDetails']['country']['id'] = 'MD'
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
 
@@ -3009,7 +3395,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['buyer']['address']['addressDetails']['country']['id'] = 'MD'
         create_ei_response = bpe_create_ei(ei)
-
+        time.sleep(1)
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
 
@@ -3024,7 +3410,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response[0].status_code == 202
 
     @pytestrail.case('22908')
-    def test_22133_2(self):
+    def test_22908_2(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
         result_of_compare_cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
@@ -3036,13 +3422,26 @@ class TestBpeCreateEI(object):
         assert result_of_compare_token == True
 
     @pytestrail.case('22908')
-    def test_22133_3(self):
+    def test_22908_3(self):
         ei = copy.deepcopy(ei_full)
         create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
+        def is_valid_uuid(uuid_to_test, version=4):
+            try:
+                uuid_obj = UUID(uuid_to_test, version=version)
+            except:
+                return False
+            return str(uuid_obj) == uuid_to_test
+
+        print(publicPoint)
+        is_uuid_tender_id = is_valid_uuid(publicPoint['releases'][0]['tender']['id'])
+        is_uuid_item_id = is_valid_uuid(publicPoint['releases'][0]['tender']['items'][0]['id'])
+        assert is_uuid_tender_id == True
+        assert is_uuid_item_id == True
         assert publicPoint['releases'][0]['tender']['title'] == ei['tender']['title']
 
         assert publicPoint['releases'][0]['tender']['classification']['scheme'] == ei['tender']['classification'][
@@ -3097,3 +3496,289 @@ class TestBpeCreateEI(object):
                ei['buyer']['contactPoint']
         assert publicPoint['releases'][0]['parties'][0]['details'] == \
                ei['buyer']['details']
+        assert publicPoint['releases'][0]['tender']['items'][0]['description'] == ei['tender']['items'][0][
+            'description']
+        assert publicPoint['releases'][0]['tender']['items'][0]['classification']['scheme'] == 'CPV'
+        assert publicPoint['releases'][0]['tender']['items'][0]['classification']['id'] == \
+               ei['tender']['items'][0]['classification']['id']
+        assert publicPoint['releases'][0]['tender']['items'][0]['classification'][
+                   'description'] == 'Lucrări de pregătire a şantierului'
+        assert publicPoint['releases'][0]['tender']['items'][0]['additionalClassifications'][0]['scheme'] == 'CPVS'
+        assert publicPoint['releases'][0]['tender']['items'][0]['additionalClassifications'][0][
+                   'description'] == 'Oţel carbon'
+        assert publicPoint['releases'][0]['tender']['items'][0]['quantity'] == ei['tender']['items'][0]['quantity']
+        assert publicPoint['releases'][0]['tender']['items'][0]['unit']['name'] == 'Parsec'
+        assert publicPoint['releases'][0]['tender']['items'][0]['unit']['id'] == ei['tender']['items'][0]['unit']['id']
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['streetAddress'] == \
+               ei['tender']['items'][0]['deliveryAddress']['streetAddress']
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['postalCode'] == \
+               ei['tender']['items'][0]['deliveryAddress']['postalCode']
+
+        if ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] == 'MD':
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                       'id'] == \
+                   ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id']
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                       'scheme'] == 'iso-alpha2'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                       'description'] == 'Moldova, Republica'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                       'uri'] == 'https://www.iso.org'
+        if ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] == '1700000':
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
+                       'id'] == '1700000'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
+                       'scheme'] == 'CUATM'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
+                       'description'] == 'Cahul'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
+                       'uri'] == 'http://statistica.md'
+
+        if ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] == 'CUATM' and \
+                ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] == '1701000':
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+                       'id'] == '1701000'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+                       'scheme'] == 'CUATM'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+                       'description'] == 'mun.Cahul'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+                       'id'] == 'http://statistica.md'
+        elif ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] != 'CUATM' and \
+                ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] == '1701000':
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+                       'id'] == '1701000'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+                       'scheme'] == ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme']
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+                       'description'] == ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+                       'description']
+
+    @pytestrail.case('23995')
+    def test_23995_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['classification']['id'] = '86655566'
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+
+    @pytestrail.case('23995')
+    def test_23995_2(self):
+        ei = copy.deepcopy(ei_full)
+
+        ei['tender']['items'][0]['classification']['id'] = '86655566'
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.03'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid cpv code. '
+
+    @pytestrail.case('23993')
+    def test_23993_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['additionalClassifications'][0]['id'] = '866zx'
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+
+    @pytestrail.case('23993')
+    def test_23993_2(self):
+        ei = copy.deepcopy(ei_full)
+
+        ei['tender']['items'][0]['additionalClassifications'][0]['id'] = '866zx'
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.05'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid cpvs code. '
+
+    @pytestrail.case('23994')
+    def test_23994_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+
+    @pytestrail.case('23994')
+    def test_23994_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
+        create_ei_response = bpe_create_ei(ei)
+        result_of_compare_cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                                                 'ocds-t1s2t3-MD-*')
+        result_of_compare_token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                                  '*')
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert result_of_compare_cpid == True
+        assert result_of_compare_token == True
+
+    @pytestrail.case('23994')
+    def test_23994_3(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
+        create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
+        url = create_ei_response[1]['data']['url'] + '/' + str(
+            create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+
+        assert publicPoint['releases'][0]['tender']['items'][0]['additionalClassifications'][0]['scheme'] == 'CPVS'
+        assert publicPoint['releases'][0]['tender']['items'][0]['additionalClassifications'][0]['id'] == \
+               ei['tender']['items'][0]['additionalClassifications'][0]['id']
+        if ei['tender']['items'][0]['additionalClassifications'][0]['id'] == 'AA12-4':
+            assert publicPoint['releases'][0]['tender']['items'][0]['additionalClassifications'][0][
+                       'description'] == 'Oţel carbon'
+
+    @pytestrail.case('23996')
+    def test_23996_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['classification']['id'] = '45100000-8'
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+
+    @pytestrail.case('23996')
+    def test_23996_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['classification']['id'] = '45100000-8'
+        create_ei_response = bpe_create_ei(ei)
+        result_of_compare_cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                                                 'ocds-t1s2t3-MD-*')
+        result_of_compare_token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                                  '*')
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert result_of_compare_cpid == True
+        assert result_of_compare_token == True
+
+    @pytestrail.case('23996')
+    def test_23996_3(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['classification']['id'] = '45100000-8'
+        create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
+        url = create_ei_response[1]['data']['url'] + '/' + str(
+            create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+
+        if ei['tender']['items'][0]['classification']['id'] == '45100000-8':
+            assert publicPoint['releases'][0]['tender']['items'][0]['classification']['scheme'] == 'CPV'
+            assert publicPoint['releases'][0]['tender']['items'][0]['classification']['id'] == \
+                   ei['tender']['items'][0]['classification']['id']
+            assert publicPoint['releases'][0]['tender']['items'][0]['classification'][
+                       'description'] == 'Lucrări de pregătire a şantierului'
+
+    @pytestrail.case('23997')
+    def test_23997_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['unit']['id'] = 'zx10'
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+
+    @pytestrail.case('23997')
+    def test_23997_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['unit']['id'] = 'zx10'
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.06'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid unit code. '
+
+    @pytestrail.case('23998')
+    def test_23998_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['unit']['id'] = '120'
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+
+    @pytestrail.case('23998')
+    def test_23998_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['unit']['id'] = '120'
+        create_ei_response = bpe_create_ei(ei)
+        result_of_compare_cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                                                 'ocds-t1s2t3-MD-*')
+        result_of_compare_token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                                  '*')
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert result_of_compare_cpid == True
+        assert result_of_compare_token == True
+
+    @pytestrail.case('23998')
+    def test_23998_3(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['unit']['id'] = '120'
+        create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
+        url = create_ei_response[1]['data']['url'] + '/' + str(
+            create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+
+        if ei['tender']['items'][0]['unit']['id'] == '120':
+            assert publicPoint['releases'][0]['tender']['items'][0]['unit']['name'] == 'Milion decalitri'
+            assert publicPoint['releases'][0]['tender']['items'][0]['unit']['id'] == \
+                   ei['tender']['items'][0]['unit']['id']
+
+    @pytestrail.case('23999')
+    def test_23999_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'DE'
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+
+    @pytestrail.case('23999')
+    def test_23999_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'DE'
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.10'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid country. '
+
+    @pytestrail.case('24000')
+    def test_24000_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+
+    @pytestrail.case('24000')
+    def test_24000_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
+        create_ei_response = bpe_create_ei(ei)
+        result_of_compare_cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                                                 'ocds-t1s2t3-MD-*')
+        result_of_compare_token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                                  '*')
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert result_of_compare_cpid == True
+        assert result_of_compare_token == True
+
+    @pytestrail.case('24000')
+    def test_24000_3(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
+        create_ei_response = bpe_create_ei(ei)
+        time.sleep(1)
+        url = create_ei_response[1]['data']['url'] + '/' + str(
+            create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+
+        if ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] == 'MD':
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                       'id'] == ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id']
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                       'scheme'] == 'iso-alpha2'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                       'description'] == 'Moldova, Republica'
+            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                       'uri'] == 'https://www.iso.org'
