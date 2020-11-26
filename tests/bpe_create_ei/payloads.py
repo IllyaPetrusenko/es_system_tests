@@ -67,7 +67,7 @@ ei_full = {
     },
     "planning": {
         "budget": {
-            "id": "45100000-8",
+
             "period": {
                 "startDate": "2020-01-01T00:00:00Z",
                 "endDate": "2020-12-31T00:00:00Z"
@@ -172,7 +172,7 @@ ei_obligatory = {
     },
     "planning": {
         "budget": {
-            "id": "45100000-8",
+
             "period": {
                 "startDate": "2020-01-01T00:00:00Z",
                 "endDate": "2020-12-31T00:00:00Z"
