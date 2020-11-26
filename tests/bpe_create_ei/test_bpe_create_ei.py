@@ -2456,7 +2456,7 @@ class TestBpeCreateEI(object):
         endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
         ei = copy.deepcopy(ei_full)
 
-        ei['planning']['budget']['id'] = ei['tender']['classification']['id']
+
         ei['planning']['budget']['period']['startDate'] = startDate
         ei['planning']['budget']['period']['endDate'] = endDate
 
@@ -2477,7 +2477,7 @@ class TestBpeCreateEI(object):
         endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
         ei = copy.deepcopy(ei_full)
 
-        ei['planning']['budget']['id'] = ei['tender']['classification']['id']
+
         ei['planning']['budget']['period']['startDate'] = startDate
         ei['planning']['budget']['period']['endDate'] = endDate
         create_ei_response = bpe_create_ei(ei)
@@ -2497,7 +2497,7 @@ class TestBpeCreateEI(object):
         endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
         ei = copy.deepcopy(ei_full)
 
-        ei['planning']['budget']['id'] = ei['tender']['classification']['id']
+
         ei['planning']['budget']['period']['startDate'] = startDate
         ei['planning']['budget']['period']['endDate'] = endDate
         create_ei_response = bpe_create_ei(ei)
@@ -2505,7 +2505,7 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
-        assert publicPoint['releases'][0]['planning']['budget']['id'] == ei['planning']['budget']['id']
+        assert publicPoint['releases'][0]['planning']['budget']['id'] == ei['tender']['classification']['id']
         assert publicPoint['releases'][0]['planning']['budget']['period']['startDate'] == \
                ei['planning']['budget']['period'][
                    'startDate']
@@ -2518,7 +2518,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['tender']['title'] = 'This is some text for field'
         ei['tender']['description'] = 'This is some text for field 22 orange'
-        ei['tender']['classification']['id'] = ei['planning']['budget']['id']
+
         create_ei_response = bpe_create_ei(ei)
 
         assert create_ei_response[0].text == 'ok'
@@ -2530,7 +2530,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['tender']['title'] = 'This is some text for field'
         ei['tender']['description'] = 'This is some text for field 22 orange'
-        ei['tender']['classification']['id'] = ei['planning']['budget']['id']
+
         create_ei_response = bpe_create_ei(ei)
 
         cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'], '*')
@@ -2545,7 +2545,7 @@ class TestBpeCreateEI(object):
         ei = copy.deepcopy(ei_full)
         ei['tender']['title'] = 'This is some text for field'
         ei['tender']['description'] = 'This is some text for field 22 orange'
-        ei['tender']['classification']['id'] = ei['planning']['budget']['id']
+
         create_ei_response = bpe_create_ei(ei)
         time.sleep(1)
         url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
@@ -3338,7 +3338,7 @@ class TestBpeCreateEI(object):
         assert publicPoint['releases'][0]['tender']['classification']['id'] == ei['tender']['classification']['id']
         assert publicPoint['releases'][0]['tender']['classification'][
                    'description'] == 'Lucrări de pregătire a şantierului'
-        assert publicPoint['releases'][0]['planning']['budget']['id'] == ei['planning']['budget']['id']
+        assert publicPoint['releases'][0]['planning']['budget']['id'] == ei['tender']['classification']['id']
         assert publicPoint['releases'][0]['planning']['budget']['period']['startDate'] == \
                ei['planning']['budget']['period']['startDate']
         assert publicPoint['releases'][0]['planning']['budget']['period']['endDate'] == \
@@ -3432,7 +3432,7 @@ class TestBpeCreateEI(object):
             assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
                        'description'] == 'mun.Cahul'
             assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                       'id'] == 'http://statistica.md'
+                       'uri'] == 'http://statistica.md'
         elif ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] != 'CUATM' and \
                 ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] == '1701000':
             assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
@@ -3706,7 +3706,7 @@ class TestBpeCreateEI(object):
         assert publicPoint['releases'][0]['tender']['classification']['id'] == ei['tender']['classification']['id']
         assert publicPoint['releases'][0]['tender']['classification'][
                    'description'] == 'Lucrări de pregătire a şantierului'
-        assert publicPoint['releases'][0]['planning']['budget']['id'] == ei['planning']['budget']['id']
+        assert publicPoint['releases'][0]['planning']['budget']['id'] == ei['tender']['classification']['id']
         assert publicPoint['releases'][0]['planning']['budget']['period']['startDate'] == \
                ei['planning']['budget']['period']['startDate']
         assert publicPoint['releases'][0]['planning']['budget']['period']['endDate'] == \
