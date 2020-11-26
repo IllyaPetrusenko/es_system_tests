@@ -37,8 +37,8 @@ li = []
 for case in cases:
     case_ids = case['id']
     li.append(case_ids)
-    print(case_ids)
-print(li)
+
+
 post_body = {
     "suite_id": suite_id,
     "name": "This is a new test run for automation",
@@ -47,7 +47,6 @@ post_body = {
 
 }
 createRun = client.send_post(f'add_run/{project_id}', post_body)
-print(post_body)
-print(createRun)
+
 createdRunId = createRun['id']
 print(createdRunId)
