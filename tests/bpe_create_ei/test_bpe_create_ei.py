@@ -1,15 +1,12 @@
 import copy
 import datetime
-
 import fnmatch
-
 import random
-from uuid import  UUID
+from uuid import UUID
 import time
-
 import requests
 from pytest_testrail.plugin import pytestrail
-
+from Useful_functions import is_valid_uuid
 from tests.bpe_create_ei.create_ei import bpe_create_ei
 from tests.bpe_create_ei.payloads import ei_full, ei_obligatory
 from tests.bpe_create_ei.payloads import cpv_goods
@@ -2151,8 +2148,18 @@ class TestBpeCreateEI(object):
         create_ei_response = bpe_create_ei(ei)
 
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.04.01.02'
-        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid period.'
+        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
+        assert create_ei_response[1]['errors'][0]['description'] == f"com.fasterxml.jackson.databind.JsonMapping" \
+                                                                    f"Exception: Text '{startDate}' " \
+                                                                    f"could not be parsed: Invalid date 'FEBRUARY 31' " \
+                                                                    f"(through reference chain: com.procurement." \
+                                                                    f"budget.model.dto.ei.request.EiCreate" \
+                                                                    f"[\"planning\"]->com.procurement.budget.model." \
+                                                                    f"dto.ei.request.EiCreate$PlanningEiCreate" \
+                                                                    f"[\"budget\"]->com.procurement.budget.model." \
+                                                                    f"dto.ei.request.EiCreate$PlanningEiCreate$" \
+                                                                    f"BudgetEiCreate[\"period\"]->com.procurement." \
+                                                                    f"budget.model.dto.ocds.Period[\"startDate\"])"
 
     @pytestrail.case('22169')
     def test_22169_1(self):
@@ -3977,6 +3984,221 @@ class TestBpeCreateEI(object):
                    'description']
         assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
                    'uri'] == ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri']
+
+    @pytestrail.case('24011')
+    def test_24011_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['id'] = '1'
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+
+    @pytestrail.case('24011')
+    def test_24011_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['id'] = '1'
+        create_ei_response = bpe_create_ei(ei)
+        result_of_compare_cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                                                 'ocds-t1s2t3-MD-*')
+        result_of_compare_token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                                  '*')
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert result_of_compare_cpid == True
+        assert result_of_compare_token == True
+
+    @pytestrail.case('24011')
+    def test_24011_3(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['id'] = '1'
+        create_ei_response = bpe_create_ei(ei)
+        time.sleep(2)
+        url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+        is_uuid_item_id = is_valid_uuid(publicPoint['releases'][0]['tender']['items'][0]['id'])
+        assert is_uuid_item_id == True
+
+
+    @pytestrail.case('24013')
+    def test_24013_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['classification']['id'] = '90900000-6'
+        ei['tender']['items'][0]['classification']['id'] = '50100000-6'
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+
+    @pytestrail.case('24013')
+    def test_24013_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['classification']['id'] = '90900000-6'
+        ei['tender']['items'][0]['classification']['id'] = '50100000-6'
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00.05'
+        assert create_ei_response[1]['errors'][0]['description'] == f"Invalid CPV.Invalid CPV " \
+                                                                    f"code in classification(s) '" \
+                                                                    f"{ei['tender']['items'][0]['classification']['id']}'"
+
+    #-------------------
+    @pytestrail.case('24012')
+    def test_24012_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['classification']['id'] = '45100000-8'
+        ei['tender']['items'][0]['id'] = '1'
+        ei['tender']['items'][0]['description'] = 'item_1'
+        ei['tender']['items'][0]['classification']['id'] = '45112350-3'
+        ei['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
+        ei['tender']['items'][0]['quantity'] = 10
+        ei['tender']['items'][0]['unit']['id'] = '10'
+        ei['tender']['items'][0]['unit']['name'] = 'name'
+        ei['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Khreshchatyk'
+        ei['tender']['items'][0]['deliveryAddress']['postalCode'] = '01124'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+            'description'] = 'description_1'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.deutch'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '0101000'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
+            'description'] = 'description_2'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'scheme_2'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_16'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'CUATM'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = '0101000'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'ww.io.io '
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+            'description'] = 'description_test'
+
+
+        create_ei_response = bpe_create_ei(ei)
+        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].status_code == 202
+
+    @pytestrail.case('24012')
+    def test_24012_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['classification']['id'] = '45100000-8'
+        ei['tender']['items'][0]['id'] = '1'
+        ei['tender']['items'][0]['description'] = 'item_1'
+        ei['tender']['items'][0]['classification']['id'] = '45112350-3'
+        ei['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
+        ei['tender']['items'][0]['quantity'] = 10
+        ei['tender']['items'][0]['unit']['id'] = '10'
+        ei['tender']['items'][0]['unit']['name'] = 'name'
+        ei['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Khreshchatyk'
+        ei['tender']['items'][0]['deliveryAddress']['postalCode'] = '01124'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+            'description'] = 'description_1'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.deutch'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '0101000'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
+            'description'] = 'description_2'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'scheme_2'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_16'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'CUATM'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = '0101000'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'ww.io.io '
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+            'description'] = 'description_test'
+
+        create_ei_response = bpe_create_ei(ei)
+        result_of_compare_cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
+                                                 'ocds-t1s2t3-MD-*')
+        result_of_compare_token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
+                                                  '*')
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert result_of_compare_cpid == True
+        assert result_of_compare_token == True
+
+    @pytestrail.case('24012')
+    def test_24012_3(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['classification']['id'] = '45100000-8'
+        ei['tender']['items'][0]['id'] = '1'
+        ei['tender']['items'][0]['description'] = 'item_1'
+        ei['tender']['items'][0]['classification']['id'] = '45112350-3'
+        ei['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
+        ei['tender']['items'][0]['quantity'] = 10
+        ei['tender']['items'][0]['unit']['id'] = '10'
+        ei['tender']['items'][0]['unit']['name'] = 'name'
+        ei['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Khreshchatyk'
+        ei['tender']['items'][0]['deliveryAddress']['postalCode'] = '01124'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+            'description'] = 'description_1'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.deutch'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '0101000'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
+            'description'] = 'description_2'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'scheme_2'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_16'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'CUATM'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = '0101000'
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'ww.io.io '
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+            'description'] = 'description_test'
+
+        create_ei_response = bpe_create_ei(ei)
+        time.sleep(2)
+        url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
+        publicPoint = requests.get(url=url).json()
+        is_uuid_item_id = is_valid_uuid(publicPoint['releases'][0]['tender']['items'][0]['id'])
+        assert is_uuid_item_id == True
+        assert publicPoint['releases'][0]['tender']['items'][0]['description'] == \
+               ei['tender']['items'][0]['description']
+        assert publicPoint['releases'][0]['tender']['items'][0]['classification']['scheme'] == 'CPV'
+        assert publicPoint['releases'][0]['tender']['items'][0]['classification']['id'] == \
+               ei['tender']['items'][0]['classification']['id']
+        assert publicPoint['releases'][0]['tender']['items'][0]['classification']['description'] == \
+               'Lucrări de valorificare a terenurilor virane'
+        assert publicPoint['releases'][0]['tender']['items'][0]['additionalClassifications'][0][
+                   'scheme'] == 'CPVS'
+        assert publicPoint['releases'][0]['tender']['items'][0]['additionalClassifications'][0]['id'] == \
+               ei['tender']['items'][0]['additionalClassifications'][0]['id']
+        assert publicPoint['releases'][0]['tender']['items'][0]['additionalClassifications'][0][
+                   'description'] == 'Oţel carbon'
+        assert publicPoint['releases'][0]['tender']['items'][0]['quantity'] == 10
+        assert publicPoint['releases'][0]['tender']['items'][0]['unit']['name'] == 'Parsec'
+        assert publicPoint['releases'][0]['tender']['items'][0]['unit']['id'] == \
+               ei['tender']['items'][0]['unit']['id']
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['streetAddress'] == \
+               ei['tender']['items'][0]['deliveryAddress']['streetAddress']
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['postalCode'] == \
+               ei['tender']['items'][0]['deliveryAddress']['postalCode']
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                   'scheme'] == 'iso-alpha2'
+        assert \
+            publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                'id'] == 'MD'
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+                   'description'] == 'Moldova, Republica'
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
+                   'country']['uri'] == 'https://www.iso.org'
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
+                   'region']['scheme'] == 'CUATM'
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
+                   'region']['id'] == ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
+                   'id']
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
+                   'region']['description'] == 'mun.Chişinău'
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
+                   'region']['uri'] == 'http://statistica.md'
+
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
+                   'locality']['scheme'] == \
+               ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme']
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
+                   'locality']['id'] == \
+               ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id']
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
+                   'locality']['description'] == 'mun.Chişinău'
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
+                   'locality']['uri'] == 'http://statistica.md'
+
 # 22180 не готово, пусть будет закомментировано:
 # @pytestrail.case('22180')
 # def test_22180_1(self):
