@@ -3,6 +3,9 @@ import fnmatch
 import json
 
 from pytest_testrail.plugin import pytestrail
+
+from Useful_functions import get_access_token_for_platform_two, is_valid_uuid
+from tests.Cassandra_session import execute_cql_from_orchestrator_operation_step
 from tests.bpe_update_ei.update_ei import bpe_update_ei
 from tests.bpe_update_ei.payloads import ei_update_full, \
     ei_update_obligatory_fields_with_obligatory_fields_in_tender_items
@@ -136,19 +139,13 @@ class TestBpeCreateEI(object):
         create_ei_response = bpe_create_ei(ei_create)
         ei_update = copy.deepcopy(ei_update_full)
 
-        def get_access_token_for_platform_two():
-            access_token = requests.get(
-                url=host + '/auth/signin',
-                headers={
-                    'Authorization': 'Basic YXV0b21hdGlvbl91c2VyOnBhc3N3b3Jk'
-                }).json()['data']['tokens']['access']
-            return access_token
+
 
         access_token = get_access_token_for_platform_two()
         x_operation_id = get_x_operation_id(access_token)
 
         time.sleep(2)
-        ei_update_response=request_to_update_ei = requests.post(
+        request_to_update_ei = requests.post(
             url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
             headers={
                 'Authorization': 'Bearer ' + access_token,
@@ -166,15 +163,6 @@ class TestBpeCreateEI(object):
         create_ei_response = bpe_create_ei(ei_create)
         ei_update = copy.deepcopy(ei_update_full)
 
-
-        def get_access_token_for_platform_two():
-            access_token = requests.get(
-                url=host + '/auth/signin',
-                headers={
-                    'Authorization': 'Basic YXV0b21hdGlvbl91c2VyOnBhc3N3b3Jk'
-                }).json()['data']['tokens']['access']
-            return access_token
-
         access_token = get_access_token_for_platform_two()
         x_operation_id = get_x_operation_id(access_token)
 
@@ -188,18 +176,6 @@ class TestBpeCreateEI(object):
                 'Content-Type': 'application/json'},
             json=ei_update)
         time.sleep(1)
-        print(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
-
-        def execute_cql_from_orchestrator_operation_step(cp_id, task_id):
-            auth_provider = PlainTextAuthProvider(username='caclient', password='6AH7vbrkMWnfK')
-            cluster = Cluster(['10.0.20.104'], auth_provider=auth_provider)
-            session = cluster.connect('ocds')
-
-            rows = session.execute(
-                f"SELECT * FROM orchestrator_operation_step WHERE cp_id = '{cp_id}' AND task_id='{task_id}'ALLOW FILTERING;").one()
-            response_data = json.loads(rows.response_data)
-
-            return response_data
 
         error_from_DB = execute_cql_from_orchestrator_operation_step(
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'], 'BudgetUpdateEiTask')
@@ -394,8 +370,8 @@ class TestBpeCreateEI(object):
         assert update_ei_response[1]['errors'][0]['code'] == '400.10.00.05'
         assert update_ei_response[1]['errors'][0][
                    'description'] == f"Invalid CPV.Invalid CPV code in classification(s) " \
-                                     f"'{ei_update['tender']['items'][0]['classification']['id']}, " \
-                                     f"{ei_update['tender']['items'][1]['classification']['id']}'"
+                                     f"'{ei_update['tender']['items'][0]['classification']['id']}'"
+
 
     @pytestrail.case('24446')
     def test_24446_1(self):
@@ -417,9 +393,7 @@ class TestBpeCreateEI(object):
         ei_update['tender']['items'][0]['quantity'] = 0
 
         update_ei_response = bpe_update_ei(ei_update, ei_create)
-        print(json.dumps(ei_create))
-        print('---')
-        print(json.dumps(ei_update))
+
         assert update_ei_response[1]['errors'][0]['code'] == '400.10.20.09'
         assert update_ei_response[1]['errors'][0][
                    'description'] == "Invalid item quantity.Quantity of item '1' must be greater than zero"
@@ -1803,12 +1777,7 @@ class TestBpeCreateEI(object):
         publicPoint_update = requests.get(url=url_update).json()
 
 
-        def is_valid_uuid(uuid_to_test, version=4):
-            try:
-                uuid_obj = UUID(uuid_to_test, version=version)
-            except:
-                return False
-            return str(uuid_obj) == uuid_to_test
+
 
         assert publicPoint_update['releases'][0]['tender']['items'][0]['id'] == saved_item_id
         assert publicPoint_update['releases'][0]['tender']['items'][0]['description'] == \
