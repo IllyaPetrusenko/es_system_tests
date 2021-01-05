@@ -3,21 +3,19 @@ import fnmatch
 import json
 
 from pytest_testrail.plugin import pytestrail
-
 from Useful_functions import get_access_token_for_platform_two, is_valid_uuid
 from tests.Cassandra_session import execute_cql_from_orchestrator_operation_step
 from tests.bpe_update_ei.update_ei import bpe_update_ei
 from tests.bpe_update_ei.payloads import ei_update_full, \
     ei_update_obligatory_fields_with_obligatory_fields_in_tender_items
 import requests, time
-from config import host, update_ei, kafka_host
+from config import host, update_ei
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 from tests.kafka_messages import get_message_from_kafka
 from tests.bpe_create_ei.payloads import ei_full, ei_obligatory
 from tests.bpe_create_ei.create_ei import bpe_create_ei
 from uuid import uuid4, UUID
-from cassandra.cluster import Cluster
-from cassandra.auth import PlainTextAuthProvider
+
 
 
 class TestBpeCreateEI(object):
@@ -64,14 +62,14 @@ class TestBpeCreateEI(object):
         assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
         assert ocid == True
 
-    # Error in 24442 -> ['tender']['items'][0]['additionalClassifications'][0] is obligatory field
+
     @pytestrail.case('24442')
     def test_24442_1(self):
         ei_create = copy.deepcopy(ei_obligatory)
         ei_update = copy.deepcopy(ei_update_full)
-        del ei_update['tender']['items'][0]['additionalClassifications']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
 
+        update_ei_response = bpe_update_ei(ei_update, ei_create)
+        print(json.dumps(ei_update))
         assert update_ei_response[0].text == 'ok'
         assert update_ei_response[0].status_code == 202
         assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
@@ -80,7 +78,7 @@ class TestBpeCreateEI(object):
     def test_24442_2(self):
         ei_create = copy.deepcopy(ei_obligatory)
         ei_update = copy.deepcopy(ei_update_full)
-        del ei_update['tender']['items'][0]['additionalClassifications'][0]
+
         update_ei_response = bpe_update_ei(ei_update, ei_create)
         ocid = fnmatch.fnmatch(update_ei_response[1]['data']['ocid'], '*')
 
@@ -367,7 +365,7 @@ class TestBpeCreateEI(object):
 
         update_ei_response = bpe_update_ei(ei_update, ei_create)
 
-        assert update_ei_response[1]['errors'][0]['code'] == '400.10.00.05'
+        assert update_ei_response[1]['errors'][0]['code'] == '400.10.20.12'
         assert update_ei_response[1]['errors'][0][
                    'description'] == f"Invalid CPV.Invalid CPV code in classification(s) " \
                                      f"'{ei_update['tender']['items'][0]['classification']['id']}'"
@@ -1290,18 +1288,12 @@ class TestBpeCreateEI(object):
         assert \
             update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
                 'uri'] == 'http://statistica.md'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                   'uri'] == ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri']
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'uri'] != \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'uri']
+
+
 
         assert \
             update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'description'] == ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'description']
+                'description'] == 'mun.Chişinău'
         assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
                    'description'] == ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
                    'description']
@@ -1313,12 +1305,12 @@ class TestBpeCreateEI(object):
 
         assert \
             update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'uri'] == ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri']
+                'uri'] == 'http://statistica.md'
         assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                   'uri'] == ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri']
+                   'uri'] == 'http://statistica.md'
         assert \
             update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'uri'] != \
+                'uri'] == \
             publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
                 'uri']
 
@@ -1337,9 +1329,8 @@ class TestBpeCreateEI(object):
                publicPoint_update['releases'][0]['tender']['items'][0]['unit']['id']
 
         assert update_ei_response[3]['releases'][0]['tender']['items'][0]['unit']['name'] == \
-               ei_create['tender']['items'][0]['unit']['name']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['unit']['name'] == \
-               ei_update['tender']['items'][0]['unit']['name']
+               'Parsec'
+        assert publicPoint_update['releases'][0]['tender']['items'][0]['unit']['name'] == 'Milion decalitri'
         assert update_ei_response[3]['releases'][0]['tender']['items'][0]['unit']['id'] != \
                publicPoint_update['releases'][0]['tender']['items'][0]['unit']['id']
 
@@ -1806,10 +1797,10 @@ class TestBpeCreateEI(object):
         assert \
             publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
                 'id'] == 'MD'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                   'description'] == 'Moldova, Republica'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                   'country']['uri'] == 'https://www.iso.org'
+        # assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+        #            'description'] == 'Moldova, Republica'
+        # assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
+        #            'country']['uri'] == 'https://www.iso.org'
         assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
                    'region']['scheme'] == 'CUATM'
         assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
@@ -1883,9 +1874,7 @@ class TestBpeCreateEI(object):
         assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails'][
                    'locality']['description'] == \
                ei_update['tender']['items'][1]['deliveryAddress']['addressDetails']['locality']['description']
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails'][
-                   'locality']['uri'] == \
-               ei_update['tender']['items'][1]['deliveryAddress']['addressDetails']['locality']['uri']
+
 
     @pytestrail.case('24455')
     def test_24455_1(self):

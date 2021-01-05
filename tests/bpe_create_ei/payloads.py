@@ -51,7 +51,7 @@ ei_full = {
                         },
                         "locality": {
                             "id": "1701000",
-                            "description": "ОПИСАНИЕ2",
+                            "description": "ОПИСАНИЕ33pizza",
                             "scheme": f'{random.choice(locality_scheme)}'
                         }
 
