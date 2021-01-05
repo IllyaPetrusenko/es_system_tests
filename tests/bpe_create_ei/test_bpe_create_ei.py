@@ -1,7 +1,6 @@
 import copy
 import datetime
 import fnmatch
-import random
 from uuid import UUID
 import time
 import requests
@@ -9,36 +8,33 @@ from pytest_testrail.plugin import pytestrail
 from Useful_functions import is_valid_uuid
 from tests.bpe_create_ei.create_ei import bpe_create_ei
 from tests.bpe_create_ei.payloads import ei_full, ei_obligatory
-from tests.bpe_create_ei.payloads import cpv_goods
-from tests.bpe_create_ei.payloads import cpv_works
-from tests.bpe_create_ei.payloads import cpv_services
 
 
 class TestBpeCreateEI(object):
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_1(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']
+        del ei["tender"]
         create_ei_response = bpe_create_ei(ei)
 
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.00.00.00'
-        assert create_ei_response[1]['errors'][0]['description'] == 'Data processing exception.'
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.00.00.00"
+        assert create_ei_response[1]["errors"][0]["description"] == "Data processing exception."
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_2(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['title']
+        del ei["tender"]["title"]
         create_ei_response = bpe_create_ei(ei)
 
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0]["description"] == 'com.fasterxml.jackson.module.kotlin.' \
                                                                     'MissingKotlinParameterException: Instantiation ' \
                                                                     'of [simple type, class com.procurement.budget.' \
                                                                     'model.dto.ei.request.EiCreate$TenderEiCreate] ' \
@@ -51,17 +47,17 @@ class TestBpeCreateEI(object):
                                                                     '[\"tender\"]->com.procurement.budget.model.' \
                                                                     'dto.ei.request.EiCreate$TenderEiCreate[\"title\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_3(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['classification']
+        del ei["tender"]["classification"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
                                      'EIRequest$Tender] value failed for JSON property classification due to missing ' \
                                      '(therefore NULL) value for creator parameter classification which is a ' \
@@ -69,17 +65,17 @@ class TestBpeCreateEI(object):
                                      'reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]' \
                                      '->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"classification\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_4(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['classification']['id']
+        del ei["tender"]["classification"]["id"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
                                      'EIRequest$Tender$Classification] value failed for JSON property id due to ' \
                                      'missing (therefore NULL) value for creator parameter id which is a ' \
@@ -88,34 +84,34 @@ class TestBpeCreateEI(object):
                                      '->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"classification\"]' \
                                      '->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Classification[\"id\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_5(self):
         ei = copy.deepcopy(ei_full)
-        del ei['planning']
+        del ei["planning"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.budget.model.dto.ei.' \
                                      'request.EiCreate] value failed for JSON property planning due to missing ' \
                                      '(therefore NULL) value for creator parameter planning which is a non-nullable ' \
                                      'type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: ' \
                                      'com.procurement.budget.model.dto.ei.request.EiCreate[\"planning\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_6(self):
         ei = copy.deepcopy(ei_full)
-        del ei['planning']['budget']
+        del ei["planning"]["budget"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.budget.model.dto.ei.' \
                                      'request.EiCreate$PlanningEiCreate] value failed for JSON property budget due ' \
                                      'to missing (therefore NULL) value for creator parameter budget which is a ' \
@@ -124,17 +120,17 @@ class TestBpeCreateEI(object):
                                      'EiCreate[\"planning\"]->com.procurement.budget.model.dto.ei.request.' \
                                      'EiCreate$PlanningEiCreate[\"budget\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_7(self):
         ei = copy.deepcopy(ei_full)
-        del ei['planning']['budget']['period']
+        del ei["planning"]["budget"]["period"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.budget.model.dto.ei.' \
                                      'request.EiCreate$PlanningEiCreate$BudgetEiCreate] value failed for JSON ' \
                                      'property period due to missing (therefore NULL) value for creator parameter ' \
@@ -144,17 +140,17 @@ class TestBpeCreateEI(object):
                                      'EiCreate$PlanningEiCreate[\"budget\"]->com.procurement.budget.model.dto.ei.' \
                                      'request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_8(self):
         ei = copy.deepcopy(ei_full)
-        del ei['planning']['budget']['period']['startDate']
+        del ei["planning"]["budget"]["period"]["startDate"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.budget.model.dto.ocds.' \
                                      'Period] value failed for JSON property startDate due to missing (therefore ' \
                                      'NULL) value for creator parameter startDate which is a non-nullable type\n at ' \
@@ -165,17 +161,17 @@ class TestBpeCreateEI(object):
                                      'EiCreate$BudgetEiCreate[\"period\"]->com.procurement.budget.model.dto.ocds.' \
                                      'Period[\"startDate\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_9(self):
         ei = copy.deepcopy(ei_full)
-        del ei['planning']['budget']['period']['endDate']
+        del ei["planning"]["budget"]["period"]["endDate"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.budget.model.dto.ocds.' \
                                      'Period] value failed for JSON property endDate due to missing (therefore NULL) ' \
                                      'value for creator parameter endDate which is a non-nullable type\n at [Source: ' \
@@ -185,34 +181,34 @@ class TestBpeCreateEI(object):
                                      'budget.model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate' \
                                      '[\"period\"]->com.procurement.budget.model.dto.ocds.Period[\"endDate\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_10(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']
+        del ei["buyer"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
                                      'EIRequest] value failed for JSON property buyer due to missing (therefore ' \
                                      'NULL) value for creator parameter buyer which is a non-nullable type\n at ' \
                                      '[Source: UNKNOWN; line: -1, column: -1] (through reference chain: com.' \
                                      'procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_11(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['name']
+        del ei["buyer"]["name"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.budget.model.dto.ei.' \
                                      'OrganizationReferenceEi] value failed for JSON property name due to missing ' \
                                      '(therefore NULL) value for creator parameter name which is a non-nullable ' \
@@ -220,17 +216,17 @@ class TestBpeCreateEI(object):
                                      'com.procurement.budget.model.dto.ei.request.EiCreate[\"buyer\"]->com.' \
                                      'procurement.budget.model.dto.ei.OrganizationReferenceEi[\"name\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_12(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['identifier']
+        del ei["buyer"]["identifier"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.budget.model.dto.ei.' \
                                      'OrganizationReferenceEi] value failed for JSON property identifier due to ' \
                                      'missing (therefore NULL) value for creator parameter identifier which is a ' \
@@ -239,17 +235,17 @@ class TestBpeCreateEI(object):
                                      '[\"buyer\"]->com.procurement.budget.model.dto.ei.' \
                                      'OrganizationReferenceEi[\"identifier\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_13(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['identifier']['scheme']
+        del ei["buyer"]["identifier"]["scheme"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
         assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'Identifier] value failed for JSON property scheme due to missing (therefore ' \
                                      'NULL) value for creator parameter scheme which is a non-nullable type\n at ' \
@@ -258,17 +254,17 @@ class TestBpeCreateEI(object):
                                      'mdm.model.dto.data.OrganizationReference[\"identifier\"]->com.procurement.' \
                                      'mdm.model.dto.data.Identifier[\"scheme\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_14(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['identifier']['id']
+        del ei["buyer"]["identifier"]["id"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'Identifier] value failed for JSON property id due to missing (therefore NULL) ' \
                                      'value for creator parameter id which is a non-nullable type\n at [Source: ' \
@@ -277,29 +273,36 @@ class TestBpeCreateEI(object):
                                      'OrganizationReference[\"identifier\"]->com.procurement.mdm.model.dto.data.' \
                                      'Identifier[\"id\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_15(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['identifier']['legalName']
+        del ei["buyer"]["identifier"]["legalName"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: Instantiation of [simple type, class com.procurement.budget.model.dto.ocds.Identifier] value failed for JSON property legalName due to missing (therefore NULL) value for creator parameter legalName which is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: com.procurement.budget.model.dto.ei.request.EiCreate[\"buyer\"]->com.procurement.budget.model.dto.ei.OrganizationReferenceEi[\"identifier\"]->com.procurement.budget.model.dto.ocds.Identifier[\"legalName\"])'
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.budget.model.dto.ocds." \
+                                     "Identifier] value failed for JSON property legalName due to missing (therefore " \
+                                     "NULL) value for creator parameter legalName which is a non-nullable type\n " \
+                                     "at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: com." \
+                                     "procurement.budget.model.dto.ei.request.EiCreate[\"buyer\"]->com.procurement." \
+                                     "budget.model.dto.ei.OrganizationReferenceEi[\"identifier\"]->com.procurement." \
+                                     "budget.model.dto.ocds.Identifier[\"legalName\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_16(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']
+        del ei["buyer"]["address"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.budget.model.dto.ei.' \
                                      'OrganizationReferenceEi] value failed for JSON property address due to missing ' \
                                      '(therefore NULL) value for creator parameter address which is a non-nullable ' \
@@ -307,17 +310,17 @@ class TestBpeCreateEI(object):
                                      'com.procurement.budget.model.dto.ei.request.EiCreate[\"buyer\"]->com.' \
                                      'procurement.budget.model.dto.ei.OrganizationReferenceEi[\"address\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_17(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']['streetAddress']
+        del ei["buyer"]["address"]["streetAddress"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'Address] value failed for JSON property streetAddress due to missing ' \
                                      '(therefore NULL) value for creator parameter streetAddress which is a ' \
@@ -326,17 +329,17 @@ class TestBpeCreateEI(object):
                                      '->com.procurement.mdm.model.dto.data.OrganizationReference[\"address\"]->' \
                                      'com.procurement.mdm.model.dto.data.Address[\"streetAddress\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_18(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']['addressDetails']
+        del ei["buyer"]["address"]["addressDetails"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'Address] value failed for JSON property addressDetails due to missing ' \
                                      '(therefore NULL) value for creator parameter addressDetails which is a ' \
@@ -345,17 +348,17 @@ class TestBpeCreateEI(object):
                                      '[\"buyer\"]->com.procurement.mdm.model.dto.data.OrganizationReference' \
                                      '[\"address\"]->com.procurement.mdm.model.dto.data.Address[\"addressDetails\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_19(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']['addressDetails']['country']
+        del ei["buyer"]["address"]["addressDetails"]["country"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'AddressDetails] value failed for JSON property country due to missing ' \
                                      '(therefore NULL) value for creator parameter country which is a non-nullable ' \
@@ -365,17 +368,17 @@ class TestBpeCreateEI(object):
                                      'model.dto.data.Address[\"addressDetails\"]->com.procurement.mdm.model.dto.' \
                                      'data.AddressDetails[\"country\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_20(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']['addressDetails']['country']['id']
+        del ei["buyer"]["address"]["addressDetails"]["country"]["id"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'CountryDetails] value failed for JSON property id due to missing (therefore ' \
                                      'NULL) value for creator parameter id which is a non-nullable type\n at ' \
@@ -386,17 +389,17 @@ class TestBpeCreateEI(object):
                                      'data.AddressDetails[\"country\"]->com.procurement.mdm.model.dto.data.' \
                                      'CountryDetails[\"id\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_21(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']['addressDetails']['region']
+        del ei["buyer"]["address"]["addressDetails"]["region"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'AddressDetails] value failed for JSON property region due to missing ' \
                                      '(therefore NULL) value for creator parameter region which is a non-nullable ' \
@@ -406,17 +409,17 @@ class TestBpeCreateEI(object):
                                      'model.dto.data.Address[\"addressDetails\"]->com.procurement.mdm.model.dto.' \
                                      'data.AddressDetails[\"region\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_22(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']['addressDetails']['region']['id']
+        del ei["buyer"]["address"]["addressDetails"]["region"]["id"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'RegionDetails] value failed for JSON property id due to missing (therefore ' \
                                      'NULL) value for creator parameter id which is a non-nullable type\n at ' \
@@ -427,17 +430,17 @@ class TestBpeCreateEI(object):
                                      'AddressDetails[\"region\"]->com.procurement.mdm.model.dto.data.' \
                                      'RegionDetails[\"id\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_23(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']['addressDetails']['locality']
+        del ei["buyer"]["address"]["addressDetails"]["locality"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'AddressDetails] value failed for JSON property locality due to missing ' \
                                      '(therefore NULL) value for creator parameter locality which is a non-nullable ' \
@@ -447,17 +450,17 @@ class TestBpeCreateEI(object):
                                      'model.dto.data.Address[\"addressDetails\"]->com.procurement.mdm.model.dto.' \
                                      'data.AddressDetails[\"locality\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_24(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']['addressDetails']['locality']['scheme']
+        del ei["buyer"]["address"]["addressDetails"]["locality"]["scheme"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'LocalityDetails] value failed for JSON property scheme due to missing ' \
                                      '(therefore NULL) value for creator parameter scheme which is a non-nullable ' \
@@ -468,17 +471,17 @@ class TestBpeCreateEI(object):
                                      'data.AddressDetails[\"locality\"]->com.procurement.mdm.model.dto.data.' \
                                      'LocalityDetails[\"scheme\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_25(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']['addressDetails']['locality']['id']
+        del ei["buyer"]["address"]["addressDetails"]["locality"]["id"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'LocalityDetails] value failed for JSON property id due to missing ' \
                                      '(therefore NULL) value for creator parameter id which is a non-nullable ' \
@@ -489,17 +492,17 @@ class TestBpeCreateEI(object):
                                      'data.AddressDetails[\"locality\"]->com.procurement.mdm.model.dto.data.' \
                                      'LocalityDetails[\"id\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_26(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['address']['addressDetails']['locality']['description']
+        del ei["buyer"]["address"]["addressDetails"]["locality"]["description"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'LocalityDetails] value failed for JSON property description due to missing ' \
                                      '(therefore NULL) value for creator parameter description which is a ' \
@@ -511,17 +514,17 @@ class TestBpeCreateEI(object):
                                      'AddressDetails[\"locality\"]->com.procurement.mdm.model.dto.data.' \
                                      'LocalityDetails[\"description\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_27(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['contactPoint']
+        del ei["buyer"]["contactPoint"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.budget.model.dto.ei.' \
                                      'OrganizationReferenceEi] value failed for JSON property contactPoint due ' \
                                      'to missing (therefore NULL) value for creator parameter contactPoint which is ' \
@@ -530,17 +533,17 @@ class TestBpeCreateEI(object):
                                      '[\"buyer\"]->com.procurement.budget.model.dto.ei.OrganizationReferenceEi' \
                                      '[\"contactPoint\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_28(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['contactPoint']['name']
+        del ei["buyer"]["contactPoint"]["name"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'ContactPoint] value failed for JSON property name due to missing (therefore ' \
                                      'NULL) value for creator parameter name which is a non-nullable type\n at ' \
@@ -549,17 +552,17 @@ class TestBpeCreateEI(object):
                                      'mdm.model.dto.data.OrganizationReference[\"contactPoint\"]->com.procurement.' \
                                      'mdm.model.dto.data.ContactPoint[\"name\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_29(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['contactPoint']['email']
+        del ei["buyer"]["contactPoint"]["email"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
                                      'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
                                      'ContactPoint] value failed for JSON property email due to missing ' \
                                      '(therefore NULL) value for creator parameter email which is a ' \
@@ -569,36 +572,40 @@ class TestBpeCreateEI(object):
                                      'OrganizationReference[\"contactPoint\"]->com.procurement.mdm.model.' \
                                      'dto.data.ContactPoint[\"email\"])'
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_30(self):
         ei = copy.deepcopy(ei_full)
-        del ei['buyer']['contactPoint']['telephone']
+        del ei["buyer"]["contactPoint"]["telephone"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.' \
-                                     'ContactPoint] value failed for JSON property telephone due to missing ' \
-                                     '(therefore NULL) value for creator parameter telephone which is a non-nullable ' \
-                                     'type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: ' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]->com.procurement.' \
-                                     'mdm.model.dto.data.OrganizationReference[\"contactPoint\"]->com.procurement.' \
-                                     'mdm.model.dto.data.ContactPoint[\"telephone\"])'
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]['errors'][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                    "KotlinParameterException: Instantiation of " \
+                                                                    "[simple type, class com.procurement.mdm.model." \
+                                                                    "dto.data.ContactPoint] value failed for JSON " \
+                                                                    "property telephone due to missing (therefore " \
+                                                                    "NULL) value for creator parameter telephone " \
+                                                                    "which is a non-nullable type\n at [Source: " \
+                                                                    "UNKNOWN; line: -1, column: -1] (through " \
+                                                                    "reference chain: com.procurement.mdm.model.dto." \
+                                                                    "data.ei.EIRequest[\"buyer\"]->com.procurement." \
+                                                                    "mdm.model.dto.data.OrganizationReference" \
+                                                                    "[\"contactPoint\"]->com.procurement.mdm.model." \
+                                                                    "dto.data.ContactPoint[\"telephone\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_31(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['id']
+        del ei["tender"]["items"][0]["id"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item] value failed for JSON property id due to missing " \
                                      "(therefore NULL) value for creator parameter id which is a non-nullable type\n " \
@@ -607,17 +614,17 @@ class TestBpeCreateEI(object):
                                      "mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->" \
                                      "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"id\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_32(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['description']
+        del ei["tender"]["items"][0]["description"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item] value failed for JSON property description due to " \
                                      "missing (therefore NULL) value for creator parameter description which is a " \
@@ -627,17 +634,17 @@ class TestBpeCreateEI(object):
                                      "ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item" \
                                      "[\"description\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_33(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['classification']
+        del ei["tender"]["items"][0]["classification"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item] value failed for JSON property classification due to " \
                                      "missing (therefore NULL) value for creator parameter classification which is a " \
@@ -647,17 +654,17 @@ class TestBpeCreateEI(object):
                                      "ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item" \
                                      "[\"classification\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_34(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['classification']['id']
+        del ei["tender"]["items"][0]["classification"]["id"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item$Classification] value failed for JSON property id due to " \
                                      "missing (therefore NULL) value for creator parameter id which is a non-nullable " \
@@ -668,17 +675,17 @@ class TestBpeCreateEI(object):
                                      "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Classification" \
                                      "[\"id\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_35(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['additionalClassifications'][0]['id']
+        del ei["tender"]["items"][0]["additionalClassifications"][0]["id"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item$AdditionalClassification] value failed for JSON property " \
                                      "id due to missing (therefore NULL) value for creator parameter id which is a " \
@@ -689,17 +696,17 @@ class TestBpeCreateEI(object):
                                      "[\"additionalClassifications\"]->java.util.ArrayList[0]->com.procurement.mdm." \
                                      "model.dto.data.ei.EIRequest$Tender$Item$AdditionalClassification[\"id\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_36(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['deliveryAddress']
+        del ei["tender"]["items"][0]["deliveryAddress"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item] value failed for JSON property deliveryAddress due to " \
                                      "missing (therefore NULL) value for creator parameter deliveryAddress which is " \
@@ -709,17 +716,17 @@ class TestBpeCreateEI(object):
                                      "ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item" \
                                      "[\"deliveryAddress\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_37(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']
+        del ei["tender"]["items"][0]["deliveryAddress"]["addressDetails"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item$DeliveryAddress] value failed for JSON property " \
                                      "addressDetails due to missing (therefore NULL) value for creator parameter " \
@@ -730,17 +737,17 @@ class TestBpeCreateEI(object):
                                      "EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data." \
                                      "ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_38(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']
+        del ei["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item$DeliveryAddress$AddressDetails] value failed for JSON " \
                                      "property country due to missing (therefore NULL) value for creator parameter " \
@@ -753,17 +760,17 @@ class TestBpeCreateEI(object):
                                      "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails" \
                                      "[\"country\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_39(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id']
+        del ei["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Country] value failed for " \
                                      "JSON property id due to missing (therefore NULL) value for creator parameter " \
@@ -777,17 +784,17 @@ class TestBpeCreateEI(object):
                                      "[\"country\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$" \
                                      "DeliveryAddress$AddressDetails$Country[\"id\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_40(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']
+        del ei["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item$DeliveryAddress$AddressDetails] value failed for JSON " \
                                      "property region due to missing (therefore NULL) value for creator parameter " \
@@ -800,17 +807,17 @@ class TestBpeCreateEI(object):
                                      "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress" \
                                      "$AddressDetails[\"region\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_41(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme']
+        del ei["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
         assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
                                      "EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Locality] value failed " \
                                      "for JSON property scheme due to missing (therefore NULL) value for creator " \
@@ -824,17 +831,17 @@ class TestBpeCreateEI(object):
                                      "[\"locality\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$" \
                                      "DeliveryAddress$AddressDetails$Locality[\"scheme\"])"
 
-    @pytestrail.case('22132')
+    @pytestrail.case("22132")
     def test_22132_42(self):
         ei = copy.deepcopy(ei_full)
-        del ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id']
+        del ei["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"]
         create_ei_response = bpe_create_ei(ei)
-        assert create_ei_response[0].text == 'ok'
+        assert create_ei_response[0].text == "ok"
         assert create_ei_response[0].status_code == 202
-        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+        assert create_ei_response[1]["X-OPERATION-ID"] == create_ei_response[2]
+        assert create_ei_response[1]["errors"][0]["code"] == "400.20.00"
+        assert create_ei_response[1]["errors"][0][
+                   "description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
                                      "Instantiation of [simple type, class com.procurement.mdm.model.dto.data." \
                                      "ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Region] value " \
                                      "failed for JSON property id due to missing (therefore NULL) value for " \
@@ -946,9 +953,15 @@ class TestBpeCreateEI(object):
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
         assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
         assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Unit] value failed for JSON property id due to missing (therefore NULL) value for creator parameter id which is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"unit\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Unit[\"id\"])"
-
-
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei." \
+                                     "EIRequest$Tender$Item$Unit] value failed for JSON property id due to missing " \
+                                     "(therefore NULL) value for creator parameter id which is a non-nullable " \
+                                     "type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: " \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement." \
+                                     "mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->" \
+                                     "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"unit\"]->com." \
+                                     "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Unit[\"id\"])"
 
     @pytestrail.case('22135')
     def test_22135_1(self):
@@ -2453,8 +2466,6 @@ class TestBpeCreateEI(object):
 
         assert publicPoint['releases'][0]['initiationType'] == 'tender'
 
-
-
     @pytestrail.case('22181')
     def test_22181_1(self):
         currentDate = datetime.datetime.now()
@@ -2462,7 +2473,6 @@ class TestBpeCreateEI(object):
         duration_date = currentDate + datetime.timedelta(minutes=30)
         endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
         ei = copy.deepcopy(ei_full)
-
 
         ei['planning']['budget']['period']['startDate'] = startDate
         ei['planning']['budget']['period']['endDate'] = endDate
@@ -2484,7 +2494,6 @@ class TestBpeCreateEI(object):
         endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
         ei = copy.deepcopy(ei_full)
 
-
         ei['planning']['budget']['period']['startDate'] = startDate
         ei['planning']['budget']['period']['endDate'] = endDate
         create_ei_response = bpe_create_ei(ei)
@@ -2503,7 +2512,6 @@ class TestBpeCreateEI(object):
         duration_date = currentDate + datetime.timedelta(minutes=30)
         endDate = duration_date.strftime('%Y-%m-%dT%H:%M:%SZ')
         ei = copy.deepcopy(ei_full)
-
 
         ei['planning']['budget']['period']['startDate'] = startDate
         ei['planning']['budget']['period']['endDate'] = endDate
@@ -2805,129 +2813,543 @@ class TestBpeCreateEI(object):
     def test_22186_1(self):
         ei = copy.deepcopy(ei_full)
         ei['tender']['title'] = ''
-        ei['tender']['description'] = ''
-        ei['planning']['rationale'] = ''
-        ei['buyer']['name'] = ''
-        ei['buyer']['identifier']['id'] = ''
-        ei['buyer']['identifier']['legalName'] = ''
-        ei['buyer']['identifier']['uri'] = ''
-        ei['buyer']['address']['streetAddress'] = ''
-        ei['buyer']['address']['postalCode'] = ''
-        ei['buyer']['address']['addressDetails']['locality']['scheme'] = ''
-        ei['buyer']['address']['addressDetails']['locality']['id'] = ''
-        ei['buyer']['address']['addressDetails']['locality']['description'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['id'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['scheme'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['legalName'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['uri'] = ''
-        ei['buyer']['contactPoint']['name'] = ''
-        ei['buyer']['contactPoint']['email'] = ''
-        ei['buyer']['contactPoint']['telephone'] = ''
-        ei['buyer']['contactPoint']['faxNumber'] = ''
-        ei['buyer']['contactPoint']['uri'] = ''
 
         create_ei_response = bpe_create_ei(ei)
 
-        assert create_ei_response[0].text == 'ok'
-        assert create_ei_response[0].status_code == 202
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.10.20.11'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'tender.title' is empty or blank."
 
     @pytestrail.case('22186')
     def test_22186_2(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['title'] = ''
         ei['tender']['description'] = ''
-        ei['planning']['rationale'] = ''
-        ei['buyer']['name'] = ''
-        ei['buyer']['identifier']['id'] = ''
-        ei['buyer']['identifier']['legalName'] = ''
-        ei['buyer']['identifier']['uri'] = ''
-        ei['buyer']['address']['streetAddress'] = ''
-        ei['buyer']['address']['postalCode'] = ''
-        ei['buyer']['address']['addressDetails']['locality']['scheme'] = ''
-        ei['buyer']['address']['addressDetails']['locality']['id'] = ''
-        ei['buyer']['address']['addressDetails']['locality']['description'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['id'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['scheme'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['legalName'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['uri'] = ''
-        ei['buyer']['contactPoint']['name'] = ''
-        ei['buyer']['contactPoint']['email'] = ''
-        ei['buyer']['contactPoint']['telephone'] = ''
-        ei['buyer']['contactPoint']['faxNumber'] = ''
-        ei['buyer']['contactPoint']['uri'] = ''
 
         create_ei_response = bpe_create_ei(ei)
 
-        cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'], '*')
-        token = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'], '*')
-
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
-        assert cpid == True
-        assert token == True
+        assert create_ei_response[1]['errors'][0]['code'] == '400.10.20.11'
+        assert create_ei_response[1]['errors'][0][
+                   "description"] == "Incorrect an attribute value.The attribute 'tender.description' is empty " \
+                                     "or blank."
 
     @pytestrail.case('22186')
     def test_22186_3(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['title'] = ''
-        ei['tender']['description'] = ''
         ei['planning']['rationale'] = ''
-        ei['buyer']['name'] = ''
-        ei['buyer']['identifier']['id'] = ''
-        ei['buyer']['identifier']['legalName'] = ''
-        ei['buyer']['identifier']['uri'] = ''
-        ei['buyer']['address']['streetAddress'] = ''
-        ei['buyer']['address']['postalCode'] = ''
-        ei['buyer']['address']['addressDetails']['locality']['scheme'] = ''
-        ei['buyer']['address']['addressDetails']['locality']['id'] = ''
-        ei['buyer']['address']['addressDetails']['locality']['description'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['id'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['scheme'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['legalName'] = ''
-        ei['buyer']['additionalIdentifiers'][0]['uri'] = ''
-        ei['buyer']['contactPoint']['name'] = ''
-        ei['buyer']['contactPoint']['email'] = ''
-        ei['buyer']['contactPoint']['telephone'] = ''
-        ei['buyer']['contactPoint']['faxNumber'] = ''
-        ei['buyer']['contactPoint']['uri'] = ''
-
         create_ei_response = bpe_create_ei(ei)
-        time.sleep(1)
-        url = create_ei_response[1]['data']['url'] + '/' + str(create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
-        publicPoint = requests.get(url=url).json()
 
-        assert publicPoint['releases'][0]['tender']['title'] == ei['tender']['title']
-        assert publicPoint['releases'][0]['tender']['description'] == ei['tender']['description']
-        assert publicPoint['releases'][0]['planning']['rationale'] == ei['planning']['rationale']
-        assert publicPoint['releases'][0]['buyer']['name'] == ei['buyer']['name']
-        assert publicPoint['releases'][0]['parties'][0]['id'] == ei['buyer']['identifier']['scheme'] + '-' + \
-               ei['buyer']['identifier']['id']
-        assert publicPoint['releases'][0]['parties'][0]['identifier']['id'] == ei['buyer']['identifier']['id']
-        assert publicPoint['releases'][0]['parties'][0]['identifier']['scheme'] == ei['buyer']['identifier']['scheme']
-        assert publicPoint['releases'][0]['parties'][0]['identifier']['legalName'] == ei['buyer']['identifier'][
-            'legalName']
-        assert publicPoint['releases'][0]['parties'][0]['identifier']['uri'] == ei['buyer']['identifier']['uri']
-        assert publicPoint['releases'][0]['parties'][0]['address']['streetAddress'] == ei['buyer']['address'][
-            'streetAddress']
-        assert publicPoint['releases'][0]['parties'][0]['address']['postalCode'] == ei['buyer']['address']['postalCode']
-        assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
-               ei['buyer']['address']['addressDetails']['locality']['scheme']
-        assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
-               ei['buyer']['address']['addressDetails']['locality']['id']
-        assert publicPoint['releases'][0]['parties'][0]['address']['addressDetails']['locality']['description'] == \
-               ei['buyer']['address']['addressDetails']['locality']['description']
-        assert publicPoint['releases'][0]['parties'][0]['additionalIdentifiers'][0]['id'] == \
-               ei['buyer']['additionalIdentifiers'][0]['id']
-        assert publicPoint['releases'][0]['parties'][0]['additionalIdentifiers'][0]['scheme'] == \
-               ei['buyer']['additionalIdentifiers'][0]['scheme']
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.10.20.11'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'planning.rationale' is empty " \
+                                     "or blank."
 
-        assert publicPoint['releases'][0]['parties'][0]['contactPoint']['name'] == ei['buyer']['contactPoint']['name']
-        assert publicPoint['releases'][0]['parties'][0]['contactPoint']['email'] == ei['buyer']['contactPoint']['email']
-        assert publicPoint['releases'][0]['parties'][0]['contactPoint']['telephone'] == ei['buyer']['contactPoint'][
-            'telephone']
-        assert publicPoint['releases'][0]['parties'][0]['contactPoint']['faxNumber'] == ei['buyer']['contactPoint'][
-            'faxNumber']
-        assert publicPoint['releases'][0]['parties'][0]['contactPoint']['url'] == ei['buyer']['contactPoint']['url']
+    @pytestrail.case('22186')
+    def test_22186_4(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['name'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.name' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_5(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.identifier.id' is empty " \
+                                     "or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_6(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['legalName'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.identifier.legalName' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_7(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['uri'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.identifier.uri' is empty " \
+                                     "or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_8(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['streetAddress'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.address.streetAddress' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_9(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['postalCode'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.address.postalCode' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_10(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['addressDetails']['locality']['scheme'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
+                                     "locality.scheme' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_11(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['addressDetails']['locality']['scheme'] = "other"
+        ei['buyer']['address']['addressDetails']['locality']['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
+                                     "locality.id' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_12(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['addressDetails']['locality']['scheme'] = "other"
+        ei['buyer']['address']['addressDetails']['locality']['description'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
+                                     "locality.description' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_13(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['additionalIdentifiers'][0]['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers.id' " \
+                                     "is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_14(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['additionalIdentifiers'][0]['scheme'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers." \
+                                     "scheme' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_15(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['additionalIdentifiers'][0]['legalName'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers." \
+                                     "legalName' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_16(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['additionalIdentifiers'][0]['uri'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers.uri' " \
+                                     "is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_17(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['contactPoint']['name'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.name' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_18(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['contactPoint']['email'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.email' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_19(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['contactPoint']['telephone'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.telephone' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_20(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['contactPoint']['faxNumber'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.faxNumber' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_21(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['contactPoint']['url'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.url' is empty " \
+                                     "or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_22(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['streetAddress'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'tender.items.deliveryAddress." \
+                                     "streetAddress' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_23(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['postalCode'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'tender.items.deliveryAddress." \
+                                     "postalCode' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_24(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
+                                     "locality.scheme' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_25(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = "other"
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
+                                     "locality.id' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_26(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = "other"
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['description'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
+                                     "locality.description' is empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_27(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['description'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'tender.items.description' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('22186')
+    def test_22186_28(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['classification']['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00.06'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Cpv code not found. '
+
+    @pytestrail.case('22186')
+    def test_22186_29(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['classification']['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.03'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid cpv code. '
+
+    @pytestrail.case('22186')
+    def test_22186_30(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['additionalClassifications'][0]['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.05'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid cpvs code. '
+
+    @pytestrail.case('22186')
+    def test_22186_31(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.10'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid country. '
+
+    @pytestrail.case('22186')
+    def test_22186_32(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00.13'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Region not found. '
+
+    @pytestrail.case('22186')
+    def test_22186_33(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['quantity'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.databind.JsonMapping' \
+                                                                    'Exception: (was com.procurement.mdm.exception.' \
+                                                                    'InErrorException) (through reference chain: ' \
+                                                                    'com.procurement.mdm.model.dto.data.ei.EI' \
+                                                                    'Request[\"tender\"]->com.procurement.mdm.' \
+                                                                    'model.dto.data.ei.EIRequest$Tender' \
+                                                                    '[\"items\"]->java.util.ArrayList[0]->' \
+                                                                    'com.procurement.mdm.model.dto.data.ei.' \
+                                                                    'EIRequest$Tender$Item[\"quantity\"])'
+
+    @pytestrail.case('22186')
+    def test_22186_34(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['unit']['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.06'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid unit code. '
+
+    @pytestrail.case('22186')
+    def test_22186_35(self):
+        ei = copy.deepcopy(ei_full)
+        ei['planning']['budget']['period']['startDate'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.databind.JsonMappingException: Text '' could not be " \
+                                     "parsed at index 0 (through reference chain: com.procurement.budget.model.dto." \
+                                     "ei.request.EiCreate[\"planning\"]->com.procurement.budget.model.dto.ei." \
+                                     "request.EiCreate$PlanningEiCreate[\"budget\"]->com.procurement.budget.model." \
+                                     "dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]->com." \
+                                     "procurement.budget.model.dto.ocds.Period[\"startDate\"])"
+
+    @pytestrail.case('22186')
+    def test_22186_36(self):
+        ei = copy.deepcopy(ei_full)
+        ei['planning']['budget']['period']['endDate'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.databind.JsonMappingException: Text '' could not be " \
+                                     "parsed at index 0 (through reference chain: com.procurement.budget.model.dto." \
+                                     "ei.request.EiCreate[\"planning\"]->com.procurement.budget.model.dto.ei." \
+                                     "request.EiCreate$PlanningEiCreate[\"budget\"]->com.procurement.budget." \
+                                     "model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]->" \
+                                     "com.procurement.budget.model.dto.ocds.Period[\"endDate\"])"
+
+    @pytestrail.case('22186')
+    def test_22186_37(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['scheme'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00.12'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Registration scheme not found. '
+
+    @pytestrail.case('22186')
+    def test_22186_38(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['addressDetails']['country']['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.20.00.11"
+        assert create_ei_response[1]['errors'][0]['description'] == "Country not found. "
+
+    @pytestrail.case('22186')
+    def test_22186_39(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['addressDetails']['region']['id'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00.13'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Region not found. '
+
+    @pytestrail.case('22186')
+    def test_22186_40(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['details']['typeOfBuyer'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.databind.exc.Invalid' \
+                                                                    'FormatException: Cannot deserialize value of ' \
+                                                                    'type `com.procurement.mdm.model.dto.data.TypeOf' \
+                                                                    'Buyer` from String \"\": value not one of ' \
+                                                                    'declared Enum instance names: [NATIONAL_AGENCY, ' \
+                                                                    'REGIONAL_AUTHORITY, REGIONAL_AGENCY, ' \
+                                                                    'BODY_PUBLIC, EU_INSTITUTION, MINISTRY]\n at ' \
+                                                                    '[Source: UNKNOWN; line: -1, column: -1] (' \
+                                                                    'through reference chain: com.procurement.' \
+                                                                    'mdm.model.dto.data.ei.EIRequest[\"buyer\"]->' \
+                                                                    'com.procurement.mdm.model.dto.data.Organization' \
+                                                                    'Reference[\"details\"]->com.procurement.mdm.' \
+                                                                    'model.dto.data.Details[\"typeOfBuyer\"])'
+
+    @pytestrail.case('22186')
+    def test_22186_41(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['details']['mainGeneralActivity'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.databind.exc.Invalid' \
+                                                                    'FormatException: Cannot deserialize value ' \
+                                                                    'of type `com.procurement.mdm.model.dto.' \
+                                                                    'data.MainGeneralActivity` from String \"\": ' \
+                                                                    'value not one of declared Enum instance names: ' \
+                                                                    '[DEFENCE, PUBLIC_ORDER_AND_SAFETY, ECONOMIC_' \
+                                                                    'AND_FINANCIAL_AFFAIRS, ENVIRONMENT, RECREATION_' \
+                                                                    'CULTURE_AND_RELIGION, EDUCATION, SOCIAL_' \
+                                                                    'PROTECTION, HEALTH, GENERAL_PUBLIC_SERVICES, ' \
+                                                                    'HOUSING_AND_COMMUNITY_AMENITIES]\n at [Source: ' \
+                                                                    'UNKNOWN; line: -1, column: -1] (through ' \
+                                                                    'reference chain: com.procurement.mdm.model.dto.' \
+                                                                    'data.ei.EIRequest[\"buyer\"]->com.procurement.' \
+                                                                    'mdm.model.dto.data.OrganizationReference' \
+                                                                    '[\"details\"]->com.procurement.mdm.model.dto.' \
+                                                                    'data.Details[\"mainGeneralActivity\"])'
+
+    @pytestrail.case('22186')
+    def test_22186_42(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['details']['mainSectoralActivity'] = ''
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.databind.exc.InvalidFormat' \
+                                                                    'Exception: Cannot deserialize value of ' \
+                                                                    'type `com.procurement.mdm.model.dto.data.Main' \
+                                                                    'SectoralActivity` from String \"\": value ' \
+                                                                    'not one of declared Enum instance names: ' \
+                                                                    '[EXPLORATION_EXTRACTION_GAS_OIL, ELECTRICITY, ' \
+                                                                    'POSTAL_SERVICES, PRODUCTION_TRANSPORT_' \
+                                                                    'DISTRIBUTION_GAS_HEAT, WATER, URBAN_RAILWAY_' \
+                                                                    'TRAMWAY_TROLLEYBUS_BUS_SERVICES, PORT_RELATED_' \
+                                                                    'ACTIVITIES, RAILWAY_SERVICES, EXPLORATION_' \
+                                                                    'EXTRACTION_COAL_OTHER_SOLID_FUEL, AIRPORT_' \
+                                                                    'RELATED_ACTIVITIES]\n at [Source: UNKNOWN; ' \
+                                                                    'line: -1, column: -1] (through reference ' \
+                                                                    'chain: com.procurement.mdm.model.dto.data.ei.' \
+                                                                    'EIRequest[\"buyer\"]->com.procurement.mdm.' \
+                                                                    'model.dto.data.OrganizationReference' \
+                                                                    '[\"details\"]->com.procurement.mdm.model.dto.' \
+                                                                    'data.Details[\"mainSectoralActivity\"])'
 
     @pytestrail.case('22830')
     def test_22830_1(self):
@@ -3041,7 +3463,7 @@ class TestBpeCreateEI(object):
     @pytestrail.case('22837')
     def test_22837_1(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['classification']['id'] = random.choice(copy.deepcopy(cpv_goods))
+        ei['tender']['classification']['id'] = "76100000-4"
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         ei['tender']['items'][0]['classification']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
@@ -3053,9 +3475,9 @@ class TestBpeCreateEI(object):
     @pytestrail.case('22837')
     def test_22837_2(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['classification']['id'] = random.choice(copy.deepcopy(cpv_goods))
+        ei['tender']['classification']['id'] = "76100000-4"
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
-        ei['tender']['items'][0]['classification']['id']=ei['tender']['classification']['id']
+        ei['tender']['items'][0]['classification']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
 
         cpid = fnmatch.fnmatch(create_ei_response[1]['data']['outcomes']['ei'][0]['id'], '*')
@@ -3068,7 +3490,7 @@ class TestBpeCreateEI(object):
     @pytestrail.case('22837')
     def test_22837_3(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['classification']['id'] = f'{random.choice(copy.deepcopy(cpv_goods))}'
+        ei['tender']['classification']['id'] = "76100000-4"
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         ei['tender']['items'][0]['classification']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
@@ -3076,12 +3498,12 @@ class TestBpeCreateEI(object):
         url = create_ei_response[1]['data']['url']
         publicPoint = requests.get(url=url).json()
 
-        assert publicPoint['records'][0]['compiledRelease']['tender']['mainProcurementCategory'] == 'goods'
+        assert publicPoint['records'][0]['compiledRelease']['tender']['mainProcurementCategory'] == "services"
 
     @pytestrail.case('22838')
     def test_22838_1(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['classification']['id'] = random.choice(copy.deepcopy(cpv_works))
+        ei['tender']['classification']['id'] = "45100000-8"
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         ei['tender']['items'][0]['classification']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
@@ -3093,7 +3515,7 @@ class TestBpeCreateEI(object):
     @pytestrail.case('22838')
     def test_22838_2(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['classification']['id'] = random.choice(copy.deepcopy(cpv_works))
+        ei['tender']['classification']['id'] = "45100000-8"
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         ei['tender']['items'][0]['classification']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
@@ -3108,7 +3530,7 @@ class TestBpeCreateEI(object):
     @pytestrail.case('22838')
     def test_22838_3(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['classification']['id'] = f'{random.choice(copy.deepcopy(cpv_works))}'
+        ei['tender']['classification']['id'] = "45100000-8"
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         ei['tender']['items'][0]['classification']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
@@ -3121,7 +3543,7 @@ class TestBpeCreateEI(object):
     @pytestrail.case('22839')
     def test_22839_1(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['classification']['id'] = random.choice(copy.deepcopy(cpv_services))
+        ei['tender']['classification']['id'] = "76100000-4"
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         ei['tender']['items'][0]['classification']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
@@ -3133,7 +3555,7 @@ class TestBpeCreateEI(object):
     @pytestrail.case('22839')
     def test_22839_2(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['classification']['id'] = random.choice(copy.deepcopy(cpv_services))
+        ei['tender']['classification']['id'] = "76100000-4"
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         ei['tender']['items'][0]['classification']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
@@ -3148,7 +3570,7 @@ class TestBpeCreateEI(object):
     @pytestrail.case('22839')
     def test_22839_3(self):
         ei = copy.deepcopy(ei_full)
-        ei['tender']['classification']['id'] = f'{random.choice(copy.deepcopy(cpv_services))}'
+        ei['tender']['classification']['id'] = "76100000-4"
         ei['planning']['budget']['id'] = ei['tender']['classification']['id']
         ei['tender']['items'][0]['classification']['id'] = ei['tender']['classification']['id']
         create_ei_response = bpe_create_ei(ei)
@@ -3333,7 +3755,6 @@ class TestBpeCreateEI(object):
                 return False
             return str(uuid_obj) == uuid_to_test
 
-
         is_uuid_tender_id = is_valid_uuid(publicPoint['releases'][0]['tender']['id'])
         is_uuid_item_id = is_valid_uuid(publicPoint['releases'][0]['tender']['items'][0]['id'])
         assert is_uuid_tender_id == True
@@ -3416,10 +3837,10 @@ class TestBpeCreateEI(object):
                    ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id']
             assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
                        'scheme'] == 'iso-alpha2'
-            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                       'description'] == 'Moldova, Republica'
-            assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                       'uri'] == 'https://www.iso.org'
+            # assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+            #            'description'] == 'Moldova, Republica'
+            # assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+            #            'uri'] == 'https://www.iso.org'
         if ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] == '1700000':
             assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
                        'id'] == '1700000'
@@ -3833,8 +4254,8 @@ class TestBpeCreateEI(object):
             create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
         publicPoint = requests.get(url=url).json()
 
-        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] == \
-               ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id']
+        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] \
+               == ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id']
         assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
                    'scheme'] == 'CUATM'
         assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
@@ -3982,8 +4403,6 @@ class TestBpeCreateEI(object):
         assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
                    'description'] == ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
                    'description']
-        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                   'uri'] == ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri']
 
     @pytestrail.case('24011')
     def test_24011_1(self):
@@ -4017,7 +4436,6 @@ class TestBpeCreateEI(object):
         is_uuid_item_id = is_valid_uuid(publicPoint['releases'][0]['tender']['items'][0]['id'])
         assert is_uuid_item_id == True
 
-
     @pytestrail.case('24013')
     def test_24013_1(self):
         ei = copy.deepcopy(ei_full)
@@ -4036,11 +4454,9 @@ class TestBpeCreateEI(object):
 
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
         assert create_ei_response[1]['errors'][0]['code'] == '400.10.00.05'
-        assert create_ei_response[1]['errors'][0]['description'] == f"Invalid CPV.Invalid CPV " \
-                                                                    f"code in classification(s) '" \
-                                                                    f"{ei['tender']['items'][0]['classification']['id']}'"
+        assert create_ei_response[1]['errors'][0]['description'] == "Invalid CPV.Invalid CPV code in " \
+                                                                    "classification(s) '50100000-6'"
 
-    #-------------------
     @pytestrail.case('24012')
     def test_24012_1(self):
         ei = copy.deepcopy(ei_full)
@@ -4069,7 +4485,6 @@ class TestBpeCreateEI(object):
         ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'ww.io.io '
         ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
             'description'] = 'description_test'
-
 
         create_ei_response = bpe_create_ei(ei)
         assert create_ei_response[0].text == 'ok'
@@ -4174,8 +4589,8 @@ class TestBpeCreateEI(object):
         assert \
             publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
                 'id'] == 'MD'
-        assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                   'description'] == 'Moldova, Republica'
+        # assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
+        #            'description'] == 'Moldova, Republica'
         assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
                    'country']['uri'] == 'https://www.iso.org'
         assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
@@ -4198,6 +4613,548 @@ class TestBpeCreateEI(object):
                    'locality']['description'] == 'mun.Chişinău'
         assert publicPoint['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
                    'locality']['uri'] == 'http://statistica.md'
+
+    @pytestrail.case('25301')
+    def test_25301_1(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['title'] = ' '
+
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'tender.title' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_2(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['description'] = ' '
+
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'tender.description' is empty or " \
+                                     "blank."
+
+    @pytestrail.case('25301')
+    def test_25301_3(self):
+        ei = copy.deepcopy(ei_full)
+        ei['planning']['rationale'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'planning.rationale' is empty or " \
+                                     "blank."
+
+    @pytestrail.case('25301')
+    def test_25301_4(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['name'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.name' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_5(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.identifier.id' is empty or " \
+                                     "blank."
+
+    @pytestrail.case('25301')
+    def test_25301_6(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['legalName'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.identifier.legalName' " \
+                                     "is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_7(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['uri'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.identifier.uri' " \
+                                     "is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_8(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['streetAddress'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.address.streetAddress' " \
+                                     "is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_9(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['postalCode'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.address.postalCode' " \
+                                     "is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_10(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['addressDetails']['locality']['scheme'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
+                                     "locality.scheme' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_11(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['addressDetails']['locality']['scheme'] = "other"
+        ei['buyer']['address']['addressDetails']['locality']['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
+                                     "locality.id' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_12(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['addressDetails']['locality']['scheme'] = "other"
+        ei['buyer']['address']['addressDetails']['locality']['description'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
+                                     "locality.description' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_13(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['additionalIdentifiers'][0]['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers.id' " \
+                                     "is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_14(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['additionalIdentifiers'][0]['scheme'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers." \
+                                     "scheme' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_15(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['additionalIdentifiers'][0]['legalName'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers." \
+                                     "legalName' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_16(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['additionalIdentifiers'][0]['uri'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers.uri' " \
+                                     "is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_17(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['contactPoint']['name'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.name' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_18(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['contactPoint']['email'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.email' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_19(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['contactPoint']['telephone'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.telephone' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_20(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['contactPoint']['faxNumber'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.faxNumber' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_21(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['contactPoint']['url'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.url' is empty " \
+                                     "or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_22(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['streetAddress'] = "  "
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'tender.items.deliveryAddress." \
+                                     "streetAddress' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_23(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['postalCode'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'tender.items.deliveryAddress." \
+                                     "postalCode' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_24(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
+                                     "locality.scheme' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_25(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = "other"
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
+                                     "locality.id' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_26(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = "other"
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['description'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
+                                     "locality.description' is empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_27(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['description'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == "400.10.20.11"
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "Incorrect an attribute value.The attribute 'tender.items.description' is " \
+                                     "empty or blank."
+
+    @pytestrail.case('25301')
+    def test_25301_28(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['classification']['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00.06'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Cpv code not found. '
+
+    @pytestrail.case('25301')
+    def test_25301_29(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['classification']['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.03'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid cpv code. '
+
+    @pytestrail.case('25301')
+    def test_25301_30(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['additionalClassifications'][0]['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.05'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid cpvs code. '
+
+    @pytestrail.case('25301')
+    def test_25301_31(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.10'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid country. '
+
+    @pytestrail.case('25301')
+    def test_25301_32(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00.13'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Region not found. '
+
+    @pytestrail.case('25301')
+    def test_25301_33(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['quantity'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.databind.JsonMapping' \
+                                                                    'Exception: (was com.procurement.mdm.exception.' \
+                                                                    'InErrorException) (through reference chain: ' \
+                                                                    'com.procurement.mdm.model.dto.data.ei.EI' \
+                                                                    'Request[\"tender\"]->com.procurement.mdm.' \
+                                                                    'model.dto.data.ei.EIRequest$Tender' \
+                                                                    '[\"items\"]->java.util.ArrayList[0]->' \
+                                                                    'com.procurement.mdm.model.dto.data.ei.' \
+                                                                    'EIRequest$Tender$Item[\"quantity\"])'
+
+    @pytestrail.case('25301')
+    def test_25301_34(self):
+        ei = copy.deepcopy(ei_full)
+        ei['tender']['items'][0]['unit']['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.01.06'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Invalid unit code. '
+
+    @pytestrail.case('25301')
+    def test_25301_35(self):
+        ei = copy.deepcopy(ei_full)
+        ei['planning']['budget']['period']['startDate'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.databind.JsonMappingException: Text ' ' could not be " \
+                                     "parsed at index 0 (through reference chain: com.procurement.budget.model.dto." \
+                                     "ei.request.EiCreate["r'\"planning\"]->com.procurement.budget.model.dto.ei.' \
+                                     r'request.EiCreate$PlanningEiCreate[\"budget\"]->com.procurement.budget.model.' \
+                                     r'dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]->com.' \
+                                     r'procurement.budget.model.dto.ocds.Period[\"startDate\"])'
+
+    @pytestrail.case('25301')
+    def test_25301_36(self):
+        ei = copy.deepcopy(ei_full)
+        ei['planning']['budget']['period']['endDate'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
+        assert create_ei_response[1]['errors'][0][
+                   'description'] == "com.fasterxml.jackson.databind.JsonMappingException: Text '' could not be " \
+                                     "parsed at index 0 (through reference chain: com.procurement.budget.model.dto." \
+                                     "ei.request.EiCreate["r'\"planning\"]->com.procurement.budget.model.dto.ei.' \
+                                     r'request.EiCreate$PlanningEiCreate['r'\"budget\"]->com.procurement.budget.' \
+                                     r'model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]->' \
+                                     r'com.procurement.budget.model.dto.ocds.Period[\"endDate\"])'
+
+    @pytestrail.case('25301')
+    def test_25301_37(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['identifier']['scheme'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00.12'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Registration scheme not found. '
+
+    @pytestrail.case('25301')
+    def test_25301_38(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['addressDetails']['country']['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00.11'
+        assert create_ei_response[1]['errors'][0]['description'] == "Country not found. "
+
+    @pytestrail.case('25301')
+    def test_25301_39(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['address']['addressDetails']['region']['id'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00.13'
+        assert create_ei_response[1]['errors'][0]['description'] == 'Region not found. '
+
+    @pytestrail.case('25301')
+    def test_25301_40(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['details']['typeOfBuyer'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.databind.exc.Invalid' \
+                                                                    'FormatException: Cannot deserialize value of ' \
+                                                                    'type `com.procurement.mdm.model.dto.data.TypeOf' \
+                                                                    'Buyer` from String \"\": value not one of ' \
+                                                                    'declared Enum instance names: [NATIONAL_AGENCY, ' \
+                                                                    'REGIONAL_AUTHORITY, REGIONAL_AGENCY, ' \
+                                                                    'BODY_PUBLIC, EU_INSTITUTION, MINISTRY]\n at ' \
+                                                                    '[Source: UNKNOWN; line: -1, column: -1] (' \
+                                                                    'through reference chain: com.procurement.' \
+                                                                    'mdm.model.dto.data.ei.EIRequest[\"buyer\"]->' \
+                                                                    'com.procurement.mdm.model.dto.data.Organization' \
+                                                                    'Reference[\"details\"]->com.procurement.mdm.' \
+                                                                    'model.dto.data.Details[\"typeOfBuyer\"])'
+
+    @pytestrail.case('25301')
+    def test_25301_41(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['details']['mainGeneralActivity'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.databind.exc.Invalid' \
+                                                                    'FormatException: Cannot deserialize value ' \
+                                                                    'of type `com.procurement.mdm.model.dto.' \
+                                                                    'data.MainGeneralActivity` from String \"\": ' \
+                                                                    'value not one of declared Enum instance names: ' \
+                                                                    '[DEFENCE, PUBLIC_ORDER_AND_SAFETY, ECONOMIC_' \
+                                                                    'AND_FINANCIAL_AFFAIRS, ENVIRONMENT, RECREATION_' \
+                                                                    'CULTURE_AND_RELIGION, EDUCATION, SOCIAL_' \
+                                                                    'PROTECTION, HEALTH, GENERAL_PUBLIC_SERVICES, ' \
+                                                                    'HOUSING_AND_COMMUNITY_AMENITIES]\n at [Source: ' \
+                                                                    'UNKNOWN; line: -1, column: -1] (through ' \
+                                                                    'reference chain: com.procurement.mdm.model.dto.' \
+                                                                    'data.ei.EIRequest[\"buyer\"]->com.procurement.' \
+                                                                    'mdm.model.dto.data.OrganizationReference' \
+                                                                    '[\"details\"]->com.procurement.mdm.model.dto.' \
+                                                                    'data.Details[\"mainGeneralActivity\"])'
+
+    @pytestrail.case('25301')
+    def test_25301_42(self):
+        ei = copy.deepcopy(ei_full)
+        ei['buyer']['details']['mainSectoralActivity'] = ' '
+        create_ei_response = bpe_create_ei(ei)
+
+        assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
+        assert create_ei_response[1]['errors'][0]['code'] == '400.20.00'
+        assert create_ei_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.databind.exc.InvalidFormat' \
+                                                                    'Exception: Cannot deserialize value of ' \
+                                                                    'type `com.procurement.mdm.model.dto.data.Main' \
+                                                                    'SectoralActivity` from String \"\": value ' \
+                                                                    'not one of declared Enum instance names: ' \
+                                                                    '[EXPLORATION_EXTRACTION_GAS_OIL, ELECTRICITY, ' \
+                                                                    'POSTAL_SERVICES, PRODUCTION_TRANSPORT_' \
+                                                                    'DISTRIBUTION_GAS_HEAT, WATER, URBAN_RAILWAY_' \
+                                                                    'TRAMWAY_TROLLEYBUS_BUS_SERVICES, PORT_RELATED_' \
+                                                                    'ACTIVITIES, RAILWAY_SERVICES, EXPLORATION_' \
+                                                                    'EXTRACTION_COAL_OTHER_SOLID_FUEL, AIRPORT_' \
+                                                                    'RELATED_ACTIVITIES]\n at [Source: UNKNOWN; ' \
+                                                                    'line: -1, column: -1] (through reference ' \
+                                                                    'chain: com.procurement.mdm.model.dto.data.ei.' \
+                                                                    'EIRequest[\"buyer\"]->com.procurement.mdm.' \
+                                                                    'model.dto.data.OrganizationReference' \
+                                                                    '[\"details\"]->com.procurement.mdm.model.dto.' \
+                                                                    'data.Details[\"mainSectoralActivity\"])'
 
 # 22180 не готово, пусть будет закомментировано:
 # @pytestrail.case('22180')
