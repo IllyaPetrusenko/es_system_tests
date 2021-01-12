@@ -5,7 +5,9 @@ import json
 import time
 import requests
 from pytest_testrail.plugin import pytestrail
-from Useful_functions import prepared_cpid, is_valid_uuid
+
+from tests.presets import set_instance_for_request
+from useful_functions import prepared_cpid, is_valid_uuid
 from config import create_fs, host
 from tests.Cassandra_session import get_date_execute_cql_from_orchestrator_operation_step_by_oper_id
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
@@ -2970,6 +2972,7 @@ class TestBpeCreateEI(object):
         fs_create = copy.deepcopy(fs_create_obligatory_treasury_money)
         create_fs_response_1 = bpe_create_fs(ei_create, fs_create)
         time.sleep(2)
+        host = set_instance_for_request()
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
@@ -2995,6 +2998,7 @@ class TestBpeCreateEI(object):
         fs_create = copy.deepcopy(fs_create_obligatory_treasury_money)
         create_fs_response_1 = bpe_create_fs(ei_create, fs_create)
         time.sleep(2)
+        host = set_instance_for_request()
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
@@ -3020,7 +3024,7 @@ class TestBpeCreateEI(object):
         fs_create = copy.deepcopy(fs_create_obligatory_treasury_money)
         create_fs_response_1 = bpe_create_fs(ei_create, fs_create)
         time.sleep(2)
-
+        host = set_instance_for_request()
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
 
@@ -3045,7 +3049,7 @@ class TestBpeCreateEI(object):
         fs_create = copy.deepcopy(fs_create_obligatory_treasury_money)
         create_fs_response_1 = bpe_create_fs(ei_create, fs_create)
         time.sleep(2)
-
+        host = set_instance_for_request()
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
 
@@ -3069,7 +3073,7 @@ class TestBpeCreateEI(object):
         fs_create = copy.deepcopy(fs_create_obligatory_treasury_money)
 
         time.sleep(2)
-
+        host = set_instance_for_request()
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         fake_cpid = prepared_cpid()
@@ -3194,7 +3198,7 @@ class TestBpeCreateEI(object):
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
-
+        host = set_instance_for_request()
         requests.post(
             url=host + create_fs + create_fs_response_1[3],
             headers={
@@ -3225,7 +3229,7 @@ class TestBpeCreateEI(object):
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
-
+        host = set_instance_for_request()
         requests.post(
             url=host + create_fs + create_fs_response_1[3],
             headers={
@@ -3256,7 +3260,7 @@ class TestBpeCreateEI(object):
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
-
+        host = set_instance_for_request()
         requests.post(
             url=host + create_fs + create_fs_response_1[3],
             headers={
@@ -4396,7 +4400,7 @@ class TestBpeCreateEI(object):
         fs_create_2['planning']['budget']['amount']['currency'] = 'EUR'
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
-
+        host = set_instance_for_request()
         requests.post(
             url=host + create_fs + create_fs_response_1[3],
             headers={
@@ -4423,7 +4427,7 @@ class TestBpeCreateEI(object):
         fs_create_2['planning']['budget']['amount']['currency'] = 'EUR'
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
-
+        host = set_instance_for_request()
         requests.post(
             url=host + create_fs + create_fs_response_1[3],
             headers={
@@ -4595,7 +4599,7 @@ class TestBpeCreateEI(object):
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
-
+        host = set_instance_for_request()
         requests.post(
             url=host + create_fs + create_fs_response_1[3],
             headers={
@@ -4626,7 +4630,7 @@ class TestBpeCreateEI(object):
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
-
+        host = set_instance_for_request()
         requests.post(
             url=host + create_fs + create_fs_response_1[3],
             headers={
@@ -4657,7 +4661,7 @@ class TestBpeCreateEI(object):
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
-
+        host = set_instance_for_request()
         requests.post(
             url=host + create_fs + create_fs_response_1[3],
             headers={
@@ -4726,7 +4730,7 @@ class TestBpeCreateEI(object):
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
-
+        host = set_instance_for_request()
         requests.post(
             url=host + create_fs + create_fs_response_1[3],
             headers={

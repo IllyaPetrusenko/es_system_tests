@@ -3,7 +3,9 @@ import fnmatch
 import json
 
 from pytest_testrail.plugin import pytestrail
-from Useful_functions import get_access_token_for_platform_two, is_valid_uuid
+
+from tests.presets import set_instance_for_request
+from useful_functions import get_access_token_for_platform_two, is_valid_uuid
 from tests.Cassandra_session import execute_cql_from_orchestrator_operation_step
 from tests.bpe_update_ei.update_ei import bpe_update_ei
 from tests.bpe_update_ei.payloads import ei_update_full, \
@@ -94,6 +96,7 @@ class TestBpeCreateEI(object):
         x_operation_id = get_x_operation_id(access_token)
 
         time.sleep(2)
+        host = set_instance_for_request()
         request_to_update_ei = requests.post(
             url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
             headers={
@@ -115,6 +118,7 @@ class TestBpeCreateEI(object):
         x_operation_id = get_x_operation_id(access_token)
 
         time.sleep(2)
+        host = set_instance_for_request()
         requests.post(
             url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
             headers={
@@ -143,6 +147,7 @@ class TestBpeCreateEI(object):
         x_operation_id = get_x_operation_id(access_token)
 
         time.sleep(2)
+        host = set_instance_for_request()
         request_to_update_ei = requests.post(
             url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
             headers={
@@ -165,6 +170,7 @@ class TestBpeCreateEI(object):
         x_operation_id = get_x_operation_id(access_token)
 
         time.sleep(2)
+        host = set_instance_for_request()
         requests.post(
             url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
             headers={
@@ -1463,6 +1469,7 @@ class TestBpeCreateEI(object):
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
+        host = set_instance_for_request()
         update_ei_response=requests.post(
             url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
             headers={
@@ -1608,6 +1615,7 @@ class TestBpeCreateEI(object):
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
+        host = set_instance_for_request()
         requests.post(
             url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
             headers={
@@ -1752,6 +1760,7 @@ class TestBpeCreateEI(object):
 
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
+        host = set_instance_for_request()
         requests.post(
             url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
             headers={

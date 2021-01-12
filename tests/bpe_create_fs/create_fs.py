@@ -3,6 +3,7 @@ from config import host, create_fs
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 from tests.kafka_messages import get_message_from_kafka
 from tests.bpe_create_ei.create_ei import bpe_create_ei
+from tests.presets import set_instance_for_request
 
 
 def bpe_create_fs(ei_create_payload, fs_create_payload):
@@ -10,6 +11,7 @@ def bpe_create_fs(ei_create_payload, fs_create_payload):
     x_operation_id = get_x_operation_id(access_token)
     create_ei_response = bpe_create_ei(ei_create_payload)
     time.sleep(2)
+    host = set_instance_for_request()
     request_to_create_fs = requests.post(
         url=host + create_fs + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
         headers={
