@@ -1,13 +1,13 @@
 import json
 import time
 import datetime
+
 from uuid import uuid4
 
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
-
 from tests.presets import set_instance_for_cassandra
-from useful_functions import prepared_fs_ocid
+from useful_functions import prepared_fs_ocid, get_period
 
 # password_dev = '6AH7vbrkMWnfK'
 # password_sandbox = 'brT4Kn27RQs'
@@ -27,11 +27,12 @@ def insert_into_db_create_ei(cpid):
     ei_token = uuid4()
     owner = "445f6851-c908-407d-9b45-14b92f3e964b"
 
-    date = datetime.datetime.now()
-    time_at_now = date.strftime('%Y-%m-%dT%H:%M:%SZ')
-    time_at_now_miliseconds = date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    timestamp = int(
-        time.mktime(datetime.datetime.strptime(time_at_now_miliseconds, "%Y-%m-%dT%H:%M:%S.%fZ").timetuple())) * 1000
+    period = get_period()
+    # date = datetime.datetime.now()
+    # time_at_now = date.strftime('%Y-%m-%dT%H:%M:%SZ')
+    # time_at_now_miliseconds = date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    # timestamp = int(
+    #     time.mktime(datetime.datetime.strptime(time_at_now_miliseconds, "%Y-%m-%dT%H:%M:%S.%fZ").timetuple())) * 1000
 
     json_orchestrator_context = {
         "operationId": f"{uuid4()}",
@@ -44,8 +45,8 @@ def insert_into_db_create_ei(cpid):
         "country": "MD",
         "language": "ro",
         "token": f"{ei_token}",
-        "startDate": f"{time_at_now}",
-        "timeStamp": timestamp,
+        "startDate": period[0],
+        "timeStamp": period[2],
         "isAuction": False,
         "testMode": False
     }
@@ -111,8 +112,8 @@ def insert_into_db_create_ei(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-01T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 }
             },
             "rationale": "planning.rationale"
@@ -173,8 +174,8 @@ def insert_into_db_create_ei(cpid):
 
     json_notice_budget_release_ei = {
         "ocid": cpid,
-        "id": cpid + '-' + f'{timestamp}',
-        "date": f"{time_at_now}",
+        "id": cpid + '-' + f'{period[2]}',
+        "date": period[0],
         "tag": ["compiled"],
         "initiationType": "tender",
         "tender": {
@@ -294,8 +295,8 @@ def insert_into_db_create_ei(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-01T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 }
             },
             "rationale": "planning.rationale"
@@ -304,8 +305,8 @@ def insert_into_db_create_ei(cpid):
 
     json_notice_budget_compiled_release_ei = {
         "ocid": cpid,
-        "id": cpid + "-" + f"{timestamp}",
-        "date": f"{time_at_now}",
+        "id": cpid + "-" + f"{period[2]}",
+        "date": period[0],
         "tag": ["compiled"],
         "initiationType": "tender",
         "tender": {
@@ -425,8 +426,8 @@ def insert_into_db_create_ei(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-01T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 }
             },
             "rationale": "planning.rationale"
@@ -450,7 +451,7 @@ def insert_into_db_create_ei(cpid):
                     f"cp_id,oc_id,amount,json_data,publish_date,release_date,"
                     f"release_id,stage) VALUES('{cpid}','{cpid}', 0.0, "
                     f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
-                    f"1609943491271,1609943491271,'{cpid + '-' + f'{timestamp}'}',"
+                    f"1609943491271,1609943491271,'{cpid + '-' + f'{period[2]}'}',"
                     f"'EI');").one()
 
     return f"http://dev.public.eprocurement.systems/budgets/{cpid}/{cpid}", ei_token
@@ -463,11 +464,12 @@ def insert_into_db_update_ei(cpid):
     ei_token = uuid4()
     owner = "445f6851-c908-407d-9b45-14b92f3e964b"
 
-    date = datetime.datetime.now()
-    time_at_now = date.strftime('%Y-%m-%dT%H:%M:%SZ')
-    time_at_now_miliseconds = date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    timestamp = int(
-        time.mktime(datetime.datetime.strptime(time_at_now_miliseconds, "%Y-%m-%dT%H:%M:%S.%fZ").timetuple())) * 1000
+    period = get_period()
+    # date = datetime.datetime.now()
+    # time_at_now = date.strftime('%Y-%m-%dT%H:%M:%SZ')
+    # time_at_now_miliseconds = date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    # timestamp = int(
+    #     time.mktime(datetime.datetime.strptime(time_at_now_miliseconds, "%Y-%m-%dT%H:%M:%S.%fZ").timetuple())) * 1000
 
     json_orchestrator_context = {
         "operationId": f"{uuid4()}",
@@ -480,8 +482,8 @@ def insert_into_db_update_ei(cpid):
         "country": "MD",
         "language": "ro",
         "token": f"{ei_token}",
-        "startDate": f"{time_at_now}",
-        "timeStamp": timestamp,
+        "startDate": period[0],
+        "timeStamp": period[2],
         "isAuction": False,
         "testMode": False
     }
@@ -546,8 +548,8 @@ def insert_into_db_update_ei(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-01T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 }
             },
             "rationale": "for EI updating from 2021 year"
@@ -608,8 +610,8 @@ def insert_into_db_update_ei(cpid):
 
     json_notice_budget_release_ei = {
         "ocid": cpid,
-        "id": cpid + "-" + f"{timestamp}",
-        "date": f"{time_at_now}",
+        "id": cpid + "-" + f"{period[2]}",
+        "date": period[0],
         "tag": ["compiled"],
         "initiationType": "tender",
         "tender": {
@@ -728,8 +730,8 @@ def insert_into_db_update_ei(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-01T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 }
             },
             "rationale": "for EI updating from 2021 year"
@@ -738,8 +740,8 @@ def insert_into_db_update_ei(cpid):
 
     json_notice_budget_compiled_release_ei = {
         "ocid": cpid,
-        "id": cpid + "-" + f"{timestamp}",
-        "date": f"{time_at_now}",
+        "id": cpid + "-" + f"{period[2]}",
+        "date": period[0],
         "tag": ["compiled"],
         "initiationType": "tender",
         "tender": {
@@ -858,8 +860,8 @@ def insert_into_db_update_ei(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-01T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 }
             },
             "rationale": "for EI updating from 2021 year"
@@ -883,13 +885,13 @@ def insert_into_db_update_ei(cpid):
                     f"cp_id,oc_id,amount,json_data,publish_date,release_date,"
                     f"release_id,stage) VALUES('{cpid}','{cpid}', 0.0, "
                     f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
-                    f"1609943491271,1609943491271,'{cpid + '-' + f'{timestamp}'}',"
+                    f"1609943491271,1609943491271,'{cpid + '-' + f'{period[2]}'}',"
                     f"'EI');").one()
 
     return f"http://dev.public.eprocurement.systems/budgets/{cpid}/{cpid}", ei_token
 
 
-def insert_into_db_create_fs(cpid):
+def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
     auth_provider = PlainTextAuthProvider(username=username, password=password)
     cluster = Cluster([host], auth_provider=auth_provider)
     session = cluster.connect('ocds')
@@ -897,11 +899,8 @@ def insert_into_db_create_fs(cpid):
     ei_token = uuid4()
     owner = "445f6851-c908-407d-9b45-14b92f3e964b"
 
-    date = datetime.datetime.now()
-    time_at_now = date.strftime('%Y-%m-%dT%H:%M:%SZ')
-    time_at_now_miliseconds = date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    timestamp = int(
-        time.mktime(datetime.datetime.strptime(time_at_now_miliseconds, "%Y-%m-%dT%H:%M:%S.%fZ").timetuple())) * 1000
+    period = get_period()
+
     fs_ocid = prepared_fs_ocid(cpid)
 
     json_orchestrator_context = {
@@ -916,16 +915,17 @@ def insert_into_db_create_fs(cpid):
         "country": "MD",
         "language": "ro",
         "token": f"{fs_token}",
-        "startDate": f"{time_at_now}",
-        "timeStamp": timestamp,
+        "startDate": period[0],
+        "timeStamp": period[2],
         "isAuction": False
     }
 
     json_budget_ei = {
         "ocid": cpid,
         "tender": {
-            "id": "7f025771-0c6b-4fa9-bac5-75c36575c5e7",
-            "title": "Cardurilor de acces pentru Bibliotecii Municipale B.P. Hasdeu ",
+            "id": "b3f31996-60e4-4871-893d-b4e985573c8c",
+            "title": "EI_FULL_WORKS",
+            "description": "description of finansical sourse",
             "status": "planning",
             "statusDetails": "empty",
             "classification": {
@@ -939,126 +939,22 @@ def insert_into_db_create_fs(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-10T00:00:00Z",
-                    "endDate": "2021-12-31T12:40:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 },
                 "amount": {
                     "amount": 2000.00,
                     "currency": "EUR"
                 }
-            }
+            },
+            "rationale": "planning.rationale"
         },
         "buyer": {
-            "id": "MD-IDNO-123654789000",
-            "name": "Directia Cultura a Primariei mun.Chisinau",
-            "identifier": {
-                "id": "123654789000",
-                "scheme": "MD-IDNO",
-                "legalName": "Directia Cultura a Primariei mun.Chisinau"
-            },
-            "address": {
-                "streetAddress": "str.Bucuresti 68",
-                "addressDetails": {
-                    "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
-                        "uri": "https://www.iso.org"
-                    },
-                    "region": {
-                        "scheme": "CUATM",
-                        "id": "0101000",
-                        "description": "mun.Chişinău",
-                        "uri": "http://statistica.md"
-                    },
-                    "locality": {
-                        "scheme": "CUATM",
-                        "id": "0101000",
-                        "description": "mun.Chişinău",
-                        "uri": "http://statistica.md"
-                    }
-                }
-            },
-            "contactPoint": {
-                "name": "Dumitru Popa",
-                "email": "directiacultшra@yahoo.com",
-                "telephone": "022242290"
-            }
-        }
-    }
-
-    json_notice_budget_release_ei = {
-        "ocid": cpid,
-        "id": cpid + '-' + f'{timestamp}',
-        "date": f"{time_at_now}",
-        "tag": ["compiled"],
-        "initiationType": "tender",
-        "tender": {
-            "id": "fbd943ca-aaad-433d-9189-96566e3648ea",
-            "title": "EI_FULL_WORKS",
-            "description": "description of finansical sourse",
-            "status": "planning",
-            "statusDetails": "empty",
-            "items": [{
-                "id": "6a565c47-ff11-4e2d-8ea1-3f34c5d751f9",
-                "description": "item 1",
-                "classification": {
-                    "scheme": "CPV",
-                    "id": "45100000-8",
-                    "description": "Lucrări de pregătire a şantierului"
-                },
-                "additionalClassifications": [{
-                    "scheme": "CPVS",
-                    "id": "AA12-4",
-                    "description": "Oţel carbon"
-                }],
-                "quantity": 10.000,
-                "unit": {
-                    "name": "Parsec",
-                    "id": "10"
-                },
-                "deliveryAddress": {
-                    "streetAddress": "Khreshchatyk",
-                    "postalCode": "01124",
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": "MD",
-                            "description": "MOLDOVA",
-                            "uri": "http://reference.iatistandard.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": "0101000",
-                            "description": "mun.Chişinău",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": "CUATM",
-                            "id": "0101000",
-                            "description": "mun.Chişinău",
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                }
-            }],
-            "mainProcurementCategory": "works",
-            "classification": {
-                "scheme": "CPV",
-                "id": "45100000-8",
-                "description": "Lucrări de pregătire a şantierului"
-            }
-        },
-        "buyer": {
-            "id": "MD-IDNO-380632074071",
-            "name": "LLC Petrusenko"
-        },
-        "parties": [{
-            "id": "MD-IDNO-380632074071",
+            "id": "MD-IDNO-1",
             "name": "LLC Petrusenko",
             "identifier": {
+                "id": "1",
                 "scheme": "MD-IDNO",
-                "id": "380632074071",
                 "legalName": "LLC Petrusenko",
                 "uri": "http://petrusenko.com/fop"
             },
@@ -1069,8 +965,85 @@ def insert_into_db_create_fs(cpid):
                     "country": {
                         "scheme": "iso-alpha2",
                         "id": "MD",
-                        "description": "MOLDOVA",
-                        "uri": "http://reference.iatistandard.org"
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "1700000",
+                        "description": "Cahul",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "1701000",
+                        "description": "mun.Cahul",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "contactPoint": {
+                "name": "Petrusenko Svitlana",
+                "email": "svetik@gmail.com",
+                "telephone": "888999666",
+                "faxNumber": "5552233",
+                "url": "http://petrusenko.com/svetlana"
+            },
+            "additionalIdentifiers": [{
+                "id": "string",
+                "scheme": "MD-IDNO",
+                "legalName": "380935103469",
+                "uri": "http://petrusenko.com/svetlana"
+            }],
+            "details": {
+                "typeOfBuyer": "NATIONAL_AGENCY",
+                "mainGeneralActivity": "HEALTH",
+                "mainSectoralActivity": "WATER"
+            }
+        }
+    }
+
+    json_notice_budget_release_ei = {
+        "ocid": "ocds-t1s2t3-MD-1610528356980",
+        "id": cpid + "-" + f"{period[2]}",
+        "date": period[0],
+        "tag": ["compiled"],
+        "initiationType": "tender",
+        "tender": {
+            "id": "b3f31996-60e4-4871-893d-b4e985573c8c",
+            "title": "EI_FULL_WORKS",
+            "description": "description of finansical sourse",
+            "status": "planning",
+            "statusDetails": "empty",
+            "mainProcurementCategory": "works",
+            "classification": {
+                "scheme": "CPV",
+                "id": "45100000-8",
+                "description": "Lucrări de pregătire a şantierului"
+            }
+        },
+        "buyer": {
+            "id": "MD-IDNO-1",
+            "name": "LLC Petrusenko"
+        },
+        "parties": [{
+            "id": "MD-IDNO-1",
+            "name": "LLC Petrusenko",
+            "identifier": {
+                "scheme": "MD-IDNO",
+                "id": "1",
+                "legalName": "LLC Petrusenko",
+                "uri": "http://petrusenko.com/fop"
+            },
+            "address": {
+                "streetAddress": "Zakrevskogo",
+                "postalCode": "02217",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
                     },
                     "region": {
                         "scheme": "CUATM",
@@ -1110,23 +1083,35 @@ def insert_into_db_create_fs(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-01T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
+                },
+                "amount": {
+                    "amount": 2000.00,
+                    "currency": "EUR"
                 }
             },
             "rationale": "planning.rationale"
-        }
+        },
+        "relatedProcesses": [{
+            "id": "a3e8d470-557d-11eb-a1bb-b300e52ae89e",
+            "relationship": ["x_fundingSource"],
+            "scheme": "ocid",
+            "identifier": fs_ocid,
+            "uri": f"http://dev.public.eprocurement.systems/budgets/{cpid}/{fs_ocid}"
+        }]
     }
 
     json_notice_budget_compiled_release_ei = {
         "ocid": cpid,
-        "id": cpid + "-" + f"{timestamp}",
-        "date": f"{time_at_now}",
+        "id": cpid + "-" + f"{period[2]}",
+        "date": period[0],
         "tag": ["compiled"],
         "initiationType": "tender",
         "tender": {
-            "id": "7f025771-0c6b-4fa9-bac5-75c36575c5e7",
-            "title": "Cardurilor de acces pentru Bibliotecii Municipale B.P. Hasdeu ",
+            "id": "b3f31996-60e4-4871-893d-b4e985573c8c",
+            "title": "EI_FULL_WORKS",
+            "description": "description of finansical sourse",
             "status": "planning",
             "statusDetails": "empty",
             "mainProcurementCategory": "works",
@@ -1137,19 +1122,21 @@ def insert_into_db_create_fs(cpid):
             }
         },
         "buyer": {
-            "id": "MD-IDNO-123654789000",
-            "name": "Directia Cultura a Primariei mun.Chisinau"
+            "id": "MD-IDNO-1",
+            "name": "LLC Petrusenko"
         },
         "parties": [{
-            "id": "MD-IDNO-123654789000",
-            "name": "Directia Cultura a Primariei mun.Chisinau",
+            "id": "MD-IDNO-1",
+            "name": "LLC Petrusenko",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "123654789000",
-                "legalName": "Directia Cultura a Primariei mun.Chisinau"
+                "id": "1",
+                "legalName": "LLC Petrusenko",
+                "uri": "http://petrusenko.com/fop"
             },
             "address": {
-                "streetAddress": "str.Bucuresti 68",
+                "streetAddress": "Zakrevskogo",
+                "postalCode": "02217",
                 "addressDetails": {
                     "country": {
                         "scheme": "iso-alpha2",
@@ -1159,22 +1146,35 @@ def insert_into_db_create_fs(cpid):
                     },
                     "region": {
                         "scheme": "CUATM",
-                        "id": "0101000",
-                        "description": "mun.Chişinău",
+                        "id": "1700000",
+                        "description": "Cahul",
                         "uri": "http://statistica.md"
                     },
                     "locality": {
                         "scheme": "CUATM",
-                        "id": "0101000",
-                        "description": "mun.Chişinău",
+                        "id": "1701000",
+                        "description": "mun.Cahul",
                         "uri": "http://statistica.md"
                     }
                 }
             },
+            "additionalIdentifiers": [{
+                "scheme": "MD-IDNO",
+                "id": "string",
+                "legalName": "380935103469",
+                "uri": "http://petrusenko.com/svetlana"
+            }],
             "contactPoint": {
-                "name": "Dumitru Popa",
-                "email": "directiacultшra@yahoo.com",
-                "telephone": "022242290"
+                "name": "Petrusenko Svitlana",
+                "email": "svetik@gmail.com",
+                "telephone": "888999666",
+                "faxNumber": "5552233",
+                "url": "http://petrusenko.com/svetlana"
+            },
+            "details": {
+                "typeOfBuyer": "NATIONAL_AGENCY",
+                "mainGeneralActivity": "HEALTH",
+                "mainSectoralActivity": "WATER"
             },
             "roles": ["buyer"]
         }],
@@ -1182,20 +1182,21 @@ def insert_into_db_create_fs(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-10T00:00:00Z",
-                    "endDate": "2021-12-31T12:40:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 },
                 "amount": {
                     "amount": 2000.00,
                     "currency": "EUR"
                 }
-            }
+            },
+            "rationale": "planning.rationale"
         },
         "relatedProcesses": [{
-            "id": "d8f7e390-5460-11eb-9c4c-99558c405434",
+            "id": "a3e8d470-557d-11eb-a1bb-b300e52ae89e",
             "relationship": ["x_fundingSource"],
             "scheme": "ocid",
-            "identifier": "ocds-t1s2t3-MD-1610406045049-FS-1610406049844",
+            "identifier": fs_ocid,
             "uri": f"http://dev.public.eprocurement.systems/budgets/{cpid}/{fs_ocid}"
         }]
     }
@@ -1203,17 +1204,17 @@ def insert_into_db_create_fs(cpid):
     json_budget_fs = {
         "ocid": fs_ocid,
         "tender": {
-            "id": "d5752f3a-40b1-4b0e-bbbb-98fff7e77753",
-            "status": "planning",
-            "statusDetails": "empty"
+            "id": "3c12101f-2059-4240-a805-0f129ed9f6e9",
+            "status": status,
+            "statusDetails": statusDetails
         },
         "planning": {
             "budget": {
                 "id": "IBAN - 102030",
                 "description": "description",
                 "period": {
-                    "startDate": "2021-02-20T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 },
                 "amount": {
                     "amount": 2000.00,
@@ -1225,10 +1226,10 @@ def insert_into_db_create_fs(cpid):
                     "uri": "http://uriuri.th"
                 },
                 "isEuropeanUnionFunded": True,
-                "verified": False,
+                "verified": True,
                 "sourceEntity": {
-                    "id": "MD-IDNO-380632074071",
-                    "name": "LLC Petrusenko"
+                    "id": "MD-IDNO-3",
+                    "name": "buyers name"
                 },
                 "verificationDetails": None,
                 "project": "project",
@@ -1237,11 +1238,58 @@ def insert_into_db_create_fs(cpid):
             },
             "rationale": "reason for the budget"
         },
+        "funder": {
+            "id": "MD-IDNO-3",
+            "name": "buyer name",
+            "identifier": {
+                "id": "3",
+                "scheme": "MD-IDNO",
+                "legalName": "legal Name",
+                "uri": "http://buyer.com"
+            },
+            "address": {
+                "streetAddress": "street address of buyer",
+                "postalCode": "02054",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "3400000",
+                        "description": "Donduşeni",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "3401000",
+                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "additionalIdentifiers": [{
+                "id": "additional identifier",
+                "scheme": "scheme",
+                "legalName": "legal name",
+                "uri": "http://addtIdent.com"
+            }],
+            "contactPoint": {
+                "name": "contact point of buyer",
+                "email": "email.com",
+                "telephone": "32-22-23",
+                "faxNumber": "12-22-21",
+                "url": "http://url.com"
+            }
+        },
         "payer": {
-            "id": "MD-IDNO-123456789000",
+            "id": "MD-IDNO-2",
             "name": "Procuring Entity Name",
             "identifier": {
-                "id": "123456789000",
+                "id": "2",
                 "scheme": "MD-IDNO",
                 "legalName": "Legal Name",
                 "uri": "http://454.to"
@@ -1288,21 +1336,68 @@ def insert_into_db_create_fs(cpid):
 
     json_notice_budget_release_fs = {
         "ocid": fs_ocid,
-        "id": fs_ocid + "-" + f"{timestamp}",
-        "date": f"{time_at_now}",
+        "id": fs_ocid + "-" + f"{period[2]}",
+        "date": period[0],
         "tag": ["planning"],
         "initiationType": "tender",
         "tender": {
-            "id": "d5752f3a-40b1-4b0e-bbbb-98fff7e77753",
-            "status": "planning",
-            "statusDetails": "empty"
+            "id": "3c12101f-2059-4240-a805-0f129ed9f6e9",
+            "status": status,
+            "statusDetails": statusDetails
         },
         "parties": [{
-            "id": "MD-IDNO-123456789000",
+            "id": "MD-IDNO-3",
+            "name": "buyer name",
+            "identifier": {
+                "scheme": "MD-IDNO",
+                "id": "3",
+                "legalName": "legal Name",
+                "uri": "http://buyer.com"
+            },
+            "address": {
+                "streetAddress": "street address of buyer",
+                "postalCode": "02054",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "3400000",
+                        "description": "Donduşeni",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "3401000",
+                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "additionalIdentifiers": [{
+                "scheme": "scheme",
+                "id": "additional identifier",
+                "legalName": "legal name",
+                "uri": "http://addtIdent.com"
+            }],
+            "contactPoint": {
+                "name": "contact point of buyer",
+                "email": "email.com",
+                "telephone": "32-22-23",
+                "faxNumber": "12-22-21",
+                "url": "http://url.com"
+            },
+            "roles": ["funder"]
+        }, {
+            "id": "MD-IDNO-2",
             "name": "Procuring Entity Name",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "123456789000",
+                "id": "2",
                 "legalName": "Legal Name",
                 "uri": "http://454.to"
             },
@@ -1350,8 +1445,8 @@ def insert_into_db_create_fs(cpid):
                 "id": "IBAN - 102030",
                 "description": "description",
                 "period": {
-                    "startDate": "2021-02-20T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 },
                 "amount": {
                     "amount": 2000.00,
@@ -1363,10 +1458,10 @@ def insert_into_db_create_fs(cpid):
                     "uri": "http://uriuri.th"
                 },
                 "isEuropeanUnionFunded": True,
-                "verified": False,
+                "verified": True,
                 "sourceEntity": {
-                    "id": "MD-IDNO-380632074071",
-                    "name": "LLC Petrusenko"
+                    "id": "MD-IDNO-3",
+                    "name": "buyer name"
                 },
                 "project": "project",
                 "projectID": "projectID",
@@ -1375,7 +1470,7 @@ def insert_into_db_create_fs(cpid):
             "rationale": "reason for the budget"
         },
         "relatedProcesses": [{
-            "id": "376490a0-529e-11eb-a7d4-3b1c06125f07",
+            "id": "a3e85f40-557d-11eb-a1bb-b300e52ae89e",
             "relationship": ["parent"],
             "scheme": "ocid",
             "identifier": cpid,
@@ -1385,21 +1480,68 @@ def insert_into_db_create_fs(cpid):
 
     json_budget_compiled_release_fs = {
         "ocid": fs_ocid,
-        "id": fs_ocid + "-" + f"{timestamp}",
-        "date": f"{time_at_now}",
+        "id": fs_ocid + "-" + f"{period[2]}",
+        "date": period[0],
         "tag": ["planning"],
         "initiationType": "tender",
         "tender": {
-            "id": "d5752f3a-40b1-4b0e-bbbb-98fff7e77753",
-            "status": "planning",
-            "statusDetails": "empty"
+            "id": "3c12101f-2059-4240-a805-0f129ed9f6e9",
+            "status": status,
+            "statusDetails": statusDetails
         },
         "parties": [{
-            "id": "MD-IDNO-123456789000",
+            "id": "MD-IDNO-3",
+            "name": "buyer name",
+            "identifier": {
+                "scheme": "MD-IDNO",
+                "id": "3",
+                "legalName": "legal Name",
+                "uri": "http://buyer.com"
+            },
+            "address": {
+                "streetAddress": "street address of buyer",
+                "postalCode": "02054",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "3400000",
+                        "description": "Donduşeni",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "3401000",
+                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "additionalIdentifiers": [{
+                "scheme": "scheme",
+                "id": "additional identifier",
+                "legalName": "legal name",
+                "uri": "http://addtIdent.com"
+            }],
+            "contactPoint": {
+                "name": "contact point of buyer",
+                "email": "email.com",
+                "telephone": "32-22-23",
+                "faxNumber": "12-22-21",
+                "url": "http://url.com"
+            },
+            "roles": ["funder"]
+        }, {
+            "id": "MD-IDNO-2",
             "name": "Procuring Entity Name",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "123456789000",
+                "id": "2",
                 "legalName": "Legal Name",
                 "uri": "http://454.to"
             },
@@ -1447,8 +1589,8 @@ def insert_into_db_create_fs(cpid):
                 "id": "IBAN - 102030",
                 "description": "description",
                 "period": {
-                    "startDate": "2021-02-20T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 },
                 "amount": {
                     "amount": 2000.00,
@@ -1460,10 +1602,10 @@ def insert_into_db_create_fs(cpid):
                     "uri": "http://uriuri.th"
                 },
                 "isEuropeanUnionFunded": True,
-                "verified": False,
+                "verified": True,
                 "sourceEntity": {
-                    "id": "MD-IDNO-380632074071",
-                    "name": "LLC Petrusenko"
+                    "id": "MD-IDNO-3",
+                    "name": "buyer name"
                 },
                 "project": "project",
                 "projectID": "projectID",
@@ -1472,7 +1614,7 @@ def insert_into_db_create_fs(cpid):
             "rationale": "reason for the budget"
         },
         "relatedProcesses": [{
-            "id": "376490a0-529e-11eb-a7d4-3b1c06125f07",
+            "id": "a3e85f40-557d-11eb-a1bb-b300e52ae89e",
             "relationship": ["parent"],
             "scheme": "ocid",
             "identifier": cpid,
@@ -1489,7 +1631,7 @@ def insert_into_db_create_fs(cpid):
                     f"cp_id,oc_id,amount,json_data,publish_date,release_date,"
                     f"release_id,stage) VALUES('{cpid}','{cpid}', 0.0, "
                     f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
-                    f"1609943491271,1609943491271,'{cpid + '-' + f'{timestamp}'}',"
+                    f"1609943491271,1609943491271,'{cpid + '-' + f'{period[2]}'}',"
                     f"'EI');").one()
 
     session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
@@ -1499,23 +1641,22 @@ def insert_into_db_create_fs(cpid):
                     f"'{cpid}','{json.dumps(json_orchestrator_context)}');").one()
 
     session.execute(
-        f"INSERT INTO budget_fs (cp_id,token_entity,amount,amount_reserved,created_date,json_data,oc_id,owner) "
-        f"VALUES ('{cpid}',{fs_token},8000.00,0,{timestamp},'{json.dumps(json_budget_fs)}','{fs_ocid}',"
-        f"'{owner}');").one()
+        f"INSERT INTO budget_fs (cp_id,token_entity,amount,amount_reserved,created_date,json_data,oc_id,owner) VALUES ("
+        f"'{cpid}',{fs_token},2000.00,0,{period[2]},'{json.dumps(json_budget_fs)}','{fs_ocid}','{owner}');").one()
 
     session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
-                    f"VALUES ('{cpid}',{timestamp});").one()
+                    f"VALUES ('{cpid}',{period[2]});").one()
 
     session.execute(
         f"INSERT INTO notice_budget_release (cp_id,oc_id,release_id,json_data,release_date,stage) "
-        f"VALUES ('{cpid}','{fs_ocid}','{fs_ocid + '-' + str(timestamp)}','{json.dumps(json_notice_budget_release_fs)}',"
+        f"VALUES ('{cpid}','{fs_ocid}','{fs_ocid + '-' + str(period[2])}','{json.dumps(json_notice_budget_release_fs)}',"
         f"1610212505151,'FS');").one()
 
     session.execute(
         f"INSERT INTO notice_budget_compiled_release (cp_id,oc_id,amount,json_data,publish_date,release_date,"
         f"release_id,stage) VALUES ('{cpid}','{fs_ocid}',8000.00,'{json.dumps(json_budget_compiled_release_fs)}',"
-        f"{timestamp},"
-        f"{timestamp},'{fs_ocid + '-' + str(timestamp)}','FS');")
+        f"{period[2]},"
+        f"{period[2]},'{fs_ocid + '-' + str(period[2])}','FS');")
 
     return f"http://dev.public.eprocurement.systems/budgets/{cpid}/{fs_ocid}", fs_token, fs_ocid
 
@@ -1528,11 +1669,12 @@ def insert_into_db_update_fs(cpid):
     ei_token = uuid4()
     owner = "445f6851-c908-407d-9b45-14b92f3e964b"
 
+    period = get_period()
     date = datetime.datetime.now()
-    time_at_now = date.strftime('%Y-%m-%dT%H:%M:%SZ')
-    time_at_now_miliseconds = date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    timestamp = int(
-        time.mktime(datetime.datetime.strptime(time_at_now_miliseconds, "%Y-%m-%dT%H:%M:%S.%fZ").timetuple())) * 1000
+    # time_at_now = date.strftime('%Y-%m-%dT%H:%M:%SZ')
+    # time_at_now_miliseconds = date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    # timestamp = int(
+    #     time.mktime(datetime.datetime.strptime(time_at_now_miliseconds, "%Y-%m-%dT%H:%M:%S.%fZ").timetuple())) * 1000
     fs_ocid = prepared_fs_ocid(cpid)
 
     json_orchestrator_context = {
@@ -1547,16 +1689,17 @@ def insert_into_db_update_fs(cpid):
         "country": "MD",
         "language": "ro",
         "token": f"{fs_token}",
-        "startDate": f"{time_at_now}",
-        "timeStamp": timestamp,
+        "startDate": period[0],
+        "timeStamp": period[2],
         "isAuction": False
     }
 
     json_budget_ei = {
         "ocid": cpid,
         "tender": {
-            "id": "7f025771-0c6b-4fa9-bac5-75c36575c5e7",
-            "title": "Cardurilor de acces pentru Bibliotecii Municipale B.P. Hasdeu ",
+            "id": "72695c4a-9026-4ad9-a191-eb75f0698333",
+            "title": "EI_FULL_WORKS",
+            "description": "description of finansical sourse",
             "status": "planning",
             "statusDetails": "empty",
             "classification": {
@@ -1570,126 +1713,22 @@ def insert_into_db_update_fs(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-10T00:00:00Z",
-                    "endDate": "2021-12-31T12:40:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 },
                 "amount": {
-                    "amount": 2000.00,
+                    "amount": 24.00,
                     "currency": "EUR"
                 }
-            }
+            },
+            "rationale": "planning.rationale"
         },
         "buyer": {
-            "id": "MD-IDNO-123654789000",
-            "name": "Directia Cultura a Primariei mun.Chisinau",
-            "identifier": {
-                "id": "123654789000",
-                "scheme": "MD-IDNO",
-                "legalName": "Directia Cultura a Primariei mun.Chisinau"
-            },
-            "address": {
-                "streetAddress": "str.Bucuresti 68",
-                "addressDetails": {
-                    "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
-                        "uri": "https://www.iso.org"
-                    },
-                    "region": {
-                        "scheme": "CUATM",
-                        "id": "0101000",
-                        "description": "mun.Chişinău",
-                        "uri": "http://statistica.md"
-                    },
-                    "locality": {
-                        "scheme": "CUATM",
-                        "id": "0101000",
-                        "description": "mun.Chişinău",
-                        "uri": "http://statistica.md"
-                    }
-                }
-            },
-            "contactPoint": {
-                "name": "Dumitru Popa",
-                "email": "directiacultшra@yahoo.com",
-                "telephone": "022242290"
-            }
-        }
-    }
-
-    json_notice_budget_release_ei = {
-        "ocid": cpid,
-        "id": cpid + '-' + f'{timestamp}',
-        "date": f"{time_at_now}",
-        "tag": ["compiled"],
-        "initiationType": "tender",
-        "tender": {
-            "id": "fbd943ca-aaad-433d-9189-96566e3648ea",
-            "title": "EI_FULL_WORKS",
-            "description": "description of finansical sourse",
-            "status": "planning",
-            "statusDetails": "empty",
-            "items": [{
-                "id": "6a565c47-ff11-4e2d-8ea1-3f34c5d751f9",
-                "description": "item 1",
-                "classification": {
-                    "scheme": "CPV",
-                    "id": "45100000-8",
-                    "description": "Lucrări de pregătire a şantierului"
-                },
-                "additionalClassifications": [{
-                    "scheme": "CPVS",
-                    "id": "AA12-4",
-                    "description": "Oţel carbon"
-                }],
-                "quantity": 10.000,
-                "unit": {
-                    "name": "Parsec",
-                    "id": "10"
-                },
-                "deliveryAddress": {
-                    "streetAddress": "Khreshchatyk",
-                    "postalCode": "01124",
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": "MD",
-                            "description": "MOLDOVA",
-                            "uri": "http://reference.iatistandard.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": "0101000",
-                            "description": "mun.Chişinău",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": "CUATM",
-                            "id": "0101000",
-                            "description": "mun.Chişinău",
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                }
-            }],
-            "mainProcurementCategory": "works",
-            "classification": {
-                "scheme": "CPV",
-                "id": "45100000-8",
-                "description": "Lucrări de pregătire a şantierului"
-            }
-        },
-        "buyer": {
-            "id": "MD-IDNO-380632074071",
-            "name": "LLC Petrusenko"
-        },
-        "parties": [{
-            "id": "MD-IDNO-380632074071",
+            "id": "MD-IDNO-1",
             "name": "LLC Petrusenko",
             "identifier": {
+                "id": "1",
                 "scheme": "MD-IDNO",
-                "id": "380632074071",
                 "legalName": "LLC Petrusenko",
                 "uri": "http://petrusenko.com/fop"
             },
@@ -1700,8 +1739,85 @@ def insert_into_db_update_fs(cpid):
                     "country": {
                         "scheme": "iso-alpha2",
                         "id": "MD",
-                        "description": "MOLDOVA",
-                        "uri": "http://reference.iatistandard.org"
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "1700000",
+                        "description": "Cahul",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "1701000",
+                        "description": "mun.Cahul",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "contactPoint": {
+                "name": "Petrusenko Svitlana",
+                "email": "svetik@gmail.com",
+                "telephone": "888999666",
+                "faxNumber": "5552233",
+                "url": "http://petrusenko.com/svetlana"
+            },
+            "additionalIdentifiers": [{
+                "id": "string",
+                "scheme": "MD-IDNO",
+                "legalName": "380935103469",
+                "uri": "http://petrusenko.com/svetlana"
+            }],
+            "details": {
+                "typeOfBuyer": "NATIONAL_AGENCY",
+                "mainGeneralActivity": "HEALTH",
+                "mainSectoralActivity": "WATER"
+            }
+        }
+    }
+
+    json_notice_budget_release_ei = {
+        "ocid": cpid,
+        "id": cpid + "-" + f"{period[2]}",
+        "date": period[0],
+        "tag": ["compiled"],
+        "initiationType": "tender",
+        "tender": {
+            "id": "72695c4a-9026-4ad9-a191-eb75f0698333",
+            "title": "EI_FULL_WORKS",
+            "description": "description of finansical sourse",
+            "status": "planning",
+            "statusDetails": "empty",
+            "mainProcurementCategory": "works",
+            "classification": {
+                "scheme": "CPV",
+                "id": "45100000-8",
+                "description": "Lucrări de pregătire a şantierului"
+            }
+        },
+        "buyer": {
+            "id": "MD-IDNO-1",
+            "name": "LLC Petrusenko"
+        },
+        "parties": [{
+            "id": "MD-IDNO-1",
+            "name": "LLC Petrusenko",
+            "identifier": {
+                "scheme": "MD-IDNO",
+                "id": "1",
+                "legalName": "LLC Petrusenko",
+                "uri": "http://petrusenko.com/fop"
+            },
+            "address": {
+                "streetAddress": "Zakrevskogo",
+                "postalCode": "02217",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
                     },
                     "region": {
                         "scheme": "CUATM",
@@ -1741,23 +1857,35 @@ def insert_into_db_update_fs(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-01T00:00:00Z",
-                    "endDate": "2021-12-31T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
+                },
+                "amount": {
+                    "amount": 24.00,
+                    "currency": "EUR"
                 }
             },
             "rationale": "planning.rationale"
-        }
+        },
+        "relatedProcesses": [{
+            "id": "d0d7c580-5592-11eb-a1bb-b300e52ae89e",
+            "relationship": ["x_fundingSource"],
+            "scheme": "ocid",
+            "identifier": fs_ocid,
+            "uri": f"http://dev.public.eprocurement.systems/budgets/{cpid}/{fs_ocid}"
+        }]
     }
 
     json_notice_budget_compiled_release_ei = {
         "ocid": cpid,
-        "id": cpid + "-" + f"{timestamp}",
-        "date": f"{time_at_now}",
+        "id": cpid + "-" + f"{period[2]}",
+        "date": period[0],
         "tag": ["compiled"],
         "initiationType": "tender",
         "tender": {
-            "id": "bb58a236-dc45-4f62-baf5-7a4a28778bc3",
-            "title": "Cardurilor de acces pentru Bibliotecii Municipale B.P. Hasdeu ",
+            "id": "72695c4a-9026-4ad9-a191-eb75f0698333",
+            "title": "EI_FULL_WORKS",
+            "description": "description of finansical sourse",
             "status": "planning",
             "statusDetails": "empty",
             "mainProcurementCategory": "works",
@@ -1768,19 +1896,21 @@ def insert_into_db_update_fs(cpid):
             }
         },
         "buyer": {
-            "id": "MD-IDNO-123654789000",
-            "name": "Directia Cultura a Primariei mun.Chisinau"
+            "id": "MD-IDNO-1",
+            "name": "LLC Petrusenko"
         },
         "parties": [{
-            "id": "MD-IDNO-123654789000",
-            "name": "Directia Cultura a Primariei mun.Chisinau",
+            "id": "MD-IDNO-1",
+            "name": "LLC Petrusenko",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "123654789000",
-                "legalName": "Directia Cultura a Primariei mun.Chisinau"
+                "id": "1",
+                "legalName": "LLC Petrusenko",
+                "uri": "http://petrusenko.com/fop"
             },
             "address": {
-                "streetAddress": "str.Bucuresti 68",
+                "streetAddress": "Zakrevskogo",
+                "postalCode": "02217",
                 "addressDetails": {
                     "country": {
                         "scheme": "iso-alpha2",
@@ -1790,22 +1920,35 @@ def insert_into_db_update_fs(cpid):
                     },
                     "region": {
                         "scheme": "CUATM",
-                        "id": "0101000",
-                        "description": "mun.Chişinău",
+                        "id": "1700000",
+                        "description": "Cahul",
                         "uri": "http://statistica.md"
                     },
                     "locality": {
                         "scheme": "CUATM",
-                        "id": "0101000",
-                        "description": "mun.Chişinău",
+                        "id": "1701000",
+                        "description": "mun.Cahul",
                         "uri": "http://statistica.md"
                     }
                 }
             },
+            "additionalIdentifiers": [{
+                "scheme": "MD-IDNO",
+                "id": "string",
+                "legalName": "380935103469",
+                "uri": "http://petrusenko.com/svetlana"
+            }],
             "contactPoint": {
-                "name": "Dumitru Popa",
-                "email": "directiacultшra@yahoo.com",
-                "telephone": "022242290"
+                "name": "Petrusenko Svitlana",
+                "email": "svetik@gmail.com",
+                "telephone": "888999666",
+                "faxNumber": "5552233",
+                "url": "http://petrusenko.com/svetlana"
+            },
+            "details": {
+                "typeOfBuyer": "NATIONAL_AGENCY",
+                "mainGeneralActivity": "HEALTH",
+                "mainSectoralActivity": "WATER"
             },
             "roles": ["buyer"]
         }],
@@ -1813,20 +1956,21 @@ def insert_into_db_update_fs(cpid):
             "budget": {
                 "id": "45100000-8",
                 "period": {
-                    "startDate": "2021-01-10T00:00:00Z",
-                    "endDate": "2021-12-31T12:40:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 },
                 "amount": {
                     "amount": 24.00,
                     "currency": "EUR"
                 }
-            }
+            },
+            "rationale": "planning.rationale"
         },
         "relatedProcesses": [{
-            "id": "e23a0c90-5464-11eb-9c4c-99558c405434",
+            "id": "d0d7c580-5592-11eb-a1bb-b300e52ae89e",
             "relationship": ["x_fundingSource"],
             "scheme": "ocid",
-            "identifier": "ocds-t1s2t3-MD-1610407775380-FS-1610407783365",
+            "identifier": fs_ocid,
             "uri": f"http://dev.public.eprocurement.systems/budgets/{cpid}/{fs_ocid}"
         }]
     }
@@ -1834,45 +1978,92 @@ def insert_into_db_update_fs(cpid):
     json_budget_fs = {
         "ocid": fs_ocid,
         "tender": {
-            "id": "d5752f3a-40b1-4b0e-bbbb-98fff7e77753",
-            "status": "planning",
+            "id": "4e1db367-c823-4f2c-89b1-207acedcd8f3",
+            "status": "active",
             "statusDetails": "empty"
         },
         "planning": {
             "budget": {
                 "id": "IBAN - 102030",
-                "description": "for FS updating from 2021 year",
+                "description": "updated value",
                 "period": {
-                    "startDate": "2021-12-20T00:00:00Z",
-                    "endDate": "2021-12-25T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 },
                 "amount": {
-                    "amount": 2000.00,
+                    "amount": 24.00,
                     "currency": "EUR"
                 },
                 "europeanUnionFunding": {
-                    "projectName": "for FS updating from 2021 year",
-                    "projectIdentifier": "for FS updating from 2021 year",
-                    "uri": "for FS updating from 2021 year"
+                    "projectName": "updated valuet",
+                    "projectIdentifier": "updated value",
+                    "uri": "updated value"
                 },
                 "isEuropeanUnionFunded": True,
-                "verified": False,
+                "verified": True,
                 "sourceEntity": {
-                    "id": "MD-IDNO-380632074071",
-                    "name": "LLC Petrusenko"
+                    "id": "MD-IDNO-3",
+                    "name": "buyer name"
                 },
                 "verificationDetails": None,
-                "project": "for FS updating from 2021 year",
-                "projectID": "for FS updating from 2021 year",
-                "uri": "for FS updating from 2021 year"
+                "project": "updated value",
+                "projectID": "updated value",
+                "uri": "updated value"
             },
-            "rationale": "for FS updating from 2021 year"
+            "rationale": "updated value"
+        },
+        "funder": {
+            "id": "MD-IDNO-3",
+            "name": "buyer name",
+            "identifier": {
+                "id": "3",
+                "scheme": "MD-IDNO",
+                "legalName": "legal Name",
+                "uri": "http://buyer.com"
+            },
+            "address": {
+                "streetAddress": "street address of buyer",
+                "postalCode": "02054",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "3400000",
+                        "description": "Donduşeni",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "3401000",
+                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "additionalIdentifiers": [{
+                "id": "additional identifier",
+                "scheme": "scheme",
+                "legalName": "legal name",
+                "uri": "http://addtIdent.com"
+            }],
+            "contactPoint": {
+                "name": "contact point of buyer",
+                "email": "email.com",
+                "telephone": "32-22-23",
+                "faxNumber": "12-22-21",
+                "url": "http://url.com"
+            }
         },
         "payer": {
-            "id": "MD-IDNO-123456789000",
+            "id": "MD-IDNO-2",
             "name": "Procuring Entity Name",
             "identifier": {
-                "id": "123456789000",
+                "id": "2",
                 "scheme": "MD-IDNO",
                 "legalName": "Legal Name",
                 "uri": "http://454.to"
@@ -1919,21 +2110,68 @@ def insert_into_db_update_fs(cpid):
 
     json_notice_budget_release_fs = {
         "ocid": fs_ocid,
-        "id": fs_ocid + "-" + f"{timestamp}",
-        "date": f"{time_at_now}",
+        "id": fs_ocid + "-" + f"{period[2]}",
+        "date": period[0],
         "tag": ["planning"],
         "initiationType": "tender",
         "tender": {
-            "id": "d5752f3a-40b1-4b0e-bbbb-98fff7e77753",
-            "status": "planning",
+            "id": "4e1db367-c823-4f2c-89b1-207acedcd8f3",
+            "status": "active",
             "statusDetails": "empty"
         },
         "parties": [{
-            "id": "MD-IDNO-123456789000",
+            "id": "MD-IDNO-3",
+            "name": "buyer name",
+            "identifier": {
+                "scheme": "MD-IDNO",
+                "id": "3",
+                "legalName": "legal Name",
+                "uri": "http://buyer.com"
+            },
+            "address": {
+                "streetAddress": "street address of buyer",
+                "postalCode": "02054",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "3400000",
+                        "description": "Donduşeni",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "3401000",
+                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "additionalIdentifiers": [{
+                "scheme": "scheme",
+                "id": "additional identifier",
+                "legalName": "legal name",
+                "uri": "http://addtIdent.com"
+            }],
+            "contactPoint": {
+                "name": "contact point of buyer",
+                "email": "email.com",
+                "telephone": "32-22-23",
+                "faxNumber": "12-22-21",
+                "url": "http://url.com"
+            },
+            "roles": ["funder"]
+        }, {
+            "id": "MD-IDNO-2",
             "name": "Procuring Entity Name",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "123456789000",
+                "id": "2",
                 "legalName": "Legal Name",
                 "uri": "http://454.to"
             },
@@ -1979,34 +2217,34 @@ def insert_into_db_update_fs(cpid):
         "planning": {
             "budget": {
                 "id": "IBAN - 102030",
-                "description": "for FS updating from 2021 year",
+                "description": "updated value",
                 "period": {
-                    "startDate": "2021-12-20T00:00:00Z",
-                    "endDate": "2021-12-25T00:00:00Z"
+                    "startDate": period[1],
+                    "endDate": period[1]
                 },
                 "amount": {
-                    "amount": 2000.00,
+                    "amount": 24.00,
                     "currency": "EUR"
                 },
                 "europeanUnionFunding": {
-                    "projectIdentifier": "for FS updating from 2021 year",
-                    "projectName": "for FS updating from 2021 year",
-                    "uri": "for FS updating from 2021 year"
+                    "projectIdentifier": "updated value",
+                    "projectName": "updated valuet",
+                    "uri": "updated value"
                 },
                 "isEuropeanUnionFunded": True,
-                "verified": False,
+                "verified": True,
                 "sourceEntity": {
-                    "id": "MD-IDNO-380632074071",
-                    "name": "LLC Petrusenko"
+                    "id": "MD-IDNO-3",
+                    "name": "buyer name"
                 },
-                "project": "for FS updating from 2021 year",
-                "projectID": "for FS updating from 2021 year",
-                "uri": "for FS updating from 2021 year"
+                "project": "updated value",
+                "projectID": "updated value",
+                "uri": "updated value"
             },
-            "rationale": "for FS updating from 2021 year"
+            "rationale": "updated value"
         },
         "relatedProcesses": [{
-            "id": "376490a0-529e-11eb-a7d4-3b1c06125f07",
+            "id": "d0d77760-5592-11eb-a1bb-b300e52ae89e",
             "relationship": ["parent"],
             "scheme": "ocid",
             "identifier": cpid,
@@ -2016,21 +2254,68 @@ def insert_into_db_update_fs(cpid):
 
     json_budget_compiled_release_fs = {
         "ocid": fs_ocid,
-        "id": fs_ocid + "-" + f"{timestamp}",
-        "date": f"{time_at_now}",
+        "id": fs_ocid + "-" + f"{period[2]}",
+        "date": period[0],
         "tag": ["planning"],
         "initiationType": "tender",
         "tender": {
-            "id": "d5752f3a-40b1-4b0e-bbbb-98fff7e77753",
-            "status": "planning",
+            "id": "4e1db367-c823-4f2c-89b1-207acedcd8f3",
+            "status": "active",
             "statusDetails": "empty"
         },
         "parties": [{
-            "id": "MD-IDNO-123456789000",
+            "id": "MD-IDNO-3",
+            "name": "buyer name",
+            "identifier": {
+                "scheme": "MD-IDNO",
+                "id": "3",
+                "legalName": "legal Name",
+                "uri": "http://buyer.com"
+            },
+            "address": {
+                "streetAddress": "street address of buyer",
+                "postalCode": "02054",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "3400000",
+                        "description": "Donduşeni",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "3401000",
+                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "additionalIdentifiers": [{
+                "scheme": "scheme",
+                "id": "additional identifier",
+                "legalName": "legal name",
+                "uri": "http://addtIdent.com"
+            }],
+            "contactPoint": {
+                "name": "contact point of buyer",
+                "email": "email.com",
+                "telephone": "32-22-23",
+                "faxNumber": "12-22-21",
+                "url": "http://url.com"
+            },
+            "roles": ["funder"]
+        }, {
+            "id": "MD-IDNO-2",
             "name": "Procuring Entity Name",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "123456789000",
+                "id": "2",
                 "legalName": "Legal Name",
                 "uri": "http://454.to"
             },
@@ -2076,34 +2361,34 @@ def insert_into_db_update_fs(cpid):
         "planning": {
             "budget": {
                 "id": "IBAN - 102030",
-                "description": "for FS updating from 2021 year",
+                "description": "updated value",
                 "period": {
-                    "startDate": "2021-12-20T00:00:00Z",
-                    "endDate": "2021-12-25T00:00:00Z"
+                    "startDate": period[0],
+                    "endDate": period[1]
                 },
                 "amount": {
-                    "amount": 3000.99,
+                    "amount": 24.00,
                     "currency": "EUR"
                 },
                 "europeanUnionFunding": {
-                    "projectIdentifier": "for FS updating from 2021 year",
-                    "projectName": "for FS updating from 2021 year",
-                    "uri": "for FS updating from 2021 year"
+                    "projectIdentifier": "updated value",
+                    "projectName": "updated valuet",
+                    "uri": "updated value"
                 },
                 "isEuropeanUnionFunded": True,
-                "verified": False,
+                "verified": True,
                 "sourceEntity": {
-                    "id": "MD-IDNO-380632074071",
-                    "name": "LLC Petrusenko"
+                    "id": "MD-IDNO-3",
+                    "name": "buyer name"
                 },
-                "project": "for FS updating from 2021 year",
-                "projectID": "for FS updating from 2021 year",
-                "uri": "for FS updating from 2021 year"
+                "project": "updated value",
+                "projectID": "updated value",
+                "uri": "updated value"
             },
-            "rationale": "for FS updating from 2021 year"
+            "rationale": "updated value"
         },
         "relatedProcesses": [{
-            "id": "376490a0-529e-11eb-a7d4-3b1c06125f07",
+            "id": "d0d77760-5592-11eb-a1bb-b300e52ae89e",
             "relationship": ["parent"],
             "scheme": "ocid",
             "identifier": cpid,
@@ -2120,7 +2405,7 @@ def insert_into_db_update_fs(cpid):
                     f"cp_id,oc_id,amount,json_data,publish_date,release_date,"
                     f"release_id,stage) VALUES('{cpid}','{cpid}', 0.0, "
                     f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
-                    f"1609943491271,1609943491271,'{cpid + '-' + f'{timestamp}'}',"
+                    f"1609943491271,1609943491271,'{cpid + '-' + f'{period[2]}'}',"
                     f"'EI');").one()
 
     session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
@@ -2131,19 +2416,22 @@ def insert_into_db_update_fs(cpid):
 
     session.execute(
         f"INSERT INTO budget_fs (cp_id,token_entity,amount,amount_reserved,created_date,json_data,oc_id,owner) "
-        f"VALUES ('{cpid}',{fs_token},8000.00,0,{timestamp},'{json.dumps(json_budget_fs)}','{fs_ocid}','{owner}');").one()
+        f"VALUES ('{cpid}',{fs_token},8000.00,0,{period[2]},'{json.dumps(json_budget_fs)}','{fs_ocid}',"
+        f"'{owner}');").one()
 
     session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
-                    f"VALUES ('{cpid}',{timestamp});").one()
+                    f"VALUES ('{cpid}',{period[2]});").one()
 
     session.execute(
         f"INSERT INTO notice_budget_release (cp_id,oc_id,release_id,json_data,release_date,stage) "
-        f"VALUES ('{cpid}','{fs_ocid}','{fs_ocid + '-' + str(timestamp)}','{json.dumps(json_notice_budget_release_fs)}',"
+        f"VALUES ('{cpid}','{fs_ocid}','{fs_ocid + '-' + str(period[2])}',"
+        f"'{json.dumps(json_notice_budget_release_fs)}',"
         f"1610212505151,'FS');").one()
 
     session.execute(
         f"INSERT INTO notice_budget_compiled_release (cp_id,oc_id,amount,json_data,publish_date,release_date,"
-        f"release_id,stage) VALUES ('{cpid}','{fs_ocid}',8000.00,'{json.dumps(json_budget_compiled_release_fs)}',{timestamp},"
-        f"{timestamp},'{fs_ocid + '-' + str(timestamp)}','FS');")
+        f"release_id,stage) VALUES ('{cpid}','{fs_ocid}',8000.00,'{json.dumps(json_budget_compiled_release_fs)}',"
+        f"{period[2]},"
+        f"{period[2]},'{fs_ocid + '-' + str(period[2])}','FS');")
 
     return f"http://dev.public.eprocurement.systems/budgets/{cpid}/{fs_ocid}", fs_token, fs_ocid

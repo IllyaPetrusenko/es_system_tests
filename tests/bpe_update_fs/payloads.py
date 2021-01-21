@@ -1,16 +1,16 @@
-from useful_functions import get_period
 
-period = get_period()
-start_date = period[0]
-end_date = period[1]
+from useful_functions import get_new_period
+
+period = get_new_period()
+
 fs_update_full_treasury_money = {
     "planning": {
         "budget": {
             "id": "IBAN - 102030",
             "description": "description",
             "period": {
-                "startDate": start_date,
-                "endDate": end_date
+                "startDate": period[0],
+                "endDate": period[1]
             },
             "amount": {
                 "amount": 2000.00,
@@ -78,8 +78,8 @@ fs_update_obligatory_treasury_money = {
     "planning": {
         "budget": {
             "period": {
-                "startDate": start_date,
-                "endDate": end_date
+                "startDate": period[0],
+                "endDate": period[1]
             },
             "amount": {
                 "amount": 2000.00,
@@ -124,48 +124,48 @@ fs_update_obligatory_treasury_money = {
 fs_update_full_own_money = {
     "planning": {
         "budget": {
-            "id": "IBAN - 102030",
-            "description": "description",
+            "id": "update_fs",
+            "description": "update_fs",
             "period": {
-                "startDate": start_date,
-                "endDate": end_date
+                "startDate": period[0],
+                "endDate": period[1]
             },
             "amount": {
-                "amount": 2000.00,
+                "amount": 99.99,
                 "currency": "EUR"
             },
             "isEuropeanUnionFunded": True,
             "europeanUnionFunding": {
-                "projectName": "Name of this project",
-                "projectIdentifier": "projectIdentifier",
-                "uri": "http://uriuri.th"
+                "projectName": "update_fs",
+                "projectIdentifier": "update_fs",
+                "uri": "update_fs"
             },
-            "project": "project",
-            "projectID": "projectID",
-            "uri": "http://uri.ur"
+            "project": "update_fs",
+            "projectID": "update_fs",
+            "uri": "update_fs"
         },
-        "rationale": "reason for the budget"
+        "rationale": "update_fs"
     },
     "tender": {
         "procuringEntity": {
-            "name": "Procuring Entity Name",
+            "name": "update_fs",
             "identifier": {
-                "id": "123456789000",
+                "id": "44_update_fs",
                 "scheme": "MD-IDNO",
-                "legalName": "Legal Name",
-                "uri": "http://454.to"
+                "legalName": "update_fs",
+                "uri": "update_fs"
             },
             "additionalIdentifiers": [
                 {
-                    "id": "additional identifier",
-                    "scheme": "MD-K",
-                    "legalName": "legalname",
-                    "uri": "http://k.to"
+                    "id": "update_fs",
+                    "scheme": "update_fs",
+                    "legalName": "update_fs",
+                    "uri": "update_fs"
                 }
             ],
             "address": {
-                "streetAddress": "street",
-                "postalCode": "785412",
+                "streetAddress": "update_fs",
+                "postalCode": "update_fs",
                 "addressDetails": {
                     "country": {
                         "id": "MD"
@@ -181,25 +181,25 @@ fs_update_full_own_money = {
                 }
             },
             "contactPoint": {
-                "name": "contact person",
-                "email": "string@mail.ccc",
-                "telephone": "98-79-87",
-                "faxNumber": "78-56-55",
-                "url": "http://url.com"
+                "name": "update_fs",
+                "email": "update_fs",
+                "telephone": "update_fs",
+                "faxNumber": "update_fs",
+                "url": "update_fs"
             }
         }
     },
     "buyer": {
-        "name": "buyer's name",
+        "name": "update_fs",
         "identifier": {
-            "id": "123654789000",
+            "id": "55_update_fs",
             "scheme": "MD-IDNO",
-            "legalName": "legal Name",
-            "uri": "http://buyer.com"
+            "legalName": "update_fs",
+            "uri": "update_fs"
         },
         "address": {
-            "streetAddress": "street address of buyer",
-            "postalCode": "02054",
+            "streetAddress": "update_fs",
+            "postalCode": "update_fs",
             "addressDetails": {
                 "country": {
                     "id": "MD"
@@ -210,24 +210,24 @@ fs_update_full_own_money = {
                 "locality": {
                     "scheme": "CUATM",
                     "id": "1701000",
-                    "description": "description of locality"
+                    "description": "update_fs"
                 }
             }
         },
         "additionalIdentifiers": [
             {
-                "id": "additional identifier",
-                "scheme": "scheme",
-                "legalName": "legal name",
-                "uri": "http://addtIdent.com"
+                "id": "update_fs",
+                "scheme": "update_fs",
+                "legalName": "update_fs",
+                "uri": "update_fs"
             }
         ],
         "contactPoint": {
-            "name": "contact point of buyer",
-            "email": "email.com",
-            "telephone": "32-22-23",
-            "faxNumber": "12-22-21",
-            "url": "http://url.com"
+            "name": "update_fs",
+            "email": "update_fs",
+            "telephone": "update_fs",
+            "faxNumber": "update_fs",
+            "url": "update_fs"
         }
     }
 }
@@ -236,8 +236,8 @@ fs_update_obligatory_own_money = {
     "planning": {
         "budget": {
             "period": {
-                "startDate": start_date,
-                "endDate": end_date
+                "startDate": period[0],
+                "endDate": period[1]
             },
             "amount": {
                 "amount": 2000.00,
@@ -278,7 +278,7 @@ fs_update_obligatory_own_money = {
         }
     },
     "buyer": {
-        "name": "buyer's name",
+        "name": "buyer name",
         "identifier": {
             "id": "123654789000",
             "scheme": "MD-IDNO",
