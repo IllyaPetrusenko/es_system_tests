@@ -14,7 +14,7 @@ def set_instance_for_cassandra():
         cassandra_username = "caclient"
         return cassandra_cluster, cassandra_username, cassandra_password, print("Your instance is 'dev'")
     elif instance == "sandbox":
-        cassandra_cluster = "10.0.10.104"
+        cassandra_cluster = "10.0.10.106"
         cassandra_password = "brT4Kn27RQs"
         cassandra_username = "caclient"
         return cassandra_cluster, cassandra_password, cassandra_username, print("Your instance is 'sandbox'")
