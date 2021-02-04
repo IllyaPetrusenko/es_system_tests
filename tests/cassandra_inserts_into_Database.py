@@ -1229,7 +1229,7 @@ def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
                 "verified": True,
                 "sourceEntity": {
                     "id": "MD-IDNO-3",
-                    "name": "buyers name"
+                    "name": "buyer name"
                 },
                 "verificationDetails": None,
                 "project": "project",

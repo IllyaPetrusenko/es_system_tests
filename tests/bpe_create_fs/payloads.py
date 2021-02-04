@@ -1,11 +1,14 @@
+from useful_functions import get_period
+
+period = get_period()
 fs_create_full_treasury_money = {
     "planning": {
         "budget": {
             "id": "IBAN - 102030",
             "description": "description",
             "period": {
-                "startDate": "2020-02-20T00:00:00Z",
-                "endDate": "2020-12-31T00:00:00Z"
+                "startDate": period[0],
+                "endDate": period[1]
             },
             "amount": {
                 "amount": 8000,
@@ -73,8 +76,8 @@ fs_create_obligatory_treasury_money ={
     "planning": {
         "budget": {
             "period": {
-                "startDate": "2020-02-20T00:00:00Z",
-                "endDate": "2020-12-31T00:00:00Z"
+                "startDate": period[0],
+                "endDate": period[1]
             },
             "amount": {
                 "amount": 2000,
@@ -122,8 +125,8 @@ fs_create_full_own_money ={
             "id": "IBAN - 102030",
             "description": "description",
             "period": {
-                "startDate": "2020-02-20T00:00:00Z",
-                "endDate": "2020-12-31T00:00:00Z"
+                "startDate": period[0],
+                "endDate": period[1]
             },
             "amount": {
                 "amount": 2000,
@@ -231,8 +234,8 @@ fs_create_obligatory_own_money = {
     "planning": {
         "budget": {
             "period": {
-                "startDate": "2020-02-20T00:00:00Z",
-                "endDate": "2020-12-31T00:00:00Z"
+                "startDate": period[0],
+                "endDate": period[1]
             },
             "amount": {
                 "amount": 4000,

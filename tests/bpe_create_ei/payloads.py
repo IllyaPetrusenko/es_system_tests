@@ -1,5 +1,8 @@
 import random
 
+from useful_functions import get_period
+
+period = get_period()
 typeOfBuyer = ("BODY_PUBLIC", "EU_INSTITUTION", "MINISTRY", "NATIONAL_AGENCY", "REGIONAL_AGENCY", "REGIONAL_AUTHORITY",)
 mainGeneralActivity = (
     "DEFENCE", "ECONOMIC_AND_FINANCIAL_AFFAIRS", "EDUCATION", "ENVIRONMENT", "GENERAL_PUBLIC_SERVICES", "HEALTH",
@@ -69,8 +72,8 @@ ei_full = {
         "budget": {
 
             "period": {
-                "startDate": "2020-01-01T00:00:00Z",
-                "endDate": "2020-12-31T00:00:00Z"
+                "startDate": period[0],
+                "endDate": period[1]
             }
         },
         "rationale": "planning.rationale"
@@ -174,8 +177,8 @@ ei_obligatory = {
         "budget": {
 
             "period": {
-                "startDate": "2020-01-01T00:00:00Z",
-                "endDate": "2020-12-31T00:00:00Z"
+                "startDate": period[0],
+                "endDate": period[1]
             }
         }
 

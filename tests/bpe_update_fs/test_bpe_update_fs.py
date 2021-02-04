@@ -59,7 +59,7 @@ class TestBpeCreateEI(object):
     def test_25530_1(self):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
-        payload = copy.deepcopy(fs_update_full_own_money)
+        payload = copy.deepcopy(fs_update_obligatory_own_money)
         update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
 
         assert update_fs_response[0].text == "ok"
@@ -70,7 +70,7 @@ class TestBpeCreateEI(object):
     def test_25530_2(self):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
-        payload = copy.deepcopy(fs_update_full_own_money)
+        payload = copy.deepcopy(fs_update_obligatory_own_money)
         update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
         ocid = fnmatch.fnmatch(update_fs_response[1]["data"]["ocid"], update_fs_response[3])
         assert update_fs_response[1]["X-OPERATION-ID"] == update_fs_response[2]
@@ -81,7 +81,7 @@ class TestBpeCreateEI(object):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
         publicPoint_create = requests.get(url=create_fs_response[0]).json()
-        payload = copy.deepcopy(fs_update_full_own_money)
+        payload = copy.deepcopy(fs_update_obligatory_own_money)
         update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
         time.sleep(2)
         url_update = update_fs_response[1]["data"]["url"]
@@ -92,7 +92,7 @@ class TestBpeCreateEI(object):
     def test_25531_1(self):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
-        payload = copy.deepcopy(fs_update_full_own_money)
+        payload = copy.deepcopy(fs_update_obligatory_own_money)
         payload["buyer"]["identifier"]["id"] = "update buyer"
         update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
         assert update_fs_response[0].text == "ok"
@@ -103,7 +103,7 @@ class TestBpeCreateEI(object):
     def test_25531_2(self):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
-        payload = copy.deepcopy(fs_update_full_own_money)
+        payload = copy.deepcopy(fs_update_obligatory_own_money)
         payload["buyer"]["identifier"]["id"] = "update buyer"
         update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
         ocid = fnmatch.fnmatch(update_fs_response[1]["data"]["ocid"], update_fs_response[3])
@@ -115,24 +115,20 @@ class TestBpeCreateEI(object):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
         publicPoint_create = requests.get(url=create_fs_response[0]).json()
-        payload = copy.deepcopy(fs_update_full_own_money)
+        payload = copy.deepcopy(fs_update_obligatory_own_money)
         payload["buyer"]["identifier"]["id"] = "update buyer"
         update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
         time.sleep(2)
         url_update = update_fs_response[1]["data"]["url"]
         publicPoint_update = requests.get(url=url_update).json()
-        if publicPoint_update["releases"][0]["parties"][0]["roles"][0] == "funder":
-            assert publicPoint_create["releases"][0]["parties"][0]["identifier"]["id"] == \
-                   publicPoint_update["releases"][0]["parties"][0]["identifier"]["id"]
-        elif publicPoint_update["releases"][0]["parties"][1]["roles"][0] == "funder":
-            assert publicPoint_create["releases"][0]["parties"][1]["identifier"]["id"] == \
-                   publicPoint_update["releases"][0]["parties"][1]["identifier"]["id"]
+        assert publicPoint_create["releases"][0]["planning"]["budget"]["sourceEntity"]["id"] == \
+               publicPoint_update["releases"][0]["planning"]["budget"]["sourceEntity"]["id"]
 
     @pytestrail.case("25532")
     def test_25532_1(self):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
-        payload = copy.deepcopy(fs_update_full_own_money)
+        payload = copy.deepcopy(fs_update_obligatory_own_money)
         payload["buyer"]["name"] = "update name of buyer"
         update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
         assert update_fs_response[0].text == "ok"
@@ -143,7 +139,7 @@ class TestBpeCreateEI(object):
     def test_25532_2(self):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
-        payload = copy.deepcopy(fs_update_full_own_money)
+        payload = copy.deepcopy(fs_update_obligatory_own_money)
         payload["buyer"]["name"] = "update name of buyer"
         update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
         ocid = fnmatch.fnmatch(update_fs_response[1]["data"]["ocid"], update_fs_response[3])
@@ -155,18 +151,14 @@ class TestBpeCreateEI(object):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
         publicPoint_create = requests.get(url=create_fs_response[0]).json()
-        payload = copy.deepcopy(fs_update_full_own_money)
+        payload = copy.deepcopy(fs_update_obligatory_own_money)
         payload["buyer"]["name"] = "update name of buyer"
         update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
         time.sleep(2)
         url_update = update_fs_response[1]["data"]["url"]
         publicPoint_update = requests.get(url=url_update).json()
-        if publicPoint_update["releases"][0]["parties"][0]["roles"][0] == "funder":
-            assert publicPoint_create["releases"][0]["parties"][0]["name"] == \
-                   publicPoint_update["releases"][0]["parties"][0]["name"]
-        elif publicPoint_update["releases"][0]["parties"][1]["roles"][0] == "funder":
-            assert publicPoint_create["releases"][0]["parties"][1]["name"] == \
-                   publicPoint_update["releases"][0]["parties"][1]["name"]
+        assert publicPoint_create["releases"][0]["planning"]["budget"]["sourceEntity"]["name"] == \
+               publicPoint_update["releases"][0]["planning"]["budget"]["sourceEntity"]["name"]
 
     @pytestrail.case("25533")
     def test_25533_1(self):
@@ -650,8 +642,50 @@ class TestBpeCreateEI(object):
         time.sleep(2)
         url_update = update_fs_response[1]["data"]["url"]
         publicPoint_update = requests.get(url=url_update).json()
+        assert publicPoint_create["releases"][0]["tender"]["status"] == \
+               publicPoint_update["releases"][0]["tender"]["status"]
+
+    @pytestrail.case("25536")
+    def test_25536_4(self):
+        cpid = prepared_cpid()
+        create_fs_response = insert_into_db_create_fs(cpid)
+        publicPoint_create = requests.get(url=create_fs_response[0]).json()
+        payload = copy.deepcopy(fs_update_full_own_money)
+        payload["planning"]["budget"]["id"] = "update value for updating"
+        update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
+        time.sleep(2)
+        url_update = update_fs_response[1]["data"]["url"]
+        publicPoint_update = requests.get(url=url_update).json()
+        assert publicPoint_create["releases"][0]["tender"]["statusDetails"] == \
+               publicPoint_update["releases"][0]["tender"]["statusDetails"]
+
+    @pytestrail.case("25536")
+    def test_25536_5(self):
+        cpid = prepared_cpid()
+        create_fs_response = insert_into_db_create_fs(cpid)
+        publicPoint_create = requests.get(url=create_fs_response[0]).json()
+        payload = copy.deepcopy(fs_update_full_own_money)
+        payload["planning"]["budget"]["id"] = "update value for updating"
+        update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
+        time.sleep(2)
+        url_update = update_fs_response[1]["data"]["url"]
+        publicPoint_update = requests.get(url=url_update).json()
         assert publicPoint_create["releases"][0]["planning"]["budget"]["id"] == \
                publicPoint_update["releases"][0]["planning"]["budget"]["id"]
+
+    @pytestrail.case("25536")
+    def test_25536_6(self):
+        cpid = prepared_cpid()
+        create_fs_response = insert_into_db_create_fs(cpid)
+        publicPoint_create = requests.get(url=create_fs_response[0]).json()
+        payload = copy.deepcopy(fs_update_full_own_money)
+        payload["planning"]["budget"]["id"] = "update value for updating"
+        update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
+        time.sleep(2)
+        url_update = update_fs_response[1]["data"]["url"]
+        publicPoint_update = requests.get(url=url_update).json()
+        assert publicPoint_create["releases"][0]["planning"]["budget"]["verified"] == \
+               publicPoint_update["releases"][0]["planning"]["budget"]["verified"]
 
     @pytestrail.case("25518")
     def test_25518_1(self):
@@ -1240,13 +1274,24 @@ class TestBpeCreateEI(object):
         time.sleep(2)
         url_update = update_fs_response[1]["data"]["url"]
         publicPoint_update = requests.get(url=url_update).json()
-        cpid_url = requests.get(url=create_fs_response[0]).json()["releases"][0]["relatedProcesses"][0]["uri"]
-        cpid_releases_id_before_update = \
-            requests.get(url=cpid_url).json()["releases"][0]["planning"]["budget"]["amount"]["amount"]
         assert publicPoint_update["releases"][0]["planning"]["budget"]["amount"]["amount"] == \
                payload["planning"]["budget"]["amount"]["amount"]
         assert publicPoint_update["releases"][0]["planning"]["budget"]["amount"]["amount"] != create_fs_amount
-        assert cpid_releases_id_before_update == payload["planning"]["budget"]["amount"]["amount"]
+
+
+    @pytestrail.case("26999")
+    def test_26999_4(self):
+        cpid = prepared_cpid()
+        create_fs_response = insert_into_db_create_fs(cpid)
+        payload = copy.deepcopy(fs_update_full_own_money)
+        payload["planning"]["budget"]["amount"]["amount"] = 5.55
+        update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
+        time.sleep(2)
+        ei_url = update_fs_response[1]["data"]["url"]
+        cpid_url = requests.get(url=ei_url).json()["releases"][0]["relatedProcesses"][0]["uri"]
+        ei_releases_id_after_update = \
+            requests.get(url=cpid_url).json()["releases"][0]["planning"]["budget"]["amount"]["amount"]
+        assert ei_releases_id_after_update == payload["planning"]["budget"]["amount"]["amount"]
 
     @pytestrail.case("25521")
     def test_25521_1(self):
@@ -1559,6 +1604,30 @@ class TestBpeCreateEI(object):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
         payload = copy.deepcopy(fs_update_full_own_money)
+        fake_token = uuid4()
+        update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{fake_token}")
+        assert update_fs_response[0].text == "ok"
+        assert update_fs_response[0].status_code == 202
+        assert update_fs_response[1]["X-OPERATION-ID"] == update_fs_response[2]
+
+    @pytestrail.case("25542")
+    def test_25542_2(self):
+        cpid = prepared_cpid()
+        create_fs_response = insert_into_db_create_fs(cpid)
+        payload = copy.deepcopy(fs_update_full_own_money)
+        fake_token = uuid4()
+        update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{fake_token}")
+        assert update_fs_response[0].text == "ok"
+        assert update_fs_response[0].status_code == 202
+        assert update_fs_response[1]["X-OPERATION-ID"] == update_fs_response[2]
+        assert update_fs_response[1]["errors"][0]["code"] == "400.10.00.02"
+        assert update_fs_response[1]["errors"][0]["description"] == "FS not found."
+
+    @pytestrail.case("25541")
+    def test_25541_1(self):
+        cpid = prepared_cpid()
+        create_fs_response = insert_into_db_create_fs(cpid)
+        payload = copy.deepcopy(fs_update_full_own_money)
         access_token = get_access_token_for_platform_two()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -1574,8 +1643,8 @@ class TestBpeCreateEI(object):
         assert request_to_update_fs.text == 'ok'
         assert request_to_update_fs.status_code == 202
 
-    @pytestrail.case("25542")
-    def test_25542_2(self):
+    @pytestrail.case("25541")
+    def test_25541_2(self):
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
         payload = copy.deepcopy(fs_update_full_own_money)
@@ -1595,29 +1664,7 @@ class TestBpeCreateEI(object):
         assert error_from_DB['errors'][0]['code'] == '400.10.00.03'
         assert error_from_DB['errors'][0]['description'] == 'Invalid owner.'
 
-    @pytestrail.case("25541")
-    def test_25541_1(self):
-        cpid = prepared_cpid()
-        create_fs_response = insert_into_db_create_fs(cpid)
-        payload = copy.deepcopy(fs_update_full_own_money)
-        fake_token = uuid4()
-        update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{fake_token}")
-        assert update_fs_response[0].text == "ok"
-        assert update_fs_response[0].status_code == 202
-        assert update_fs_response[1]["X-OPERATION-ID"] == update_fs_response[2]
 
-    @pytestrail.case("25541")
-    def test_25541_2(self):
-        cpid = prepared_cpid()
-        create_fs_response = insert_into_db_create_fs(cpid)
-        payload = copy.deepcopy(fs_update_full_own_money)
-        fake_token = uuid4()
-        update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{fake_token}")
-        assert update_fs_response[0].text == "ok"
-        assert update_fs_response[0].status_code == 202
-        assert update_fs_response[1]["X-OPERATION-ID"] == update_fs_response[2]
-        assert update_fs_response[1]["errors"][0]["code"] == "400.10.00.02"
-        assert update_fs_response[1]["errors"][0]["description"] == "FS not found."
 
     @pytestrail.case("27000")
     def test_27000_1(self):
@@ -2415,8 +2462,8 @@ class TestBpeCreateEI(object):
         payload = copy.deepcopy(fs_update_full_own_money)
         update_fs_response = bpe_update_fs(cpid, create_fs_response[2], payload, f"{create_fs_response[1]}")
         planning_from_database = \
-            (execute_cql_from_orchestrator_operation_step_by_oper_id(update_fs_response[2], "BudgetUpdateFsTask"))[1][
-                "fs"]["planning"]
+            (execute_cql_from_orchestrator_operation_step_by_oper_id(update_fs_response[2], "NoticeCreateReleaseTask"))[
+                0]["data"]["fs"]["planning"]
         del planning_from_database["budget"]["verificationDetails"]
         planning_from_public_point = requests.get(url=update_fs_response[1]["data"]["url"]).json()["releases"][0][
             "planning"]
@@ -2928,10 +2975,8 @@ class TestBpeCreateEI(object):
             "relatedProcesses"]
         assert related_processes_section_before_update == tender_section_after_update
 
-
     @pytestrail.case("25551")
     def test_25551_1(self):
-
         time.sleep(5)
         cpid = prepared_cpid()
         create_fs_response = insert_into_db_create_fs(cpid)
@@ -2943,7 +2988,6 @@ class TestBpeCreateEI(object):
         assert update_fs_response[0].text == "ok"
         assert update_fs_response[0].status_code == 202
         assert update_fs_response[1]["X-OPERATION-ID"] == update_fs_response[2]
-
 
     @pytestrail.case("25551")
     def test_25551_2(self):
@@ -2958,7 +3002,6 @@ class TestBpeCreateEI(object):
         ocid = fnmatch.fnmatch(update_fs_response[1]["data"]["ocid"], update_fs_response[3])
         assert update_fs_response[1]["X-OPERATION-ID"] == update_fs_response[2]
         assert ocid == True
-
 
     @pytestrail.case("25551")
     def test_25551_3(self):
@@ -3018,6 +3061,7 @@ class TestBpeCreateEI(object):
             requests.get(url=cpid_url_after_update).json()["releases"][0]["planning"]["budget"]["amount"][
                 "amount"]
         assert ei_amount_after_update != ei_amount_before_update
+        assert ei_amount_after_update == payload["planning"]["budget"]["amount"]["amount"]
 
     @pytestrail.case("25569")
     def test_25569_1(self):

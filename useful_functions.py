@@ -13,12 +13,14 @@ def is_valid_uuid(uuid_to_test, version=4):
         return False
     return str(uuid_obj) == uuid_to_test
 
+
 def is_it_uuid(uuid_to_test, version):
     try:
         uuid_obj = UUID(uuid_to_test, version=version)
     except:
         return False
     return str(uuid_obj) == uuid_to_test
+
 
 def get_access_token_for_platform_two():
     access_token = requests.get(
@@ -76,6 +78,17 @@ def get_new_period():
     yesterday = yesterday_start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     tomorrow = tomorrow_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     return start_date, end_date, yesterday, tomorrow
+
+
+def get_contract_period():
+    date = datetime.datetime.now()
+    duration_tender_start_date = date + datetime.timedelta(days=30)
+    duration_start_date = date + datetime.timedelta(days=60)
+    duration_end_date = date + datetime.timedelta(days=90)
+    start_date = duration_start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_date = duration_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    tender_period_start_date = duration_tender_start_date.strftime("%Y-%m-01T%H:%M:%SZ")
+    return start_date, end_date, tender_period_start_date
 
 
 def get_human_date_in_utc_format(timestamp):
