@@ -891,7 +891,7 @@ def insert_into_db_update_ei(cpid):
     return f"http://dev.public.eprocurement.systems/budgets/{cpid}/{cpid}", ei_token
 
 
-def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
+def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer="1", payer="2", funder="3"):
     auth_provider = PlainTextAuthProvider(username=username, password=password)
     cluster = Cluster([host], auth_provider=auth_provider)
     session = cluster.connect('ocds')
@@ -950,10 +950,10 @@ def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
             "rationale": "planning.rationale"
         },
         "buyer": {
-            "id": "MD-IDNO-1",
+            "id": f"MD-IDNO-{buyer}",
             "name": "LLC Petrusenko",
             "identifier": {
-                "id": "1",
+                "id": f"{buyer}",
                 "scheme": "MD-IDNO",
                 "legalName": "LLC Petrusenko",
                 "uri": "http://petrusenko.com/fop"
@@ -1031,7 +1031,7 @@ def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
             "name": "LLC Petrusenko",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "1",
+                "id": f"{buyer}",
                 "legalName": "LLC Petrusenko",
                 "uri": "http://petrusenko.com/fop"
             },
@@ -1122,15 +1122,15 @@ def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
             }
         },
         "buyer": {
-            "id": "MD-IDNO-1",
+            "id": f"MD-IDNO-{buyer}",
             "name": "LLC Petrusenko"
         },
         "parties": [{
-            "id": "MD-IDNO-1",
+            "id": f"MD-IDNO-{buyer}",
             "name": "LLC Petrusenko",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "1",
+                "id": f"{buyer}",
                 "legalName": "LLC Petrusenko",
                 "uri": "http://petrusenko.com/fop"
             },
@@ -1239,10 +1239,10 @@ def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
             "rationale": "reason for the budget"
         },
         "funder": {
-            "id": "MD-IDNO-3",
+            "id": f"MD-IDNO-{funder}",
             "name": "buyer name",
             "identifier": {
-                "id": "3",
+                "id": f"{funder}",
                 "scheme": "MD-IDNO",
                 "legalName": "legal Name",
                 "uri": "http://buyer.com"
@@ -1286,10 +1286,10 @@ def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
             }
         },
         "payer": {
-            "id": "MD-IDNO-2",
+            "id": f"MD-IDNO-{payer}",
             "name": "Procuring Entity Name",
             "identifier": {
-                "id": "2",
+                "id": f"{payer}",
                 "scheme": "MD-IDNO",
                 "legalName": "Legal Name",
                 "uri": "http://454.to"
@@ -1346,11 +1346,11 @@ def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
             "statusDetails": statusDetails
         },
         "parties": [{
-            "id": "MD-IDNO-3",
+            "id": f"MD-IDNO-{funder}",
             "name": "buyer name",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "3",
+                "id": f"{funder}",
                 "legalName": "legal Name",
                 "uri": "http://buyer.com"
             },
@@ -1393,11 +1393,11 @@ def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
             },
             "roles": ["funder"]
         }, {
-            "id": "MD-IDNO-2",
+            "id": f"MD-IDNO-{payer}",
             "name": "Procuring Entity Name",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "2",
+                "id": f"{payer}",
                 "legalName": "Legal Name",
                 "uri": "http://454.to"
             },
@@ -1490,11 +1490,11 @@ def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
             "statusDetails": statusDetails
         },
         "parties": [{
-            "id": "MD-IDNO-3",
+            "id": f"MD-IDNO-{funder}",
             "name": "buyer name",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "3",
+                "id": f"{funder}",
                 "legalName": "legal Name",
                 "uri": "http://buyer.com"
             },
@@ -1537,11 +1537,11 @@ def insert_into_db_create_fs(cpid,status="active", statusDetails="empty"):
             },
             "roles": ["funder"]
         }, {
-            "id": "MD-IDNO-2",
+            "id": f"MD-IDNO-{payer}",
             "name": "Procuring Entity Name",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "2",
+                "id": f"{payer}",
                 "legalName": "Legal Name",
                 "uri": "http://454.to"
             },

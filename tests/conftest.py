@@ -13,5 +13,5 @@ def additional_value(request):
     """Handler for --additional_value parameter"""
 
     return request.config.getoption("--additional_value")
-#
+
 

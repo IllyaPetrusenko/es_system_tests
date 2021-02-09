@@ -8,15 +8,43 @@ import requests
 from pytest_testrail.plugin import pytestrail
 
 from tests.Cassandra_session import execute_cql_from_orchestrator_context
+from tests.TestRail_set_status_case import client
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 
-from tests.bpe_create_pn.create_pn import bpe_create_pn_one_fs
+from tests.bpe_create_pn.create_pn import bpe_create_pn_one_fs, bpe_create_pn_two_fs
 from tests.bpe_create_pn.payloads import pn_create_full_data_model_with_documents, \
     pn_create_obligatory_data_model_with_documents, pn_create_obligatory_data_model_without_documents
 from tests.cassandra_inserts_into_Database import insert_into_db_create_fs
 from tests.kafka_messages import get_message_from_kafka
 from tests.presets import set_instance_for_request, create_pn
 from useful_functions import prepared_cpid, get_access_token_for_platform_two
+
+procurement_method_details = {
+    "SV": "smallValue",
+    "MV": "microValue",
+    "OT": "openTender"
+}
+
+procurement_method_rationale = {
+    "SV": "Ofertele vor fi primite prin intermediul unei platforme electronice de achiziții publice",
+    "MV": "Ofertele vor fi primite prin intermediul unei platforme electronice de achiziții publice",
+    "OT": "Ofertele vor fi primite prin intermediul unei platforme electronice de achiziții publice"
+}
+
+submission_method_details = {
+    "SV": "Lista platformelor: achizitii, ebs, licitatie, yptender",
+    "MV": "Lista platformelor: achizitii, ebs, licitatie, yptender",
+    "OT": "Lista platformelor: achizitii, ebs, licitatie, yptender"
+}
+
+eligibility_criteria = {
+    "SV": "Regulile generale privind naționalitatea și originea, precum și alte criterii de eligibilitate sunt "
+          "enumerate în Ghidul practic privind procedurile de contractare a acțiunilor externe ale UE (PRAG)",
+    "MV": "Regulile generale privind naționalitatea și originea, precum și alte criterii de eligibilitate sunt "
+          "enumerate în Ghidul practic privind procedurile de contractare a acțiunilor externe ale UE (PRAG)",
+    "OT": "Regulile generale privind naționalitatea și originea, precum și alte criterii de eligibilitate sunt "
+          "enumerate în Ghidul practic privind procedurile de contractare a acțiunilor externe ale UE (PRAG)"
+}
 
 
 class TestBpeCreatePN(object):
@@ -2034,7 +2062,7 @@ class TestBpeCreatePN(object):
     #     assert create_pn_response[1]["errors"][0]["code"] == "400.14.00.14"
     #     assert create_pn_response[1]["errors"][0][
     #                "description"] == f"Files not found: [{payload['tender']['documents'][0]['id']}]"
-
+    #
     # @pytestrail.case("27015")
     # def test_27015_1(self, additional_value):
     #     cpid = prepared_cpid()
@@ -2073,10 +2101,9 @@ class TestBpeCreatePN(object):
     #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     language = execute_cql_from_orchestrator_context(cpid)["language"]
-    #     print(language)
     #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
     #     assert language == "ro"
-
+    #
     # @pytestrail.case("27016")
     # def test_27016_1(self, additional_value):
     #     cpid = prepared_cpid()
@@ -2099,7 +2126,7 @@ class TestBpeCreatePN(object):
     #     assert create_pn_response[1]["errors"][0]["code"] == "400.03.10.53"
     #     assert create_pn_response[1]["errors"][0][
     #                "description"] == "CPV codes of all items must have minimum 3 the same starting symbols."
-
+    #
     # @pytestrail.case("27017")
     # def test_27017_1(self, additional_value):
     #     cpid = prepared_cpid()
@@ -2144,13 +2171,15 @@ class TestBpeCreatePN(object):
     #     payload["tender"]["items"][1]["classification"]["id"] = "45112360-6"
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
     #         planning_notice = requests.get(
     #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
     #         assert planning_notice["releases"][0]["tender"]["classification"]["id"] == "45112300-8"
     #     else:
-    #         print("Check the url")
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
     #
     # @pytestrail.case("27018")
     # def test_27018_1(self, additional_value):
@@ -2196,7 +2225,9 @@ class TestBpeCreatePN(object):
     #     payload["tender"]["items"][1]["classification"]["id"] = "45112360-6"
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
     #         planning_notice = requests.get(
     #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
@@ -2205,7 +2236,7 @@ class TestBpeCreatePN(object):
     #         assert planning_notice["releases"][0]["tender"]["classification"][
     #                    "description"] == "Lucrări de rambleiere şi de asanare a terenului"
     #     else:
-    #         print("Check url")
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
     #
     # @pytestrail.case("27019")
     # def test_27019_1(self, additional_value):
@@ -2251,13 +2282,15 @@ class TestBpeCreatePN(object):
     #     payload["tender"]["items"][1]["classification"]["id"] = "45112360-6"
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent":
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
     #         multistage = requests.get(
     #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
     #         assert multistage["releases"][0]["tender"]["mainProcurementCategory"] == "works"
     #     else:
-    #         print("Check url")
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
     #
     # @pytestrail.case("27020")
     # def test_27020_1(self, additional_value):
@@ -2324,7 +2357,9 @@ class TestBpeCreatePN(object):
     #     ]
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
     #         planning_notice = requests.get(
     #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
@@ -2342,7 +2377,7 @@ class TestBpeCreatePN(object):
     #         assert planning_notice["releases"][0]["tender"]["items"][0]["additionalClassifications"][1][
     #                    "description"] == "Metal"
     #     else:
-    #         print("Check url")
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
     #
     # @pytestrail.case("27020")
     # def test_27020_4(self, additional_value):
@@ -2359,7 +2394,9 @@ class TestBpeCreatePN(object):
     #     ]
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
     #         planning_notice = requests.get(
     #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
@@ -2377,7 +2414,7 @@ class TestBpeCreatePN(object):
     #         assert planning_notice["releases"][0]["tender"]["items"][1]["additionalClassifications"][1][
     #                    "description"] == "Metal"
     #     else:
-    #         print("Check url")
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
     #
     # @pytestrail.case("27021")
     # def test_27021_1(self, additional_value):
@@ -2423,8 +2460,9 @@ class TestBpeCreatePN(object):
     #     payload["tender"]["items"][1]["classification"]["id"] = "45112360-6"
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
-    #
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
     #         planning_notice = requests.get(
     #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
@@ -2434,7 +2472,7 @@ class TestBpeCreatePN(object):
     #         assert planning_notice["releases"][0]["tender"]["items"][0]["classification"][
     #                    "description"] == "Lucrări de valorificare a terenurilor virane"
     #     else:
-    #         print("Check url")
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
     #
     # @pytestrail.case("27021")
     # def test_27021_4(self, additional_value):
@@ -2444,7 +2482,9 @@ class TestBpeCreatePN(object):
     #     payload["tender"]["items"][1]["classification"]["id"] = "45112360-6"
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
     #         planning_notice = requests.get(
     #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
@@ -2454,8 +2494,8 @@ class TestBpeCreatePN(object):
     #         assert planning_notice["releases"][0]["tender"]["items"][1]["classification"][
     #                    "description"] == "Lucrări de reabilitare a terenului"
     #     else:
-    #         print("Check url")
-
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
+    #
     # @pytestrail.case("27022")
     # def test_27022_1(self, additional_value):
     #     cpid = prepared_cpid()
@@ -2500,8 +2540,9 @@ class TestBpeCreatePN(object):
     #     payload["tender"]["items"][1]["unit"]["id"] = "120"
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
-    #
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
     #         planning_notice = requests.get(
     #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
@@ -2509,7 +2550,7 @@ class TestBpeCreatePN(object):
     #                payload["tender"]["items"][0]["unit"]["id"]
     #         assert planning_notice["releases"][0]["tender"]["items"][0]["unit"]["name"] == "Parsec"
     #     else:
-    #         print("Check url")
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
     #
     # @pytestrail.case("27022")
     # def test_27022_4(self, additional_value):
@@ -2519,7 +2560,9 @@ class TestBpeCreatePN(object):
     #     payload["tender"]["items"][1]["unit"]["id"] = "120"
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
     #         planning_notice = requests.get(
     #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
@@ -2527,8 +2570,8 @@ class TestBpeCreatePN(object):
     #                payload["tender"]["items"][1]["unit"]["id"]
     #         assert planning_notice["releases"][0]["tender"]["items"][1]["unit"]["name"] == "Milion decalitri"
     #     else:
-    #         print("Check url")
-
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
+    #
     # @pytestrail.case("27023")
     # def test_27023_1(self, additional_value):
     #     cpid = prepared_cpid()
@@ -2570,8 +2613,9 @@ class TestBpeCreatePN(object):
     #     payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"]["id"] = "MD"
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
-    #
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
     #         planning_notice = requests.get(
     #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
@@ -2591,8 +2635,8 @@ class TestBpeCreatePN(object):
     #                 "country"]["uri"] == "https://www.iso.org"
     #
     #     else:
-    #         print("Check url")
-
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
+    #
     # @pytestrail.case("27024")
     # def test_27024_1(self, additional_value):
     #     cpid = prepared_cpid()
@@ -2634,8 +2678,9 @@ class TestBpeCreatePN(object):
     #     payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]["id"] = "3400000"
     #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
     #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-    #     if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
-    #
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
     #         planning_notice = requests.get(
     #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
     #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
@@ -2655,26 +2700,1395 @@ class TestBpeCreatePN(object):
     #                 "region"]["uri"] == "http://statistica.md"
     #
     #     else:
-    #         print("Check url")
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
+    #
+    # @pytestrail.case("27025")
+    # def test_27025_1(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+    #     payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #
+    # @pytestrail.case("27025")
+    # def test_27025_2(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+    #     payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27025")
+    # def test_27025_3(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+    #     payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
+    #         planning_notice = requests.get(
+    #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #         assert \
+    #             planning_notice["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
+    #                 "locality"]["id"] == \
+    #             payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"]
+    #
+    #         assert \
+    #             planning_notice["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
+    #                 "locality"]["scheme"] == \
+    #             payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"]
+    #         assert \
+    #             planning_notice["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
+    #                 "locality"]["description"] == "or.Donduşeni (r-l Donduşeni)"
+    #         assert \
+    #             planning_notice["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
+    #                 "locality"]["uri"] == "http://statistica.md"
+    #
+    #     else:
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
+    #
+    # @pytestrail.case("27026")
+    # def test_27026_1(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_obligatory_data_model_without_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #
+    # @pytestrail.case("27026")
+    # def test_27026_2(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_obligatory_data_model_without_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27026")
+    # def test_27026_3(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_obligatory_data_model_without_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
+    #         multistage = requests.get(
+    #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #
+    #         assert multistage["releases"][0]["tender"]["procurementMethodDetails"] == procurement_method_details[
+    #             additional_value]
+    #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     else:
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
+    #
+    # @pytestrail.case("27029")
+    # def test_27029_1(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_obligatory_data_model_without_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #
+    # @pytestrail.case("27029")
+    # def test_27029_2(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_obligatory_data_model_without_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27029")
+    # def test_27029_3(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_obligatory_data_model_without_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
+    #         planning_notice = requests.get(
+    #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         assert planning_notice["releases"][0]["tender"]["submissionMethodRationale"][0] == \
+    #                procurement_method_rationale[
+    #                    additional_value]
+    #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     else:
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
 
-    @pytestrail.case("27025")
-    def test_27025_1(self, additional_value):
-        cpid = prepared_cpid()
+    # @pytestrail.case("27030")
+    # def test_27030_1(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_obligatory_data_model_without_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #
+    # @pytestrail.case("27030")
+    # def test_27030_2(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_obligatory_data_model_without_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27030")
+    # def test_27030_3(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_obligatory_data_model_without_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "planning")
+    #     if check_record == True:
+    #         planning_notice = requests.get(
+    #             url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         assert planning_notice["releases"][0]["tender"]["submissionMethodDetails"] == \
+    #                submission_method_details[additional_value]
+    #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     else:
+    #         assert get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning"
+
+    # @pytestrail.case("27031")
+    # def test_27031_1(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #
+    # @pytestrail.case("27031")
+    # def test_27031_2(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27031")
+    # def test_27031_3(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
+    #         multistage = requests.get(
+    #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         assert multistage["releases"][0]["tender"]["eligibilityCriteria"] == \
+    #                eligibility_criteria[additional_value]
+    #         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     else:
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
+
+    # @pytestrail.case("27032")
+    # def test_27032_1(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = "MD"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #
+    # @pytestrail.case("27032")
+    # def test_27032_2(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = "MD"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27032")
+    # def test_27032_3(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = "MD"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
+    #         multistage = requests.get(
+    #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         list_of_dictionaries = multistage["releases"][0]["parties"]
+    #         for d in list_of_dictionaries:
+    #             if d["roles"][0] == "procuringEntity":
+    #                 assert d["address"]["addressDetails"]["country"]["id"] == \
+    #                        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"]
+    #                 assert d["address"]["addressDetails"]["country"]["scheme"] == "iso-alpha2"
+    #                 assert d["address"]["addressDetails"]["country"]["description"] == "Moldova, Republica"
+    #                 assert d["address"]["addressDetails"]["country"]["uri"] == "https://www.iso.org"
+    #     else:
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
+
+    # @pytestrail.case("27033")
+    # def test_27033_1(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #
+    # @pytestrail.case("27033")
+    # def test_27033_2(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27033")
+    # def test_27033_3(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
+    #         multistage = requests.get(
+    #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         list_of_dictionaries = multistage["releases"][0]["parties"]
+    #         for d in list_of_dictionaries:
+    #             if d["roles"][0] == "procuringEntity":
+    #                 assert d["address"]["addressDetails"]["region"]["id"] == \
+    #                        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"]
+    #                 assert d["address"]["addressDetails"]["region"][
+    #                            "scheme"] == "CUATM"
+    #                 assert d["address"]["addressDetails"]["region"][
+    #                            "description"] == "Donduşeni"
+    #                 assert d["address"]["addressDetails"]["region"][
+    #                            "uri"] == "http://statistica.md"
+    #     else:
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
+    #
+    # @pytestrail.case("27034")
+    # def test_27034_1(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #
+    # @pytestrail.case("27034")
+    # def test_27034_2(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27034")
+    # def test_27034_3(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
+    #         multistage = requests.get(
+    #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         list_of_dictionaries = multistage["releases"][0]["parties"]
+    #         for d in list_of_dictionaries:
+    #             if d["roles"][0] == "procuringEntity":
+    #                 assert d["address"]["addressDetails"]["locality"]["id"] == \
+    #                        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+    #                 assert d["address"]["addressDetails"]["locality"][
+    #                            "scheme"] == "CUATM"
+    #                 assert d["address"]["addressDetails"]["locality"][
+    #                            "description"] == "or.Donduşeni (r-l Donduşeni)"
+    #                 assert d["address"]["addressDetails"]["locality"][
+    #                            "uri"] == "http://statistica.md"
+    #     else:
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
+
+    # @pytestrail.case("27035")
+    # def test_27035_1(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "brbrbr"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #
+    #
+    # @pytestrail.case("27035")
+    # def test_27035_2(self, additional_value):
+    #     cpid = prepared_cpid()
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "brbrbr"
+    #     create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert create_pn_response[1]["errors"][0]["code"] == "400.20.00.12"
+    #     assert create_pn_response[1]["errors"][0]["description"] == "Registration scheme not found. "
+
+    # @pytestrail.case("27036")
+    # def test_27036_1(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #
+    # @pytestrail.case("27036")
+    # def test_27036_2(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27036")
+    # def test_27036_3(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
+    #         multistage = requests.get(
+    #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         list_of_dictionaries = multistage["releases"][0]["parties"]
+    #         payer_section = list()
+    #         for d in list_of_dictionaries:
+    #             if d["roles"][0] == "payer":
+    #                 payer_section.append(d)
+    #
+    #         assert payer_section[0]["id"] == f"MD-IDNO-{payer_1}"
+    #         assert payer_section[0]["name"] == "Procuring Entity Name"
+    #         assert payer_section[0]["identifier"]["scheme"] == "MD-IDNO"
+    #         assert payer_section[0]["identifier"]["id"] == payer_1
+    #         assert payer_section[0]["identifier"]["legalName"] == "Legal Name"
+    #         assert payer_section[0]["identifier"]["uri"] == "http://454.to"
+    #         assert payer_section[0]["address"]["streetAddress"] == "street"
+    #         assert payer_section[0]["address"]["postalCode"] == "785412"
+    #         assert payer_section[0]["address"]["addressDetails"]["country"]["scheme"] == "iso-alpha2"
+    #         assert payer_section[0]["address"]["addressDetails"]["country"]["id"] == "MD"
+    #         assert payer_section[0]["address"]["addressDetails"]["country"]["description"] == "Moldova, Republica"
+    #         assert payer_section[0]["address"]["addressDetails"]["country"]["uri"] == "https://www.iso.org"
+    #         assert payer_section[0]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
+    #         assert payer_section[0]["address"]["addressDetails"]["region"]["id"] == "3400000"
+    #         assert payer_section[0]["address"]["addressDetails"]["region"]["description"] == "Donduşeni"
+    #         assert payer_section[0]["address"]["addressDetails"]["region"]["uri"] == "http://statistica.md"
+    #         assert payer_section[0]["address"]["addressDetails"]["locality"]["scheme"] == "CUATM"
+    #         assert payer_section[0]["address"]["addressDetails"]["locality"]["id"] == "3401000"
+    #         assert payer_section[0]["address"]["addressDetails"]["locality"]["description"] == "or.Donduşeni (r-l Donduşeni)"
+    #         assert payer_section[0]["address"]["addressDetails"]["locality"]["uri"] == "http://statistica.md"
+    #         assert payer_section[0]["additionalIdentifiers"][0]["scheme"] == "MD-K"
+    #         assert payer_section[0]["additionalIdentifiers"][0]["id"] == "additional identifier"
+    #         assert payer_section[0]["additionalIdentifiers"][0]["legalName"] == "legalname"
+    #         assert payer_section[0]["additionalIdentifiers"][0]["uri"] == "http://k.to"
+    #         assert payer_section[0]["contactPoint"]["name"] == "contact person"
+    #         assert payer_section[0]["contactPoint"]["email"] == "string@mail.ccc"
+    #         assert payer_section[0]["contactPoint"]["telephone"] == "98-79-87"
+    #         assert payer_section[0]["contactPoint"]["faxNumber"] == "78-56-55"
+    #         assert payer_section[0]["contactPoint"]["url"] == "http://url.com"
+    #
+    #         assert payer_section[1]["id"] == f"MD-IDNO-{payer_2}"
+    #         assert payer_section[1]["name"] == "Procuring Entity Name"
+    #         assert payer_section[1]["identifier"]["scheme"] == "MD-IDNO"
+    #         assert payer_section[1]["identifier"]["id"] == payer_2
+    #         assert payer_section[1]["identifier"]["legalName"] == "Legal Name"
+    #         assert payer_section[1]["identifier"]["uri"] == "http://454.to"
+    #         assert payer_section[1]["address"]["streetAddress"] == "street"
+    #         assert payer_section[1]["address"]["postalCode"] == "785412"
+    #         assert payer_section[1]["address"]["addressDetails"]["country"]["scheme"] == "iso-alpha2"
+    #         assert payer_section[1]["address"]["addressDetails"]["country"]["id"] == "MD"
+    #         assert payer_section[1]["address"]["addressDetails"]["country"]["description"][ == "Moldova, Republica"
+    #         assert payer_section[1]["address"]["addressDetails"]["country"]["uri"] == "https://www.iso.org"
+    #         assert payer_section[1]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
+    #         assert payer_section[1]["address"]["addressDetails"]["region"]["id"] == "3400000"
+    #         assert payer_section[1]["address"]["addressDetails"]["region"]["description"] == "Donduşeni"
+    #         assert payer_section[1]["address"]["addressDetails"]["region"]["uri"] == "http://statistica.md"
+    #         assert payer_section[1]["address"]["addressDetails"]["locality"]["scheme"] == "CUATM"
+    #         assert payer_section[1]["address"]["addressDetails"]["locality"]["id"] == "3401000"
+    #         assert payer_section[1]["address"]["addressDetails"]["locality"][
+    #                    "description"] == "or.Donduşeni (r-l Donduşeni)"
+    #         assert payer_section[1]["address"]["addressDetails"]["locality"]["uri"] == "http://statistica.md"
+    #         assert payer_section[1]["additionalIdentifiers"][0]["scheme"] == "MD-K"
+    #         assert payer_section[1]["additionalIdentifiers"][0]["id"] == "additional identifier"
+    #         assert payer_section[1]["additionalIdentifiers"][0]["legalName"] == "legalname"
+    #         assert payer_section[1]["additionalIdentifiers"][0]["uri"] == "http://k.to"
+    #         assert payer_section[1]["contactPoint"]["name"] == "contact person"
+    #         assert payer_section[1]["contactPoint"]["email"] == "string@mail.ccc"
+    #         assert payer_section[1]["contactPoint"]["telephone"] == "98-79-87"
+    #         assert payer_section[1]["contactPoint"]["faxNumber"] == "78-56-55"
+    #         assert payer_section[1]["contactPoint"]["url"] == "http://url.com"
+    #
+    #     else:
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
+
+    # @pytestrail.case("27037")
+    # def test_27037_1(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #
+    # @pytestrail.case("27037")
+    # def test_27037_2(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27037")
+    # def test_27037_3(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
+    #         multistage = requests.get(
+    #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         list_of_dictionaries = multistage["releases"][0]["parties"]
+    #         funder_section = list()
+    #         for d in list_of_dictionaries:
+    #             if d["roles"][0] == "funder":
+    #                 funder_section.append(d)
+    #
+    #         assert funder_section[0]["id"] == f"MD-IDNO-{funder_1}"
+    #         assert funder_section[0]["name"] == "buyer name"
+    #         assert funder_section[0]["identifier"]["scheme"] == "MD-IDNO"
+    #         assert funder_section[0]["identifier"]["id"] == funder_1
+    #         assert funder_section[0]["identifier"]["legalName"] == "legal Name"
+    #         assert funder_section[0]["identifier"]["uri"] == "http://buyer.com"
+    #         assert funder_section[0]["address"]["streetAddress"] == "street address of buyer"
+    #         assert funder_section[0]["address"]["postalCode"] == "02054"
+    #         assert funder_section[0]["address"]["addressDetails"]["country"]["scheme"] == "iso-alpha2"
+    #         assert funder_section[0]["address"]["addressDetails"]["country"]["id"] == "MD"
+    #         assert funder_section[0]["address"]["addressDetails"]["country"]["description"] == "Moldova, Republica"
+    #         assert funder_section[0]["address"]["addressDetails"]["country"]["uri"] == "https://www.iso.org"
+    #         assert funder_section[0]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
+    #         assert funder_section[0]["address"]["addressDetails"]["region"]["id"] == "3400000"
+    #         assert funder_section[0]["address"]["addressDetails"]["region"]["description"] == "Donduşeni"
+    #         assert funder_section[0]["address"]["addressDetails"]["region"]["uri"] == "http://statistica.md"
+    #         assert funder_section[0]["address"]["addressDetails"]["locality"]["scheme"] == "CUATM"
+    #         assert funder_section[0]["address"]["addressDetails"]["locality"]["id"] == "3401000"
+    #         assert funder_section[0]["address"]["addressDetails"]["locality"][
+    #                    "description"] == "or.Donduşeni (r-l Donduşeni)"
+    #         assert funder_section[0]["address"]["addressDetails"]["locality"]["uri"] == "http://statistica.md"
+    #         assert funder_section[0]["additionalIdentifiers"][0]["scheme"] == "scheme"
+    #         assert funder_section[0]["additionalIdentifiers"][0]["id"] == "additional identifier"
+    #         assert funder_section[0]["additionalIdentifiers"][0]["legalName"] == "legal name"
+    #         assert funder_section[0]["additionalIdentifiers"][0]["uri"] == "http://addtIdent.com"
+    #         assert funder_section[0]["contactPoint"]["name"] == "contact point of buyer"
+    #         assert funder_section[0]["contactPoint"]["email"] == "email.com"
+    #         assert funder_section[0]["contactPoint"]["telephone"] == "32-22-23"
+    #         assert funder_section[0]["contactPoint"]["faxNumber"] == "12-22-21"
+    #         assert funder_section[0]["contactPoint"]["url"] == "http://url.com"
+    #
+    #         assert funder_section[1]["id"] == f"MD-IDNO-{funder_2}"
+    #         assert funder_section[1]["name"] == "buyer name"
+    #         assert funder_section[1]["identifier"]["scheme"] == "MD-IDNO"
+    #         assert funder_section[1]["identifier"]["id"] == funder_2
+    #         assert funder_section[1]["identifier"]["legalName"] == "legal Name"
+    #         assert funder_section[1]["identifier"]["uri"] == "http://buyer.com"
+    #         assert funder_section[1]["address"]["streetAddress"] == "street address of buyer"
+    #         assert funder_section[1]["address"]["postalCode"] == "02054"
+    #         assert funder_section[1]["address"]["addressDetails"]["country"]["scheme"] == "iso-alpha2"
+    #         assert funder_section[1]["address"]["addressDetails"]["country"]["id"] == "MD"
+    #         assert funder_section[1]["address"]["addressDetails"]["country"]["description"] == "Moldova, Republica"
+    #         assert funder_section[1]["address"]["addressDetails"]["country"]["uri"] == "https://www.iso.org"
+    #         assert funder_section[1]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
+    #         assert funder_section[1]["address"]["addressDetails"]["region"]["id"] == "3400000"
+    #         assert funder_section[1]["address"]["addressDetails"]["region"]["description"] == "Donduşeni"
+    #         assert funder_section[1]["address"]["addressDetails"]["region"]["uri"] == "http://statistica.md"
+    #         assert funder_section[1]["address"]["addressDetails"]["locality"]["scheme"] == "CUATM"
+    #         assert funder_section[1]["address"]["addressDetails"]["locality"]["id"] == "3401000"
+    #         assert funder_section[1]["address"]["addressDetails"]["locality"][
+    #                    "description"] == "or.Donduşeni (r-l Donduşeni)"
+    #         assert funder_section[1]["address"]["addressDetails"]["locality"]["uri"] == "http://statistica.md"
+    #         assert funder_section[1]["additionalIdentifiers"][0]["scheme"] == "scheme"
+    #         assert funder_section[1]["additionalIdentifiers"][0]["id"] == "additional identifier"
+    #         assert funder_section[1]["additionalIdentifiers"][0]["legalName"] == "legal name"
+    #         assert funder_section[1]["additionalIdentifiers"][0]["uri"] == "http://addtIdent.com"
+    #         assert funder_section[1]["contactPoint"]["name"] == "contact point of buyer"
+    #         assert funder_section[1]["contactPoint"]["email"] == "email.com"
+    #         assert funder_section[1]["contactPoint"]["telephone"] == "32-22-23"
+    #         assert funder_section[1]["contactPoint"]["faxNumber"] == "12-22-21"
+    #         assert funder_section[1]["contactPoint"]["url"] == "http://url.com"
+    #
+    #
+    #
+    #     else:
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
+    #
+    # @pytestrail.case("27038")
+    # def test_27038_1(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #
+    # @pytestrail.case("27038")
+    # def test_27038_2(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27038")
+    # def test_27038_3(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
+    #         multistage = requests.get(
+    #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         list_of_dictionaries = multistage["releases"][0]["parties"]
+    #         buyer_section = list()
+    #         for d in list_of_dictionaries:
+    #             if d["roles"][0] == "funder":
+    #                 buyer_section.append(d)
+    #
+    #         assert buyer_section[0]["id"] == f"MD-IDNO-{funder_1}"
+    #         assert buyer_section[0]["name"] == "buyer name"
+    #         assert buyer_section[0]["identifier"]["scheme"] == "MD-IDNO"
+    #         assert buyer_section[0]["identifier"]["id"] == funder_1
+    #         assert buyer_section[0]["identifier"]["legalName"] == "legal Name"
+    #         assert buyer_section[0]["identifier"]["uri"] == "http://buyer.com"
+    #         assert buyer_section[0]["address"]["streetAddress"] == "street address of buyer"
+    #         assert buyer_section[0]["address"]["postalCode"] == "02054"
+    #         assert buyer_section[0]["address"]["addressDetails"]["country"]["scheme"] == "iso-alpha2"
+    #         assert buyer_section[0]["address"]["addressDetails"]["country"]["id"] == "MD"
+    #         assert buyer_section[0]["address"]["addressDetails"]["country"]["description"] == "Moldova, Republica"
+    #         assert buyer_section[0]["address"]["addressDetails"]["country"]["uri"] == "https://www.iso.org"
+    #         assert buyer_section[0]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
+    #         assert buyer_section[0]["address"]["addressDetails"]["region"]["id"] == "3400000"
+    #         assert buyer_section[0]["address"]["addressDetails"]["region"]["description"] == "Donduşeni"
+    #         assert buyer_section[0]["address"]["addressDetails"]["region"]["uri"] == "http://statistica.md"
+    #         assert buyer_section[0]["address"]["addressDetails"]["locality"]["scheme"] == "CUATM"
+    #         assert buyer_section[0]["address"]["addressDetails"]["locality"]["id"] == "3401000"
+    #         assert buyer_section[0]["address"]["addressDetails"]["locality"][
+    #                    "description"] == "or.Donduşeni (r-l Donduşeni)"
+    #         assert buyer_section[0]["address"]["addressDetails"]["locality"]["uri"] == "http://statistica.md"
+    #         assert buyer_section[0]["additionalIdentifiers"][0]["scheme"] == "scheme"
+    #         assert buyer_section[0]["additionalIdentifiers"][0]["id"] == "additional identifier"
+    #         assert buyer_section[0]["additionalIdentifiers"][0]["legalName"] == "legal name"
+    #         assert buyer_section[0]["additionalIdentifiers"][0]["uri"] == "http://addtIdent.com"
+    #         assert buyer_section[0]["contactPoint"]["name"] == "contact point of buyer"
+    #         assert buyer_section[0]["contactPoint"]["email"] == "email.com"
+    #         assert buyer_section[0]["contactPoint"]["telephone"] == "32-22-23"
+    #         assert buyer_section[0]["contactPoint"]["faxNumber"] == "12-22-21"
+    #         assert buyer_section[0]["contactPoint"]["url"] == "http://url.com"
+    #
+    #         assert buyer_section[1]["id"] == f"MD-IDNO-{funder_2}"
+    #         assert buyer_section[1]["name"] == "buyer name"
+    #         assert buyer_section[1]["identifier"]["scheme"] == "MD-IDNO"
+    #         assert buyer_section[1]["identifier"]["id"] == funder_2
+    #         assert buyer_section[1]["identifier"]["legalName"] == "legal Name"
+    #         assert buyer_section[1]["identifier"]["uri"] == "http://buyer.com"
+    #         assert buyer_section[1]["address"]["streetAddress"] == "street address of buyer"
+    #         assert buyer_section[1]["address"]["postalCode"] == "02054"
+    #         assert buyer_section[1]["address"]["addressDetails"]["country"]["scheme"] == "iso-alpha2"
+    #         assert buyer_section[1]["address"]["addressDetails"]["country"]["id"] == "MD"
+    #         assert buyer_section[0]["address"]["addressDetails"]["country"]["description"] == "Moldova, Republica"
+    #         assert buyer_section[1]["address"]["addressDetails"]["country"]["uri"] == "https://www.iso.org"
+    #         assert buyer_section[1]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
+    #         assert buyer_section[1]["address"]["addressDetails"]["region"]["id"] == "3400000"
+    #         assert buyer_section[1]["address"]["addressDetails"]["region"]["description"] == "Donduşeni"
+    #         assert buyer_section[1]["address"]["addressDetails"]["region"]["uri"] == "http://statistica.md"
+    #         assert buyer_section[1]["address"]["addressDetails"]["locality"]["scheme"] == "CUATM"
+    #         assert buyer_section[1]["address"]["addressDetails"]["locality"]["id"] == "3401000"
+    #         assert buyer_section[1]["address"]["addressDetails"]["locality"][
+    #                    "description"] == "or.Donduşeni (r-l Donduşeni)"
+    #         assert buyer_section[1]["address"]["addressDetails"]["locality"]["uri"] == "http://statistica.md"
+    #         assert buyer_section[1]["additionalIdentifiers"][0]["scheme"] == "scheme"
+    #         assert buyer_section[1]["additionalIdentifiers"][0]["id"] == "additional identifier"
+    #         assert buyer_section[1]["additionalIdentifiers"][0]["legalName"] == "legal name"
+    #         assert buyer_section[1]["additionalIdentifiers"][0]["uri"] == "http://addtIdent.com"
+    #         assert buyer_section[1]["contactPoint"]["name"] == "contact point of buyer"
+    #         assert buyer_section[1]["contactPoint"]["email"] == "email.com"
+    #         assert buyer_section[1]["contactPoint"]["telephone"] == "32-22-23"
+    #         assert buyer_section[1]["contactPoint"]["faxNumber"] == "12-22-21"
+    #         assert buyer_section[1]["contactPoint"]["url"] == "http://url.com"
+    #
+    #
+    #     else:
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
+
+    # @pytestrail.case("27039")
+    # def test_27039_1(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #
+    # @pytestrail.case("27039")
+    # def test_27039_2(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27039")
+    # def test_27039_3(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
+    #         multistage = requests.get(
+    #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         list_of_dictionaries = multistage["releases"][0]["relatedProcesses"]
+    #         related_processes_section = list()
+    #         for d in list_of_dictionaries:
+    #             if d["relationship"][0] == "x_fundingSource":
+    #                 related_processes_section.append(d)
+    #
+    #         url_fs_1 = related_processes_section[0]["uri"]
+    #         url_fs_2 = related_processes_section[1]["uri"]
+    #         source_entity_fs_1 = requests.get(url=url_fs_1).json()["releases"][0]["planning"]["budget"]["sourceEntity"]
+    #         source_entity_fs_2 = requests.get(url=url_fs_2).json()["releases"][0]["planning"]["budget"]["sourceEntity"]
+    #
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["id"] == \
+    #                related_processes_section[0]["identifier"]
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["sourceParty"]["id"] == \
+    #                source_entity_fs_1["id"]
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["sourceParty"]["name"] == \
+    #                source_entity_fs_1["name"]
+    #
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][1]["id"] == \
+    #                related_processes_section[1]["identifier"]
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][1]["sourceParty"]["id"] == \
+    #                source_entity_fs_2["id"]
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][1]["sourceParty"]["name"] == \
+    #                source_entity_fs_2["name"]
+    #     else:
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
+
+    # @pytestrail.case("27040")
+    # def test_27040_1(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value, seconds=60)
+    #     assert create_pn_response[0].text == "ok"
+    #     assert create_pn_response[0].status_code == 202
+    #
+    # @pytestrail.case("27040")
+    # def test_27040_2(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value, seconds=60)
+    #     x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+    #     x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+    #     initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+    #     ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+    #     url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+    #     operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+    #     outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+    #     outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+    #     assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+    #     assert x_operation_id == True
+    #     assert x_response_id == True
+    #     assert initiator == True
+    #     assert ocid == True
+    #     assert url == True
+    #     assert operation_date == True
+    #     assert outcomes_pn_id == True
+    #     assert outcomes_pn_token == True
+    #
+    # @pytestrail.case("27040")
+    # def test_27040_3(self, additional_value):
+    #     cpid_1 = prepared_cpid()
+    #     buyer_1 = "1"
+    #     payer_1 = "2"
+    #     funder_1 = "3"
+    #     cpid_2 = prepared_cpid()
+    #     buyer_2 = "11"
+    #     payer_2 = "22"
+    #     funder_2 = "33"
+    #     payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+    #     payload["planning"]["budget"]["budgetBreakdown"] = [
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         },
+    #         {
+    #             "id": "{{fs-id}}",
+    #             "amount": {
+    #                 "amount": 1000,
+    #                 "currency": "EUR"
+    #             }
+    #         }
+    #     ]
+    #
+    #     create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+    #                                               funder_2, payload, additional_value, seconds=60)
+    #     get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
+    #     check_record = fnmatch.fnmatch(
+    #         get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+    #     if check_record == True:
+    #         multistage = requests.get(
+    #             url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+    #         list_of_dictionaries = multistage["releases"][0]["relatedProcesses"]
+    #         related_processes_section = list()
+    #         for d in list_of_dictionaries:
+    #             if d["relationship"][0] == "x_fundingSource":
+    #                 related_processes_section.append(d)
+    #
+    #         url_fs_1 = related_processes_section[0]["uri"]
+    #         url_fs_2 = related_processes_section[1]["uri"]
+    #         period_fs_1 = requests.get(url=url_fs_1).json()["releases"][0]["planning"]["budget"]["period"]
+    #         period_fs_2 = requests.get(url=url_fs_2).json()["releases"][0]["planning"]["budget"]["period"]
+    #
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["id"] == \
+    #                related_processes_section[0]["identifier"]
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["period"]["startDate"] == \
+    #                period_fs_1["startDate"]
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["period"]["endDate"] == \
+    #                period_fs_1["endDate"]
+    #
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][1]["id"] == \
+    #                related_processes_section[1]["identifier"]
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][1]["period"]["startDate"] == \
+    #                period_fs_2["startDate"]
+    #         assert multistage["releases"][0]["planning"]["budget"]["budgetBreakdown"][1]["period"]["endDate"] == \
+    #                period_fs_2["endDate"]
+    #     else:
+    #         assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
+
+    @pytestrail.case("27041")
+    def test_27041_1(self, additional_value):
+        cpid_1 = prepared_cpid()
+        buyer_1 = "1"
+        payer_1 = "2"
+        funder_1 = "3"
+        cpid_2 = prepared_cpid()
+        buyer_2 = "11"
+        payer_2 = "22"
+        funder_2 = "33"
         payload = copy.deepcopy(pn_create_full_data_model_with_documents)
-        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-        create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+        payload["planning"]["budget"]["budgetBreakdown"] = [
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            },
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            }
+        ]
+
+        create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+                                                  funder_2, payload, additional_value)
         assert create_pn_response[0].text == "ok"
         assert create_pn_response[0].status_code == 202
-        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
 
-    @pytestrail.case("27025")
-    def test_27025_2(self, additional_value):
-        cpid = prepared_cpid()
+    @pytestrail.case("27041")
+    def test_27041_2(self, additional_value):
+        cpid_1 = prepared_cpid()
+        buyer_1 = "1"
+        payer_1 = "2"
+        funder_1 = "3"
+        cpid_2 = prepared_cpid()
+        buyer_2 = "11"
+        payer_2 = "22"
+        funder_2 = "33"
         payload = copy.deepcopy(pn_create_full_data_model_with_documents)
-        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-        create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+        payload["planning"]["budget"]["budgetBreakdown"] = [
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            },
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            }
+        ]
+
+        create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+                                                  funder_2, payload, additional_value)
         x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
         x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
         initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
@@ -2693,34 +4107,64 @@ class TestBpeCreatePN(object):
         assert outcomes_pn_id == True
         assert outcomes_pn_token == True
 
-    @pytestrail.case("27025")
-    def test_27025_3(self, additional_value):
-        cpid = prepared_cpid()
+    @pytestrail.case("27041")
+    def test_27041_3(self, additional_value):
+        cpid_1 = prepared_cpid()
+        buyer_1 = "1"
+        payer_1 = "2"
+        funder_1 = "3"
+        cpid_2 = prepared_cpid()
+        buyer_2 = "11"
+        payer_2 = "22"
+        funder_2 = "33"
         payload = copy.deepcopy(pn_create_full_data_model_with_documents)
-        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-        create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value)
+        payload["planning"]["budget"]["budgetBreakdown"] = [
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            },
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            }
+        ]
+
+        create_pn_response = bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2,
+                                                  funder_2, payload, additional_value)
         get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()
-        if get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "planning":
+        check_record = fnmatch.fnmatch(
+            get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0], "parent")
+        if check_record == True:
+            multistage = requests.get(
+                url=get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
+            list_of_dictionaries = multistage["releases"][0]["relatedProcesses"]
+            related_processes_section = list()
+            for d in list_of_dictionaries:
+                if d["relationship"][0] == "x_expenditureItem":
+                    related_processes_section.append(d)
 
-            planning_notice = requests.get(
-                url=get_url["records"][0]["compiledRelease"]["relatedProcesses"][0]["uri"]).json()
-            assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
-            assert \
-                planning_notice["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
-                    "locality"]["id"] == \
-                payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"]
 
-            assert \
-                planning_notice["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
-                    "locality"]["scheme"] == \
-                payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"]
-            assert \
-                planning_notice["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
-                    "locality"]["description"] == "or.Donduşeni (r-l Donduşeni)"
-            assert \
-                planning_notice["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
-                    "locality"]["uri"] == "http://statistica.md"
+            id_1 = fnmatch.fnmatch(related_processes_section[0]["id"], "*")
+            assert id_1 == True
+            assert related_processes_section[0]["relationship"] == ["x_expenditureItem"]
+            assert related_processes_section[0]["scheme"] == "ocid"
+            assert related_processes_section[0]["identifier"] == cpid_1
+            assert related_processes_section[0][
+                       "uri"] == f"http://dev.public.eprocurement.systems/budgets/{cpid_1}/{cpid_1}"
+
+            id_2 = fnmatch.fnmatch(related_processes_section[1]["id"], "*")
+            assert id_2 == True
+            assert related_processes_section[1]["relationship"] == ["x_expenditureItem"]
+            assert related_processes_section[1]["scheme"] == "ocid"
+            assert related_processes_section[1]["identifier"] == cpid_2
+            assert related_processes_section[1][
+                       "uri"] == f"http://dev.public.eprocurement.systems/budgets/{cpid_2}/{cpid_2}"
 
         else:
-            print("Check url")
+            assert get_url["records"][1]["compiledRelease"]["relatedProcesses"][0]["relationship"][0] == "parent"
