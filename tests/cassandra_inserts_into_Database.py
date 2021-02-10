@@ -891,7 +891,35 @@ def insert_into_db_update_ei(cpid):
     return f"http://dev.public.eprocurement.systems/budgets/{cpid}/{cpid}", ei_token
 
 
-def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer="1", payer="2", funder="3"):
+def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer_id="1", payer_id="2", funder_id="3",
+                             classification_id="45100000-8", currency="EUR", planning_rationale="plan", country_id="MD",
+                             country_scheme="iso-alpha2", region_scheme="CUATM", region_id="3400000",
+                             region_description="Donduşeni",
+                             locality_scheme="CUATM", locality_id="3401000",
+                             locality_description="or.Donduşeni (r-l Donduşeni)",
+                             contact_point_name="Petrusenko Svitlana", contact_point_email="svetik@gmail.com",
+                             contact_point_telephone="888999666", contact_point_fax="5552233",
+                             contact_point_url="http://petrusenko.com/svetlana", buyer_name="LLC Dmitro",
+                             funder_name="LLC Petro", payer_name="LLC Milola", country_description="Moldova, Republica",
+                             budget_id="test id for budget", budget_description="test description",
+                             project_name=" test project name", project_id="test project id",
+                             project_uri="test project uri", amount=2000.00, is_european_funding=True,
+                             buyer_identifier_scheme="MD-IDNO", funder_identifier_scheme="MD-IDNO",
+                             payer_identifier_scheme="MD-IDNO", payer_identifier_legal_name="legal",
+                             payer_identifier_legal_uri="uri", payer_address_street="street",
+                             payer_address_postal="postalCode", payer_additional_id="id of additional",
+                             payer_additional_scheme="scheme of additional", payer_additional_uri="uri of additional",
+                             payer_additional_legal="legal of additional",
+                             funder_identifier_legal_name="legal", funder_identifier_legal_uri="uri",
+                             funder_address_street="street", funder_address_postal="02223",
+                             funder_additional_id="id of additional", funder_additional_scheme="scheme of additional",
+                             funder_additional_legal="legal of additional",
+                             funder_additional_uri="uri of additional", buyer_identifier_legal_name="legal",
+                             buyer_identifier_uri="uri", buyer_address_street="street", buyer_address_postal="35365",
+                             buyer_additional_id="id of additional", buyer_additional_scheme="scheme of additional",
+                             buyer_additional_legal="legal of additional", buyer_additional_uri="uri of additional",
+                             buyer_details_type="NATIONAL_AGENCY", buyer_details_general_activity="HEALTH",
+                             buyer_details_sectoral_activity="WATER"):
     auth_provider = PlainTextAuthProvider(username=username, password=password)
     cluster = Cluster([host], auth_provider=auth_provider)
     session = cluster.connect('ocds')
@@ -929,7 +957,7 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             "status": "planning",
             "statusDetails": "empty",
             "classification": {
-                "id": "45100000-8",
+                "id": classification_id,
                 "scheme": "CPV",
                 "description": "Lucrări de pregătire a şantierului"
             },
@@ -937,74 +965,74 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
         },
         "planning": {
             "budget": {
-                "id": "45100000-8",
+                "id": classification_id,
                 "period": {
                     "startDate": period[0],
                     "endDate": period[1]
                 },
                 "amount": {
-                    "amount": 2000.00,
-                    "currency": "EUR"
+                    "amount": amount,
+                    "currency": currency
                 }
             },
-            "rationale": "planning.rationale"
+            "rationale": planning_rationale
         },
         "buyer": {
-            "id": f"MD-IDNO-{buyer}",
-            "name": "LLC Petrusenko",
+            "id": f"{buyer_identifier_scheme}-{buyer_id}",
+            "name": buyer_name,
             "identifier": {
-                "id": f"{buyer}",
-                "scheme": "MD-IDNO",
-                "legalName": "LLC Petrusenko",
-                "uri": "http://petrusenko.com/fop"
+                "id": buyer_id,
+                "scheme": buyer_identifier_scheme,
+                "legalName": buyer_identifier_legal_name,
+                "uri": buyer_identifier_uri
             },
             "address": {
-                "streetAddress": "Zakrevskogo",
-                "postalCode": "02217",
+                "streetAddress": buyer_address_street,
+                "postalCode": buyer_address_postal,
                 "addressDetails": {
                     "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
+                        "scheme": country_scheme,
+                        "id": country_id,
+                        "description": country_description,
                         "uri": "https://www.iso.org"
                     },
                     "region": {
-                        "scheme": "CUATM",
-                        "id": "1700000",
-                        "description": "Cahul",
+                        "scheme": region_scheme,
+                        "id": region_id,
+                        "description": region_description,
                         "uri": "http://statistica.md"
                     },
                     "locality": {
-                        "scheme": "CUATM",
-                        "id": "1701000",
-                        "description": "mun.Cahul",
+                        "scheme": locality_scheme,
+                        "id": locality_id,
+                        "description": locality_description,
                         "uri": "http://statistica.md"
                     }
                 }
             },
             "contactPoint": {
-                "name": "Petrusenko Svitlana",
-                "email": "svetik@gmail.com",
-                "telephone": "888999666",
-                "faxNumber": "5552233",
-                "url": "http://petrusenko.com/svetlana"
+                "name": contact_point_name,
+                "email": contact_point_email,
+                "telephone": contact_point_telephone,
+                "faxNumber": contact_point_fax,
+                "url": contact_point_url
             },
             "additionalIdentifiers": [{
-                "id": "string",
-                "scheme": "MD-IDNO",
-                "legalName": "380935103469",
-                "uri": "http://petrusenko.com/svetlana"
+                "id": buyer_additional_id,
+                "scheme": buyer_additional_scheme,
+                "legalName": buyer_additional_legal,
+                "uri": buyer_additional_uri
             }],
             "details": {
-                "typeOfBuyer": "NATIONAL_AGENCY",
-                "mainGeneralActivity": "HEALTH",
-                "mainSectoralActivity": "WATER"
+                "typeOfBuyer": buyer_details_type,
+                "mainGeneralActivity": buyer_details_general_activity,
+                "mainSectoralActivity": buyer_details_sectoral_activity
             }
         }
     }
 
     json_notice_budget_release_ei = {
-        "ocid": "ocds-t1s2t3-MD-1610528356980",
+        "ocid": cpid,
         "id": cpid + "-" + f"{period[2]}",
         "date": period[0],
         "tag": ["compiled"],
@@ -1018,80 +1046,80 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             "mainProcurementCategory": "works",
             "classification": {
                 "scheme": "CPV",
-                "id": "45100000-8",
+                "id": classification_id,
                 "description": "Lucrări de pregătire a şantierului"
             }
         },
         "buyer": {
-            "id": "MD-IDNO-1",
-            "name": "LLC Petrusenko"
+            "id": f"{buyer_identifier_scheme}-{buyer_id}",
+            "name": buyer_name
         },
         "parties": [{
-            "id": "MD-IDNO-1",
-            "name": "LLC Petrusenko",
+            "id": f"{buyer_identifier_scheme}-{buyer_id}",
+            "name": buyer_name,
             "identifier": {
-                "scheme": "MD-IDNO",
-                "id": f"{buyer}",
-                "legalName": "LLC Petrusenko",
-                "uri": "http://petrusenko.com/fop"
+                "scheme": buyer_identifier_scheme,
+                "id": buyer_id,
+                "legalName": buyer_identifier_legal_name,
+                "uri": buyer_identifier_uri
             },
             "address": {
-                "streetAddress": "Zakrevskogo",
-                "postalCode": "02217",
+                "streetAddress": buyer_address_street,
+                "postalCode": buyer_address_postal,
                 "addressDetails": {
                     "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
+                        "scheme": country_scheme,
+                        "id": country_id,
+                        "description": country_description,
                         "uri": "https://www.iso.org"
                     },
                     "region": {
-                        "scheme": "CUATM",
-                        "id": "1700000",
-                        "description": "Cahul",
+                        "scheme": region_scheme,
+                        "id": region_id,
+                        "description": region_description,
                         "uri": "http://statistica.md"
                     },
                     "locality": {
-                        "scheme": "CUATM",
-                        "id": "1701000",
-                        "description": "mun.Cahul",
+                        "scheme": locality_scheme,
+                        "id": locality_id,
+                        "description": locality_description,
                         "uri": "http://statistica.md"
                     }
                 }
             },
             "additionalIdentifiers": [{
-                "scheme": "MD-IDNO",
-                "id": "string",
-                "legalName": "380935103469",
-                "uri": "http://petrusenko.com/svetlana"
+                "scheme": buyer_additional_scheme,
+                "id": buyer_additional_id,
+                "legalName": buyer_additional_legal,
+                "uri": buyer_additional_uri
             }],
             "contactPoint": {
-                "name": "Petrusenko Svitlana",
-                "email": "svetik@gmail.com",
-                "telephone": "888999666",
-                "faxNumber": "5552233",
-                "url": "http://petrusenko.com/svetlana"
+                "name": contact_point_name,
+                "email": contact_point_email,
+                "telephone": contact_point_telephone,
+                "faxNumber": contact_point_fax,
+                "url": contact_point_url
             },
             "details": {
-                "typeOfBuyer": "NATIONAL_AGENCY",
-                "mainGeneralActivity": "HEALTH",
-                "mainSectoralActivity": "WATER"
+                "typeOfBuyer": buyer_details_type,
+                "mainGeneralActivity": buyer_details_general_activity,
+                "mainSectoralActivity": buyer_details_sectoral_activity
             },
             "roles": ["buyer"]
         }],
         "planning": {
             "budget": {
-                "id": "45100000-8",
+                "id": classification_id,
                 "period": {
                     "startDate": period[0],
                     "endDate": period[1]
                 },
                 "amount": {
-                    "amount": 2000.00,
-                    "currency": "EUR"
+                    "amount": amount,
+                    "currency": currency
                 }
             },
-            "rationale": "planning.rationale"
+            "rationale": planning_rationale
         },
         "relatedProcesses": [{
             "id": "a3e8d470-557d-11eb-a1bb-b300e52ae89e",
@@ -1117,80 +1145,80 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             "mainProcurementCategory": "works",
             "classification": {
                 "scheme": "CPV",
-                "id": "45100000-8",
+                "id": classification_id,
                 "description": "Lucrări de pregătire a şantierului"
             }
         },
         "buyer": {
-            "id": f"MD-IDNO-{buyer}",
-            "name": "LLC Petrusenko"
+            "id": f"{buyer_identifier_scheme}-{buyer_id}",
+            "name": buyer_name
         },
         "parties": [{
-            "id": f"MD-IDNO-{buyer}",
-            "name": "LLC Petrusenko",
+            "id": f"{buyer_identifier_scheme}-{buyer_id}",
+            "name": buyer_name,
             "identifier": {
-                "scheme": "MD-IDNO",
-                "id": f"{buyer}",
-                "legalName": "LLC Petrusenko",
-                "uri": "http://petrusenko.com/fop"
+                "scheme": buyer_identifier_scheme,
+                "id": buyer_id,
+                "legalName": buyer_identifier_legal_name,
+                "uri": buyer_identifier_uri
             },
             "address": {
-                "streetAddress": "Zakrevskogo",
-                "postalCode": "02217",
+                "streetAddress": buyer_address_street,
+                "postalCode": buyer_address_postal,
                 "addressDetails": {
                     "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
+                        "scheme": country_scheme,
+                        "id": country_id,
+                        "description": country_description,
                         "uri": "https://www.iso.org"
                     },
                     "region": {
-                        "scheme": "CUATM",
-                        "id": "1700000",
-                        "description": "Cahul",
+                        "scheme": region_scheme,
+                        "id": region_id,
+                        "description": region_description,
                         "uri": "http://statistica.md"
                     },
                     "locality": {
-                        "scheme": "CUATM",
-                        "id": "1701000",
-                        "description": "mun.Cahul",
+                        "scheme": locality_scheme,
+                        "id": locality_id,
+                        "description": locality_description,
                         "uri": "http://statistica.md"
                     }
                 }
             },
             "additionalIdentifiers": [{
-                "scheme": "MD-IDNO",
-                "id": "string",
-                "legalName": "380935103469",
-                "uri": "http://petrusenko.com/svetlana"
+                "scheme": buyer_additional_scheme,
+                "id": buyer_additional_id,
+                "legalName": buyer_additional_legal,
+                "uri": buyer_additional_uri
             }],
             "contactPoint": {
-                "name": "Petrusenko Svitlana",
-                "email": "svetik@gmail.com",
-                "telephone": "888999666",
-                "faxNumber": "5552233",
-                "url": "http://petrusenko.com/svetlana"
+                "name": contact_point_name,
+                "email": contact_point_email,
+                "telephone": contact_point_telephone,
+                "faxNumber": contact_point_fax,
+                "url": contact_point_url
             },
             "details": {
-                "typeOfBuyer": "NATIONAL_AGENCY",
-                "mainGeneralActivity": "HEALTH",
-                "mainSectoralActivity": "WATER"
+                "typeOfBuyer": buyer_details_type,
+                "mainGeneralActivity": buyer_details_general_activity,
+                "mainSectoralActivity": buyer_details_sectoral_activity
             },
             "roles": ["buyer"]
         }],
         "planning": {
             "budget": {
-                "id": "45100000-8",
+                "id": classification_id,
                 "period": {
                     "startDate": period[0],
                     "endDate": period[1]
                 },
                 "amount": {
-                    "amount": 2000.00,
-                    "currency": "EUR"
+                    "amount": amount,
+                    "currency": currency
                 }
             },
-            "rationale": "planning.rationale"
+            "rationale": planning_rationale
         },
         "relatedProcesses": [{
             "id": "a3e8d470-557d-11eb-a1bb-b300e52ae89e",
@@ -1210,130 +1238,129 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
         },
         "planning": {
             "budget": {
-                "id": "IBAN - 102030",
-                "description": "description",
+                "id": budget_id,
+                "description": budget_description,
                 "period": {
                     "startDate": period[0],
                     "endDate": period[1]
                 },
                 "amount": {
-                    "amount": 2000.00,
-                    "currency": "EUR"
+                    "amount": amount,
+                    "currency": currency
                 },
                 "europeanUnionFunding": {
-                    "projectName": "Name of this project",
-                    "projectIdentifier": "projectIdentifier",
-                    "uri": "http://uriuri.th"
+                    "projectName": project_name,
+                    "projectIdentifier": project_id,
+                    "uri": project_uri
                 },
-                "isEuropeanUnionFunded": True,
+                "isEuropeanUnionFunded": is_european_funding,
                 "verified": True,
                 "sourceEntity": {
-                    "id": "MD-IDNO-3",
-                    "name": "buyer name"
+                    "id": f"{buyer_identifier_scheme}-{buyer_id}",
+                    "name": buyer_name
                 },
                 "verificationDetails": None,
-                "project": "project",
-                "projectID": "projectID",
-                "uri": "http://uri.ur"
+                "project": project_name,
+                "projectID": project_id,
+                "uri": project_uri
             },
-            "rationale": "reason for the budget"
+            "rationale": planning_rationale
         },
         "funder": {
-            "id": f"MD-IDNO-{funder}",
-            "name": "buyer name",
+            "id": f"{funder_identifier_scheme}-{funder_id}",
+            "name": funder_name,
             "identifier": {
-                "id": f"{funder}",
-                "scheme": "MD-IDNO",
-                "legalName": "legal Name",
-                "uri": "http://buyer.com"
+                "id": funder_id,
+                "scheme": funder_identifier_scheme,
+                "legalName": funder_identifier_legal_name,
+                "uri": funder_identifier_legal_uri
             },
             "address": {
-                "streetAddress": "street address of buyer",
-                "postalCode": "02054",
+                "streetAddress": funder_address_street,
+                "postalCode": funder_address_postal,
                 "addressDetails": {
                     "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
+                        "scheme": country_scheme,
+                        "id": country_id,
+                        "description": country_description,
                         "uri": "https://www.iso.org"
                     },
                     "region": {
-                        "scheme": "CUATM",
-                        "id": "3400000",
-                        "description": "Donduşeni",
+                        "scheme": region_scheme,
+                        "id": region_id,
+                        "description": region_description,
                         "uri": "http://statistica.md"
                     },
                     "locality": {
-                        "scheme": "CUATM",
-                        "id": "3401000",
-                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "scheme": locality_scheme,
+                        "id": locality_id,
+                        "description": locality_description,
                         "uri": "http://statistica.md"
                     }
                 }
             },
             "additionalIdentifiers": [{
-                "id": "additional identifier",
-                "scheme": "scheme",
-                "legalName": "legal name",
-                "uri": "http://addtIdent.com"
+                "id": funder_additional_id,
+                "scheme": funder_additional_scheme,
+                "legalName": funder_additional_legal,
+                "uri": funder_additional_uri
             }],
             "contactPoint": {
-                "name": "contact point of buyer",
-                "email": "email.com",
-                "telephone": "32-22-23",
-                "faxNumber": "12-22-21",
-                "url": "http://url.com"
+                "name": contact_point_name,
+                "email": contact_point_email,
+                "telephone": contact_point_telephone,
+                "faxNumber": contact_point_fax,
+                "url": contact_point_url
             }
         },
         "payer": {
-            "id": f"MD-IDNO-{payer}",
-            "name": "Procuring Entity Name",
+            "id": f"{payer_identifier_scheme}-{payer_id}",
+            "name": payer_name,
             "identifier": {
-                "id": f"{payer}",
-                "scheme": "MD-IDNO",
-                "legalName": "Legal Name",
-                "uri": "http://454.to"
+                "id": payer_id,
+                "scheme": payer_identifier_scheme,
+                "legalName": payer_identifier_legal_name,
+                "uri": payer_identifier_legal_uri
             },
             "address": {
-                "streetAddress": "street",
-                "postalCode": "785412",
+                "streetAddress": payer_address_street,
+                "postalCode": payer_address_postal,
                 "addressDetails": {
                     "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
+                        "scheme": country_scheme,
+                        "id": country_id,
+                        "description": country_description,
                         "uri": "https://www.iso.org"
                     },
                     "region": {
-                        "scheme": "CUATM",
-                        "id": "3400000",
-                        "description": "Donduşeni",
+                        "scheme": region_scheme,
+                        "id": region_id,
+                        "description": region_description,
                         "uri": "http://statistica.md"
                     },
                     "locality": {
-                        "scheme": "CUATM",
-                        "id": "3401000",
-                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "scheme": locality_scheme,
+                        "id": locality_id,
+                        "description": locality_description,
                         "uri": "http://statistica.md"
                     }
                 }
             },
             "additionalIdentifiers": [{
-                "id": "additional identifier",
-                "scheme": "MD-K",
-                "legalName": "legalname",
-                "uri": "http://k.to"
+                "id": payer_additional_id,
+                "scheme": payer_additional_scheme,
+                "legalName": payer_additional_legal,
+                "uri": payer_additional_uri
             }],
             "contactPoint": {
-                "name": "contact person",
-                "email": "string@mail.ccc",
-                "telephone": "98-79-87",
-                "faxNumber": "78-56-55",
-                "url": "http://url.com"
+                "name": contact_point_name,
+                "email": contact_point_email,
+                "telephone": contact_point_telephone,
+                "faxNumber": contact_point_fax,
+                "url": contact_point_url
             }
         }
     }
-
     json_notice_budget_release_fs = {
         "ocid": fs_ocid,
         "id": fs_ocid + "-" + f"{period[2]}",
@@ -1346,128 +1373,128 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             "statusDetails": statusDetails
         },
         "parties": [{
-            "id": f"MD-IDNO-{funder}",
-            "name": "buyer name",
+            "id": f"{funder_identifier_scheme}-{funder_id}",
+            "name": funder_name,
             "identifier": {
-                "scheme": "MD-IDNO",
-                "id": f"{funder}",
-                "legalName": "legal Name",
-                "uri": "http://buyer.com"
+                "scheme": funder_identifier_scheme,
+                "id": funder_id,
+                "legalName": funder_identifier_legal_name,
+                "uri": funder_identifier_legal_uri
             },
             "address": {
-                "streetAddress": "street address of buyer",
-                "postalCode": "02054",
+                "streetAddress": funder_address_street,
+                "postalCode": funder_address_postal,
                 "addressDetails": {
                     "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
+                        "scheme": country_scheme,
+                        "id": country_id,
+                        "description": country_description,
                         "uri": "https://www.iso.org"
                     },
                     "region": {
-                        "scheme": "CUATM",
-                        "id": "3400000",
-                        "description": "Donduşeni",
+                        "scheme": region_scheme,
+                        "id": region_id,
+                        "description": region_description,
                         "uri": "http://statistica.md"
                     },
                     "locality": {
-                        "scheme": "CUATM",
-                        "id": "3401000",
-                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "scheme": locality_scheme,
+                        "id": locality_id,
+                        "description": locality_description,
                         "uri": "http://statistica.md"
                     }
                 }
             },
             "additionalIdentifiers": [{
-                "scheme": "scheme",
-                "id": "additional identifier",
-                "legalName": "legal name",
-                "uri": "http://addtIdent.com"
+                "id": funder_additional_id,
+                "scheme": funder_additional_scheme,
+                "legalName": funder_additional_legal,
+                "uri": funder_additional_uri
             }],
             "contactPoint": {
-                "name": "contact point of buyer",
-                "email": "email.com",
-                "telephone": "32-22-23",
-                "faxNumber": "12-22-21",
-                "url": "http://url.com"
+                "name": contact_point_name,
+                "email": contact_point_email,
+                "telephone": contact_point_telephone,
+                "faxNumber": contact_point_fax,
+                "url": contact_point_url
             },
             "roles": ["funder"]
         }, {
-            "id": f"MD-IDNO-{payer}",
-            "name": "Procuring Entity Name",
+            "id": f"{payer_identifier_scheme}-{payer_id}",
+            "name": payer_name,
             "identifier": {
-                "scheme": "MD-IDNO",
-                "id": f"{payer}",
-                "legalName": "Legal Name",
-                "uri": "http://454.to"
+                "scheme": payer_identifier_scheme,
+                "id": payer_id,
+                "legalName": payer_identifier_legal_name,
+                "uri": payer_identifier_legal_uri
             },
             "address": {
-                "streetAddress": "street",
-                "postalCode": "785412",
+                "streetAddress": payer_address_street,
+                "postalCode": payer_address_postal,
                 "addressDetails": {
                     "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
+                        "scheme": country_scheme,
+                        "id": country_id,
+                        "description": country_description,
                         "uri": "https://www.iso.org"
                     },
                     "region": {
-                        "scheme": "CUATM",
-                        "id": "3400000",
-                        "description": "Donduşeni",
+                        "scheme": region_scheme,
+                        "id": region_id,
+                        "description": region_description,
                         "uri": "http://statistica.md"
                     },
                     "locality": {
-                        "scheme": "CUATM",
-                        "id": "3401000",
-                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "scheme": locality_scheme,
+                        "id": locality_id,
+                        "description": locality_description,
                         "uri": "http://statistica.md"
                     }
                 }
             },
             "additionalIdentifiers": [{
-                "scheme": "MD-K",
-                "id": "additional identifier",
-                "legalName": "legalname",
-                "uri": "http://k.to"
+                "id": payer_additional_id,
+                "scheme": payer_additional_scheme,
+                "legalName": payer_additional_legal,
+                "uri": payer_additional_uri
             }],
             "contactPoint": {
-                "name": "contact person",
-                "email": "string@mail.ccc",
-                "telephone": "98-79-87",
-                "faxNumber": "78-56-55",
-                "url": "http://url.com"
+                "name": contact_point_name,
+                "email": contact_point_email,
+                "telephone": contact_point_telephone,
+                "faxNumber": contact_point_fax,
+                "url": contact_point_url
             },
             "roles": ["payer"]
         }],
         "planning": {
             "budget": {
                 "id": "IBAN - 102030",
-                "description": "description",
+                "description": budget_description,
                 "period": {
                     "startDate": period[0],
                     "endDate": period[1]
                 },
                 "amount": {
-                    "amount": 2000.00,
-                    "currency": "EUR"
+                    "amount": amount,
+                    "currency": currency
                 },
                 "europeanUnionFunding": {
-                    "projectIdentifier": "projectIdentifier",
-                    "projectName": "Name of this project",
-                    "uri": "http://uriuri.th"
+                    "projectIdentifier": project_id,
+                    "projectName": project_name,
+                    "uri": project_uri
                 },
-                "isEuropeanUnionFunded": True,
+                "isEuropeanUnionFunded": is_european_funding,
                 "verified": True,
                 "sourceEntity": {
-                    "id": "MD-IDNO-3",
-                    "name": "buyer name"
+                    "id": f"{buyer_identifier_scheme}-{buyer_id}",
+                    "name": buyer_name
                 },
-                "project": "project",
-                "projectID": "projectID",
-                "uri": "http://uri.ur"
+                "project": project_name,
+                "projectID": project_id,
+                "uri": project_uri
             },
-            "rationale": "reason for the budget"
+            "rationale": planning_rationale
         },
         "relatedProcesses": [{
             "id": "a3e85f40-557d-11eb-a1bb-b300e52ae89e",
@@ -1490,128 +1517,128 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             "statusDetails": statusDetails
         },
         "parties": [{
-            "id": f"MD-IDNO-{funder}",
-            "name": "buyer name",
+            "id": f"{funder_identifier_scheme}-{funder_id}",
+            "name": funder_name,
             "identifier": {
-                "scheme": "MD-IDNO",
-                "id": f"{funder}",
-                "legalName": "legal Name",
-                "uri": "http://buyer.com"
+                "scheme": funder_identifier_scheme,
+                "id": funder_id,
+                "legalName": funder_identifier_legal_name,
+                "uri": funder_identifier_legal_uri
             },
             "address": {
-                "streetAddress": "street address of buyer",
-                "postalCode": "02054",
+                "streetAddress": funder_address_street,
+                "postalCode": funder_address_postal,
                 "addressDetails": {
                     "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
+                        "scheme": country_scheme,
+                        "id": country_id,
+                        "description": country_description,
                         "uri": "https://www.iso.org"
                     },
                     "region": {
-                        "scheme": "CUATM",
-                        "id": "3400000",
-                        "description": "Donduşeni",
+                        "scheme": region_scheme,
+                        "id": region_id,
+                        "description": region_description,
                         "uri": "http://statistica.md"
                     },
                     "locality": {
-                        "scheme": "CUATM",
-                        "id": "3401000",
-                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "scheme": locality_scheme,
+                        "id": locality_id,
+                        "description": locality_description,
                         "uri": "http://statistica.md"
                     }
                 }
             },
             "additionalIdentifiers": [{
-                "scheme": "scheme",
-                "id": "additional identifier",
-                "legalName": "legal name",
-                "uri": "http://addtIdent.com"
+                "id": funder_additional_id,
+                "scheme": funder_additional_scheme,
+                "legalName": funder_additional_legal,
+                "uri": funder_additional_uri
             }],
             "contactPoint": {
-                "name": "contact point of buyer",
-                "email": "email.com",
-                "telephone": "32-22-23",
-                "faxNumber": "12-22-21",
-                "url": "http://url.com"
+                "name": contact_point_name,
+                "email": contact_point_email,
+                "telephone": contact_point_telephone,
+                "faxNumber": contact_point_fax,
+                "url": contact_point_url
             },
             "roles": ["funder"]
         }, {
-            "id": f"MD-IDNO-{payer}",
-            "name": "Procuring Entity Name",
+            "id": f"{payer_identifier_scheme}-{payer_id}",
+            "name": payer_name,
             "identifier": {
-                "scheme": "MD-IDNO",
-                "id": f"{payer}",
-                "legalName": "Legal Name",
-                "uri": "http://454.to"
+                "scheme": payer_identifier_scheme,
+                "id": payer_id,
+                "legalName": payer_identifier_legal_name,
+                "uri": payer_identifier_legal_uri
             },
             "address": {
-                "streetAddress": "street",
-                "postalCode": "785412",
+                "streetAddress": payer_address_street,
+                "postalCode": payer_address_postal,
                 "addressDetails": {
                     "country": {
-                        "scheme": "iso-alpha2",
-                        "id": "MD",
-                        "description": "Moldova, Republica",
+                        "scheme": country_scheme,
+                        "id": country_id,
+                        "description": country_description,
                         "uri": "https://www.iso.org"
                     },
                     "region": {
-                        "scheme": "CUATM",
-                        "id": "3400000",
-                        "description": "Donduşeni",
+                        "scheme": region_scheme,
+                        "id": region_id,
+                        "description": region_description,
                         "uri": "http://statistica.md"
                     },
                     "locality": {
-                        "scheme": "CUATM",
-                        "id": "3401000",
-                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "scheme": locality_scheme,
+                        "id": locality_id,
+                        "description": locality_description,
                         "uri": "http://statistica.md"
                     }
                 }
             },
             "additionalIdentifiers": [{
-                "scheme": "MD-K",
-                "id": "additional identifier",
-                "legalName": "legalname",
-                "uri": "http://k.to"
+                "id": payer_additional_id,
+                "scheme": payer_additional_scheme,
+                "legalName": payer_additional_legal,
+                "uri": payer_additional_uri
             }],
             "contactPoint": {
-                "name": "contact person",
-                "email": "string@mail.ccc",
-                "telephone": "98-79-87",
-                "faxNumber": "78-56-55",
-                "url": "http://url.com"
+                "name": contact_point_name,
+                "email": contact_point_email,
+                "telephone": contact_point_telephone,
+                "faxNumber": contact_point_fax,
+                "url": contact_point_url
             },
             "roles": ["payer"]
         }],
         "planning": {
             "budget": {
                 "id": "IBAN - 102030",
-                "description": "description",
+                "description": budget_description,
                 "period": {
                     "startDate": period[0],
                     "endDate": period[1]
                 },
                 "amount": {
-                    "amount": 2000.00,
-                    "currency": "EUR"
+                    "amount": amount,
+                    "currency": currency
                 },
                 "europeanUnionFunding": {
-                    "projectIdentifier": "projectIdentifier",
-                    "projectName": "Name of this project",
-                    "uri": "http://uriuri.th"
+                    "projectIdentifier": project_id,
+                    "projectName": project_name,
+                    "uri": project_uri
                 },
-                "isEuropeanUnionFunded": True,
+                "isEuropeanUnionFunded": is_european_funding,
                 "verified": True,
                 "sourceEntity": {
-                    "id": "MD-IDNO-3",
-                    "name": "buyer name"
+                    "id": f"{buyer_identifier_scheme}-{buyer_id}",
+                    "name": buyer_name
                 },
-                "project": "project",
-                "projectID": "projectID",
-                "uri": "http://uri.ur"
+                "project": project_name,
+                "projectID": project_id,
+                "uri": project_uri
             },
-            "rationale": "reason for the budget"
+            "rationale": planning_rationale
         },
         "relatedProcesses": [{
             "id": "a3e85f40-557d-11eb-a1bb-b300e52ae89e",
