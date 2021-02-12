@@ -44,7 +44,8 @@ def bpe_create_pn_one_fs(cpid, pn_create_payload, pmd):
     return request_to_create_pn, message_from_kafka, x_operation_id
 
 
-def bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, payer_2, funder_2, pn_create_payload,
+def bpe_create_pn_two_fs(cpid_1, cpid_2, pn_create_payload, buyer_1="1", payer_1="2", funder_1="3", buyer_2="11",
+                         payer_2="22", funder_2="33",
                          classification_id="45100000-8", currency="EUR", planning_rationale="plan", country_id="MD",
                          country_scheme="iso-alpha2", country_description="Moldova, Republica", region_scheme="CUATM",
                          region_id="3400000", region_description="Donduşeni", locality_scheme="CUATM",
@@ -57,7 +58,11 @@ def bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, pa
                          budget_id="test id for budget",
                          budget_description="test description", project_name=" test project name",
                          project_id="test project id",
-                         project_uri="test project uri", amount=2000.00, is_european_funding=True,
+                         project_uri="test project uri", amount_1=1000.00, amount_2=1000.00, is_european_funding_1=True,
+                         is_european_funding_2=True,
+                         european_project_name="test eropean name",
+                         european_project_id="test european id",
+                         european_project_uri="european uri",
                          buyer_identifier_scheme="MD-IDNO",
                          funder_identifier_scheme="MD-IDNO", payer_identifier_scheme="MD-IDNO",
                          payer_identifier_legal_name="legal",
@@ -97,8 +102,11 @@ def bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, pa
                                                 funder_name=funder_name, payer_name=payer_name,
                                                 budget_id=budget_id, budget_description=budget_description,
                                                 project_name=project_name, project_id=project_id,
-                                                project_uri=project_uri, amount=amount,
-                                                is_european_funding=is_european_funding,
+                                                project_uri=project_uri, amount=amount_1,
+                                                is_european_funding=is_european_funding_1,
+                                                european_project_name=european_project_name,
+                                                european_project_id=european_project_id,
+                                                european_project_uri=european_project_uri,
                                                 buyer_identifier_scheme=buyer_identifier_scheme,
                                                 funder_identifier_scheme=funder_identifier_scheme,
                                                 payer_identifier_scheme=payer_identifier_scheme,
@@ -151,8 +159,11 @@ def bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, pa
                                                 funder_name=funder_name, payer_name=payer_name,
                                                 budget_id=budget_id, budget_description=budget_description,
                                                 project_name=project_name, project_id=project_id,
-                                                project_uri=project_uri, amount=amount,
-                                                is_european_funding=is_european_funding,
+                                                project_uri=project_uri, amount=amount_2,
+                                                is_european_funding=is_european_funding_2,
+                                                european_project_name=european_project_name,
+                                                european_project_id=european_project_id,
+                                                european_project_uri=european_project_uri,
                                                 buyer_identifier_scheme=buyer_identifier_scheme,
                                                 funder_identifier_scheme=funder_identifier_scheme,
                                                 payer_identifier_scheme=payer_identifier_scheme,
@@ -215,4 +226,4 @@ def bpe_create_pn_two_fs(cpid_1, buyer_1, payer_1, funder_1, cpid_2, buyer_2, pa
             json=pn_create_payload)
         time.sleep(2)
         message_from_kafka = get_message_from_kafka(x_operation_id)
-    return request_to_create_pn, message_from_kafka, x_operation_id
+    return request_to_create_pn, message_from_kafka, x_operation_id, test_create_fs_1[2], test_create_fs_2[2]

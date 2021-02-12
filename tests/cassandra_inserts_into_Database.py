@@ -904,6 +904,9 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
                              budget_id="test id for budget", budget_description="test description",
                              project_name=" test project name", project_id="test project id",
                              project_uri="test project uri", amount=2000.00, is_european_funding=True,
+                             european_project_name="test eropean name",
+                             european_project_id="test european id",
+                             european_project_uri="european uri",
                              buyer_identifier_scheme="MD-IDNO", funder_identifier_scheme="MD-IDNO",
                              payer_identifier_scheme="MD-IDNO", payer_identifier_legal_name="legal",
                              payer_identifier_legal_uri="uri", payer_address_street="street",
@@ -1249,9 +1252,9 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
                     "currency": currency
                 },
                 "europeanUnionFunding": {
-                    "projectName": project_name,
-                    "projectIdentifier": project_id,
-                    "uri": project_uri
+                    "projectName": european_project_name,
+                    "projectIdentifier": european_project_id,
+                    "uri": european_project_uri
                 },
                 "isEuropeanUnionFunded": is_european_funding,
                 "verified": True,
@@ -1361,6 +1364,9 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             }
         }
     }
+    if is_european_funding == False:
+        del json_budget_fs["planning"]["budget"]["europeanUnionFunding"]
+
     json_notice_budget_release_fs = {
         "ocid": fs_ocid,
         "id": fs_ocid + "-" + f"{period[2]}",
@@ -1480,9 +1486,9 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
                     "currency": currency
                 },
                 "europeanUnionFunding": {
-                    "projectIdentifier": project_id,
-                    "projectName": project_name,
-                    "uri": project_uri
+                    "projectName": european_project_name,
+                    "projectIdentifier": european_project_id,
+                    "uri": european_project_uri
                 },
                 "isEuropeanUnionFunded": is_european_funding,
                 "verified": True,
@@ -1504,6 +1510,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             "uri": f"http://dev.public.eprocurement.systems/budgets/{cpid}/{cpid}"
         }]
     }
+    if is_european_funding == False:
+        del json_notice_budget_release_fs["planning"]["budget"]["europeanUnionFunding"]
 
     json_budget_compiled_release_fs = {
         "ocid": fs_ocid,
@@ -1624,9 +1632,9 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
                     "currency": currency
                 },
                 "europeanUnionFunding": {
-                    "projectIdentifier": project_id,
-                    "projectName": project_name,
-                    "uri": project_uri
+                    "projectName": european_project_name,
+                    "projectIdentifier": european_project_id,
+                    "uri": european_project_uri
                 },
                 "isEuropeanUnionFunded": is_european_funding,
                 "verified": True,
@@ -1648,7 +1656,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             "uri": f"http://dev.public.eprocurement.systems/budgets/{cpid}/{cpid}"
         }]
     }
-
+    if is_european_funding == False:
+        del json_budget_compiled_release_fs["planning"]["budget"]["europeanUnionFunding"]
     session.execute(f"INSERT INTO notice_budget_release ("
                     f"cp_id,oc_id,release_id,json_data,release_date,stage) VALUES("
                     f"'{cpid}','{cpid}','{cpid + '1609927348000'}',"
