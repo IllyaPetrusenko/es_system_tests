@@ -2463,7 +2463,7 @@ class TestBpeCreatePN(object):
         assert planning_notice["releases"][0]["tender"]["items"][0]["classification"]["id"] == \
                payload["tender"]["items"][0]["classification"]["id"]
         assert planning_notice["releases"][0]["tender"]["items"][0]["classification"][
-                   "description"] == "Lucrări de reabilitare a terenului"
+                   "description"] == "Lucrări de valorificare a terenurilor virane"
 
     @pytestrail.case("27021")
     def test_27021_4(self, additional_value):
@@ -2558,7 +2558,7 @@ class TestBpeCreatePN(object):
         assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
         assert planning_notice["releases"][0]["tender"]["items"][1]["unit"]["id"] == \
                payload["tender"]["items"][1]["unit"]["id"]
-        assert planning_notice["releases"][0]["tender"]["items"][1]["unit"]["name"] == "Parsec"
+        assert planning_notice["releases"][0]["tender"]["items"][1]["unit"]["name"] == "Milion decalitri"
 
     @pytestrail.case("27023")
     def test_27023_1(self, additional_value):
@@ -3131,7 +3131,7 @@ class TestBpeCreatePN(object):
         multistage = requests.get(url=related_processes_list[0]["uri"]).json()
         list_of_dictionaries = list()
         for f in multistage["releases"][0]["parties"]:
-            if f[0]["roles"] == ["procuringEntity"]:
+            if f["roles"] == ["procuringEntity"]:
                 list_of_dictionaries.append(f)
         assert list_of_dictionaries[0]["address"]["addressDetails"]["locality"]["id"] == \
                payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
