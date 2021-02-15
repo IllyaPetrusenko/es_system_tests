@@ -35,6 +35,9 @@ def prepared_cpid():
     cp_id = "ocds-t1s2t3-MD-" + str(int(time.time()) * 1000 + random.randint(1, 100))
     return cp_id
 
+def prepared_test_cpid():
+    cp_id = "test-t1s2t3-MD-" + str(int(time.time()) * 1000 + random.randint(1, 100))
+    return cp_id
 
 def prepared_fs_ocid(prepared_cpid):
     oc_id = f"{prepared_cpid}-FS-" + str(int(time.time()) * 1000 + random.randint(1, 100))

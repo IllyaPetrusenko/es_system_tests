@@ -14,7 +14,8 @@ from tests.bpe_create_pn.payloads import pn_create_full_data_model_with_document
 from tests.cassandra_inserts_into_Database import insert_into_db_create_fs
 from tests.kafka_messages import get_message_from_kafka
 from tests.presets import set_instance_for_request, create_pn
-from useful_functions import prepared_cpid, get_access_token_for_platform_two, is_it_uuid, prepared_fs_ocid
+from useful_functions import prepared_cpid, get_access_token_for_platform_two, is_it_uuid, prepared_fs_ocid, \
+    prepared_test_cpid
 
 procurement_method_details = {
     "SV": "smallValue",
@@ -5506,3 +5507,22 @@ class TestBpeCreatePN(object):
         assert message_from_kafka["X-OPERATION-ID"] == create_pn_response[2]
         assert message_from_kafka["errors"][0]["code"] == "400.10.00.05"
         assert message_from_kafka["errors"][0]["description"] == "Invalid CPV."
+
+    @pytestrail.case("27056")
+    def test_27056_1(self, additional_value):
+        cpid = copy.deepcopy(prepared_test_cpid())
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27056")
+    def test_27056_1(self, additional_value):
+        cpid = copy.deepcopy(prepared_test_cpid())
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert create_pn_response[1]["errors"][0]["code"] == "400.03.10.76"
+        assert create_pn_response[1]["errors"][0]["description"] == f"Invalid FS.  Cannot create PN based on test FS." \
+                                                                    f" Invalid ids: [{create_pn_response[3]}]" + "}. "
+
