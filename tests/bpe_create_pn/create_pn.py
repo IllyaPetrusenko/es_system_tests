@@ -9,11 +9,13 @@ from tests.kafka_messages import get_message_from_kafka
 from tests.presets import set_instance_for_request, create_pn
 
 
-def bpe_create_pn_one_fs(cpid, pn_create_payload, pmd):
+def bpe_create_pn_one_fs(cpid, pn_create_payload, pmd, status="active", statusDetails="empty", amount=2000.00,
+                         currency="EUR"):
     access_token = get_access_token_for_platform_one()
     x_operation_id = get_x_operation_id(access_token)
     time.sleep(2)
-    test_create_fs = insert_into_db_create_fs(cpid)
+    test_create_fs = insert_into_db_create_fs(cpid, status=status, statusDetails=statusDetails, amount=amount,
+                                              currency=currency)
     if "planning" in pn_create_payload.keys() and "budget" in pn_create_payload[
         "planning"].keys() and "budgetBreakdown" in pn_create_payload["planning"][
         "budget"].keys() and "id" in pn_create_payload["planning"]["budget"]["budgetBreakdown"][0].keys():
@@ -41,12 +43,14 @@ def bpe_create_pn_one_fs(cpid, pn_create_payload, pmd):
             json=pn_create_payload)
         time.sleep(2)
         message_from_kafka = get_message_from_kafka(x_operation_id)
-    return request_to_create_pn, message_from_kafka, x_operation_id
+    return request_to_create_pn, message_from_kafka, x_operation_id, test_create_fs[2]
 
 
 def bpe_create_pn_two_fs(cpid_1, cpid_2, pn_create_payload, buyer_1="1", payer_1="2", funder_1="3", buyer_2="11",
                          payer_2="22", funder_2="33",
-                         classification_id="45100000-8", currency="EUR", planning_rationale="plan", country_id="MD",
+                         classification_id_1="45100000-8", classification_id_2="45100000-8", currency_1="EUR",
+                         currency_2="EUR", planning_rationale="plan",
+                         country_id="MD",
                          country_scheme="iso-alpha2", country_description="Moldova, Republica", region_scheme="CUATM",
                          region_id="3400000", region_description="Donduşeni", locality_scheme="CUATM",
                          locality_id="3401000",
@@ -86,7 +90,7 @@ def bpe_create_pn_two_fs(cpid_1, cpid_2, pn_create_payload, buyer_1="1", payer_1
     test_create_fs_1 = insert_into_db_create_fs(cpid=cpid_1, buyer_id=buyer_1, payer_id=payer_1,
                                                 funder_id=funder_1,
                                                 status="active", statusDetails="empty",
-                                                classification_id=classification_id, currency=currency,
+                                                classification_id=classification_id_1, currency=currency_1,
                                                 planning_rationale=planning_rationale, country_id=country_id,
                                                 country_scheme=country_scheme, country_description=country_description,
                                                 region_scheme=region_scheme,
@@ -143,7 +147,7 @@ def bpe_create_pn_two_fs(cpid_1, cpid_2, pn_create_payload, buyer_1="1", payer_1
     test_create_fs_2 = insert_into_db_create_fs(cpid=cpid_2, buyer_id=buyer_2, payer_id=payer_2,
                                                 funder_id=funder_2,
                                                 status="active", statusDetails="empty",
-                                                classification_id=classification_id, currency=currency,
+                                                classification_id=classification_id_2, currency=currency_2,
                                                 planning_rationale=planning_rationale, country_id=country_id,
                                                 country_scheme=country_scheme, country_description=country_description,
                                                 region_scheme=region_scheme,

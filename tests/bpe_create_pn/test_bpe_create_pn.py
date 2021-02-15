@@ -7,13 +7,14 @@ import uuid
 import requests
 from pytest_testrail.plugin import pytestrail
 from tests.Cassandra_session import execute_cql_from_orchestrator_context
-from tests.authorization import  get_x_operation_id
+from tests.authorization import get_x_operation_id, get_access_token_for_platform_one
 from tests.bpe_create_pn.create_pn import bpe_create_pn_one_fs, bpe_create_pn_two_fs
 from tests.bpe_create_pn.payloads import pn_create_full_data_model_with_documents, \
      pn_create_obligatory_data_model_without_documents
 from tests.cassandra_inserts_into_Database import insert_into_db_create_fs
+from tests.kafka_messages import get_message_from_kafka
 from tests.presets import set_instance_for_request, create_pn
-from useful_functions import prepared_cpid, get_access_token_for_platform_two, is_it_uuid
+from useful_functions import prepared_cpid, get_access_token_for_platform_two, is_it_uuid, prepared_fs_ocid
 
 procurement_method_details = {
     "SV": "smallValue",
@@ -4426,7 +4427,6 @@ class TestBpeCreatePN(object):
                     related_processes_list.append(d_1)
                 if d_1["relationship"] == ["parent"]:
                     related_processes_list.append(d_1)
-        print(related_processes_list)
         multistage = requests.get(url=related_processes_list[2]["uri"]).json()
         fs_1 = requests.get(url=related_processes_list[0]["uri"]).json()
         fs_2 = requests.get(url=related_processes_list[1]["uri"]).json()
@@ -5135,3 +5135,374 @@ class TestBpeCreatePN(object):
                 assert multistage["releases"][0]["planning"]["budget"]["amount"]["currency"] == \
                        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"]
 
+    @pytestrail.case("27046")
+    def test_27046_1(self, additional_value):
+        cpid = copy.deepcopy(prepared_cpid())
+        fake_cpid = copy.deepcopy(prepared_cpid())
+        fake_fs_id = prepared_fs_ocid(fake_cpid)
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["id"] = fake_fs_id
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        insert_into_db_create_fs(cpid)
+        host = set_instance_for_request()
+        request_to_create_pn = requests.post(
+            url=host + create_pn,
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'Content-Type': 'application/json'},
+            params={"country": "MD", "pmd": additional_value},
+            json=payload)
+        time.sleep(2)
+        assert request_to_create_pn.text == "ok"
+        assert request_to_create_pn.status_code == 202
+
+    @pytestrail.case("27046")
+    def test_27046_2(self, additional_value):
+        cpid = copy.deepcopy(prepared_cpid())
+        fake_cpid = copy.deepcopy(prepared_cpid())
+        fake_fs_id = prepared_fs_ocid(fake_cpid)
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["id"] = fake_fs_id
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        insert_into_db_create_fs(cpid)
+        host = set_instance_for_request()
+        requests.post(
+            url=host + create_pn,
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'Content-Type': 'application/json'},
+            params={"country": "MD", "pmd": additional_value},
+            json=payload)
+        time.sleep(2)
+        message_from_kafka = get_message_from_kafka(x_operation_id)
+        assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
+        assert message_from_kafka["errors"][0]["code"] == "400.10.00.02"
+        assert message_from_kafka["errors"][0]["description"] == "FS not found."
+
+    @pytestrail.case("27047")
+    def test_27047_1(self, additional_value):
+        cpid = copy.deepcopy(prepared_cpid())
+        amount_fs = 1000.00
+        create_fs = insert_into_db_create_fs(cpid)
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"] = [
+            {
+                "id": str(create_fs[2]),
+                "amount": {
+                    "amount": amount_fs,
+                    "currency": "EUR"
+                }
+            },
+            {
+                "id": str(create_fs[2]),
+                "amount": {
+                    "amount": amount_fs,
+                    "currency": "EUR"
+                }
+            }
+        ]
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        host = set_instance_for_request()
+        request_to_create_pn = requests.post(
+            url=host + create_pn,
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'Content-Type': 'application/json'},
+            params={"country": "MD", "pmd": additional_value},
+            json=payload)
+        time.sleep(2)
+        assert request_to_create_pn.text == "ok"
+        assert request_to_create_pn.status_code == 202
+
+    @pytestrail.case("27047")
+    def test_27047_2(self, additional_value):
+        cpid = copy.deepcopy(prepared_cpid())
+        amount_fs = 1000.00
+        create_fs = insert_into_db_create_fs(cpid)
+        print(create_fs[2])
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"] = [
+            {
+                "id": str(create_fs[2]),
+                "amount": {
+                    "amount": amount_fs,
+                    "currency": "EUR"
+                }
+            },
+            {
+                "id": str(create_fs[2]),
+                "amount": {
+                    "amount": amount_fs,
+                    "currency": "EUR"
+                }
+            }
+        ]
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        host = set_instance_for_request()
+        requests.post(
+            url=host + create_pn,
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'Content-Type': 'application/json'},
+            params={"country": "MD", "pmd": additional_value},
+            json=payload)
+        time.sleep(2)
+        message_from_kafka = get_message_from_kafka(x_operation_id)
+        assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
+        assert message_from_kafka["errors"][0]["code"] == "400.10.00.14"
+        assert message_from_kafka["errors"][0]["description"] == "Invalid budget breakdown id "
+
+    @pytestrail.case("27048")
+    def test_27048_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value, status="cancelled")
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27048")
+    def test_27048_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value, status="cancelled")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert create_pn_response[1]["errors"][0]["code"] == "400.10.00.08"
+        assert create_pn_response[1]["errors"][0]["description"] == "Financial source status invalid."
+
+    @pytestrail.case("27049")
+    def test_27049_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value, statusDetails="cancelled")
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27049")
+    def test_27049_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value, statusDetails="cancelled")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert create_pn_response[1]["errors"][0]["code"] == "400.10.00.08"
+        assert create_pn_response[1]["errors"][0]["description"] == "Financial source status invalid."
+
+    @pytestrail.case("27050")
+    def test_27050_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"] = 90009.99
+        create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value, amount=1000.00)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27050")
+    def test_27050_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"] = 90009.99
+        create_pn_response = bpe_create_pn_one_fs(cpid, payload, additional_value, statusDetails=1000.00)
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert create_pn_response[1]["errors"][0]["code"] == "400.10.00"
+        assert create_pn_response[1]["errors"][0][
+                   "description"] == f"com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot " \
+                                     f"construct instance of `com.procurement.budget.model.dto.check.CheckValue` " \
+                                     f"(although at least one Creator exists): no suitable creator method found to " \
+                                     f"deserialize from Number value (" \
+                                     f"{payload['planning']['budget']['budgetBreakdown'][0]['amount']})\n at " \
+                                     f"[Source: UNKNOWN; line: -1, column: -1] (through reference chain: com." \
+                                     f"procurement.budget.model.dto.check.CheckRq[\"planning\"]->com.procurement." \
+                                     f"budget.model.dto.check.PlanningCheckRq[\"budget\"]->com.procurement.budget." \
+                                     f"model.dto.check.BudgetCheckRq[\"budgetBreakdown\"]->java.util.ArrayList[0]->" \
+                                     f"com.procurement.budget.model.dto.check.BudgetBreakdownCheckRq[\"amount\"])"
+
+    @pytestrail.case("27052")
+    def test_27052_1(self, additional_value):
+        cpid_1 = copy.deepcopy(prepared_cpid())
+        cpid_2 = copy.deepcopy(prepared_cpid())
+        currency_1 = "USD"
+        currency_2 = "EUR"
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"] = [
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            },
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            }
+        ]
+        create_pn_response = bpe_create_pn_two_fs(cpid_1=cpid_1, cpid_2=cpid_2, pn_create_payload=payload,
+                                                  pmd=additional_value, currency_1=currency_1, currency_2=currency_2)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27052")
+    def test_27052_2(self, additional_value):
+        cpid_1 = copy.deepcopy(prepared_cpid())
+        cpid_2 = copy.deepcopy(prepared_cpid())
+        currency_1 = "USD"
+        currency_2 = "EUR"
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"] = [
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            },
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            }
+        ]
+        create_pn_response = bpe_create_pn_two_fs(cpid_1=cpid_1, cpid_2=cpid_2, pn_create_payload=payload,
+                                                  pmd=additional_value, currency_1=currency_1, currency_2=currency_2)
+        message_from_kafka = get_message_from_kafka(create_pn_response[2])
+        assert message_from_kafka["X-OPERATION-ID"] == create_pn_response[2]
+        assert message_from_kafka["errors"][0]["code"] == "400.10.00.06"
+        assert message_from_kafka["errors"][0]["description"] == "Invalid currency."
+
+    @pytestrail.case("27053")
+    def test_27053_1(self, additional_value):
+        cpid = copy.deepcopy(prepared_cpid())
+        currency_1 = "EUR"
+        currency_2 = "USD"
+        amount = 2000.00
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"] = currency_1
+        payload["tender"]["lots"][0]["value"]["currency"] = currency_2
+        create_pn_response = bpe_create_pn_one_fs(cpid=cpid, pn_create_payload=payload, pmd=additional_value,
+                                                  amount=amount)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27053")
+    def test_27053_2(self, additional_value):
+        cpid = copy.deepcopy(prepared_cpid())
+        currency_1 = "EUR"
+        currency_2 = "USD"
+        amount = 2000.00
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"] = currency_1
+        payload["tender"]["lots"][0]["value"]["currency"] = currency_2
+        create_pn_response = bpe_create_pn_one_fs(cpid=cpid, pn_create_payload=payload, pmd=additional_value,
+                                                  amount=amount)
+        message_from_kafka = get_message_from_kafka(create_pn_response[2])
+        assert message_from_kafka["X-OPERATION-ID"] == create_pn_response[2]
+        assert message_from_kafka["errors"][0]["code"] == "400.03.10.15"
+        assert message_from_kafka["errors"][0][
+                   "description"] == "Invalid lot currency. Lot with id: '1' contains invalid currency (lot " \
+                                     "currency: 'USD', budget amount currency: 'EUR')"
+
+    @pytestrail.case("27054")
+    def test_27054_1(self, additional_value):
+        cpid = copy.deepcopy(prepared_cpid())
+        currency_1 = "USD"
+        currency_2 = "EUR"
+        amount = 2000.00
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"] = currency_1
+
+        create_pn_response = bpe_create_pn_one_fs(cpid=cpid, pn_create_payload=payload, pmd=additional_value,
+                                                  amount=amount, currency=currency_2)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27054")
+    def test_27054_2(self, additional_value):
+        cpid = copy.deepcopy(prepared_cpid())
+        currency_1 = "USD"
+        currency_2 = "EUR"
+        amount = 2000.00
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"] = currency_1
+
+        create_pn_response = bpe_create_pn_one_fs(cpid=cpid, pn_create_payload=payload, pmd=additional_value,
+                                                  amount=amount, currency=currency_2)
+        message_from_kafka = get_message_from_kafka(create_pn_response[2])
+        assert message_from_kafka["X-OPERATION-ID"] == create_pn_response[2]
+        assert message_from_kafka["errors"][0]["code"] == "400.10.00.06"
+        assert message_from_kafka["errors"][0]["description"] == "Invalid currency."
+
+    @pytestrail.case("27055")
+    def test_27055_1(self, additional_value):
+        cpid_1 = copy.deepcopy(prepared_cpid())
+        cpid_2 = copy.deepcopy(prepared_cpid())
+        classification_id_1 = "45100000-8"
+        classification_id_2 = "24200000-6"
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"] = [
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            },
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            }
+        ]
+        create_pn_response = bpe_create_pn_two_fs(cpid_1=cpid_1, cpid_2=cpid_2, pn_create_payload=payload,
+                                                  pmd=additional_value, classification_id_1=classification_id_1,
+                                                  classification_id_2=classification_id_2)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27055")
+    def test_27055_2(self, additional_value):
+        cpid_1 = copy.deepcopy(prepared_cpid())
+        cpid_2 = copy.deepcopy(prepared_cpid())
+        classification_id_1 = "45100000-8"
+        classification_id_2 = "24200000-6"
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"] = [
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            },
+            {
+                "id": "{{fs-id}}",
+                "amount": {
+                    "amount": 1000,
+                    "currency": "EUR"
+                }
+            }
+        ]
+        create_pn_response = bpe_create_pn_two_fs(cpid_1=cpid_1, cpid_2=cpid_2, pn_create_payload=payload,
+                                                  pmd=additional_value, classification_id_1=classification_id_1,
+                                                  classification_id_2=classification_id_2)
+        message_from_kafka = get_message_from_kafka(create_pn_response[2])
+        assert message_from_kafka["X-OPERATION-ID"] == create_pn_response[2]
+        assert message_from_kafka["errors"][0]["code"] == "400.10.00.05"
+        assert message_from_kafka["errors"][0]["description"] == "Invalid CPV."
