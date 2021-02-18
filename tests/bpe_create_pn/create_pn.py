@@ -7,15 +7,19 @@ from tests.authorization import get_access_token_for_platform_one, get_x_operati
 from tests.cassandra_inserts_into_Database import insert_into_db_create_fs
 from tests.kafka_messages import get_message_from_kafka
 from tests.presets import set_instance_for_request, create_pn
+from useful_functions import get_period, get_timestamp_from_human_date
 
 
 def bpe_create_pn_one_fs(cpid, pn_create_payload, pmd, status="active", statusDetails="empty", amount=2000.00,
-                         currency="EUR"):
+                         currency="EUR", start_date=get_period()[0],
+                         end_date=get_period()[1], timestamp=get_timestamp_from_human_date(get_period()[0]),
+                         test_mode=False):
     access_token = get_access_token_for_platform_one()
     x_operation_id = get_x_operation_id(access_token)
     time.sleep(2)
     test_create_fs = insert_into_db_create_fs(cpid, status=status, statusDetails=statusDetails, amount=amount,
-                                              currency=currency)
+                                              currency=currency, start_date=start_date,
+                                              end_date=end_date, timestamp=timestamp)
     if "planning" in pn_create_payload.keys() and "budget" in pn_create_payload[
         "planning"].keys() and "budgetBreakdown" in pn_create_payload["planning"][
         "budget"].keys() and "id" in pn_create_payload["planning"]["budget"]["budgetBreakdown"][0].keys():
@@ -27,7 +31,7 @@ def bpe_create_pn_one_fs(cpid, pn_create_payload, pmd, status="active", statusDe
                 'Authorization': 'Bearer ' + access_token,
                 'X-OPERATION-ID': x_operation_id,
                 'Content-Type': 'application/json'},
-            params={"country": "MD", "pmd": pmd},
+            params={"country": "MD", "pmd": pmd, "testMode": test_mode},
             json=pn_create_payload)
         time.sleep(2)
         message_from_kafka = get_message_from_kafka(x_operation_id)
@@ -39,11 +43,12 @@ def bpe_create_pn_one_fs(cpid, pn_create_payload, pmd, status="active", statusDe
                 'Authorization': 'Bearer ' + access_token,
                 'X-OPERATION-ID': x_operation_id,
                 'Content-Type': 'application/json'},
-            params={"country": "MD", "pmd": pmd},
+            params={"country": "MD", "pmd": pmd, "testMode": test_mode},
             json=pn_create_payload)
         time.sleep(2)
         message_from_kafka = get_message_from_kafka(x_operation_id)
-    return request_to_create_pn, message_from_kafka, x_operation_id, test_create_fs[2]
+    return request_to_create_pn, message_from_kafka, x_operation_id, test_create_fs[2], test_create_fs[3], \
+           test_create_fs[4], test_create_fs[5]
 
 
 def bpe_create_pn_two_fs(cpid_1, cpid_2, pn_create_payload, buyer_1="1", payer_1="2", funder_1="3", buyer_2="11",

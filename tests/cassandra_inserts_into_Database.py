@@ -7,7 +7,7 @@ from uuid import uuid4
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
 from tests.presets import set_instance_for_cassandra
-from useful_functions import prepared_fs_ocid, get_period
+from useful_functions import prepared_fs_ocid, get_period, get_timestamp_from_human_date
 
 # password_dev = '6AH7vbrkMWnfK'
 # password_sandbox = 'brT4Kn27RQs'
@@ -922,7 +922,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
                              buyer_additional_id="id of additional", buyer_additional_scheme="scheme of additional",
                              buyer_additional_legal="legal of additional", buyer_additional_uri="uri of additional",
                              buyer_details_type="NATIONAL_AGENCY", buyer_details_general_activity="HEALTH",
-                             buyer_details_sectoral_activity="WATER"):
+                             buyer_details_sectoral_activity="WATER", start_date=get_period()[0],
+                             end_date=get_period()[1], timestamp=get_timestamp_from_human_date(get_period()[0])):
     auth_provider = PlainTextAuthProvider(username=username, password=password)
     cluster = Cluster([host], auth_provider=auth_provider)
     session = cluster.connect('ocds')
@@ -930,7 +931,7 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
     ei_token = uuid4()
     owner = "445f6851-c908-407d-9b45-14b92f3e964b"
 
-    period = get_period()
+    # period = get_period()
 
     fs_ocid = prepared_fs_ocid(cpid)
 
@@ -946,8 +947,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
         "country": "MD",
         "language": "ro",
         "token": f"{fs_token}",
-        "startDate": period[0],
-        "timeStamp": period[2],
+        "startDate": start_date,
+        "timeStamp": timestamp,
         "isAuction": False
     }
 
@@ -970,8 +971,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             "budget": {
                 "id": classification_id,
                 "period": {
-                    "startDate": period[0],
-                    "endDate": period[1]
+                    "startDate": start_date,
+                    "endDate": end_date
                 },
                 "amount": {
                     "amount": amount,
@@ -1036,8 +1037,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
 
     json_notice_budget_release_ei = {
         "ocid": cpid,
-        "id": cpid + "-" + f"{period[2]}",
-        "date": period[0],
+        "id": cpid + "-" + f"{timestamp}",
+        "date": start_date,
         "tag": ["compiled"],
         "initiationType": "tender",
         "tender": {
@@ -1114,8 +1115,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             "budget": {
                 "id": classification_id,
                 "period": {
-                    "startDate": period[0],
-                    "endDate": period[1]
+                    "startDate": start_date,
+                    "endDate": end_date
                 },
                 "amount": {
                     "amount": amount,
@@ -1135,8 +1136,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
 
     json_notice_budget_compiled_release_ei = {
         "ocid": cpid,
-        "id": cpid + "-" + f"{period[2]}",
-        "date": period[0],
+        "id": cpid + "-" + f"{timestamp}",
+        "date": start_date,
         "tag": ["compiled"],
         "initiationType": "tender",
         "tender": {
@@ -1213,8 +1214,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
             "budget": {
                 "id": classification_id,
                 "period": {
-                    "startDate": period[0],
-                    "endDate": period[1]
+                    "startDate": start_date,
+                    "endDate": end_date
                 },
                 "amount": {
                     "amount": amount,
@@ -1244,8 +1245,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
                 "id": budget_id,
                 "description": budget_description,
                 "period": {
-                    "startDate": period[0],
-                    "endDate": period[1]
+                    "startDate": start_date,
+                    "endDate": end_date
                 },
                 "amount": {
                     "amount": amount,
@@ -1369,8 +1370,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
 
     json_notice_budget_release_fs = {
         "ocid": fs_ocid,
-        "id": fs_ocid + "-" + f"{period[2]}",
-        "date": period[0],
+        "id": fs_ocid + "-" + f"{timestamp}",
+        "date": start_date,
         "tag": ["planning"],
         "initiationType": "tender",
         "tender": {
@@ -1478,8 +1479,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
                 "id": "IBAN - 102030",
                 "description": budget_description,
                 "period": {
-                    "startDate": period[0],
-                    "endDate": period[1]
+                    "startDate": start_date,
+                    "endDate": end_date
                 },
                 "amount": {
                     "amount": amount,
@@ -1515,8 +1516,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
 
     json_budget_compiled_release_fs = {
         "ocid": fs_ocid,
-        "id": fs_ocid + "-" + f"{period[2]}",
-        "date": period[0],
+        "id": fs_ocid + "-" + f"{timestamp}",
+        "date": start_date,
         "tag": ["planning"],
         "initiationType": "tender",
         "tender": {
@@ -1624,8 +1625,8 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
                 "id": "IBAN - 102030",
                 "description": budget_description,
                 "period": {
-                    "startDate": period[0],
-                    "endDate": period[1]
+                    "startDate": start_date,
+                    "endDate": end_date
                 },
                 "amount": {
                     "amount": amount,
@@ -1667,7 +1668,7 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
                     f"cp_id,oc_id,amount,json_data,publish_date,release_date,"
                     f"release_id,stage) VALUES('{cpid}','{cpid}', 0.0, "
                     f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
-                    f"1609943491271,1609943491271,'{cpid + '-' + f'{period[2]}'}',"
+                    f"1609943491271,1609943491271,'{cpid + '-' + f'{timestamp}'}',"
                     f"'EI');").one()
 
     session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
@@ -1678,23 +1679,24 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
 
     session.execute(
         f"INSERT INTO budget_fs (cp_id,token_entity,amount,amount_reserved,created_date,json_data,oc_id,owner) VALUES ("
-        f"'{cpid}',{fs_token},2000.00,0,{period[2]},'{json.dumps(json_budget_fs)}','{fs_ocid}','{owner}');").one()
+        f"'{cpid}',{fs_token},2000.00,0,{timestamp},'{json.dumps(json_budget_fs)}','{fs_ocid}','{owner}');").one()
 
     session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
-                    f"VALUES ('{cpid}',{period[2]});").one()
+                    f"VALUES ('{cpid}',{timestamp});").one()
 
     session.execute(
         f"INSERT INTO notice_budget_release (cp_id,oc_id,release_id,json_data,release_date,stage) "
-        f"VALUES ('{cpid}','{fs_ocid}','{fs_ocid + '-' + str(period[2])}','{json.dumps(json_notice_budget_release_fs)}',"
+        f"VALUES ('{cpid}','{fs_ocid}','{fs_ocid + '-' + str(timestamp)}','{json.dumps(json_notice_budget_release_fs)}',"
         f"1610212505151,'FS');").one()
 
     session.execute(
         f"INSERT INTO notice_budget_compiled_release (cp_id,oc_id,amount,json_data,publish_date,release_date,"
         f"release_id,stage) VALUES ('{cpid}','{fs_ocid}',8000.00,'{json.dumps(json_budget_compiled_release_fs)}',"
-        f"{period[2]},"
-        f"{period[2]},'{fs_ocid + '-' + str(period[2])}','FS');")
+        f"{timestamp},"
+        f"{timestamp},'{fs_ocid + '-' + str(timestamp)}','FS');")
 
-    return f"http://dev.public.eprocurement.systems/budgets/{cpid}/{fs_ocid}", fs_token, fs_ocid
+    return f"http://dev.public.eprocurement.systems/budgets/{cpid}/{fs_ocid}", fs_token, fs_ocid, start_date, \
+           end_date, timestamp
 
 
 def insert_into_db_update_fs(cpid):
