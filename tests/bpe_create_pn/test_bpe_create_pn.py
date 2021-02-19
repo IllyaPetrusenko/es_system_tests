@@ -30,6 +30,11 @@ procurement_method_rationale = {
     "MV": "Ofertele vor fi primite prin intermediul unei platforme electronice de achiziții publice",
     "OT": "Ofertele vor fi primite prin intermediul unei platforme electronice de achiziții publice"
 }
+procurement_method = {
+    "SV": "open",
+    "MV": "open",
+    "OT": "open"
+}
 
 submission_method_details = {
     "SV": "Lista platformelor: achizitii, ebs, licitatie, yptender",
@@ -8055,3 +8060,429 @@ class TestBpeCreatePN(object):
                     record_list.append(d_1)
         multistage = requests.get(url=record_list[0]["uri"]).json()
         assert multistage["releases"][0]["tender"]["framework"]["isAFramework"] == False
+
+    @pytestrail.case("27099")
+    def test_27099_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27099")
+    def test_27099_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27099")
+    def test_27099_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["parent"]:
+                    record_list.append(d_1)
+        multistage = requests.get(url=record_list[0]["uri"]).json()
+        assert multistage["releases"][0]["tender"]["dynamicPurchasingSystem"]["hasDynamicPurchasingSystem"] == False
+
+    @pytestrail.case("27100")
+    def test_27100_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27100")
+    def test_27100_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27100")
+    def test_27100_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["planning"]:
+                    record_list.append(d_1)
+        planning_notice = requests.get(url=record_list[0]["uri"]).json()
+        assert planning_notice["releases"][0]["tender"]["lotGroups"][0]["optionToCombine"] == False
+
+    @pytestrail.case("27101")
+    def test_27101_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27101")
+    def test_27101_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27101")
+    def test_27101_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["parent"]:
+                    record_list.append(d_1)
+        multistage = requests.get(url=record_list[0]["uri"]).json()
+        assert multistage["releases"][0]["tender"]["acceleratedProcedure"]["isAcceleratedProcedure"] == False
+
+    @pytestrail.case("27102")
+    def test_27102_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27102")
+    def test_27102_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27102")
+    def test_27102_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["planning"]:
+                    record_list.append(d_1)
+        planning_notice = requests.get(url=record_list[0]["uri"]).json()
+        assert planning_notice["releases"][0]["tender"]["submissionMethod"][0] == "electronicSubmission"
+
+    @pytestrail.case("27103")
+    def test_27103_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27103")
+    def test_27103_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27103")
+    def test_27103_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["planning"]:
+                    record_list.append(d_1)
+        planning_notice = requests.get(url=record_list[0]["uri"]).json()
+        current_list = list()
+        for l in planning_notice["releases"][0]["tender"]["lots"]:
+            current_list.append(l["options"][0])
+        print(current_list)
+        assert current_list[0]["hasOptions"] == False
+        assert current_list[1]["hasOptions"] == False
+
+    @pytestrail.case("27104")
+    def test_27104_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27104")
+    def test_27104_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27104")
+    def test_27104_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["planning"]:
+                    record_list.append(d_1)
+        planning_notice = requests.get(url=record_list[0]["uri"]).json()
+        current_list = list()
+        for l in planning_notice["releases"][0]["tender"]["lots"]:
+            current_list.append(l["variants"][0])
+        assert current_list[0]["hasVariants"] == False
+        assert current_list[1]["hasVariants"] == False
+
+    @pytestrail.case("27105")
+    def test_27105_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27105")
+    def test_27105_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27105")
+    def test_27105_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["planning"]:
+                    record_list.append(d_1)
+        planning_notice = requests.get(url=record_list[0]["uri"]).json()
+        current_list = list()
+        for l in planning_notice["releases"][0]["tender"]["lots"]:
+            current_list.append(l["renewals"][0])
+        print(current_list)
+        assert current_list[0]["hasRenewals"] == False
+        assert current_list[1]["hasRenewals"] == False
+
+    @pytestrail.case("27106")
+    def test_27106_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27106")
+    def test_27106_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27106")
+    def test_27106_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["planning"]:
+                    record_list.append(d_1)
+        planning_notice = requests.get(url=record_list[0]["uri"]).json()
+        current_list = list()
+        for l in planning_notice["releases"][0]["tender"]["lots"]:
+            current_list.append(l["recurrentProcurement"][0])
+        print(current_list)
+        assert current_list[0]["isRecurrent"] == False
+        assert current_list[1]["isRecurrent"] == False
+
+    @pytestrail.case("27107")
+    def test_27107_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27107")
+    def test_27107_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27107")
+    def test_27107_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["parent"]:
+                    record_list.append(d_1)
+        multistage = requests.get(url=record_list[0]["uri"]).json()
+        print(procurement_method[additional_value])
+        assert multistage["releases"][0]["tender"]["procurementMethod"] == procurement_method[
+            additional_value]
