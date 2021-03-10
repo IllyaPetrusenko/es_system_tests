@@ -12,7 +12,7 @@ def bpe_create_ei(payload):
     x_operation_id = get_x_operation_id(access_token)
     host = set_instance_for_request()
     request_to_create_ei = requests.post(
-        url=host + create_ei,
+        url=host + create_ei + '&lang=ro',
         headers={
             'Authorization': 'Bearer ' + access_token,
             'X-OPERATION-ID': x_operation_id,
@@ -21,4 +21,5 @@ def bpe_create_ei(payload):
     time.sleep(2)
     message_from_kafka = get_message_from_kafka(x_operation_id)
     return request_to_create_ei, message_from_kafka, x_operation_id
+
 

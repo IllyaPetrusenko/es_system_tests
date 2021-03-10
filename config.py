@@ -7,7 +7,7 @@ if instance == "dev":
 elif instance == "sandbox":
     host = 'http://10.0.10.116:8900/api/v1'
 
-kafka_host = 'http://127.0.0.1:5000'
+kafka_host = 'http://82.144.223.29:5000'
 create_ei = '/do/ei?country=MD'
 update_ei = '/do/ei/'
 create_fs = '/do/fs/'
