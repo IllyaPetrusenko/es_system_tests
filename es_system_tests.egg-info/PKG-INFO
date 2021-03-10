@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: es-system-tests
+Version: 0.0.1
+Summary: A small example package
+Home-page: https://github.com/IllyaPetrusenko/es_system_tests.git
+Author: uStudioTesters
+Author-email: illya.petrusenko@gmail.com
+License: UNKNOWN
+Description: # *eProcurement Systems Autotests*
+        
+        Version 0.0.1 - 23.09.2020
+        
+        Description: 
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown

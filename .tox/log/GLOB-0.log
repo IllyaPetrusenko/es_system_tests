@@ -1,0 +1,81 @@
+action: GLOB, msg: packaging
+cwd: /home/roman/Documents/git/es_system_tests
+cmd: /home/roman/Documents/git/es_system_tests/venv/bin/python setup.py sdist --formats=zip --dist-dir .tox/dist
+running sdist
+running egg_info
+writing es_system_tests.egg-info/PKG-INFO
+writing dependency_links to es_system_tests.egg-info/dependency_links.txt
+writing top-level names to es_system_tests.egg-info/top_level.txt
+reading manifest file 'es_system_tests.egg-info/SOURCES.txt'
+writing manifest file 'es_system_tests.egg-info/SOURCES.txt'
+running check
+creating es_system_tests-0.0.1
+creating es_system_tests-0.0.1/es_system_tests.egg-info
+creating es_system_tests-0.0.1/tests
+creating es_system_tests-0.0.1/tests/bpe_create_ei
+creating es_system_tests-0.0.1/tests/bpe_create_fs
+creating es_system_tests-0.0.1/tests/bpe_create_pn
+creating es_system_tests-0.0.1/tests/bpe_update_ei
+creating es_system_tests-0.0.1/tests/bpe_update_fs
+creating es_system_tests-0.0.1/tests/bpe_update_pn
+copying files to es_system_tests-0.0.1...
+copying README.md -> es_system_tests-0.0.1
+copying setup.py -> es_system_tests-0.0.1
+copying es_system_tests.egg-info/PKG-INFO -> es_system_tests-0.0.1/es_system_tests.egg-info
+copying es_system_tests.egg-info/SOURCES.txt -> es_system_tests-0.0.1/es_system_tests.egg-info
+copying es_system_tests.egg-info/dependency_links.txt -> es_system_tests-0.0.1/es_system_tests.egg-info
+copying es_system_tests.egg-info/top_level.txt -> es_system_tests-0.0.1/es_system_tests.egg-info
+copying tests/TestRails_create_run.py -> es_system_tests-0.0.1/tests
+copying tests/__init__.py -> es_system_tests-0.0.1/tests
+copying tests/authorization.py -> es_system_tests-0.0.1/tests
+copying tests/kafka_messages.py -> es_system_tests-0.0.1/tests
+copying tests/bpe_create_ei/RD.py -> es_system_tests-0.0.1/tests/bpe_create_ei
+copying tests/bpe_create_ei/__init__.py -> es_system_tests-0.0.1/tests/bpe_create_ei
+copying tests/bpe_create_ei/create_ei.py -> es_system_tests-0.0.1/tests/bpe_create_ei
+copying tests/bpe_create_ei/payloads.py -> es_system_tests-0.0.1/tests/bpe_create_ei
+copying tests/bpe_create_ei/test_bpe_create_ei.py -> es_system_tests-0.0.1/tests/bpe_create_ei
+copying tests/bpe_create_fs/__init__.py -> es_system_tests-0.0.1/tests/bpe_create_fs
+copying tests/bpe_create_pn/__init__.py -> es_system_tests-0.0.1/tests/bpe_create_pn
+copying tests/bpe_update_ei/__init__.py -> es_system_tests-0.0.1/tests/bpe_update_ei
+copying tests/bpe_update_ei/payloads.py -> es_system_tests-0.0.1/tests/bpe_update_ei
+copying tests/bpe_update_ei/test_bpe_update_ei.py -> es_system_tests-0.0.1/tests/bpe_update_ei
+copying tests/bpe_update_ei/update_ei.py -> es_system_tests-0.0.1/tests/bpe_update_ei
+copying tests/bpe_update_fs/__init__.py -> es_system_tests-0.0.1/tests/bpe_update_fs
+copying tests/bpe_update_pn/__init__.py -> es_system_tests-0.0.1/tests/bpe_update_pn
+Writing es_system_tests-0.0.1/setup.cfg
+creating '.tox/dist/es_system_tests-0.0.1.zip' and adding 'es_system_tests-0.0.1' to it
+adding 'es_system_tests-0.0.1'
+adding 'es_system_tests-0.0.1/tests'
+adding 'es_system_tests-0.0.1/es_system_tests.egg-info'
+adding 'es_system_tests-0.0.1/setup.cfg'
+adding 'es_system_tests-0.0.1/setup.py'
+adding 'es_system_tests-0.0.1/README.md'
+adding 'es_system_tests-0.0.1/PKG-INFO'
+adding 'es_system_tests-0.0.1/tests/bpe_update_ei'
+adding 'es_system_tests-0.0.1/tests/bpe_create_ei'
+adding 'es_system_tests-0.0.1/tests/bpe_update_pn'
+adding 'es_system_tests-0.0.1/tests/bpe_create_pn'
+adding 'es_system_tests-0.0.1/tests/bpe_create_fs'
+adding 'es_system_tests-0.0.1/tests/bpe_update_fs'
+adding 'es_system_tests-0.0.1/tests/TestRails_create_run.py'
+adding 'es_system_tests-0.0.1/tests/__init__.py'
+adding 'es_system_tests-0.0.1/tests/authorization.py'
+adding 'es_system_tests-0.0.1/tests/kafka_messages.py'
+adding 'es_system_tests-0.0.1/tests/bpe_update_ei/__init__.py'
+adding 'es_system_tests-0.0.1/tests/bpe_update_ei/update_ei.py'
+adding 'es_system_tests-0.0.1/tests/bpe_update_ei/test_bpe_update_ei.py'
+adding 'es_system_tests-0.0.1/tests/bpe_update_ei/payloads.py'
+adding 'es_system_tests-0.0.1/tests/bpe_create_ei/create_ei.py'
+adding 'es_system_tests-0.0.1/tests/bpe_create_ei/test_bpe_create_ei.py'
+adding 'es_system_tests-0.0.1/tests/bpe_create_ei/__init__.py'
+adding 'es_system_tests-0.0.1/tests/bpe_create_ei/RD.py'
+adding 'es_system_tests-0.0.1/tests/bpe_create_ei/payloads.py'
+adding 'es_system_tests-0.0.1/tests/bpe_update_pn/__init__.py'
+adding 'es_system_tests-0.0.1/tests/bpe_create_pn/__init__.py'
+adding 'es_system_tests-0.0.1/tests/bpe_create_fs/__init__.py'
+adding 'es_system_tests-0.0.1/tests/bpe_update_fs/__init__.py'
+adding 'es_system_tests-0.0.1/es_system_tests.egg-info/dependency_links.txt'
+adding 'es_system_tests-0.0.1/es_system_tests.egg-info/top_level.txt'
+adding 'es_system_tests-0.0.1/es_system_tests.egg-info/SOURCES.txt'
+adding 'es_system_tests-0.0.1/es_system_tests.egg-info/PKG-INFO'
+removing 'es_system_tests-0.0.1' (and everything under it)
