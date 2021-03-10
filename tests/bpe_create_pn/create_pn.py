@@ -13,13 +13,14 @@ from useful_functions import get_period, get_timestamp_from_human_date
 def bpe_create_pn_one_fs(cpid, pn_create_payload, pmd, status="active", statusDetails="empty", amount=2000.00,
                          currency="EUR", start_date=get_period()[0],
                          end_date=get_period()[1], timestamp=get_timestamp_from_human_date(get_period()[0]),
-                         test_mode=False):
+                         test_mode=False, buyer_id="1", payer_id="2", funder_id="3"):
     access_token = get_access_token_for_platform_one()
     x_operation_id = get_x_operation_id(access_token)
     time.sleep(2)
     test_create_fs = insert_into_db_create_fs(cpid, status=status, statusDetails=statusDetails, amount=amount,
                                               currency=currency, start_date=start_date,
-                                              end_date=end_date, timestamp=timestamp)
+                                              end_date=end_date, timestamp=timestamp, buyer_id=buyer_id,
+                                              payer_id=payer_id, funder_id=funder_id)
     if "planning" in pn_create_payload.keys() and "budget" in pn_create_payload[
         "planning"].keys() and "budgetBreakdown" in pn_create_payload["planning"][
         "budget"].keys() and "id" in pn_create_payload["planning"]["budget"]["budgetBreakdown"][0].keys():

@@ -7,12 +7,14 @@ import uuid
 
 import requests
 from pytest_testrail.plugin import pytestrail
-from tests.Cassandra_session import execute_cql_from_orchestrator_context
+from tests.Cassandra_session import execute_cql_from_orchestrator_context, \
+    execute_cql_from_orchestrator_operation_step_by_oper_id
 from tests.authorization import get_x_operation_id, get_access_token_for_platform_one
 from tests.bpe_create_pn.create_pn import bpe_create_pn_one_fs, bpe_create_pn_two_fs
 from tests.bpe_create_pn.payloads import pn_create_full_data_model_with_documents, \
     pn_create_obligatory_data_model_without_documents
 from tests.cassandra_inserts_into_Database import insert_into_db_create_fs
+from tests.iStorage import get_hash_md5, get_weught, correct_document_uploading
 from tests.kafka_messages import get_message_from_kafka
 from tests.presets import set_instance_for_request, create_pn
 from useful_functions import prepared_cpid, get_access_token_for_platform_two, is_it_uuid, prepared_fs_ocid, \
@@ -6957,7 +6959,7 @@ class TestBpeCreatePN(object):
     @pytestrail.case("27074")
     def test_27074_1(self, additional_value):
         cpid = copy.deepcopy(prepared_cpid())
-        date= get_period()
+        date = get_period()
         budget_start_date = date[0]
         budget_end_date = date[1]
         budget_timestamp = date[2]
@@ -8386,7 +8388,6 @@ class TestBpeCreatePN(object):
         current_list = list()
         for l in planning_notice["releases"][0]["tender"]["lots"]:
             current_list.append(l["renewals"][0])
-        print(current_list)
         assert current_list[0]["hasRenewals"] == False
         assert current_list[1]["hasRenewals"] == False
 
@@ -8398,7 +8399,6 @@ class TestBpeCreatePN(object):
         assert create_pn_response[0].text == "ok"
         assert create_pn_response[0].status_code == 202
 
-    @pytestrail.case("27106")
     def test_27106_2(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_create_full_data_model_with_documents)
@@ -8436,7 +8436,6 @@ class TestBpeCreatePN(object):
         current_list = list()
         for l in planning_notice["releases"][0]["tender"]["lots"]:
             current_list.append(l["recurrentProcurement"][0])
-        print(current_list)
         assert current_list[0]["isRecurrent"] == False
         assert current_list[1]["isRecurrent"] == False
 
@@ -8483,6 +8482,1218 @@ class TestBpeCreatePN(object):
                 if d_1["relationship"] == ["parent"]:
                     record_list.append(d_1)
         multistage = requests.get(url=record_list[0]["uri"]).json()
-        print(procurement_method[additional_value])
-        assert multistage["releases"][0]["tender"]["procurementMethod"] == procurement_method[
-            additional_value]
+        assert multistage["releases"][0]["tender"]["procurementMethod"] == procurement_method[additional_value]
+
+    @pytestrail.case("27110")
+    def test_27110_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"] = 1999
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"] = "EUR"
+        payload["tender"]["lots"][0]["value"]["amount"] = 1500
+        payload["tender"]["lots"][0]["value"]["currency"] = "EUR"
+        payload["tender"]["lots"][1]["value"]["amount"] = 150
+        payload["tender"]["lots"][1]["value"]["currency"] = "EUR"
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value, amount=4000.00,
+                                                  currency="EUR")
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27110")
+    def test_27110_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"] = 1999
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"] = "EUR"
+        payload["tender"]["lots"][0]["value"]["amount"] = 1500
+        payload["tender"]["lots"][0]["value"]["currency"] = "EUR"
+        payload["tender"]["lots"][1]["value"]["amount"] = 150
+        payload["tender"]["lots"][1]["value"]["currency"] = "EUR"
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value, amount=4000.00,
+                                                  currency="EUR")
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["parent"]:
+                    record_list.append(d_1)
+        multistage = requests.get(url=record_list[0]["uri"]).json()
+        assert multistage["releases"][0]["planning"]["budget"][
+                   "amount"]["amount"] == payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"]
+        assert multistage["releases"][0]["planning"]["budget"]["amount"]["currency"] == \
+               payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"]
+
+    @pytestrail.case("27111")
+    def test_27111_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"] = 1999
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"] = "EUR"
+        payload["tender"]["lots"][0]["value"]["amount"] = 1500
+        payload["tender"]["lots"][0]["value"]["currency"] = "EUR"
+        payload["tender"]["lots"][1]["value"]["amount"] = 150
+        payload["tender"]["lots"][1]["value"]["currency"] = "EUR"
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value, amount=4000.00,
+                                                  currency="EUR")
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27111")
+    def test_27111_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"] = 1999
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"] = "EUR"
+        payload["tender"]["lots"][0]["value"]["amount"] = 1500
+        payload["tender"]["lots"][0]["value"]["currency"] = "EUR"
+        payload["tender"]["lots"][1]["value"]["amount"] = 150
+        payload["tender"]["lots"][1]["value"]["currency"] = "EUR"
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value, amount=4000.00,
+                                                  currency="EUR")
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27111")
+    def test_27111_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"] = 1999
+        payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"] = "EUR"
+        payload["tender"]["lots"][0]["value"]["amount"] = 1500
+        payload["tender"]["lots"][0]["value"]["currency"] = "EUR"
+        payload["tender"]["lots"][1]["value"]["amount"] = 150
+        payload["tender"]["lots"][1]["value"]["currency"] = "EUR"
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value, amount=4000.00,
+                                                  currency="EUR")
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["parent"]:
+                    record_list.append(d_1)
+        multistage = requests.get(url=record_list[0]["uri"]).json()
+        assert multistage["releases"][0]["tender"]["value"]["amount"] == payload["tender"]["lots"][0]["value"][
+            "amount"] + payload["tender"]["lots"][1]["value"]["amount"]
+        assert multistage["releases"][0]["tender"]["value"]["currency"] == payload["tender"]["lots"][0]["value"][
+            "currency"] == payload["tender"]["lots"][1]["value"]["currency"]
+
+    @pytestrail.case("27112")
+    def test_27112_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27112")
+    def test_27112_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        outcomes_pn_token = is_it_uuid(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], 4)
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27113")
+    def test_27113_1(self, additional_value):
+        cpid = prepared_cpid()
+        # We have this file ->
+        path = "/home/roman/Documents/git/es_system_tests/API.pdf"
+        # File name, which we have ->
+        file_name = "API.pdf"
+        # Path of file ->
+        dir_path = "/home/roman/Documents/git/es_system_tests/"
+        # Register and download the file in iStorage service ->
+        document = correct_document_uploading(path=path, file_name=file_name, dir_path=dir_path)
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["tender"]["documents"][0]["id"] = document[0][0]
+        # Delete redundant object of document's array in payload ->
+        del payload["tender"]["documents"][1]
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27113")
+    def test_27113_2(self, additional_value):
+        cpid = prepared_cpid()
+        # We have this file ->
+        path = "/home/roman/Documents/git/es_system_tests/API.pdf"
+        # File name, which we have ->
+        file_name = "API.pdf"
+        # Path of file ->
+        dir_path = "/home/roman/Documents/git/es_system_tests/"
+        # Register and download the file in iStorage service ->
+        document = correct_document_uploading(path=path, file_name=file_name, dir_path=dir_path)
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["tender"]["documents"][0]["id"] = document[0][0]
+        # Delete redundant object of document's array in payload ->
+        del payload["tender"]["documents"][1]
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27113")
+    def test_27113_3(self, additional_value):
+        cpid = prepared_cpid()
+        # We have this file ->
+        path = "/home/roman/Documents/git/es_system_tests/API.pdf"
+        # File name, which we have ->
+        file_name = "API.pdf"
+        # Path of file ->
+        dir_path = "/home/roman/Documents/git/es_system_tests/"
+        # Register and download the file in iStorage service ->
+        document = correct_document_uploading(path=path, file_name=file_name, dir_path=dir_path)
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["tender"]["documents"][0]["id"] = document[0][0]
+        # Delete redundant object of document's array in payload ->
+        del payload["tender"]["documents"][1]
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["planning"]:
+                    record_list.append(d_1)
+        planning_notice = requests.get(url=record_list[0]["uri"]).json()
+        assert planning_notice["releases"][0]["tender"]["documents"][0]["id"] == payload["tender"]["documents"][0]["id"]
+
+    @pytestrail.case("27113")
+    def test_27113_4(self, additional_value):
+        cpid = prepared_cpid()
+        # We have this file ->
+        path = "/home/roman/Documents/git/es_system_tests/API.pdf"
+        # File name, which we have ->
+        file_name = "API.pdf"
+        # Path of file ->
+        dir_path = "/home/roman/Documents/git/es_system_tests/"
+        # Register and download the file in iStorage service ->
+        document = correct_document_uploading(path=path, file_name=file_name, dir_path=dir_path)
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["tender"]["documents"][0]["id"] = document[0][0]
+        # Delete redundant object of document's array in payload ->
+        del payload["tender"]["documents"][1]
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["planning"]:
+                    record_list.append(d_1)
+        planning_notice = requests.get(url=record_list[0]["uri"]).json()
+        # Open the file for writing, in 'wb' mode ->
+        f = open(f"/home/roman/Documents/git/es_system_tests/download/{file_name}",
+                 "wb")
+        open_document = requests.get(
+            url=planning_notice["releases"][0]["tender"]["documents"][0]["url"]).content
+        # Write the content to a file ->
+        f.write(open_document)
+        # Close the file, which was downloaded
+        f.close()
+        # Calculate the hash of file, which was downloaded ->
+        hash_of_downloaded_file = get_hash_md5(f"/home/roman/Documents/git/es_system_tests/download/{file_name}")
+        # Calculate the weight of file, which was downloaded ->
+        weight_of_downloaded_file = get_weught(f"/home/roman/Documents/git/es_system_tests/download/{file_name}")
+        assert document[1] == hash_of_downloaded_file
+        assert document[2] == weight_of_downloaded_file
+
+    @pytestrail.case("27115")
+    def test_27115_1(self, additional_value):
+        cpid = prepared_cpid()
+        buyer_id = "1"
+        payer_id = "1"
+        funder_id = "1"
+        procuring_entity_id = "1"
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = procuring_entity_id
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value,
+                                                  buyer_id=buyer_id, payer_id=payer_id, funder_id=funder_id)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27115")
+    def test_27115_2(self, additional_value):
+        cpid = prepared_cpid()
+        buyer_id = "1"
+        payer_id = "1"
+        funder_id = "1"
+        procuring_entity_id = "1"
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = procuring_entity_id
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value,
+                                                  buyer_id=buyer_id, payer_id=payer_id, funder_id=funder_id)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27115")
+    def test_27115_3(self, additional_value):
+        cpid = prepared_cpid()
+        buyer_id = "1"
+        payer_id = "1"
+        funder_id = "1"
+        procuring_entity_id = "1"
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = procuring_entity_id
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value,
+                                                  buyer_id=buyer_id, payer_id=payer_id, funder_id=funder_id)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["parent"]:
+                    record_list.append(d_1)
+        parent = requests.get(url=record_list[0]["uri"]).json()
+
+        data_list = list()
+        for i in parent.keys():
+            if i == "uri":
+                data_list.append(i)
+        assert data_list[0] == "uri"
+        data_list.clear()
+
+        for i in parent.keys():
+            if i == "version":
+                data_list.append(i)
+        assert data_list[0] == "version"
+        data_list.clear()
+
+        for i in parent.keys():
+            if i == "extensions":
+                data_list.append(i)
+        assert data_list[0] == "extensions"
+        data_list.clear()
+
+        for i in parent.keys():
+            if i == "publisher":
+                data_list.append(i)
+        assert data_list[0] == "publisher"
+        data_list.clear()
+
+        for i in parent["publisher"].keys():
+            if i == "name":
+                data_list.append(i)
+        assert data_list[0] == "name"
+        data_list.clear()
+
+        for i in parent["publisher"].keys():
+            if i == "uri":
+                data_list.append(i)
+        assert data_list[0] == "uri"
+        data_list.clear()
+
+        for i in parent.keys():
+            if i == "license":
+                data_list.append(i)
+        assert data_list[0] == "license"
+        data_list.clear()
+
+        for i in parent.keys():
+            if i == "publicationPolicy":
+                data_list.append(i)
+        assert data_list[0] == "publicationPolicy"
+        data_list.clear()
+
+        for i in parent.keys():
+            if i == "publishedDate":
+                data_list.append(i)
+        assert data_list[0] == "publishedDate"
+        data_list.clear()
+
+        for i in parent.keys():
+            if i == "releases":
+                data_list.append(i)
+        assert data_list[0] == "releases"
+        data_list.clear()
+
+        for i in parent["releases"][0].keys():
+            if i == "ocid":
+                data_list.append(i)
+        assert data_list[0] == "ocid"
+        data_list.clear()
+
+        for i in parent["releases"][0].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0].keys():
+            if i == "date":
+                data_list.append(i)
+        assert data_list[0] == "date"
+        data_list.clear()
+
+        for i in parent["releases"][0].keys():
+            if i == "tag":
+                data_list.append(i)
+        assert data_list[0] == "tag"
+        data_list.clear()
+
+        for i in parent["releases"][0].keys():
+            if i == "initiationType":
+                data_list.append(i)
+        assert data_list[0] == "initiationType"
+        data_list.clear()
+
+        for i in parent["releases"][0].keys():
+            if i == "planning":
+                data_list.append(i)
+        assert data_list[0] == "planning"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"].keys():
+            if i == "budget":
+                data_list.append(i)
+        assert data_list[0] == "budget"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"].keys():
+            if i == "description":
+                data_list.append(i)
+        assert data_list[0] == "description"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"].keys():
+            if i == "amount":
+                data_list.append(i)
+        assert data_list[0] == "amount"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["amount"].keys():
+            if i == "amount":
+                data_list.append(i)
+        assert data_list[0] == "amount"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["amount"].keys():
+            if i == "currency":
+                data_list.append(i)
+        assert data_list[0] == "currency"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"].keys():
+            if i == "isEuropeanUnionFunded":
+                data_list.append(i)
+        assert data_list[0] == "isEuropeanUnionFunded"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"].keys():
+            if i == "budgetBreakdown":
+                data_list.append(i)
+        assert data_list[0] == "budgetBreakdown"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0].keys():
+            if i == "description":
+                data_list.append(i)
+        assert data_list[0] == "description"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0].keys():
+            if i == "amount":
+                data_list.append(i)
+        assert data_list[0] == "amount"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["amount"].keys():
+            if i == "amount":
+                data_list.append(i)
+        assert data_list[0] == "amount"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["amount"].keys():
+            if i == "currency":
+                data_list.append(i)
+        assert data_list[0] == "currency"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0].keys():
+            if i == "period":
+                data_list.append(i)
+        assert data_list[0] == "period"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["period"].keys():
+            if i == "startDate":
+                data_list.append(i)
+        assert data_list[0] == "startDate"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["period"].keys():
+            if i == "endDate":
+                data_list.append(i)
+        assert data_list[0] == "endDate"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["sourceParty"].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["sourceParty"].keys():
+            if i == "name":
+                data_list.append(i)
+        assert data_list[0] == "name"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["europeanUnionFunding"].keys():
+            if i == "projectIdentifier":
+                data_list.append(i)
+        assert data_list[0] == "projectIdentifier"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["europeanUnionFunding"].keys():
+            if i == "projectName":
+                data_list.append(i)
+        assert data_list[0] == "projectName"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"]["budget"]["budgetBreakdown"][0]["europeanUnionFunding"].keys():
+            if i == "uri":
+                data_list.append(i)
+        assert data_list[0] == "uri"
+        data_list.clear()
+
+        for i in parent["releases"][0]["planning"].keys():
+            if i == "rationale":
+                data_list.append(i)
+        assert data_list[0] == "rationale"
+        data_list.clear()
+
+        for i in parent["releases"][0].keys():
+            if i == "tender":
+                data_list.append(i)
+        assert data_list[0] == "tender"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "title":
+                data_list.append(i)
+        assert data_list[0] == "title"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "description":
+                data_list.append(i)
+        assert data_list[0] == "description"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "status":
+                data_list.append(i)
+        assert data_list[0] == "status"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "statusDetails":
+                data_list.append(i)
+        assert data_list[0] == "statusDetails"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "value":
+                data_list.append(i)
+        assert data_list[0] == "value"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["value"].keys():
+            if i == "amount":
+                data_list.append(i)
+        assert data_list[0] == "amount"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["value"].keys():
+            if i == "currency":
+                data_list.append(i)
+        assert data_list[0] == "currency"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "procurementMethod":
+                data_list.append(i)
+        assert data_list[0] == "procurementMethod"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "procurementMethodDetails":
+                data_list.append(i)
+        assert data_list[0] == "procurementMethodDetails"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "procurementMethodRationale":
+                data_list.append(i)
+        assert data_list[0] == "procurementMethodRationale"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "mainProcurementCategory":
+                data_list.append(i)
+        assert data_list[0] == "mainProcurementCategory"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "hasEnquiries":
+                data_list.append(i)
+        assert data_list[0] == "hasEnquiries"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "eligibilityCriteria":
+                data_list.append(i)
+        assert data_list[0] == "eligibilityCriteria"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "contractPeriod":
+                data_list.append(i)
+        assert data_list[0] == "contractPeriod"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["contractPeriod"].keys():
+            if i == "startDate":
+                data_list.append(i)
+        assert data_list[0] == "startDate"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["contractPeriod"].keys():
+            if i == "endDate":
+                data_list.append(i)
+        assert data_list[0] == "endDate"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "procuringEntity":
+                data_list.append(i)
+        assert data_list[0] == "procuringEntity"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["procuringEntity"].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["procuringEntity"].keys():
+            if i == "name":
+                data_list.append(i)
+        assert data_list[0] == "name"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "acceleratedProcedure":
+                data_list.append(i)
+        assert data_list[0] == "acceleratedProcedure"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["acceleratedProcedure"].keys():
+            if i == "isAcceleratedProcedure":
+                data_list.append(i)
+        assert data_list[0] == "isAcceleratedProcedure"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "classification":
+                data_list.append(i)
+        assert data_list[0] == "classification"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["classification"].keys():
+            if i == "scheme":
+                data_list.append(i)
+        assert data_list[0] == "scheme"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["classification"].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["classification"].keys():
+            if i == "description":
+                data_list.append(i)
+        assert data_list[0] == "description"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "designContest":
+                data_list.append(i)
+        assert data_list[0] == "designContest"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["designContest"].keys():
+            if i == "serviceContractAward":
+                data_list.append(i)
+        assert data_list[0] == "serviceContractAward"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "electronicWorkflows":
+                data_list.append(i)
+        assert data_list[0] == "electronicWorkflows"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["electronicWorkflows"].keys():
+            if i == "useOrdering":
+                data_list.append(i)
+        assert data_list[0] == "useOrdering"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["electronicWorkflows"].keys():
+            if i == "usePayment":
+                data_list.append(i)
+        assert data_list[0] == "usePayment"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["electronicWorkflows"].keys():
+            if i == "acceptInvoicing":
+                data_list.append(i)
+        assert data_list[0] == "acceptInvoicing"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "jointProcurement":
+                data_list.append(i)
+        assert data_list[0] == "jointProcurement"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["jointProcurement"].keys():
+            if i == "isJointProcurement":
+                data_list.append(i)
+        assert data_list[0] == "isJointProcurement"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "legalBasis":
+                data_list.append(i)
+        assert data_list[0] == "legalBasis"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "procedureOutsourcing":
+                data_list.append(i)
+        assert data_list[0] == "procedureOutsourcing"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["procedureOutsourcing"].keys():
+            if i == "procedureOutsourced":
+                data_list.append(i)
+        assert data_list[0] == "procedureOutsourced"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "procurementMethodAdditionalInfo":
+                data_list.append(i)
+        assert data_list[0] == "procurementMethodAdditionalInfo"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "dynamicPurchasingSystem":
+                data_list.append(i)
+        assert data_list[0] == "dynamicPurchasingSystem"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["dynamicPurchasingSystem"].keys():
+            if i == "hasDynamicPurchasingSystem":
+                data_list.append(i)
+        assert data_list[0] == "hasDynamicPurchasingSystem"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"].keys():
+            if i == "framework":
+                data_list.append(i)
+        assert data_list[0] == "framework"
+        data_list.clear()
+
+        for i in parent["releases"][0]["tender"]["framework"].keys():
+            if i == "isAFramework":
+                data_list.append(i)
+        assert data_list[0] == "isAFramework"
+        data_list.clear()
+
+        for i in parent["releases"][0].keys():
+            if i == "parties":
+                data_list.append(i)
+        assert data_list[0] == "parties"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0].keys():
+            if i == "name":
+                data_list.append(i)
+        assert data_list[0] == "name"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0].keys():
+            if i == "identifier":
+                data_list.append(i)
+        assert data_list[0] == "identifier"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "scheme":
+                data_list.append(i)
+        assert data_list[0] == "scheme"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "legalName":
+                data_list.append(i)
+        assert data_list[0] == "legalName"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0].keys():
+            if i == "address":
+                data_list.append(i)
+        assert data_list[0] == "address"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"].keys():
+            if i == "streetAddress":
+                data_list.append(i)
+        assert data_list[0] == "streetAddress"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"].keys():
+            if i == "addressDetails":
+                data_list.append(i)
+        assert data_list[0] == "addressDetails"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "country":
+                data_list.append(i)
+        assert data_list[0] == "country"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                data_list.append(i)
+        assert data_list[0] == "scheme"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "description":
+                data_list.append(i)
+        assert data_list[0] == "description"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "uri":
+                data_list.append(i)
+        assert data_list[0] == "uri"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "region":
+                data_list.append(i)
+        assert data_list[0] == "region"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                data_list.append(i)
+        assert data_list[0] == "scheme"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "description":
+                data_list.append(i)
+        assert data_list[0] == "description"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "uri":
+                data_list.append(i)
+        assert data_list[0] == "uri"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "locality":
+                data_list.append(i)
+        assert data_list[0] == "locality"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                data_list.append(i)
+        assert data_list[0] == "scheme"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "description":
+                data_list.append(i)
+        assert data_list[0] == "description"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "uri":
+                data_list.append(i)
+        assert data_list[0] == "uri"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0].keys():
+            if i == "additionalIdentifiers":
+                data_list.append(i)
+        assert data_list[0] == "additionalIdentifiers"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["additionalIdentifiers"][0].keys():
+            if i == "scheme":
+                data_list.append(i)
+        assert data_list[0] == "scheme"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["additionalIdentifiers"][0].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["additionalIdentifiers"][0].keys():
+            if i == "legalName":
+                data_list.append(i)
+        assert data_list[0] == "legalName"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["additionalIdentifiers"][0].keys():
+            if i == "uri":
+                data_list.append(i)
+        assert data_list[0] == "uri"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0].keys():
+            if i == "contactPoint":
+                data_list.append(i)
+        assert data_list[0] == "contactPoint"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "name":
+                data_list.append(i)
+        assert data_list[0] == "name"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "email":
+                data_list.append(i)
+        assert data_list[0] == "email"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "telephone":
+                data_list.append(i)
+        assert data_list[0] == "telephone"
+        data_list.clear()
+
+        for i in parent["releases"][0]["parties"][0].keys():
+            if i == "roles":
+                data_list.append(i)
+        assert data_list[0] == "roles"
+        data_list.clear()
+
+        assert parent["releases"][0]["parties"][0]["roles"][0] == "buyer"
+        assert parent["releases"][0]["parties"][0]["roles"][1] == "payer"
+        assert parent["releases"][0]["parties"][0]["roles"][2] == "funder"
+        assert parent["releases"][0]["parties"][0]["roles"][3] == "procuringEntity"
+
+        for i in parent["releases"][0].keys():
+            if i == "relatedProcesses":
+                data_list.append(i)
+        assert data_list[0] == "relatedProcesses"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][0].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][0].keys():
+            if i == "relationship":
+                data_list.append(i)
+        assert data_list[0] == "relationship"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][0].keys():
+            if i == "scheme":
+                data_list.append(i)
+        assert data_list[0] == "scheme"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][0].keys():
+            if i == "identifier":
+                data_list.append(i)
+        assert data_list[0] == "identifier"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][0].keys():
+            if i == "uri":
+                data_list.append(i)
+        assert data_list[0] == "uri"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][1].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][1].keys():
+            if i == "relationship":
+                data_list.append(i)
+        assert data_list[0] == "relationship"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][1].keys():
+            if i == "scheme":
+                data_list.append(i)
+        assert data_list[0] == "scheme"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][1].keys():
+            if i == "identifier":
+                data_list.append(i)
+        assert data_list[0] == "identifier"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][1].keys():
+            if i == "uri":
+                data_list.append(i)
+        assert data_list[0] == "uri"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][2].keys():
+            if i == "id":
+                data_list.append(i)
+        assert data_list[0] == "id"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][2].keys():
+            if i == "relationship":
+                data_list.append(i)
+        assert data_list[0] == "relationship"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][2].keys():
+            if i == "scheme":
+                data_list.append(i)
+        assert data_list[0] == "scheme"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][2].keys():
+            if i == "identifier":
+                data_list.append(i)
+        assert data_list[0] == "identifier"
+        data_list.clear()
+
+        for i in parent["releases"][0]["relatedProcesses"][2].keys():
+            if i == "uri":
+                data_list.append(i)
+        assert data_list[0] == "uri"
+        data_list.clear()
+
+    @pytestrail.case("27114")
+    def test_27114_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27114")
+    def test_27114_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27114")
+    def test_27114_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        contest_start_date = \
+            execute_cql_from_orchestrator_operation_step_by_oper_id(
+                operation_id=create_pn_response[1]["X-OPERATION-ID"],
+                task_id="SaveFirstOperationTask")[2]
+
+    @pytestrail.case("27114")
+    def test_27114_4(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        operation_id = create_pn_response[1]["X-OPERATION-ID"]
+        contest_start_date = execute_cql_from_orchestrator_operation_step_by_oper_id(operation_id=operation_id,
+                                                                                     task_id="SaveFirstOperationTask")
+        date_of_request = contest_start_date[2]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["parent"]:
+                    record_list.append(d_1)
+        parent = requests.get(url=record_list[0]["uri"]).json()
+        assert parent["publishedDate"] == date_of_request
+
+    @pytestrail.case("27116")
+    def test_27116_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        assert create_pn_response[0].text == "ok"
+        assert create_pn_response[0].status_code == 202
+
+    @pytestrail.case("27116")
+    def test_27116_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        x_operation_id = fnmatch.fnmatch(create_pn_response[1]["X-OPERATION-ID"], "*")
+        x_response_id = fnmatch.fnmatch(create_pn_response[1]["X-RESPONSE-ID"], "*")
+        initiator = fnmatch.fnmatch(create_pn_response[1]["initiator"], "platform")
+        ocid = fnmatch.fnmatch(create_pn_response[1]["data"]["ocid"], "*")
+        url = fnmatch.fnmatch(create_pn_response[1]["data"]["url"], "*")
+        operation_date = fnmatch.fnmatch(create_pn_response[1]["data"]["operationDate"], "*")
+        outcomes_pn_id = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["id"], "*")
+        outcomes_pn_token = fnmatch.fnmatch(create_pn_response[1]["data"]["outcomes"]["pn"][0]["X-TOKEN"], "*")
+        assert create_pn_response[1]["X-OPERATION-ID"] == create_pn_response[2]
+        assert x_operation_id == True
+        assert x_response_id == True
+        assert initiator == True
+        assert ocid == True
+        assert url == True
+        assert operation_date == True
+        assert outcomes_pn_id == True
+        assert outcomes_pn_token == True
+
+    @pytestrail.case("27116")
+    def test_27116_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_create_full_data_model_with_documents)
+        create_pn_response = bpe_create_pn_one_fs(cpid, pn_create_payload=payload, pmd=additional_value)
+        get_url = requests.get(url=create_pn_response[1]["data"]["url"]).json()["records"]
+        record_list = list()
+        for d in get_url:
+            for d_1 in d["compiledRelease"]["relatedProcesses"]:
+                if d_1["relationship"] == ["parent"]:
+                    record_list.append(d_1)
+        parent = requests.get(url=record_list[0]["uri"]).json()
+        assert parent["releases"][0]["tender"]["status"] == "planning"

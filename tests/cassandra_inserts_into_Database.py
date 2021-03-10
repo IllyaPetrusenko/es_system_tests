@@ -1114,6 +1114,7 @@ def insert_into_db_create_fs(cpid, status="active", statusDetails="empty", buyer
         "planning": {
             "budget": {
                 "id": classification_id,
+                "id": classification_id,
                 "period": {
                     "startDate": start_date,
                     "endDate": end_date

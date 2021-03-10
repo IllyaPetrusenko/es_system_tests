@@ -1,3 +1,4 @@
+import fnmatch
 import random
 import datetime
 import time
@@ -41,6 +42,10 @@ def prepared_test_cpid():
 
 def prepared_fs_ocid(prepared_cpid):
     oc_id = f"{prepared_cpid}-FS-" + str(int(time.time()) * 1000 + random.randint(1, 100))
+    return oc_id
+
+def prepared_pn_ocid(prepared_cpid):
+    oc_id = f"{prepared_cpid}-PN-" + str(int(time.time()) * 1000 + random.randint(1, 100))
     return oc_id
 
 
@@ -124,3 +129,59 @@ def get_clear_dict(d, v):
         if l in d:
             del d[l]
     return d
+
+
+def get_new_classification_id(classification_1, classification_2):
+    s_1 = fnmatch.fnmatch(classification_1[0], classification_2[0])
+    s_2 = fnmatch.fnmatch(classification_1[1], classification_2[1])
+    s_3 = fnmatch.fnmatch(classification_1[2], classification_2[2])
+    s_4 = fnmatch.fnmatch(classification_1[3], classification_2[3])
+    s_5 = fnmatch.fnmatch(classification_1[4], classification_2[4])
+    s_6 = fnmatch.fnmatch(classification_1[5], classification_2[5])
+    s_7 = fnmatch.fnmatch(classification_1[6], classification_2[6])
+    s_8 = fnmatch.fnmatch(classification_1[7], classification_2[7])
+    s_9 = fnmatch.fnmatch(classification_1[8], classification_2[8])
+    s_10 = fnmatch.fnmatch(classification_1[9], classification_2[9])
+    new = list()
+    if s_1 == True:
+        new.append(classification_1[0])
+    else:
+        new.append("0")
+    if s_2 == True:
+        new.append(classification_1[1])
+    else:
+        new.append("0")
+    if s_3 == True:
+        new.append(classification_1[2])
+    else:
+        new.append("0")
+    if s_4 == True:
+        new.append(classification_1[3])
+    else:
+        new.append("0")
+    if s_5 == True:
+        new.append(classification_1[4])
+    else:
+        new.append("0")
+    if s_6 == True:
+        new.append(classification_1[5])
+    else:
+        new.append("0")
+    if s_7 == True:
+        new.append(classification_1[6])
+    else:
+        new.append("0")
+    if s_8 == True:
+        new.append(classification_1[7])
+    else:
+        new.append("0")
+    if s_9 == True:
+        new.append(classification_1[8])
+    else:
+        new.append("0")
+    if s_10 == True:
+        new.append(classification_1[9])
+    else:
+        new.append("0")
+
+    return str(new[0] + new[1] + new[2] + new[3] + new[4] + new[5] + new[6] + new[7] + new[8] + new[9])

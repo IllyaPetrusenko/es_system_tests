@@ -29,7 +29,24 @@ def get_hash_md5(filename):
                 break
             m.update(data)
         return m.hexdigest()
+def get_weught(filepath):
+    weight = os.stat(filepath).st_size
+    return weight
 
+def correct_document_uploading(path="/home/roman/Documents/git/es_system_tests/API.pdf", file_name="API.pdf",
+                               dir_path="/home/roman/Documents/git/es_system_tests/"):
+    path = os.path.abspath(path)
+    hash_sum = get_hash_md5(path)
+    weight = os.stat(path).st_size
+    payload = {
+        "fileName": file_name,
+        "hash": f"{hash_sum}",
+        "weight": weight
+    }
+    dir_path = dir_path
+    file_name = file_name
+    document = document_upload(payload, dir_path, file_name)
+    return document, hash_sum, weight
 
 # This is document will be registered and uploaded
 # API.pdf has path = "/home/roman/Documents/git/es_system_tests/API.pdf"
