@@ -182,3 +182,17 @@ pn_update_full_data_model_with_documents = {
         ]
     }
 }
+
+pn_update_obligatory_data_model_without_documents = {
+    "planning": {
+        "budget": {
+        }
+    },
+    "tender": {
+        "title": "title of tender",
+        "description": "desription of tender",
+        "tenderPeriod": {
+            "startDate": period[2]
+        }
+    }
+}

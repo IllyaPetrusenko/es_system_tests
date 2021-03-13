@@ -2482,7 +2482,7 @@ def insert_into_db_update_fs(cpid):
     return f"http://dev.public.eprocurement.systems/budgets/{cpid}/{fs_ocid}", fs_token, fs_ocid
 
 
-def insert_into_db_create_pn_full_data_model(cpid, cpid_ei, additional_value, start_date=get_period()[0],
+def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, start_date=get_period()[0],
                                              end_date=get_period()[1], tender_period=get_contract_period()[2],
                                              contract_start=get_contract_period()[0],
                                              contract_end=get_contract_period()[1],
@@ -2558,7 +2558,7 @@ def insert_into_db_create_pn_full_data_model(cpid, cpid_ei, additional_value, st
     lot_2 = f"{uuid4()}"
     item_1 = f"{uuid4()}"
     item_2 = f"{uuid4()}"
-    fs_ocid = prepared_fs_ocid(cpid_ei)
+    fs_ocid = prepared_fs_ocid(ei_id)
     period = get_period()
 
     json_orchestrator_context = {
@@ -2999,8 +2999,8 @@ def insert_into_db_create_pn_full_data_model(cpid, cpid_ei, additional_value, st
             "id": f"{buyer_identifier_scheme}-{buyer_id}",
             "name": "Directia Cultura a Primariei mun.Chisinau",
             "identifier": {
-                "scheme": payer_identifier_scheme,
-                "id": payer_id,
+                "scheme": buyer_identifier_scheme,
+                "id": buyer_id,
                 "legalName": "Directia Cultura a Primariei mun.Chisinau"
             },
             "address": {
@@ -3184,18 +3184,18 @@ def insert_into_db_create_pn_full_data_model(cpid, cpid_ei, additional_value, st
             "id": "fe9797d1-80ac-11eb-a463-451f6f68192e",
             "relationship": ["x_expenditureItem"],
             "scheme": "ocid",
-            "identifier": cpid_ei,
-            "uri": f"http://dev.public.eprocurement.systems/budgets/{cpid_ei}/{cpid_ei}"
+            "identifier": ei_id,
+            "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
         }, {
             "id": "fe9797d2-80ac-11eb-a463-451f6f68192e",
             "relationship": ["x_fundingSource"],
             "scheme": "ocid",
             "identifier": fs_ocid,
-            "uri": f"http://dev.public.eprocurement.systems/budgets/{cpid_ei}/{fs_ocid}"
+            "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_ocid}"
         }]
     }
     if is_european_funding == False:
-        del json_access_tender["planning"]["budget"]["budgetBreakdown"][0]["europeanUnionFunding"]
+        del json_notice_compiled_release_multistage["planning"]["budget"]["budgetBreakdown"][0]["europeanUnionFunding"]
 
     session.execute(
         f"INSERT INTO notice_compiled_release (cp_id,oc_id,json_data,publish_date,release_date,release_id,stage,"
@@ -3434,5 +3434,540 @@ def insert_into_db_create_pn_full_data_model(cpid, cpid_ei, additional_value, st
                     f"stage) VALUES ('{cpid}','{pn_ocid}','{pn_ocid + '-' + str(timestamp)}',"
                     f"'{json.dumps(json_notice_compiled_release_PN)}',{period[2]}, 'PN');").one()
 
-    return f"http://dev.public.eprocurement.systems/tenders/{cpid}", cpid, fs_ocid, pn_ocid, str(pn_token), lot_1, lot_2, \
-           item_1, item_2, document_1[0][0], document_2[0][0]
+    return f"http://dev.public.eprocurement.systems/tenders/{cpid}", cpid, fs_ocid, pn_ocid, str(
+        pn_token), lot_1, lot_2, item_1, item_2, document_1[0][0], document_2[0][0]
+
+
+def insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value, start_date=get_period()[0],
+                                                   end_date=get_period()[1], tender_period=get_contract_period()[2],
+                                                   timestamp=get_timestamp_from_human_date(get_period()[0]),
+                                                   language="ro",
+                                                   country="MD", is_european_funding=True,
+                                                   european_project_name="test eropean name",
+                                                   european_project_id="test european id",
+                                                   european_project_uri="european uri", amount=2000.00, currency="EUR",
+                                                   lot_1_amount=1500.00, lot_2_amount=150.00,
+                                                   classification_id="45100000-8", main_procurement_category="works",
+                                                   buyer_identifier_scheme="MD-IDNO", buyer_id="1",
+                                                   payer_identifier_scheme="MD-IDNO", buyer_name="LLC Dmitro",
+                                                   procuring_entity_identifier_scheme="MD-IDNO",
+                                                   procuring_entity_id="2",
+                                                   procuring_entity_name="LLC Petrovich",
+                                                   procuring_entity_address_street="street",
+                                                   country_id="MD",
+                                                   country_scheme="iso-alpha2", region_scheme="CUATM",
+                                                   region_id="3400000",
+                                                   region_description="Donduşeni", locality_scheme="CUATM",
+                                                   locality_id="3401000",
+                                                   locality_description="or.Donduşeni (r-l Donduşeni)",
+                                                   country_description="Moldova, Republica",
+                                                   country_uri="https://www.iso.org",
+                                                   region_uri="http://statistica.md",
+                                                   contact_point_name="Petrusenko Svitlana",
+                                                   contact_point_email="svetik@gmail.com",
+                                                   contact_point_telephone="888999666", payer_id="2",
+                                                   funder_id="3", funder_identifier_scheme="MD-IDNO",
+                                                   tender_status="planning", tender_status_details_pn="planning",
+                                                   tender_status_details_ms="planning notice"):
+    auth_provider = PlainTextAuthProvider(username=username, password=password)
+    cluster = Cluster([host], auth_provider=auth_provider)
+    session = cluster.connect('ocds')
+    pn_token = uuid4()
+    owner = "445f6851-c908-407d-9b45-14b92f3e964b"
+    pn_ocid = prepared_pn_ocid(cpid)
+
+    fs_ocid = prepared_fs_ocid(ei_id)
+    period = get_period()
+
+    json_orchestrator_context = {
+        "operationId": f"{uuid4()}",
+        "requestId": f"{uuid4()}",
+        "cpid": cpid,
+        "ocid": pn_ocid,
+        "stage": "PN",
+        "processType": "createPN",
+        "operationType": "createPN",
+        "phase": "planning",
+        "owner": owner,
+        "country": country,
+        "language": language,
+        "pmd": additional_value,
+        "token": f"{pn_token}",
+        "startDate": start_date,
+        "timeStamp": timestamp,
+        "isAuction": False,
+        "testMode": False
+    }
+
+    session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
+                    f"'{cpid}','{json.dumps(json_orchestrator_context)}');").one()
+
+    json_access_tender = {
+        "ocid": cpid,
+        "planning": {
+            "budget": {
+                "amount": {
+                    "amount": amount,
+                    "currency": currency
+                },
+                "isEuropeanUnionFunded": is_european_funding,
+                "budgetBreakdown": [{
+                    "id": fs_ocid,
+                    "description": "description",
+                    "amount": {
+                        "amount": amount,
+                        "currency": currency
+                    },
+                    "period": {
+                        "startDate": start_date,
+                        "endDate": end_date
+                    },
+                    "sourceParty": {
+                        "id": f"{buyer_identifier_scheme}-{buyer_id}",
+                        "name": buyer_name
+                    },
+                    "europeanUnionFunding": {
+                        "projectName": european_project_name,
+                        "projectIdentifier": european_project_id,
+                        "uri": european_project_uri
+                    }
+                }]
+            }
+        },
+        "tender": {
+            "id": "6e8e42b5-f01d-44b1-9896-a8383a2351e4",
+            "status": tender_status,
+            "statusDetails": tender_status_details_pn,
+            "title": "title of tender",
+            "description": "desription of tender",
+            "classification": {
+                "scheme": "CPV",
+                "id": classification_id,
+                "description": "Lucrări de pregătire a şantierului"
+            },
+            "mainProcurementCategory": main_procurement_category,
+            "acceleratedProcedure": {
+                "isAcceleratedProcedure": False
+            },
+            "designContest": {
+                "serviceContractAward": False
+            },
+            "electronicWorkflows": {
+                "useOrdering": False,
+                "usePayment": False,
+                "acceptInvoicing": False
+            },
+            "jointProcurement": {
+                "isJointProcurement": False
+            },
+            "procedureOutsourcing": {
+                "procedureOutsourced": False
+            },
+            "framework": {
+                "isAFramework": False
+            },
+            "dynamicPurchasingSystem": {
+                "hasDynamicPurchasingSystem": False
+            },
+            "legalBasis": "REGULATION_966_2012",
+            "procurementMethod": "open",
+            "procurementMethodDetails": "testOpenTender",
+            "eligibilityCriteria": "Regulile generale privind naționalitatea și originea, precum și alte criterii de eligibilitate sunt enumerate în Ghidul practic privind procedurile de contractare a acțiunilor externe ale UE (PRAG)",
+            "tenderPeriod": {
+                "startDate": tender_period
+            },
+            "procuringEntity": {
+                "id": f"{procuring_entity_identifier_scheme}-{procuring_entity_id}",
+                "name": procuring_entity_name,
+                "identifier": {
+                    "scheme": procuring_entity_identifier_scheme,
+                    "id": procuring_entity_id,
+                    "legalName": procuring_entity_name
+                },
+                "address": {
+                    "streetAddress": procuring_entity_address_street,
+                    "addressDetails": {
+                        "country": {
+                            "scheme": country_scheme,
+                            "id": country_id,
+                            "description": country_description,
+                            "uri": country_uri
+                        },
+                        "region": {
+                            "scheme": region_scheme,
+                            "id": region_id,
+                            "description": region_description,
+                            "uri": region_uri
+                        },
+                        "locality": {
+                            "scheme": locality_scheme,
+                            "id": locality_id,
+                            "description": locality_description
+
+                        }
+                    }
+                },
+                "contactPoint": {
+                    "name": contact_point_name,
+                    "email": contact_point_email,
+                    "telephone": contact_point_telephone
+                }
+            },
+            "value": {
+                "amount": lot_1_amount + lot_2_amount,
+                "currency": currency
+            },
+            "lotGroups": [{
+                "optionToCombine": False
+            }],
+            "lots": [],
+            "items": [],
+            "requiresElectronicCatalogue": False,
+            "submissionMethod": ["electronicSubmission"],
+            "submissionMethodRationale": [
+                "Ofertele vor fi primite prin intermediul unei platforme electronice de achiziții publice"],
+            "submissionMethodDetails": "Lista platformelor: achizitii, ebs, licitatie, yptender"
+        }
+    }
+    if is_european_funding == False:
+        del json_access_tender["planning"]["budget"]["budgetBreakdown"][0]["europeanUnionFunding"]
+
+    session.execute(
+        f"INSERT INTO access_tender (cp_id,stage,token_entity, created_date, json_data, owner) VALUES("
+        f"'{cpid}', 'PN',{pn_token},{timestamp},'{json.dumps(json_access_tender)}', '{owner}');").one()
+
+    json_notice_compiled_release_multistage = {
+        "ocid": cpid,
+        "id": cpid + "-" + f"{timestamp}",
+        "date": start_date,
+        "tag": [
+            "compiled"],
+        "language": language,
+        "initiationType": "tender",
+        "planning": {
+            "budget": {
+                "amount": {
+                    "amount": amount,
+                    "currency": currency
+                },
+                "isEuropeanUnionFunded": True,
+                "budgetBreakdown": [
+                    {
+                        "id": fs_ocid,
+                        "description": "description",
+                        "amount": {
+                            "amount": amount,
+                            "currency": currency
+                        },
+                        "period": {
+                            "startDate": start_date,
+                            "endDate": end_date
+                        },
+                        "sourceParty": {
+                            "id": f"{buyer_identifier_scheme}-{buyer_id}",
+                            "name": buyer_name
+                        },
+                        "europeanUnionFunding": {
+                            "projectName": european_project_name,
+                            "projectIdentifier": european_project_id,
+                            "uri": european_project_uri
+                        }
+                    }]
+            }
+        },
+        "tender": {
+            "id": "6e8e42b5-f01d-44b1-9896-a8383a2351e4",
+            "title": "title of tender",
+            "description": "desription of tender",
+            "status": tender_status,
+            "statusDetails": tender_status_details_ms,
+            "value": {
+                "amount": amount,
+                "currency": currency
+            },
+            "procurementMethod": "open",
+            "procurementMethodDetails": "testOpenTender",
+            "mainProcurementCategory": main_procurement_category,
+            "hasEnquiries": False,
+            "eligibilityCriteria": "Regulile generale privind naționalitatea și originea, precum și alte criterii "
+                                   "de eligibilitate sunt enumerate în Ghidul practic privind procedurile de "
+                                   "contractare a acțiunilor externe ale UE (PRAG)",
+            "procuringEntity": {
+                "id": f"{procuring_entity_identifier_scheme}-{procuring_entity_id}",
+                "name": procuring_entity_name
+            },
+            "acceleratedProcedure": {
+                "isAcceleratedProcedure": False
+            },
+            "classification": {
+                "scheme": "CPV",
+                "id": classification_id,
+                "description": "Lucrări de pregătire a şantierului"
+            },
+            "designContest": {
+                "serviceContractAward": False
+            },
+            "electronicWorkflows": {
+                "useOrdering": False,
+                "usePayment": False,
+                "acceptInvoicing": False
+            },
+            "jointProcurement": {
+                "isJointProcurement": False
+            },
+            "legalBasis": "REGULATION_966_2012",
+            "procedureOutsourcing": {
+                "procedureOutsourced": False
+            },
+            "dynamicPurchasingSystem": {
+                "hasDynamicPurchasingSystem": False
+            },
+            "framework": {
+                "isAFramework": False
+            }
+        },
+        "parties": [{
+            "id": f"{buyer_identifier_scheme}-{buyer_id}",
+            "name": "Directia Cultura a Primariei mun.Chisinau",
+            "identifier": {
+                "scheme": buyer_identifier_scheme,
+                "id": buyer_id,
+                "legalName": "Directia Cultura a Primariei mun.Chisinau"
+            },
+            "address": {
+                "streetAddress": "str.Bucuresti 68",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "0101000",
+                        "description": "mun.Chişinău",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "0101000",
+                        "description": "mun.Chişinău",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "contactPoint": {
+                "name": "Dumitru Popa",
+                "email": "directiacultшra@yahoo.com",
+                "telephone": "022242290"
+            },
+            "roles": ["buyer"]
+        }, {
+            "id": f"{payer_identifier_scheme}-{payer_id}",
+            "name": "Procuring Entity Name",
+            "identifier": {
+                "scheme": payer_identifier_scheme,
+                "id": payer_id,
+                "legalName": "Legal Name"
+            },
+            "address": {
+                "streetAddress": "street",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "3400000",
+                        "description": "Donduşeni",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "3401000",
+                        "description": "or.Donduşeni (r-l Donduşeni)",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "contactPoint": {
+                "name": "contact person",
+                "email": "string@mail.ccc",
+                "telephone": "98-79-87"
+            },
+            "roles": ["payer"]
+        }, {
+            "id": f"{funder_identifier_scheme}-{funder_id}",
+            "name": "buyer name",
+            "identifier": {
+                "scheme": funder_identifier_scheme,
+                "id": funder_id,
+                "legalName": "legal Name"
+            },
+            "address": {
+                "streetAddress": "street address of buyer",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "1700000",
+                        "description": "Cahul",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "CUATM",
+                        "id": "1701000",
+                        "description": "mun.Cahul",
+                        "uri": "http://statistica.md"
+                    }
+                }
+            },
+            "contactPoint": {
+                "name": "contact point of buyer",
+                "email": "email.com",
+                "telephone": "32-22-23"
+            },
+            "roles": ["funder"]
+        }, {
+            "id": f"{procuring_entity_identifier_scheme}-{procuring_entity_id}",
+            "name": "name of PE",
+            "identifier": {
+                "scheme": procuring_entity_identifier_scheme,
+                "id": procuring_entity_id,
+                "legalName": "legal name"
+            },
+            "address": {
+                "streetAddress": "street address",
+                "addressDetails": {
+                    "country": {
+                        "scheme": "iso-alpha2",
+                        "id": "MD",
+                        "description": "Moldova, Republica",
+                        "uri": "https://www.iso.org"
+                    },
+                    "region": {
+                        "scheme": "CUATM",
+                        "id": "0101000",
+                        "description": "mun.Chişinău",
+                        "uri": "http://statistica.md"
+                    },
+                    "locality": {
+                        "scheme": "other",
+                        "id": "locality",
+                        "description": "4596"
+                    }
+                }
+            },
+            "contactPoint": {
+                "name": "name",
+                "email": "email",
+                "telephone": "456-95-96"
+            },
+            "roles": ["procuringEntity"]
+        }],
+        "relatedProcesses": [
+            {
+                "id": "aebc2410-828c-11eb-a463-451f6f68192e",
+                "relationship": ["planning"],
+                "scheme": "ocid",
+                "identifier": pn_ocid,
+                "uri": f"http://dev.public.eprocurement.systems/tenders/{cpid}/{pn_ocid}"
+            },
+            {
+                "id": "aebc2411-828c-11eb-a463-451f6f68192e",
+                "relationship": ["x_expenditureItem"],
+                "scheme": "ocid",
+                "identifier": ei_id,
+                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+            },
+            {
+                "id": "aebc2412-828c-11eb-a463-451f6f68192e",
+                "relationship": ["x_fundingSource"],
+                "scheme": "ocid",
+                "identifier": fs_ocid,
+                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_ocid}"
+            }]
+    }
+    if is_european_funding == False:
+        del json_notice_compiled_release_multistage["planning"]["budget"]["budgetBreakdown"][0]["europeanUnionFunding"]
+
+    session.execute(
+        f"INSERT INTO notice_compiled_release (cp_id,oc_id,json_data,publish_date,release_date,release_id,stage,"
+        f"status) VALUES ('{cpid}','{cpid}','{json.dumps(json_notice_compiled_release_multistage)}',{period[2]},"
+        f"{period[2]},'{cpid + '-' + str(timestamp)}','','planning');").one()
+
+    json_notice_compiled_release_PN = {
+        "ocid": pn_ocid,
+        "id": pn_ocid + "-" + f"{timestamp}",
+        "date": start_date,
+        "tag": ["planning"],
+        "language": language,
+        "initiationType": "tender",
+        "tender": {
+            "id": "e32fb4e7-184b-45f7-983e-055352400719",
+            "title": "Planning Notice",
+            "description": "Contracting process is planned",
+            "status": tender_status,
+            "statusDetails": tender_status_details_pn,
+            "lotGroups": [{
+                "optionToCombine": False
+            }],
+            "tenderPeriod": {
+                "startDate": tender_period
+            },
+            "hasEnquiries": False,
+            "submissionMethod": ["electronicSubmission"],
+            "submissionMethodDetails": "Lista platformelor: achizitii, ebs, licitatie, yptender",
+            "submissionMethodRationale": [
+                "Ofertele vor fi primite prin intermediul unei platforme electronice de achiziții publice"],
+            "requiresElectronicCatalogue": False,
+            "classification": {
+                "scheme": "CPV",
+                "id": "45100000-8",
+                "description": "Lucrări de pregătire a şantierului"
+            },
+            "value": {
+                "amount": amount,
+                "currency": currency
+            }
+        },
+        "hasPreviousNotice": False,
+        "purposeOfNotice": {
+            "isACallForCompetition": False
+        },
+        "relatedProcesses": [{
+            "id": f"{uuid4()}",
+            "relationship": ["parent"],
+            "scheme": "ocid",
+            "identifier": cpid,
+            "uri": f"http://dev.public.eprocurement.systems/tenders/{cpid}/{cpid}"
+        }]
+    }
+
+    session.execute(
+        f"INSERT INTO notice_compiled_release (cp_id,oc_id,json_data,publish_date,release_date,release_id,stage,"
+        f"status) VALUES ('{cpid}','{pn_ocid}','{json.dumps(json_notice_compiled_release_PN)}',{period[2]},"
+        f"{period[2]},'{pn_ocid + '-' + str(timestamp)}','PN','planning');").one()
+
+    session.execute(
+        f"INSERT INTO notice_offset (cp_id, release_date, stage, status) VALUES ('{cpid}',{period[2]},'PN',"
+        f"'planning');").one()
+
+    session.execute(f"INSERT INTO notice_release (cp_id,oc_id, release_id,json_data,release_date, "
+                    f"stage) VALUES ('{cpid}','{cpid}','{cpid + '-' + str(timestamp)}',"
+                    f"'{json.dumps(json_notice_compiled_release_multistage)}',{period[2]}, '');").one()
+
+    session.execute(f"INSERT INTO notice_release (cp_id,oc_id, release_id,json_data,release_date, "
+                    f"stage) VALUES ('{cpid}','{pn_ocid}','{pn_ocid + '-' + str(timestamp)}',"
+                    f"'{json.dumps(json_notice_compiled_release_PN)}',{period[2]}, 'PN');").one()
+
+    return f"http://dev.public.eprocurement.systems/tenders/{cpid}", cpid, fs_ocid, pn_ocid, str(pn_token)
