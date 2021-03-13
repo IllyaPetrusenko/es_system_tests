@@ -106,7 +106,7 @@ def bpe_update_pn_one_fs_if_pn_full(cpid, additional_value, pn_update_payload):
     time.sleep(2)
     message_from_kafka = get_message_from_kafka(x_operation_id)
 
-    return request_to_update_pn, message_from_kafka, x_operation_id, ms_before_updating, pn_before_updating
+    return request_to_update_pn, message_from_kafka, x_operation_id, ms_before_updating, pn_before_updating, create_pn[3]
 
 
 def bpe_update_pn_one_fs_if_pn_obligatory(cpid, additional_value, pn_update_payload):

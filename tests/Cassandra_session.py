@@ -39,8 +39,9 @@ def execute_cql_from_orchestrator_operation_step_by_oper_id(operation_id, task_i
     request_data = json.loads(rows_2.request_data)
     response_data = json.loads(rows_2.response_data)
     step_date = rows_2.step_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    context = json.loads(rows_2.context)
 
-    return request_data, response_data, step_date
+    return request_data, response_data, step_date, context
 
 
 

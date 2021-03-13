@@ -5196,13 +5196,13 @@ class TestBpeCreateEI(object):
 #     print(datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%dT%H:%M:%SZ'))
 #     # convert_timestamp = timestamp.strptime('%Y-%m-%dT%H:%M:%SZ')
 #
-#     # date = int(
-#     #     datetime.datetime.strptime(publicPoint['releases'][0]['id'][29:42], '%Y-%m-%dT%H:%M:%SZ').timestamp())
-#     # time= publicPoint['releases'][0]['date'].replace(tzinfo=DT.timezone.utc)
+# Кусок кода с апдейта плана -> нормально работает
+#     release_id = pn_record['releases'][0]['id']
+#         timestamp = int(release_id[46:59])
 #
+#         date = get_human_date_in_utc_format(timestamp)
 #
-#     print(type(timestamp))
-#     print(timestamp)
-#     print(d)
-# print(publicPoint)
-# assert publicPoint['releases'][0]['id'] ==
+#         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
+#         assert release_id[0:45] == update_pn_response[5]
+#         assert pn_record['releases'][0]['date'] == date[0]
+#         assert pn_record['releases'][0]['id'] == f"{update_pn_response[5]}" + f"-{str(timestamp)}"

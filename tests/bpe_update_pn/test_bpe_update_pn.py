@@ -1,19 +1,24 @@
 import copy
 import json
 import time
+from uuid import uuid4
 
 import requests
 from pytest_testrail.plugin import pytestrail
 
+from tests.Cassandra_session import execute_cql_from_orchestrator_operation_step, \
+    execute_cql_from_orchestrator_operation_step_by_oper_id
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 from tests.bpe_update_pn.payloads import pn_update_full_data_model_with_documents, \
     pn_update_obligatory_data_model_without_documents
 from tests.bpe_update_pn.update_pn import bpe_update_pn_one_fs_if_pn_obligatory, bpe_update_pn_one_fs_if_pn_full, \
     get_some_id_of_pn_record
-from tests.cassandra_inserts_into_Database import insert_into_db_create_pn_full_data_model
+from tests.cassandra_inserts_into_Database import insert_into_db_create_pn_full_data_model, \
+    insert_into_db_create_pn_obligatory_data_model
+from tests.iStorage import get_hash_md5, get_weught, correct_document_uploading
 from tests.kafka_messages import get_message_from_kafka
 from tests.presets import set_instance_for_request, update_pn
-from useful_functions import prepared_cpid
+from useful_functions import prepared_cpid, get_access_token_for_platform_two, get_human_date_in_utc_format
 
 
 class TestBpeCreatePN(object):
@@ -3202,6 +3207,410 @@ class TestBpeCreatePN(object):
         assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.06"
         assert message_from_kafka["errors"][0]["description"] == "Invalid documents related lots."
+
+    @pytestrail.case("27181")
+    def test_27181_1(self, additional_value):
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        access_token = "zzz"
+        cpid = prepared_cpid()
+        ei_id = prepared_cpid()
+        create_pn = insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value)
+        payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
+        host = set_instance_for_request()
+        request_to_update_pn = requests.post(
+            url=host + update_pn + cpid + '/' + create_pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'X-TOKEN': create_pn[4],
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        dict = json.loads(request_to_update_pn.text)
+        assert request_to_update_pn.status_code == 401
+        assert dict["errors"][0]["code"] == "401.81.03.04"
+        assert dict["errors"][0]["description"] == "The error of verification of the authentication token."
+
+    @pytestrail.case("27182")
+    def test_27182_2(self, additional_value):
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        pn_token = str(uuid4())
+        cpid = prepared_cpid()
+        ei_id = prepared_cpid()
+        create_pn = insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value)
+        payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
+        host = set_instance_for_request()
+        request_to_update_pn = requests.post(
+            url=host + update_pn + cpid + '/' + create_pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'X-TOKEN': pn_token,
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        message_from_kafka = get_message_from_kafka(x_operation_id)
+        assert request_to_update_pn.text == "ok"
+        assert request_to_update_pn.status_code == 202
+        assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
+        assert message_from_kafka["errors"][0]["code"] == "400.03.10.04"
+        assert message_from_kafka["errors"][0]["description"] == "Invalid token."
+
+    @pytestrail.case("27183")
+    def test_27183_1(self, additional_value):
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        cpid = prepared_cpid()
+        ei_id = prepared_cpid()
+        create_pn = insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value)
+        payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
+        host = set_instance_for_request()
+        request_to_update_pn = requests.post(
+            url=host + update_pn + cpid + '/' + create_pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        dict = json.loads(request_to_update_pn.text)
+        assert request_to_update_pn.status_code == 400
+        assert dict["errors"][0]["code"] == "400.00.00.00"
+        assert dict["errors"][0][
+                   "description"] == "Missing request header 'X-TOKEN' for method parameter of type String"
+
+    @pytestrail.case("27184")
+    def test_27184_1(self, additional_value):
+        access_token = get_access_token_for_platform_two()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        cpid = prepared_cpid()
+        ei_id = prepared_cpid()
+        create_pn = insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value)
+        payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
+        host = set_instance_for_request()
+        request_to_update_pn = requests.post(
+            url=host + update_pn + cpid + '/' + create_pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'X-TOKEN': create_pn[4],
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        error_from_DB = execute_cql_from_orchestrator_operation_step(cpid, 'AccessUpdatePnTask')
+        assert request_to_update_pn.text == "ok"
+        assert request_to_update_pn.status_code == 202
+        assert error_from_DB['errors'][0]['code'] == '400.03.00.02'
+        assert error_from_DB['errors'][0]['description'] == 'Invalid owner.'
+
+    @pytestrail.case("27186")
+    def test_27186_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        assert update_pn_response[0].text == "ok"
+        assert update_pn_response[0].status_code == 202
+
+    @pytestrail.case("27186")
+    def test_27186_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
+        assert update_pn_response[1]["data"]["ocid"] == update_pn_response[5]
+        assert update_pn_response[1]["data"][
+                   "url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}/{update_pn_response[5]}"
+
+    @pytestrail.case("27186")
+    def test_27186_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        get_pn_url = f"http://dev.public.eprocurement.systems/tenders/{cpid}/{update_pn_response[5]}"
+        pn_record = requests.get(url=get_pn_url).json()
+        assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
+        assert pn_record["releases"][0]["tender"]["status"] == "planning"
+        assert pn_record["releases"][0]["tender"]["statusDetails"] == "planning"
+
+    @pytestrail.case("27186")
+    def test_27186_4(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        get_pn_url = f"http://dev.public.eprocurement.systems/tenders/{cpid}/{update_pn_response[5]}"
+        pn_record = requests.get(url=get_pn_url).json()
+        assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
+        assert pn_record["releases"][0]["tag"] == ["planningUpdate"]
+
+    @pytestrail.case("27186")
+    def test_27186_5(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        get_pn_url = f"http://dev.public.eprocurement.systems/tenders/{cpid}/{update_pn_response[5]}"
+        pn_record = requests.get(url=get_pn_url).json()
+
+        release_id = pn_record['releases'][0]['id']
+        timestamp = int(release_id[46:59])
+
+        date = get_human_date_in_utc_format(timestamp)
+
+        assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
+        assert release_id[0:45] == update_pn_response[5]
+        assert pn_record['releases'][0]['date'] == date[0]
+        assert pn_record['releases'][0]['id'] == f"{update_pn_response[5]}" + f"-{str(timestamp)}"
+
+    @pytestrail.case("27187")
+    def test_27187_1(self, additional_value):
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        cpid = prepared_cpid()
+        ei_id = prepared_cpid()
+        create_pn = insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value)
+        payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
+        host = set_instance_for_request()
+        request_to_update_pn = requests.post(
+            url=host + update_pn + cpid + '/' + create_pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'X-TOKEN': create_pn[4],
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        message_from_kafka = get_message_from_kafka(x_operation_id)
+        assert request_to_update_pn.text == "ok"
+        assert request_to_update_pn.status_code == 202
+        assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
+
+    @pytestrail.case("27187")
+    def test_27187_2(self, additional_value):
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        cpid = prepared_cpid()
+        ei_id = prepared_cpid()
+        create_pn = insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value)
+        payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
+        host = set_instance_for_request()
+        requests.post(
+            url=host + update_pn + cpid + '/' + create_pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'X-TOKEN': create_pn[4],
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        message_from_kafka = get_message_from_kafka(x_operation_id)
+        assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
+        assert message_from_kafka["data"]["ocid"] == create_pn[3]
+        assert message_from_kafka["data"][
+                   "url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}/{create_pn[3]}"
+
+    @pytestrail.case("27188")
+    def test_27188_1(self, additional_value):
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        cpid = prepared_cpid()
+        ei_id = prepared_cpid()
+        create_pn = insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value)
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        host = set_instance_for_request()
+        request_to_update_pn = requests.post(
+            url=host + update_pn + cpid + '/' + create_pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'X-TOKEN': create_pn[4],
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        message_from_kafka = get_message_from_kafka(x_operation_id)
+        assert request_to_update_pn.text == "ok"
+        assert request_to_update_pn.status_code == 202
+        assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
+
+    @pytestrail.case("27188")
+    def test_27188_2(self, additional_value):
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        cpid = prepared_cpid()
+        ei_id = prepared_cpid()
+        create_pn = insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value)
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        host = set_instance_for_request()
+        requests.post(
+            url=host + update_pn + cpid + '/' + create_pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'X-TOKEN': create_pn[4],
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        message_from_kafka = get_message_from_kafka(x_operation_id)
+        assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
+        assert message_from_kafka["data"]["ocid"] == create_pn[3]
+        assert message_from_kafka["data"][
+                   "url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}/{create_pn[3]}"
+
+    @pytestrail.case("27191")
+    def test_27191_1(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        assert update_pn_response[0].text == "ok"
+        assert update_pn_response[0].status_code == 202
+
+    @pytestrail.case("27191")
+    def test_27191_2(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        message_from_kafka = get_message_from_kafka(update_pn_response[2])
+        assert message_from_kafka["X-OPERATION-ID"] == update_pn_response[2]
+        assert message_from_kafka["data"]["ocid"] == update_pn_response[5]
+        assert message_from_kafka["data"][
+                   "url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}/{update_pn_response[5]}"
+
+    @pytestrail.case("27191")
+    def test_27191_3(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        execute_cql_from_orchestrator_operation_step_by_oper_id(update_pn_response[2], 'NoticeCreateReleaseTask')
+
+    @pytestrail.case("27191")
+    def test_27191_4(self, additional_value):
+        cpid = prepared_cpid()
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        message_from_kafka = get_message_from_kafka(update_pn_response[2])
+        get_pn_url = message_from_kafka["data"]["url"]
+        pn_record = requests.get(url=get_pn_url).json()
+        start_date_from_database = execute_cql_from_orchestrator_operation_step_by_oper_id(update_pn_response[2],
+                                                                                           'NoticeCreateReleaseTask')
+        assert message_from_kafka["X-OPERATION-ID"] == update_pn_response[2]
+        assert pn_record['releases'][0]['date'] == start_date_from_database[3]["startDate"]
+
+    @pytestrail.case("27192")
+    def test_27192_1(self, additional_value):
+        cpid = prepared_cpid()
+        # We have this file ->
+        path = "/home/roman/Documents/git/es_system_tests/API.pdf"
+        # File name, which we have ->
+        file_name = "API.pdf"
+        # Path of file ->
+        dir_path = "/home/roman/Documents/git/es_system_tests/"
+        # Register and download the file in iStorage service ->
+        document = correct_document_uploading(path=path, file_name=file_name, dir_path=dir_path)
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        payload["tender"]["documents"][0]["id"] = document[0][0]
+
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        assert update_pn_response[0].text == "ok"
+        assert update_pn_response[0].status_code == 202
+
+    @pytestrail.case("27192")
+    def test_27192_2(self, additional_value):
+        cpid = prepared_cpid()
+        # We have this file ->
+        path = "/home/roman/Documents/git/es_system_tests/API.pdf"
+        # File name, which we have ->
+        file_name = "API.pdf"
+        # Path of file ->
+        dir_path = "/home/roman/Documents/git/es_system_tests/"
+        # Register and download the file in iStorage service ->
+        document = correct_document_uploading(path=path, file_name=file_name, dir_path=dir_path)
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        payload["tender"]["documents"][0]["id"] = document[0][0]
+
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        message_from_kafka = get_message_from_kafka(update_pn_response[2])
+        assert message_from_kafka["X-OPERATION-ID"] == update_pn_response[2]
+        assert message_from_kafka["data"]["ocid"] == update_pn_response[5]
+        assert message_from_kafka["data"][
+                   "url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}/{update_pn_response[5]}"
+
+    @pytestrail.case("27192")
+    def test_27192_3(self, additional_value):
+        cpid = prepared_cpid()
+        # We have this file ->
+        path = "/home/roman/Documents/git/es_system_tests/API.pdf"
+        # File name, which we have ->
+        file_name = "API.pdf"
+        # Path of file ->
+        dir_path = "/home/roman/Documents/git/es_system_tests/"
+        # Register and download the file in iStorage service ->
+        document = correct_document_uploading(path=path, file_name=file_name, dir_path=dir_path)
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        payload["tender"]["documents"][0]["id"] = document[0][0]
+
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        message_from_kafka = get_message_from_kafka(update_pn_response[2])
+        get_pn_url = message_from_kafka["data"]["url"]
+        pn_record = requests.get(url=get_pn_url).json()
+
+        assert message_from_kafka["X-OPERATION-ID"] == update_pn_response[2]
+        assert pn_record['releases'][0]['tender']["documents"][0]["id"] == payload["tender"]["documents"][0]["id"]
+
+    @pytestrail.case("27192")
+    def test_27192_4(self, additional_value):
+        cpid = prepared_cpid()
+        # We have this file ->
+        path = "/home/roman/Documents/git/es_system_tests/API.pdf"
+        # File name, which we have ->
+        file_name = "API.pdf"
+        # Path of file ->
+        dir_path = "/home/roman/Documents/git/es_system_tests/"
+        # Register and download the file in iStorage service ->
+        document = correct_document_uploading(path=path, file_name=file_name, dir_path=dir_path)
+        payload = copy.deepcopy(pn_update_full_data_model_with_documents)
+        payload["tender"]["documents"][0]["id"] = document[0][0]
+
+        update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
+                                                             additional_value=additional_value)
+        message_from_kafka = get_message_from_kafka(update_pn_response[2])
+        get_pn_url = message_from_kafka["data"]["url"]
+        pn_record = requests.get(url=get_pn_url).json()
+
+        # Open the file for writing, in 'wb' mode ->
+        f = open(f"/home/roman/Documents/git/es_system_tests/download/{file_name}",
+                 "wb")
+        open_document = requests.get(
+            url=pn_record["releases"][0]["tender"]["documents"][0]["url"]).content
+        # Write the content to a file ->
+        f.write(open_document)
+        # Close the file, which was downloaded
+        f.close()
+        # Calculate the hash of file, which was downloaded ->
+        hash_of_downloaded_file = get_hash_md5(f"/home/roman/Documents/git/es_system_tests/download/{file_name}")
+        # Calculate the weight of file, which was downloaded ->
+        weight_of_downloaded_file = get_weught(f"/home/roman/Documents/git/es_system_tests/download/{file_name}")
+        assert document[1] == hash_of_downloaded_file
+        assert document[2] == weight_of_downloaded_file
 
 
 
