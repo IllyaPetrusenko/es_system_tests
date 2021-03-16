@@ -17,6 +17,10 @@ def bpe_create_ei(payload):
             'Authorization': 'Bearer ' + access_token,
             'X-OPERATION-ID': x_operation_id,
             'Content-Type': 'application/json'},
+        params={
+            'country': 'MD',
+            'lang': 'ro'
+        },
         json=payload)
     time.sleep(2)
     message_from_kafka = get_message_from_kafka(x_operation_id)

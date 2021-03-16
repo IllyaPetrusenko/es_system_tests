@@ -32,7 +32,7 @@ def bpe_create_pn_one_fs(cpid, pn_create_payload, pmd, status="active", statusDe
                 'Authorization': 'Bearer ' + access_token,
                 'X-OPERATION-ID': x_operation_id,
                 'Content-Type': 'application/json'},
-            params={"country": "MD", "pmd": pmd, "testMode": test_mode},
+            params={"country": "MD", "pmd": pmd, "testMode": test_mode, "lang": "ro"},
             json=pn_create_payload)
         time.sleep(2)
         message_from_kafka = get_message_from_kafka(x_operation_id)
@@ -44,7 +44,7 @@ def bpe_create_pn_one_fs(cpid, pn_create_payload, pmd, status="active", statusDe
                 'Authorization': 'Bearer ' + access_token,
                 'X-OPERATION-ID': x_operation_id,
                 'Content-Type': 'application/json'},
-            params={"country": "MD", "pmd": pmd, "testMode": test_mode},
+            params={"country": "MD", "pmd": pmd, "testMode": test_mode, "lang": "ro"},
             json=pn_create_payload)
         time.sleep(2)
         message_from_kafka = get_message_from_kafka(x_operation_id)

@@ -1931,11 +1931,9 @@ class TestBpeCreatePN(object):
                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
                                                                     "model.dto.data.PlaceOfPerformance" \
                                                                     "[\"description\"])"
-# !Pay attention It is a bag ->
-    # SELECT * FROM ocds.orchestrator_operation_step WHERE process_id ='2ab3ecf3-8357-11eb-8a05-0242ac120008'
-    # ALlOW FILTERING;
-    # VR-3.1.13 -> https://ustudio.atlassian.net/wiki/spaces/ES/pages/11698295/2.3.1.1+Planning+Notice#id-2.3.1.
-    # 1%D0%9F%D1%83%D0%B1%D0%BB%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8FPlanningNotice-Validationrules
+
+# we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.10.11 from eAccess
+# QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
     def test_27190_25(self, additional_value):
         access_token = get_access_token_for_platform_one()
@@ -2004,7 +2002,9 @@ class TestBpeCreatePN(object):
                                                                  "[\"items\"]->java.util.ArrayList[0]->com." \
                                                                  "procurement.mdm.model.dto.data.ItemTD[\"id\"])"
 
-# !Pay attention It is a bag ->
+# we have case "27190_10" like this
+# we expect to get error.code = 400.20.00 from eMDM, but system does not return error
+# QA team decided we had failed this case, but system had not returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
     def test_27190_26(self, additional_value):
         cpid = prepared_cpid()
@@ -2039,7 +2039,8 @@ class TestBpeCreatePN(object):
         assert update_pn_response[4]["releases"][0]["tender"]["items"][0]["classification"]["id"] == \
                pn_after_updating["releases"][0]["tender"]["items"][0]["classification"]["id"]
 
-# !Pay attention It is a bag ->
+# we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.00 from eAccess
+# QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
     def test_27190_28(self, additional_value):
         cpid = prepared_cpid()
@@ -2089,7 +2090,8 @@ class TestBpeCreatePN(object):
         assert update_pn_response[4]["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["id"] == \
                pn_after_updating["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["id"]
 
-# !Pay attention It is a bag ->
+# we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.00 from eAccess
+# QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
     def test_27190_31(self, additional_value):
         cpid = prepared_cpid()
@@ -2127,7 +2129,8 @@ class TestBpeCreatePN(object):
                    "description"] == \
                pn_after_updating["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["description"]
 
-# !Pay attention It is a bag ->
+# we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.00 from eAccess
+# QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
     def test_27190_33(self, additional_value):
         cpid = prepared_cpid()
@@ -2192,7 +2195,8 @@ class TestBpeCreatePN(object):
         assert pn_after_updating["releases"][0]["tender"]["items"][0]["description"] == \
                str(payload["tender"]["items"][0]["description"]).lower()
 
-# !Pay attention It is a bag ->
+# we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.10.17 from eAccess
+# QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
     def test_27190_37(self, additional_value):
         access_token = get_access_token_for_platform_one()
@@ -2755,8 +2759,9 @@ class TestBpeCreatePN(object):
         assert update_pn_response[1]["errors"][0][
                    "description"] == "Region not found. "
 
-# !Pay attention It is a critical bag ->
-    # locality.scheme was published on PublicPoint
+# !Pay attention It is a  bag ->
+# locality.scheme was published as empty string on PublicPoint
+# https://ustudio.atlassian.net/browse/ES-5775
     @pytestrail.case("27185")
     def test_27185_19(self, additional_value):
         cpid = prepared_cpid()
@@ -2773,7 +2778,8 @@ class TestBpeCreatePN(object):
                                      "address.addressDetails.locality.scheme' is empty or blank."
 
 # !Pay attention It is a critical bag ->
-    # locality.id was published on PublicPoint
+# locality.id was published as empty string on PublicPoint
+# https://ustudio.atlassian.net/browse/ES-5775
     @pytestrail.case("27185")
     def test_27185_20(self, additional_value):
         cpid = prepared_cpid()
@@ -2791,7 +2797,8 @@ class TestBpeCreatePN(object):
                                      "Performance.address.addressDetails.locality.id' is empty or blank."
 
 # !Pay attention It is a critical bag ->
-    # locality.id was published on PublicPoint
+# locality.id was published as empty sting on PublicPoint
+# https://ustudio.atlassian.net/browse/ES-5775
     @pytestrail.case("27185")
     def test_27185_21(self, additional_value):
         cpid = prepared_cpid()
