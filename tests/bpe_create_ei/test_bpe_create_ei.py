@@ -5045,7 +5045,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response[1]['X-OPERATION-ID'] == create_ei_response[2]
         assert create_ei_response[1]['errors'][0]['code'] == '400.10.00'
         assert create_ei_response[1]['errors'][0][
-                   'description'] == "com.fasterxml.jackson.databind.JsonMappingException: Text '' could not be " \
+                   'description'] == "com.fasterxml.jackson.databind.JsonMappingException: Text ' ' could not be " \
                                      "parsed at index 0 (through reference chain: com.procurement.budget.model.dto." \
                                      "ei.request.EiCreate["r'"planning"]->com.procurement.budget.model.dto.ei.' \
                                      r'request.EiCreate$PlanningEiCreate['r'"budget"]->com.procurement.budget.' \
