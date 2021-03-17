@@ -5031,10 +5031,10 @@ class TestBpeCreateEI(object):
         assert create_ei_response[1]['errors'][0][
                    'description'] == "com.fasterxml.jackson.databind.JsonMappingException: Text ' ' could not be " \
                                      "parsed at index 0 (through reference chain: com.procurement.budget.model.dto." \
-                                     "ei.request.EiCreate["r'\"planning\"]->com.procurement.budget.model.dto.ei.' \
-                                     r'request.EiCreate$PlanningEiCreate[\"budget\"]->com.procurement.budget.model.' \
-                                     r'dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]->com.' \
-                                     r'procurement.budget.model.dto.ocds.Period[\"startDate\"])'
+                                     "ei.request.EiCreate["r'"planning"]->com.procurement.budget.model.dto.ei.' \
+                                     r'request.EiCreate$PlanningEiCreate["budget"]->com.procurement.budget.model.' \
+                                     r'dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate["period"]->com.' \
+                                     r'procurement.budget.model.dto.ocds.Period["startDate"])'
 
     @pytestrail.case('25301')
     def test_25301_36(self):
@@ -5047,10 +5047,10 @@ class TestBpeCreateEI(object):
         assert create_ei_response[1]['errors'][0][
                    'description'] == "com.fasterxml.jackson.databind.JsonMappingException: Text '' could not be " \
                                      "parsed at index 0 (through reference chain: com.procurement.budget.model.dto." \
-                                     "ei.request.EiCreate["r'\"planning\"]->com.procurement.budget.model.dto.ei.' \
-                                     r'request.EiCreate$PlanningEiCreate['r'\"budget\"]->com.procurement.budget.' \
-                                     r'model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]->' \
-                                     r'com.procurement.budget.model.dto.ocds.Period[\"endDate\"])'
+                                     "ei.request.EiCreate["r'"planning"]->com.procurement.budget.model.dto.ei.' \
+                                     r'request.EiCreate$PlanningEiCreate['r'"budget"]->com.procurement.budget.' \
+                                     r'model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate["period"]->' \
+                                     r'com.procurement.budget.model.dto.ocds.Period["endDate"])'
 
     @pytestrail.case('25301')
     def test_25301_37(self):

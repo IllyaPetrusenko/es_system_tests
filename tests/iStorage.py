@@ -29,6 +29,7 @@ def get_hash_md5(filename):
                 break
             m.update(data)
         return m.hexdigest()
+
 def get_weught(filepath):
     weight = os.stat(filepath).st_size
     return weight
