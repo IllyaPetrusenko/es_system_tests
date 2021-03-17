@@ -21,6 +21,7 @@ def set_instance_for_cassandra():
     else:
         return print("I don't know what you mean")
 
+
 def set_instance_for_request():
     instance = choose_instance()
     if instance == "dev":
@@ -30,6 +31,7 @@ def set_instance_for_request():
         host = 'http://10.0.10.116:8900/api/v1'
         return host
 
+
 def set_instance_for_services():
     instance = choose_instance()
     if instance == "dev":
@@ -38,6 +40,8 @@ def set_instance_for_services():
     elif instance == "sandbox":
         host = 'http://10.0.10.116'
         return host
+
+
 kafka_host = 'http://192.168.0.102:5000'
 create_ei = '/do/ei?country=MD'
 update_ei = '/do/ei/'
