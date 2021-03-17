@@ -22,7 +22,7 @@ def bpe_create_ei(payload):
             'lang': 'ro'
         },
         json=payload)
-    time.sleep(0.5)
+    time.sleep(0.2)
     message_from_kafka = get_message_from_kafka(x_operation_id)
     print(message_from_kafka)
     return request_to_create_ei, message_from_kafka, x_operation_id
