@@ -2597,7 +2597,6 @@ def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, star
                 "isEuropeanUnionFunded": is_european_funding,
                 "budgetBreakdown": [{
                     "id": fs_ocid,
-                    "description": "description",
                     "amount": {
                         "amount": amount,
                         "currency": currency
@@ -2916,7 +2915,6 @@ def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, star
                 "isEuropeanUnionFunded": True,
                 "budgetBreakdown": [{
                     "id": fs_ocid,
-                    "description": "description",
                     "amount": {
                         "amount": amount,
                         "currency": currency
@@ -3001,7 +2999,8 @@ def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, star
             "identifier": {
                 "scheme": buyer_identifier_scheme,
                 "id": buyer_id,
-                "legalName": "Directia Cultura a Primariei mun.Chisinau"
+                "legalName": "Directia Cultura a Primariei mun.Chisinau",
+                "uri": "tttt"
             },
             "address": {
                 "streetAddress": "str.Bucuresti 68",
@@ -3026,10 +3025,22 @@ def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, star
                     }
                 }
             },
+            "additionalIdentifiers": [{
+                "scheme": "MD-IDNO",
+                "id": "string",
+                "legalName": "380935103469",
+                "uri": "http://petrusenko.com/svetlana"
+            }],
             "contactPoint": {
                 "name": "Dumitru Popa",
                 "email": "directiacultшra@yahoo.com",
-                "telephone": "022242290"
+                "telephone": "022242290",
+                "url": "jkjk"
+            },
+            "details": {
+                "typeOfBuyer": "NATIONAL_AGENCY",
+                "mainGeneralActivity": "HEALTH",
+                "mainSectoralActivity": "WATER"
             },
             "roles": ["buyer"]
         }, {
@@ -3038,12 +3049,11 @@ def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, star
             "identifier": {
                 "scheme": payer_identifier_scheme,
                 "id": payer_id,
-                "legalName": "Legal Name",
-                "uri": "http://454.to"
+                "legalName": "Legal Name"
+
             },
             "address": {
                 "streetAddress": "street",
-                "postalCode": "785412",
                 "addressDetails": {
                     "country": {
                         "scheme": "iso-alpha2",
@@ -3065,18 +3075,10 @@ def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, star
                     }
                 }
             },
-            "additionalIdentifiers": [{
-                "scheme": "MD-K",
-                "id": "additional identifier",
-                "legalName": "legalname",
-                "uri": "http://k.to"
-            }],
             "contactPoint": {
                 "name": "contact person",
                 "email": "string@mail.ccc",
-                "telephone": "98-79-87",
-                "faxNumber": "78-56-55",
-                "url": "http://url.com"
+                "telephone": "98-79-87"
             },
             "roles": ["payer"]
         }, {
@@ -3085,12 +3087,10 @@ def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, star
             "identifier": {
                 "scheme": funder_identifier_scheme,
                 "id": funder_id,
-                "legalName": "legal Name",
-                "uri": "http://buyer.com"
+                "legalName": "legal Name"
             },
             "address": {
                 "streetAddress": "street address of buyer",
-                "postalCode": "02054",
                 "addressDetails": {
                     "country": {
                         "scheme": "iso-alpha2",
@@ -3112,18 +3112,10 @@ def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, star
                     }
                 }
             },
-            "additionalIdentifiers": [{
-                "scheme": "scheme",
-                "id": "additional identifier",
-                "legalName": "legal name",
-                "uri": "http://addtIdent.com"
-            }],
             "contactPoint": {
                 "name": "contact point of buyer",
                 "email": "email.com",
-                "telephone": "32-22-23",
-                "faxNumber": "12-22-21",
-                "url": "http://url.com"
+                "telephone": "32-22-23"
             },
             "roles": ["funder"]
         }, {
@@ -3403,6 +3395,54 @@ def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, star
             "value": {
                 "amount": lot_1_amount + lot_2_amount,
                 "currency": currency
+            },
+            "procuringEntity": {
+                "id": f"{procuring_entity_identifier_scheme}-{procuring_entity_id}",
+                "name": procuring_entity_name,
+                "identifier": {
+                    "scheme": procuring_entity_identifier_scheme,
+                    "id": procuring_entity_id,
+                    "legalName": procuring_entity_name,
+                    "uri": "uri"
+                },
+                "address": {
+                    "streetAddress": procuring_entity_address_street,
+                    "postalCode": "02232",
+                    "addressDetails": {
+                        "country": {
+                            "scheme": country_scheme,
+                            "id": country_id,
+                            "description": country_description,
+                            "uri": country_uri
+                        },
+                        "region": {
+                            "scheme": region_scheme,
+                            "id": region_id,
+                            "description": region_description,
+                            "uri": region_uri
+                        },
+                        "locality": {
+                            "scheme": locality_scheme,
+                            "id": locality_id,
+                            "description": locality_description,
+                            "uri": "http://statistica.md"
+
+                        }
+                    }
+                },
+                "additionalIdentifiers": [{
+                    "scheme": "md-idno",
+                    "id": "445521",
+                    "legalName": "legalName",
+                    "uri": "uri"
+                }],
+                "contactPoint": {
+                    "name": contact_point_name,
+                    "email": contact_point_email,
+                    "telephone": contact_point_telephone,
+                    "faxNumber": "fax-number",
+                    "url": "url"
+                }
             }
         },
         "hasPreviousNotice": False,
@@ -3451,7 +3491,7 @@ def insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value
                                                    buyer_identifier_scheme="MD-IDNO", buyer_id="1",
                                                    payer_identifier_scheme="MD-IDNO", buyer_name="LLC Dmitro",
                                                    procuring_entity_identifier_scheme="MD-IDNO",
-                                                   procuring_entity_id="2",
+                                                   procuring_entity_id="4",
                                                    procuring_entity_name="LLC Petrovich",
                                                    procuring_entity_address_street="street",
                                                    country_id="MD",
@@ -3654,7 +3694,7 @@ def insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value
                 "budgetBreakdown": [
                     {
                         "id": fs_ocid,
-                        "description": "description",
+
                         "amount": {
                             "amount": amount,
                             "currency": currency
@@ -3732,10 +3772,12 @@ def insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value
             "identifier": {
                 "scheme": buyer_identifier_scheme,
                 "id": buyer_id,
-                "legalName": "Directia Cultura a Primariei mun.Chisinau"
+                "legalName": "Directia Cultura a Primariei mun.Chisinau",
+                "uri": "tttt"
             },
             "address": {
                 "streetAddress": "str.Bucuresti 68",
+                "postalCode": "02217",
                 "addressDetails": {
                     "country": {
                         "scheme": "iso-alpha2",
@@ -3757,10 +3799,22 @@ def insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value
                     }
                 }
             },
+            "additionalIdentifiers": [{
+                "scheme": "MD-IDNO",
+                "id": "string",
+                "legalName": "380935103469",
+                "uri": "http://petrusenko.com/svetlana"
+            }],
             "contactPoint": {
                 "name": "Dumitru Popa",
                 "email": "directiacultшra@yahoo.com",
-                "telephone": "022242290"
+                "telephone": "022242290",
+                "url": "http://petrusenko.com/svetlana"
+            },
+            "details": {
+                "typeOfBuyer": "NATIONAL_AGENCY",
+                "mainGeneralActivity": "HEALTH",
+                "mainSectoralActivity": "WATER"
             },
             "roles": ["buyer"]
         }, {
@@ -3938,6 +3992,43 @@ def insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value
             "value": {
                 "amount": amount,
                 "currency": currency
+            },
+            "procuringEntity": {
+                "id": f"{procuring_entity_identifier_scheme}-{procuring_entity_id}",
+                "name": procuring_entity_name,
+                "identifier": {
+                    "scheme": procuring_entity_identifier_scheme,
+                    "id": procuring_entity_id,
+                    "legalName": procuring_entity_name
+                },
+                "address": {
+                    "streetAddress": procuring_entity_address_street,
+                    "addressDetails": {
+                        "country": {
+                            "scheme": country_scheme,
+                            "id": country_id,
+                            "description": country_description,
+                            "uri": country_uri
+                        },
+                        "region": {
+                            "scheme": region_scheme,
+                            "id": region_id,
+                            "description": region_description,
+                            "uri": region_uri
+                        },
+                        "locality": {
+                            "scheme": locality_scheme,
+                            "id": locality_id,
+                            "description": locality_description
+
+                        }
+                    }
+                },
+                "contactPoint": {
+                    "name": contact_point_name,
+                    "email": contact_point_email,
+                    "telephone": contact_point_telephone
+                }
             }
         },
         "hasPreviousNotice": False,
