@@ -1,13 +1,20 @@
 import copy
+import json
 import time
+from uuid import uuid4
 
 import requests
 from pytest_testrail.plugin import pytestrail
 
+from tests.Cassandra_session import execute_cql_from_orchestrator_operation_step_by_oper_id, \
+    execute_cql_from_orchestrator_operation_step
+from tests.authorization import get_x_operation_id, get_access_token_for_platform_one
 from tests.bpe_create_cnonpn.create_cnonpn import CNonPN
 from tests.bpe_create_cnonpn.payloads import payload_cnonpn_auction_full_data_model, \
     payload_cnonpn_obligatory_data_model
-from useful_functions import prepared_cpid, get_human_date_in_utc_format, is_it_uuid
+from tests.kafka_messages import get_message_from_kafka
+from tests.presets import create_cn, set_instance_for_request
+from useful_functions import prepared_cpid, get_human_date_in_utc_format, is_it_uuid, get_access_token_for_platform_two
 
 
 class TestBpeCreateCN(object):
@@ -6501,22 +6508,146 @@ class TestBpeCreateCN(object):
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.06"
         assert message_from_kafka["errors"][0]["description"] == "Invalid documents related lots."
 
+    @pytestrail.case("27196")
+    def test_27196_1_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
 
+    @pytestrail.case("27196")
+    def test_27196_2_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert message_from_kafka["data"]["ocid"] == cpid
+        assert message_from_kafka["data"]["url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}"
 
+    @pytestrail.case("27196")
+    def test_27196_3_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        execute_cql_from_orchestrator_operation_step_by_oper_id(
+            message_from_kafka["X-OPERATION-ID"], "NoticeCreateReleaseTask")
 
+    @pytestrail.case("27196")
+    def test_27196_4_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        context_start_date_from_database = execute_cql_from_orchestrator_operation_step_by_oper_id(
+            message_from_kafka["X-OPERATION-ID"], "NoticeCreateReleaseTask")[3]["startDate"]
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert ev_release["releases"][0]["date"] == context_start_date_from_database
 
+    @pytestrail.case("27200")
+    def test_27200_1_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        access_token = get_access_token_for_platform_two()
+        x_operation_id = get_x_operation_id(access_token)
+        host = set_instance_for_request()
+        create_cnonpn_response = requests.post(
+            url=host + create_cn + cpid + '/' + pn[3],
+            headers={
+                'Authorization': 'zzz',
+                'X-OPERATION-ID': x_operation_id,
+                'X-TOKEN': pn[4],
+                'Content-Type': 'application/json'},
+            json=payload)
+        dict = json.loads(create_cnonpn_response.text)
+        assert create_cnonpn_response.status_code == 401
+        assert dict["errors"][0]["code"] == "401.81.02.02"
+        assert dict["errors"][0][
+                   "description"] == "Invalid type of the authentication token. Expected type is 'Bearer'."
 
+    @pytestrail.case("27201")
+    def test_27201_1_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        access_token = get_access_token_for_platform_two()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        host = set_instance_for_request()
+        create_cnonpn_response = requests.post(
+            url=host + create_cn + cpid + '/' + pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'X-TOKEN': pn[4],
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        error_from_DB = execute_cql_from_orchestrator_operation_step(cpid, 'AccessCheckOwnerTokenTask')
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert error_from_DB['errors'][0]['code'] == '400.03.00.02'
+        assert error_from_DB['errors'][0]['description'] == 'Invalid owner.'
 
+    @pytestrail.case("27202")
+    def test_27202_1_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        host = set_instance_for_request()
+        create_cnonpn_response = requests.post(
+            url=host + create_cn + cpid + '/' + pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        dict = json.loads(create_cnonpn_response.text)
+        assert create_cnonpn_response.status_code == 400
+        assert dict["errors"][0]["code"] == "400.00.00.00"
+        assert dict["errors"][0]["description"] == \
+               "Missing request header 'X-TOKEN' for method parameter of type String"
 
-
-
-
-
-
-
-
-
-
-
-
-
+    @pytestrail.case("27203")
+    def test_27203_1_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        access_token = get_access_token_for_platform_one()
+        x_operation_id = get_x_operation_id(access_token)
+        time.sleep(2)
+        host = set_instance_for_request()
+        create_cnonpn_response = requests.post(
+            url=host + create_cn + cpid + '/' + pn[3],
+            headers={
+                'Authorization': 'Bearer ' + access_token,
+                'X-OPERATION-ID': x_operation_id,
+                'X-TOKEN': str(uuid4()),
+                'Content-Type': 'application/json'},
+            json=payload)
+        time.sleep(2)
+        message_from_kafka = get_message_from_kafka(x_operation_id)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
+        assert message_from_kafka["errors"][0]["code"] == "400.03.10.04"
+        assert message_from_kafka["errors"][0]["description"] == "Invalid token."
