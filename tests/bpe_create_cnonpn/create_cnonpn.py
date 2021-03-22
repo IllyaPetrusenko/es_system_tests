@@ -11,7 +11,10 @@ from tests.cassandra_inserts_into_Database import insert_into_db_create_pn_full_
 from tests.iStorage import Document
 from tests.kafka_messages import get_message_from_kafka
 from tests.presets import create_cn, set_instance_for_request
-from useful_functions import prepared_cpid
+from useful_functions import prepared_cpid, get_contract_period, get_new_period
+
+contract_period = get_contract_period()
+period = get_new_period()
 
 
 class CNonPN:
@@ -19,14 +22,19 @@ class CNonPN:
         self.access_token = get_access_token_for_platform_one()
         self.x_operation_id = get_x_operation_id(self.access_token)
 
-    def create_pn_full_data_model(self, cpid, additional_value):
+    def create_pn_full_data_model(self, cpid, additional_value, identifier_scheme="MD-IDNO",
+                                  procuring_entity_id="4"):
         self.cpid = cpid
+        self.identifier_scheme = identifier_scheme
+        self.procuring_entity_id = procuring_entity_id
         ei_id = prepared_cpid()
-        pn = insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value)
+        pn = insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value,
+                                                      procuring_entity_identifier_scheme=self.identifier_scheme,
+                                                      procuring_entity_id=self.procuring_entity_id, )
         return pn
 
     def create_pn_obligatory_data_model(self, cpid, additional_value, identifier_scheme="MD-IDNO",
-                                        procuring_entity_id="2"):
+                                        procuring_entity_id="4"):
         self.cpid = cpid
         self.identifier_scheme = identifier_scheme
         self.procuring_entity_id = procuring_entity_id
@@ -79,47 +87,246 @@ class CNonPN:
 
         return self.item_list, self.lot_list, self.document_list, self.additionalClassifications_list
 
-    def preparing_payload(self, payload):
+    def enriching_payload(self, payload):
         self.payload = payload
-        if "tender" in payload.keys() and "lots" in payload["tender"].keys():
-            if "tender" in payload.keys() and "lots" in payload["tender"].keys() and \
-                    "id" in payload["tender"]["lots"][0].keys():
-                payload["tender"]["lots"][0]["id"] = self.lot_list[1][0]
-            if "id" in payload["tender"]["lots"][1].keys():
-                payload["tender"]["lots"][1]["id"] = self.lot_list[1][1]
+        payload["tender"]["lots"] = [
+            {
+                "id": self.lot_list[0],
+                "internalId": "internalId of lot",
+                "title": "title of lot",
+                "description": "description of lot",
+                "value": {
+                    "amount": 1500,
+                    "currency": "EUR"
+                },
+                "contractPeriod": {
+                    "startDate": contract_period[0],
+                    "endDate": contract_period[1]
+                },
+                "placeOfPerformance": {
+                    "address": {
+                        "streetAddress": "street of placeOfPerformance",
+                        "postalCode": "postalCode of placeOfPerformance",
+                        "addressDetails": {
+                            "country": {
+                                "id": "MD"
+                            },
+                            "region": {
+                                "id": "5700000"
+                            },
+                            "locality": {
+                                "scheme": "CUATM",
+                                "id": "5711001",
+                                "description": "description of locality"
+                            }
+                        }
+                    },
+                    "description": "description of placeOfPerformance"
+                },
+                "hasOptions": True,
+                "options": [
+                    {
+                        "description": "The buyer has the option to buy an additional hundred uniforms.",
+                        "period": {
+                            "durationInDays": 180,
+                            "startDate": period[2],
+                            "endDate": period[3],
+                            "maxExtentDate": period[3]
+                        }
+                    }
+                ],
+                "hasRecurrence": True,
+                "recurrence": {
+                    "dates": [
+                        {
+                            "startDate": period[2]
+                        },
+                        {
+                            "startDate": period[2]
+                        }
+                    ],
+                    "description": "The duration of this contract and recurrent contracts will not exceed three years."
+                },
+                "hasRenewal": True,
+                "renewal": {
+                    "description": "The contracting authority reserves the right to extend the term for a period or "
+                                   "periods of up to 1 year with a maximum of 2 such extensions on the same terms and "
+                                   "conditions, subject to the contracting authority's obligations at law.",
+                    "minimumRenewals": 2,
+                    "maximumRenewals": 5,
+                    "period": {
+                        "durationInDays": 365,
+                        "startDate": period[2],
+                        "endDate": period[1],
+                        "maxExtentDate": period[3]
+                    }
+                }
+            },
+            {
+                "id": self.lot_list[1],
+                "internalId": "internalId of lot",
+                "title": "title of lot",
+                "description": "description of lot",
+                "value": {
+                    "amount": 500,
+                    "currency": "EUR"
+                },
+                "contractPeriod": {
+                    "startDate": contract_period[0],
+                    "endDate": contract_period[1]
+                },
+                "placeOfPerformance": {
+                    "address": {
+                        "streetAddress": "street of placeOfPerformance",
+                        "postalCode": "postalCode of placeOfPerformance",
+                        "addressDetails": {
+                            "country": {
+                                "id": "MD"
+                            },
+                            "region": {
+                                "id": "5700000"
+                            },
+                            "locality": {
+                                "scheme": "CUATM",
+                                "id": "5711001",
+                                "description": "description of locality"
+                            }
+                        }
+                    },
+                    "description": "description of placeOfPerformance"
+                },
+                "hasOptions": True,
+                "options": [
+                    {
+                        "description": "The buyer has the option to buy an additional hundred uniforms.",
+                        "period": {
+                            "durationInDays": 180,
+                            "startDate": period[2],
+                            "endDate": period[3],
+                            "maxExtentDate": period[3]
+                        }
+                    }
+                ],
+                "hasRecurrence": True,
+                "recurrence": {
+                    "dates": [
+                        {
+                            "startDate": period[2]
+                        },
+                        {
+                            "startDate": period[2]
+                        }
+                    ],
+                    "description": "The duration of this contract and recurrent contracts will not exceed three years."
+                },
+                "hasRenewal": True,
+                "renewal": {
+                    "description": "The contracting authority reserves the right to extend the term for a period or "
+                                   "periods of up to 1 year with a maximum of 2 such extensions on the same terms and "
+                                   "conditions, subject to the contracting authority's obligations at law.",
+                    "minimumRenewals": 2,
+                    "maximumRenewals": 5,
+                    "period": {
+                        "durationInDays": 365,
+                        "startDate": period[2],
+                        "endDate": period[1],
+                        "maxExtentDate": period[3]
+                    }
+                }
+            }
 
-        if "tender" in payload.keys() and "items" in payload["tender"].keys():
-            if "id" in payload["tender"]["items"][0].keys():
-                payload["tender"]["items"][0]["id"] = self.item_list[0][0]
-            if "relatedLot" in payload["tender"]["items"][0].keys():
-                payload["tender"]["items"][0]["relatedLot"] = self.item_list[1][0]
-            if "id" in payload["tender"]["items"][1].keys():
-                payload["tender"]["items"][1]["id"] = self.item_list[0][1]
-            if "relatedLot" in payload["tender"]["items"][1].keys():
-                payload["tender"]["items"][1]["relatedLot"] = self.item_list[1][1]
+        ]
+        payload["tender"]["items"] = [
+            {
+                "id": self.item_list[0],
+                "internalId": "internalId of item",
+                "classification": {
+                    "id": "45112350-3",
+                    "scheme": "CPV",
+                    "description": "description"
+                },
+                "additionalClassifications": [
+                    {
+                        "id": self.additionalClassifications_list[0],
+                        "scheme": "CPVS",
+                        "description": "description"
+                    }
+                ],
+                "quantity": 10,
+                "unit": {
+                    "id": "10",
+                    "name": "name"
+                },
+                "description": "description of item",
+                "relatedLot": self.lot_list[0]
+            },
+            {
+                "id": self.item_list[1],
+                "internalId": "internalId of item",
+                "classification": {
+                    "id": "45112360-6",
+                    "scheme": "CPV",
+                    "description": "description"
+                },
+                "additionalClassifications": [
+                    {
+                        "id": self.additionalClassifications_list[1],
+                        "scheme": "CPVS",
+                        "description": "description"
+                    }
+                ],
+                "quantity": 10,
+                "unit": {
+                    "id": "10",
+                    "name": "name"
+                },
+                "description": "description of item",
+                "relatedLot": self.lot_list[1]
+            }
 
-        if "tender" in payload.keys() and "documents" in payload["tender"].keys():
-            if "id" in payload["tender"]["documents"][0].keys():
-                payload["tender"]["documents"][0]["id"] = self.document_list[2][0]
-            if "relatedLots" in payload["tender"]["documents"][0].keys():
-                payload["tender"]["documents"][0]["relatedLots"] = [self.lot_list[1][0]]
-            if "id" in payload["tender"]["documents"][1].keys():
-                payload["tender"]["documents"][1]["id"] = [self.document_list[2][1]]
-            if "relatedLots" in payload["tender"]["documents"][1].keys():
-                payload["tender"]["documents"][1]["relatedLots"] = [self.lot_list[1][1]]
+        ]
+        payload["tender"]["electronicAuctions"] = {
+            "details": [
+                {
+                    "id": "1",
+                    "relatedLot": self.lot_list[0],
+                    "electronicAuctionModalities": [
+                        {
+                            "eligibleMinimumDifference": {
+                                "amount": 10.00,
+                                "currency": "EUR"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "relatedLot": self.lot_list[1],
+                    "electronicAuctionModalities": [
+                        {
+                            "eligibleMinimumDifference": {
+                                "amount": 10.00,
+                                "currency": "EUR"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
 
-        if "tender" in payload.keys() and "items" in payload["tender"].keys() and "additionalClassifications" in \
-                payload["tender"]["items"][0].key():
-            if "id" in payload["tender"]["items"][0]["additionalClassifications"][0].keys():
-                payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = \
-                    self.additionalClassifications_list[3][0]
+        payload["tender"]["documents"][0]["id"] = self.document_list[0]
+        payload["tender"]["documents"][0]["relatedLots"] = [self.lot_list[0]]
+        payload["tender"]["documents"][1]["id"] = self.document_list[1]
+        payload["tender"]["documents"][1]["relatedLots"] = [self.lot_list[1]]
+        payload["tender"]["documents"][2]["relatedLots"] = [self.lot_list[0]]
+        payload["tender"]["criteria"][1]["relatedItem"] = self.item_list[0]
 
-        if "tender" in payload.keys() and "items" in payload["tender"].keys() and "additionalClassifications" in \
-                payload["tender"]["items"][1].key():
-            if "id" in payload["tender"]["items"][1]["additionalClassifications"][0].keys():
-                payload["tender"]["items"][1]["additionalClassifications"][0]["id"] = \
-                    self.additionalClassifications_list[3][1]
         return self.payload
+
+    def get_previous_ms_release(self, pn):
+        self.pn = pn
+        ms_release = requests.get(url=self.pn[0] + "/" + self.pn[1]).json()
+        return ms_release
 
     def create_request_cnonpn(self, cpid, pn, payload):
         self.cpid = cpid
@@ -137,7 +344,7 @@ class CNonPN:
         return cnonpn
 
     def get_message_from_kafka(self):
-        time.sleep(3.6)
+        time.sleep(3)
         message_from_kafka = get_message_from_kafka(self.x_operation_id)
         return message_from_kafka
 

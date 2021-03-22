@@ -4226,6 +4226,2297 @@ class TestBpeCreateCN(object):
                                      "ArrayList[0]->com.procurement.access.infrastructure.handler.v1.model." \
                                      "request.document.DocumentRequest[\"title\"])"
 
+    @pytestrail.case("27198")
+    def test_27198_1_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        previous_ms_release = cn.get_previous_ms_release(pn)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["planning"]["rationale"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        ms_url = list()
+        for d in ev_release["releases"][0]["relatedProcesses"]:
+            if d["relationship"] == ["parent"]:
+                ms_url.append(d["uri"])
+        ms_release = requests.get(url=ms_url[0]).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka
+        assert ms_release["releases"][0]["planning"]["rationale"] == previous_ms_release["releases"][0]["planning"][
+            "rationale"]
+
+    @pytestrail.case("27198")
+    def test_27198_2_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        previous_ms_release = cn.get_previous_ms_release(pn)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["planning"]["budget"]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        ms_url = list()
+        for d in ev_release["releases"][0]["relatedProcesses"]:
+            if d["relationship"] == ["parent"]:
+                ms_url.append(d["uri"])
+        ms_release = requests.get(url=ms_url[0]).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka
+        assert ms_release["releases"][0]["planning"]["budget"]["description"] == \
+               previous_ms_release["releases"][0]["planning"]["budget"]["description"]
+
+    @pytestrail.case("27198")
+    def test_27198_3_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["title"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka
+        assert ev_release["releases"][0]["tender"]["title"] == "Evaluation"
+
+    @pytestrail.case("27198")
+    def test_27198_4_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka
+        assert ev_release["releases"][0]["tender"]["description"] == "Evaluation stage of contracting process"
+
+    @pytestrail.case("27198")
+    def test_27198_5_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procurementMethodRationale"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka
+        assert ev_release["releases"][0]["tender"]["procurementMethodRationale"] == str(
+            payload["tender"]["procurementMethodRationale"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_6_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procurementMethodAdditionalInfo"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        ms_url = list()
+        for d in ev_release["releases"][0]["relatedProcesses"]:
+            if d["relationship"] == ["parent"]:
+                ms_url.append(d["uri"])
+        ms_release = requests.get(url=ms_url[0]).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ms_release["releases"][0]["tender"]["procurementMethodAdditionalInfo"] == \
+               str(payload["tender"]["procurementMethodAdditionalInfo"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_7_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["awardCriteria"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "InvalidDefinitionException: Cannot construct " \
+                                                                 "instance of `com.procurement.access.domain." \
+                                                                 "model.enums.AwardCriteria`, problem: Unknown " \
+                                                                 "value for enumType com.procurement.access." \
+                                                                 "domain.model.enums.AwardCriteria: false, " \
+                                                                 "Allowed values are priceOnly, costOnly, " \
+                                                                 "qualityOnly, ratedCriteria\n at [Source: " \
+                                                                 "UNKNOWN; line: -1, column: -1] (through " \
+                                                                 "reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com." \
+                                                                 "procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"awardCriteria\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_8_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["awardCriteriaDetails"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "InvalidDefinitionException: Cannot construct " \
+                                                                 "instance of `com.procurement.access.domain." \
+                                                                 "model.enums.AwardCriteriaDetails`, problem: " \
+                                                                 "Unknown value for enumType com.procurement." \
+                                                                 "access.domain.model.enums.AwardCriteriaDetails:" \
+                                                                 " false, Allowed values are manual, " \
+                                                                 "automated\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]" \
+                                                                 "->com.procurement.access.infrastructure." \
+                                                                 "handler.v1.model.request.OpenCnOnPnRequest$" \
+                                                                 "Tender[\"awardCriteriaDetails\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_9_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["tenderPeriod"]["endDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.04.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text 'false' could not be parsed at " \
+                                                                 "index 0 (through reference chain: com." \
+                                                                 "procurement.submission.infrastructure.handler." \
+                                                                 "v1.model.request.PeriodRq[\"tenderPeriod\"]->" \
+                                                                 "com.procurement.submission.model.dto.ocds." \
+                                                                 "Period[\"endDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_10_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["enquiryPeriod"]["endDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.05.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: Text 'false' could not " \
+                                                                 "be parsed at index 0 (through reference chain: " \
+                                                                 "com.procurement.clarification.infrastructure." \
+                                                                 "handler.v1.model.request.PeriodRq" \
+                                                                 "[\"enquiryPeriod\"]->com.procurement." \
+                                                                 "clarification.model.dto.ocds.Period[\"endDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_11_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procurementMethodModalities"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "MismatchedInputException: Cannot " \
+                                                                 "deserialize instance of `java.util.HashSet` " \
+                                                                 "out of VALUE_FALSE token\n at [Source: " \
+                                                                 "UNKNOWN; line: -1, column: -1] (through " \
+                                                                 "reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model." \
+                                                                 "request.OpenCnOnPnRequest[\"tender\"]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"procurementMethodModalities\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_12_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["electronicAuctions"]["details"][0]["id"], 4)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert checking_uuid == True
+
+    @pytestrail.case("27198")
+    def test_27198_13_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["relatedLot"] = False
+        value_of_key = str(payload["tender"]["electronicAuctions"]["details"][0]["relatedLot"]).lower()
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.15.10.01"
+        assert message_from_kafka["errors"][0]["description"] == f"Electronic auctions contain an invalid related " \
+                                                                 f"lot: '{value_of_key}'."
+
+    @pytestrail.case("27198")
+    def test_27198_14_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"][0][
+            "eligibleMinimumDifference"]["amount"] = False
+        value_of_key = str(
+            payload["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"][0][
+                "eligibleMinimumDifference"]["amount"]).lower()
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == f"com.fasterxml.jackson.databind." \
+                                                                 f"JsonMappingException: Incorrect value of the " \
+                                                                 f"amount: '\"{value_of_key}\"'. The value must " \
+                                                                 f"be a real number. (through reference chain: " \
+                                                                 f"com.procurement.access.infrastructure.handler." \
+                                                                 f"v1.model.request.OpenCnOnPnRequest[\"tender\"]" \
+                                                                 f"->com.procurement.access.infrastructure.handler." \
+                                                                 f"v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 f"[\"electronicAuctions\"]->com.procurement." \
+                                                                 f"access.infrastructure.handler.v1.model.request." \
+                                                                 f"OpenCnOnPnRequest$Tender$ElectronicAuctions" \
+                                                                 f"[\"details\"]->java.util.ArrayList[0]->com." \
+                                                                 f"procurement.access.infrastructure.handler." \
+                                                                 f"v1.model.request.OpenCnOnPnRequest$Tender$" \
+                                                                 f"ElectronicAuctions$Detail[\"electronicAuction" \
+                                                                 f"Modalities\"]->java.util.ArrayList[0]->com." \
+                                                                 f"procurement.access.infrastructure.handler.v1." \
+                                                                 f"model.request.OpenCnOnPnRequest$Tender$" \
+                                                                 f"ElectronicAuctions$Detail$Modalities" \
+                                                                 f"[\"eligibleMinimumDifference\"]->com." \
+                                                                 f"procurement.access.infrastructure.handler." \
+                                                                 f"v1.model.request.OpenCnOnPnRequest$Tender$" \
+                                                                 f"ElectronicAuctions$Detail$Modalities$" \
+                                                                 f"EligibleMinimumDifference[\"amount\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_15_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"][0][
+            "eligibleMinimumDifference"]["currency"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.15.10.01"
+        assert message_from_kafka["errors"][0]["description"] == "Electronic auction with id: '1' contain invalid " \
+                                                                 "currency in 'EligibleMinimumDifference' attribute."
+
+    @pytestrail.case("27198")
+    def test_27198_16_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"procuringEntity\"]->com." \
+                                                                 "procurement.mdm.model.dto.data." \
+                                                                 "OrganizationReference[\"id\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_17_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["title"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto.data." \
+                                                                 "TenderTD[\"procuringEntity\"]->com.procurement." \
+                                                                 "mdm.model.dto.data.OrganizationReference" \
+                                                                 "[\"persones\"]->java.util.ArrayList[0]->" \
+                                                                 "com.procurement.mdm.model.dto.data." \
+                                                                 "Persone[\"title\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_18_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["name"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"procuringEntity\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.Organization" \
+                                                                 "Reference[\"persones\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "Persone[\"name\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_19_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["scheme"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data." \
+                                                                 "TD[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"procuringEntity\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.Organization" \
+                                                                 "Reference[\"persones\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "Persone[\"identifier\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.Identifier[\"scheme\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_20_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"procuringEntity\"]->" \
+                                                                 "com.procurement.mdm.model.dto.data.Organization" \
+                                                                 "Reference[\"persones\"]->java.util.ArrayList[0]" \
+                                                                 "->com.procurement.mdm.model.dto.data.Persone" \
+                                                                 "[\"identifier\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.Identifier[\"id\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_21_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["uri"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"procuringEntity\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.Organization" \
+                                                                 "Reference[\"persones\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "Persone[\"identifier\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.Identifier[\"uri\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_22_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"procuringEntity\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.Organization" \
+                                                                 "Reference[\"persones\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "Persone[\"businessFunctions\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.BusinessFunction[\"id\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_23_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["type"] = False
+        value_of_key = str(
+            payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["type"]).lower()
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data." \
+                                                                 "TD[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"procuringEntity\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.Organization" \
+                                                                 "Reference[\"persones\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "Persone[\"businessFunctions\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.BusinessFunction[\"type\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_24_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["jobTitle"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"procuringEntity\"]" \
+                                                                 "->com.procurement.mdm.model.dto.data." \
+                                                                 "OrganizationReference[\"persones\"]->java." \
+                                                                 "util.ArrayList[0]->com.procurement.mdm.model." \
+                                                                 "dto.data.Persone[\"businessFunctions\"]->" \
+                                                                 "java.util.ArrayList[0]->com.procurement.mdm." \
+                                                                 "model.dto.data.BusinessFunction[\"jobTitle\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_25_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["period"][
+            "startDate"] = False
+        value_of_key = str(
+            payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["period"][
+                "startDate"]).lower()
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: Text 'false' could not " \
+                                                                 "be parsed at index 0 (through reference chain: " \
+                                                                 "com.procurement.mdm.model.dto.data.TD[\"tender\"]" \
+                                                                 "->com.procurement.mdm.model.dto.data.TenderTD" \
+                                                                 "[\"procuringEntity\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.OrganizationReference" \
+                                                                 "[\"persones\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.mdm.model.dto.data.Persone" \
+                                                                 "[\"businessFunctions\"]->java.util.ArrayList[0]" \
+                                                                 "->com.procurement.mdm.model.dto.data." \
+                                                                 "BusinessFunction[\"period\"]->com.procurement." \
+                                                                 "mdm.model.dto.data.Period[\"startDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_26_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0][
+            "id"] = False
+        value_of_key = str(
+            payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0][
+                "id"]).lower()
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.14.00.14"
+        assert message_from_kafka["errors"][0]["description"] == f"Files not found: [{value_of_key}]"
+
+    @pytestrail.case("27198")
+    def test_27198_27_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0][
+            "documentType"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"procuringEntity\"]->" \
+                                                                 "com.procurement.mdm.model.dto.data." \
+                                                                 "OrganizationReference[\"persones\"]->java." \
+                                                                 "util.ArrayList[0]->com.procurement.mdm.model." \
+                                                                 "dto.data.Persone[\"businessFunctions\"]->" \
+                                                                 "java.util.ArrayList[0]->com.procurement.mdm." \
+                                                                 "model.dto.data.BusinessFunction[\"documents\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.mdm." \
+                                                                 "model.dto.data.Document[\"documentType\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_28_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0][
+            "title"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data." \
+                                                                 "TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"procuringEntity\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.Organization" \
+                                                                 "Reference[\"persones\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "Persone[\"businessFunctions\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.BusinessFunction[\"documents\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.Document[\"title\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_29_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0][
+            "description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"procuringEntity\"]" \
+                                                                 "->com.procurement.mdm.model.dto.data." \
+                                                                 "OrganizationReference[\"persones\"]->java." \
+                                                                 "util.ArrayList[0]->com.procurement.mdm.model." \
+                                                                 "dto.data.Persone[\"businessFunctions\"]->" \
+                                                                 "java.util.ArrayList[0]->com.procurement.mdm." \
+                                                                 "model.dto.data.BusinessFunction[\"documents\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.mdm." \
+                                                                 "model.dto.data.Document[\"description\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_30_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["criteria"][0]["id"], 4)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert checking_uuid == True
+
+    @pytestrail.case("27198")
+    def test_27198_31_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["title"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ev_release["releases"][0]["tender"]["criteria"][0]["title"] == str(
+            payload["tender"]["criteria"][0]["title"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_32_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["relatesTo"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "InvalidDefinitionException: Cannot construct " \
+                                                                 "instance of `com.procurement.access.domain.model." \
+                                                                 "enums.CriteriaRelatesTo`, problem: Unknown value " \
+                                                                 "for enumType com.procurement.access.domain.model." \
+                                                                 "enums.CriteriaRelatesTo: false, Allowed values " \
+                                                                 "are award, item, lot, qualification, tender, " \
+                                                                 "tenderer\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest[\"tender\"]" \
+                                                                 "->com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"criteria\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.criterion.CriterionRequest" \
+                                                                 "[\"relatesTo\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_33_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["classification"]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.10.79"
+        assert message_from_kafka["errors"][0]["description"] == "Invalid criteria value. FReq-1.1.1.31"
+
+    @pytestrail.case("27198")
+    def test_27198_34_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["classification"]["scheme"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.10.79"
+        assert message_from_kafka["errors"][0]["description"] == "Invalid criteria value. FReq-1.1.1.34 "
+
+    @pytestrail.case("27198")
+    def test_27198_35_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ev_release["releases"][0]["tender"]["criteria"][0]["description"] == str(
+            payload["tender"]["criteria"][0]["description"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_36_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["id"], 4)
+        assert checking_uuid == True
+
+    @pytestrail.case("27198")
+    def test_27198_37_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        checking_uuid = is_it_uuid(
+            ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["id"], 4)
+        assert checking_uuid == True
+
+    @pytestrail.case("27198")
+    def test_27198_38_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["title"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
+                   "title"] == str(
+            payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["title"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_39_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["dataType"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Unknown value for enumType com." \
+                                                                 "procurement.access.domain.model.enums." \
+                                                                 "RequirementDataType: false, Allowed values are " \
+                                                                 "boolean, string, number, integer (through " \
+                                                                 "reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"criteria\"]->java." \
+                                                                 "util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest[\"requirementGroups\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest$RequirementGroup" \
+                                                                 "[\"requirements\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_40_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["dataType"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: Unknown value for " \
+                                                                 "enumType com.procurement.access.domain.model." \
+                                                                 "enums.RequirementDataType: false, Allowed " \
+                                                                 "values are boolean, string, number, integer " \
+                                                                 "(through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"criteria\"]->java." \
+                                                                 "util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest[\"requirementGroups\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest$RequirementGroup" \
+                                                                 "[\"requirements\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_41_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][
+            0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
+                   "eligibleEvidences"][0]["id"] == str(
+            payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
+                "eligibleEvidences"][0]["id"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_42_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][
+            0]["title"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
+                   "eligibleEvidences"][0]["title"] == str(
+            payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
+                "eligibleEvidences"][0]["title"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_43_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][
+            0]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
+                   "eligibleEvidences"][0]["description"] == str(
+            payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
+                "eligibleEvidences"][0]["description"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_44_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][
+            0]["type"] = False
+        value_of_key = str(payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
+                               "eligibleEvidences"][0]["type"]).lower()
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0][
+                   "description"] == f"com.fasterxml.jackson.databind.JsonMappingException: Error of parsing " \
+                                     f"element of 'EligibleEvidenceType' enum. Invalid value '{value_of_key}'. " \
+                                     f"(through reference chain: com.procurement.access.infrastructure.handler.v1." \
+                                     f"model.request.OpenCnOnPnRequest[\"tender\"]->com.procurement.access." \
+                                     f"infrastructure.handler.v1.model.request.OpenCnOnPnRequest$Tender" \
+                                     f"[\"criteria\"]->java.util.ArrayList[0]->com.procurement.access." \
+                                     f"infrastructure.handler.v1.model.request.criterion.CriterionRequest" \
+                                     f"[\"requirementGroups\"]->java.util.ArrayList[0]->com.procurement." \
+                                     f"access.infrastructure.handler.v1.model.request.criterion.Criterion" \
+                                     f"Request$RequirementGroup[\"requirements\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_45_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][
+            0]["relatedDocument"]["id"] = False
+        value_of_key = str(payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
+                               "eligibleEvidences"][0]["type"]).lower()
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.10.79"
+        assert message_from_kafka["errors"][0]["description"] == "Invalid criteria value. FReq-1.1.1.38"
+
+    @pytestrail.case("27198")
+    def test_27198_46_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0]["maxValue"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: Invalid requirement " \
+                                                                 "value. Requirement.dataType mismatch with " \
+                                                                 "datatype in expectedValue || minValue || " \
+                                                                 "maxValue. (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]" \
+                                                                 "->com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"criteria\"]->java.util.ArrayList[3]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.criterion.CriterionRequest" \
+                                                                 "[\"requirementGroups\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.access.infrastructure." \
+                                                                 "handler.v1.model.request.criterion.Criterion" \
+                                                                 "Request$RequirementGroup[\"requirements\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_47_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0]["maxValue"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: Invalid requirement " \
+                                                                 "value. Requirement.dataType mismatch with " \
+                                                                 "datatype in expectedValue || minValue || " \
+                                                                 "maxValue. (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]" \
+                                                                 "->com.procurement.access.infrastructure." \
+                                                                 "handler.v1.model.request.OpenCnOnPnRequest$" \
+                                                                 "Tender[\"criteria\"]->java.util.ArrayList[3]" \
+                                                                 "->com.procurement.access.infrastructure." \
+                                                                 "handler.v1.model.request.criterion.Criterion" \
+                                                                 "Request[\"requirementGroups\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest$RequirementGroup" \
+                                                                 "[\"requirements\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_48_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0]["period"][
+            "startDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text 'false' could not be parsed at " \
+                                                                 "index 0 (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"criteria\"]->java.util.ArrayList[3]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.criterion.CriterionRequest" \
+                                                                 "[\"requirementGroups\"]->java.util.ArrayList[0]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.criterion.CriterionRequest$" \
+                                                                 "RequirementGroup[\"requirements\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_49_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0]["period"][
+            "endDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text 'false' could not be parsed at " \
+                                                                 "index 0 (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"criteria\"]->java.util.ArrayList[3]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.criterion.CriterionRequest" \
+                                                                 "[\"requirementGroups\"]->java.util.ArrayList[0]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.criterion.CriterionRequest$" \
+                                                                 "RequirementGroup[\"requirements\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_50_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["conversions"][0]["id"], 4)
+        assert checking_uuid == True
+
+    @pytestrail.case("27198")
+    def test_27198_51_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["relatesTo"] = False
+        value_of_key = str(payload["tender"]["conversions"][0]["relatesTo"]).lower()
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == f"com.fasterxml.jackson.databind.exc." \
+                                                                 f"InvalidDefinitionException: Cannot construct " \
+                                                                 f"instance of `com.procurement.access.domain." \
+                                                                 f"model.enums.ConversionsRelatesTo`, problem: " \
+                                                                 f"Unknown value for enumType com.procurement." \
+                                                                 f"access.domain.model.enums.ConversionsRelatesTo: " \
+                                                                 f"{value_of_key}, Allowed values are requirement, " \
+                                                                 f"observation, option\n at [Source: UNKNOWN; line: " \
+                                                                 f"-1, column: -1] (through reference chain: com." \
+                                                                 f"procurement.access.infrastructure.handler." \
+                                                                 f"v1.model.request.OpenCnOnPnRequest[\"tender\"]" \
+                                                                 f"->com.procurement.access.infrastructure.handler." \
+                                                                 f"v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 f"[\"conversions\"]->java.util.ArrayList[0]->" \
+                                                                 f"com.procurement.access.infrastructure.handler." \
+                                                                 f"v1.model.request.ConversionRequest[\"relatesTo\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_52_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["relatedItem"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.10.80"
+        assert message_from_kafka["errors"][0]["description"] == f"Invalid conversion value. Conversion relates " \
+                                                                 f"to requirement that does not exists"
+
+    @pytestrail.case("27198")
+    def test_27198_53_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["rationale"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert \
+            ev_release["releases"][0]["tender"]["conversions"][0]["rationale"] == \
+            str(payload["tender"]["conversions"][0]["rationale"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_54_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert \
+            ev_release["releases"][0]["tender"]["conversions"][0]["description"] == \
+            str(payload["tender"]["conversions"][0]["description"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_55_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["conversions"][0]["id"], 4)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert checking_uuid == True
+
+    @pytestrail.case("27198")
+    def test_27198_56_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["coefficients"][0]["coefficient"] = False
+        value_of_key = str(payload["tender"]["conversions"][0]["coefficients"][0]["coefficient"]).lower()
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == f"com.fasterxml.jackson.databind." \
+                                                                 f"JsonMappingException: Incorrect coefficient: " \
+                                                                 f"'{value_of_key}'. Invalid type. Number or " \
+                                                                 f"Integer required (through reference chain: " \
+                                                                 f"com.procurement.access.infrastructure.handler." \
+                                                                 f"v1.model.request.OpenCnOnPnRequest[\"tender\"]" \
+                                                                 f"->com.procurement.access.infrastructure." \
+                                                                 f"handler.v1.model.request.OpenCnOnPnRequest$" \
+                                                                 f"Tender[\"conversions\"]->java.util.ArrayList" \
+                                                                 f"[0]->com.procurement.access.infrastructure." \
+                                                                 f"handler.v1.model.request.ConversionRequest" \
+                                                                 f"[\"coefficients\"]->java.util.ArrayList[0]->" \
+                                                                 f"com.procurement.access.infrastructure.handler." \
+                                                                 f"v1.model.request.ConversionRequest$Coefficient" \
+                                                                 f"[\"coefficient\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_57_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"id\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_58_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["internalId"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"internalId\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_59_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["title"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"title\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_60_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"description\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_61_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["value"]["amount"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "MismatchedInputException: Cannot deserialize " \
+                                                                 "instance of `java.math.BigDecimal` out of " \
+                                                                 "VALUE_FALSE token\n at [Source: UNKNOWN; " \
+                                                                 "line: -1, column: -1] (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data." \
+                                                                 "TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model." \
+                                                                 "dto.data.LotTD[\"value\"]->com.procurement." \
+                                                                 "mdm.model.dto.data.Value[\"amount\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_62_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["value"]["currency"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"value\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.Value[\"currency\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_63_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["contractPeriod"]["startDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"contractPeriod\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.Contract" \
+                                                                 "Period[\"startDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_64_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["contractPeriod"]["endDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
+                                                                 "->com.procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"contractPeriod\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.ContractPeriod[\"endDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_65_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["streetAddress"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"placeOfPerformance\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.PlaceOf" \
+                                                                 "Performance[\"address\"]->com.procurement." \
+                                                                 "mdm.model.dto.data.Address[\"streetAddress\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_66_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["postalCode"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: (was com.procurement.mdm.exception." \
+                                                                 "InErrorException) (through reference chain: " \
+                                                                 "com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"lots\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"placeOfPerformance\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.PlaceOfPerformance[\"address\"]" \
+                                                                 "->com.procurement.mdm.model.dto.data." \
+                                                                 "Address[\"postalCode\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_67_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"placeOfPerformance\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.PlaceOf" \
+                                                                 "Performance[\"address\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.Address[\"addressDetails\"]->" \
+                                                                 "com.procurement.mdm.model.dto.data.Address" \
+                                                                 "Details[\"country\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.CountryDetails[\"id\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_68_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"placeOfPerformance\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.PlaceOf" \
+                                                                 "Performance[\"address\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.Address[\"addressDetails\"]->" \
+                                                                 "com.procurement.mdm.model.dto.data.Address" \
+                                                                 "Details[\"region\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.RegionDetails[\"id\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_69_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
+                                                                 "->com.procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"placeOfPerformance\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.PlaceOfPerformance[\"address\"]->" \
+                                                                 "com.procurement.mdm.model.dto.data.Address" \
+                                                                 "[\"addressDetails\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.AddressDetails[\"locality\"]->" \
+                                                                 "com.procurement.mdm.model.dto.data." \
+                                                                 "LocalityDetails[\"id\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_70_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data." \
+                                                                 "TD[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"lots\"]->java.util.Array" \
+                                                                 "List[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "LotTD[\"placeOfPerformance\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.PlaceOf" \
+                                                                 "Performance[\"address\"]->com.procurement." \
+                                                                 "mdm.model.dto.data.Address[\"addressDetails\"]" \
+                                                                 "->com.procurement.mdm.model.dto.data.Address" \
+                                                                 "Details[\"locality\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.LocalityDetails[\"scheme\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_71_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"][
+            "description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"lots\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "LotTD[\"placeOfPerformance\"]->com.procurement." \
+                                                                 "mdm.model.dto.data.PlaceOfPerformance" \
+                                                                 "[\"address\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.Address[\"addressDetails\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.AddressDetails" \
+                                                                 "[\"locality\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.LocalityDetails[\"description\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_72_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"lots\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"placeOfPerformance\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.PlaceOfPerformance" \
+                                                                 "[\"description\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_73_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"options\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "LotTD$Option[\"description\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_74_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0]["period"]["durationInDays"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "MismatchedInputException: Cannot deserialize " \
+                                                                 "instance of `java.lang.Integer` out of VALUE_" \
+                                                                 "FALSE token\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.mdm.model.dto.data.TD[\"tender\"]" \
+                                                                 "->com.procurement.mdm.model.dto.data.TenderTD" \
+                                                                 "[\"lots\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"options\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD$Option" \
+                                                                 "[\"period\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD$Period[\"durationInDays\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_75_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0]["period"]["startDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data." \
+                                                                 "TD[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
+                                                                 "->com.procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"options\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD$Option" \
+                                                                 "[\"period\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD$Period[\"startDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_76_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0]["period"]["endDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"lots\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"options\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD$Option" \
+                                                                 "[\"period\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD$Period[\"endDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_77_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0]["period"]["maxExtentDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"lots\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"options\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD$Option" \
+                                                                 "[\"period\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD$Period[\"maxExtentDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_78_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["recurrence"]["dates"][0]["startDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data." \
+                                                                 "TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"recurrence\"]->com.procurement." \
+                                                                 "mdm.model.dto.data.LotTD$Recurrence[\"dates\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.mdm." \
+                                                                 "model.dto.data.LotTD$Recurrence$Date[\"startDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_79_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["recurrence"]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"lots\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "LotTD[\"recurrence\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.LotTD$Recurrence[\"description\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_80_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
+                                                                 "->com.procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"renewal\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.LotTD$Renewal[\"description\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_81_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["minimumRenewals"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "MismatchedInputException: Cannot deserialize " \
+                                                                 "instance of `java.lang.Integer` out of VALUE_" \
+                                                                 "FALSE token\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.mdm.model.dto.data.TD[\"tender\"]" \
+                                                                 "->com.procurement.mdm.model.dto.data.TenderTD" \
+                                                                 "[\"lots\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD[\"renewal\"]" \
+                                                                 "->com.procurement.mdm.model.dto.data.LotTD$" \
+                                                                 "Renewal[\"minimumRenewals\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_82_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["maximumRenewals"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "MismatchedInputException: Cannot deserialize " \
+                                                                 "instance of `java.lang.Integer` out of VALUE_" \
+                                                                 "FALSE token\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.mdm.model.dto.data.TD[\"tender\"]" \
+                                                                 "->com.procurement.mdm.model.dto.data.TenderTD" \
+                                                                 "[\"lots\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"renewal\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.LotTD$Renewal[\"maximumRenewals\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_83_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["period"]["durationInDays"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "MismatchedInputException: Cannot deserialize " \
+                                                                 "instance of `java.lang.Integer` out of VALUE_" \
+                                                                 "FALSE token\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.mdm.model.dto.data.TD[\"tender\"]->" \
+                                                                 "com.procurement.mdm.model.dto.data.TenderTD" \
+                                                                 "[\"lots\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"renewal\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD$Renewal[\"period\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD$Period" \
+                                                                 "[\"durationInDays\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_84_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["period"]["startDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data." \
+                                                                 "TD[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"lots\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data.LotTD" \
+                                                                 "[\"renewal\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD$Renewal[\"period\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD$" \
+                                                                 "Period[\"startDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_85_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["period"]["endDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"renewal\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.LotTD$Renewal[\"period\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD$Period" \
+                                                                 "[\"endDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_86_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["period"]["maxExtentDate"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.LotTD[\"renewal\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.LotTD$Renewal[\"period\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.LotTD$Period" \
+                                                                 "[\"maxExtentDate\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_87_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data." \
+                                                                 "TD[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"items\"]->java.util.ArrayList[0]" \
+                                                                 "->com.procurement.mdm.model.dto.data.ItemTD" \
+                                                                 "[\"id\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_88_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["internalId"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"items\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.ItemTD[\"internalId\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_89_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["classification"]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.10.54"
+        assert message_from_kafka["errors"][0]["description"] == "The calculated CPV code does not match the " \
+                                                                 "CPV code in the tender."
+
+    @pytestrail.case("27198")
+    def test_27198_90_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through0 " \
+                                                                 "reference chain: com.procurement.mdm.model." \
+                                                                 "dto.data.TD[\"tender\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.TenderTD[\"items\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.ItemTD[\"additionalClassifications\"]->" \
+                                                                 "java.util.ArrayList[0]->com.procurement.mdm." \
+                                                                 "model.dto.data.ClassificationTD[\"id\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_91_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["quantity"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "MismatchedInputException: Cannot deserialize " \
+                                                                 "instance of `java.math.BigDecimal` out of " \
+                                                                 "VALUE_FALSE token\n at [Source: UNKNOWN; " \
+                                                                 "line: -1, column: -1] (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"items\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "ItemTD[\"quantity\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_92_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["unit"]["id"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"items\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.ItemTD[\"unit\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.ItemUnitTD[\"id\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_93_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement." \
+                                                                 "mdm.exception.InErrorException) (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"items\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.ItemTD[\"description\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_94_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["relatedLot"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.20.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: (was com.procurement.mdm." \
+                                                                 "exception.InErrorException) (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"items\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "ItemTD[\"relatedLot\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_95_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["documentType"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.00"
+        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "InvalidDefinitionException: Cannot construct " \
+                                                                 "instance of `com.procurement.access.domain." \
+                                                                 "model.enums.DocumentType`, problem: Unknown " \
+                                                                 "value for enumType com.procurement.access." \
+                                                                 "domain.model.enums.DocumentType: false, Allowed " \
+                                                                 "values are evaluationCriteria, " \
+                                                                 "eligibilityCriteria, billOfQuantity, " \
+                                                                 "illustration, marketStudies, tenderNotice, " \
+                                                                 "biddingDocuments, procurementPlan, " \
+                                                                 "technicalSpecifications, contractDraft, " \
+                                                                 "hearingNotice, clarifications, " \
+                                                                 "environmentalImpact, " \
+                                                                 "assetAndLiabilityAssessment, riskProvisions, " \
+                                                                 "complaints, needsAssessment, " \
+                                                                 "feasibilityStudy, projectPlan, " \
+                                                                 "conflictOfInterest, cancellationDetails, " \
+                                                                 "shortlistedFirms, evaluationReports, " \
+                                                                 "contractArrangements, contractGuarantees\n at " \
+                                                                 "[Source: UNKNOWN; line: -1, column: -1] " \
+                                                                 "(through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"documents\"]->java." \
+                                                                 "util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.document." \
+                                                                 "DocumentRequest[\"documentType\"])"
+
+    @pytestrail.case("27198")
+    def test_27198_96_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["id"] = False
+        value_of_key = str(payload["tender"]["documents"][0]["id"]).lower()
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.14.00.14"
+        assert message_from_kafka["errors"][0]["description"] == f"Files not found: [{value_of_key}]"
+
+    @pytestrail.case("27198")
+    def test_27198_97_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["title"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ev_release["releases"][0]["tender"]["documents"][0]["title"] == str(
+            payload["tender"]["documents"][0]["title"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_98_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["description"] = False
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ev_release["releases"][0]["tender"]["documents"][0]["description"] == str(
+            payload["tender"]["documents"][0]["description"]).lower()
+
+    @pytestrail.case("27198")
+    def test_27198_99_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["relatedLots"] = [False]
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.03.10.06"
+        assert message_from_kafka["errors"][0]["description"] == "Invalid documents related lots."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -57,7 +57,7 @@ payload_cnonpn_auction_full_data_model = {
             ]
         },
         "procuringEntity": {
-            "id": "MD-IDNO-2",
+            "id": "MD-IDNO-4",
             "persones": [
                 {
                     "title": "title of person",
@@ -341,7 +341,7 @@ payload_cnonpn_auction_full_data_model = {
         "documents": [
             {
                 "documentType": "illustration",
-                "id": document_two_was_uploaded["data"]["id"],
+                "id": document_one_was_uploaded["data"]["id"],
                 "title": "title of document 1",
                 "description": "description of of document 1",
                 "relatedLots": [
@@ -353,6 +353,15 @@ payload_cnonpn_auction_full_data_model = {
                 "id": document_three_was_uploaded["data"]["id"],
                 "title": "title of document 2",
                 "description": "description of of document 2",
+                "relatedLots": [
+                    "1"
+                ]
+            },
+{
+                "documentType": "illustration",
+                "id": document_two_was_uploaded["data"]["id"],
+                "title": "title of document 1",
+                "description": "description of of document 1",
                 "relatedLots": [
                     "1"
                 ]

@@ -2495,7 +2495,7 @@ def insert_into_db_create_pn_full_data_model(cpid, ei_id, additional_value, star
                                              classification_id="45100000-8", main_procurement_category="works",
                                              buyer_identifier_scheme="MD-IDNO", buyer_id="1",
                                              payer_identifier_scheme="MD-IDNO", buyer_name="LLC Dmitro",
-                                             procuring_entity_identifier_scheme="MD-IDNO", procuring_entity_id="2",
+                                             procuring_entity_identifier_scheme="MD-IDNO", procuring_entity_id="4",
                                              procuring_entity_name="LLC Petrovich",
                                              procuring_entity_additional_id="id of additional",
                                              procuring_entity_additional_scheme="scheme of additional",
@@ -3545,7 +3545,9 @@ def insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value
     json_access_tender = {
         "ocid": cpid,
         "planning": {
+            "rationale": "reason for budget",
             "budget": {
+                "description": "description of budget",
                 "amount": {
                     "amount": amount,
                     "currency": currency
@@ -3686,6 +3688,7 @@ def insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value
         "initiationType": "tender",
         "planning": {
             "budget": {
+                "description": "description of budget",
                 "amount": {
                     "amount": amount,
                     "currency": currency
@@ -3713,7 +3716,8 @@ def insert_into_db_create_pn_obligatory_data_model(cpid, ei_id, additional_value
                             "uri": european_project_uri
                         }
                     }]
-            }
+            },
+            "rationale": "reason for budget",
         },
         "tender": {
             "id": "6e8e42b5-f01d-44b1-9896-a8383a2351e4",
