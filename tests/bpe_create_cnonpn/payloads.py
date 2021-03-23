@@ -77,7 +77,7 @@ payload_cnonpn_auction_full_data_model = {
                             },
                             "documents": [
                                 {
-                                    "id": document_one_was_uploaded["data"]["id"],
+                                    "id": document_one_was_uploaded[0]["data"]["id"],
                                     "documentType": "regulatoryDocument",
                                     "title": "title of businessFunctions document",
                                     "description": "description of businessFunctions document"
@@ -105,8 +105,8 @@ payload_cnonpn_auction_full_data_model = {
                             {
                                 "id": "1",
                                 "title": "Your answer?",
-                                "dataType": "boolean",
-                                "expectedValue": False,
+                                "dataType": "string",
+                                "expectedValue": "string",
                                 "eligibleEvidences": [
                                     {
                                         "id": "1",
@@ -114,7 +114,7 @@ payload_cnonpn_auction_full_data_model = {
                                         "description": "description of eligibleEvidences 1",
                                         "type": "document",
                                         "relatedDocument": {
-                                            "id": document_two_was_uploaded["data"]["id"]
+                                            "id": document_two_was_uploaded[0]["data"]["id"]
                                         }
                                     }
                                 ]
@@ -341,7 +341,7 @@ payload_cnonpn_auction_full_data_model = {
         "documents": [
             {
                 "documentType": "illustration",
-                "id": document_one_was_uploaded["data"]["id"],
+                "id": document_one_was_uploaded[0]["data"]["id"],
                 "title": "title of document 1",
                 "description": "description of of document 1",
                 "relatedLots": [
@@ -350,7 +350,7 @@ payload_cnonpn_auction_full_data_model = {
             },
             {
                 "documentType": "illustration",
-                "id": document_three_was_uploaded["data"]["id"],
+                "id": document_three_was_uploaded[0]["data"]["id"],
                 "title": "title of document 2",
                 "description": "description of of document 2",
                 "relatedLots": [
@@ -359,7 +359,7 @@ payload_cnonpn_auction_full_data_model = {
             },
 {
                 "documentType": "illustration",
-                "id": document_two_was_uploaded["data"]["id"],
+                "id": document_two_was_uploaded[0]["data"]["id"],
                 "title": "title of document 1",
                 "description": "description of of document 1",
                 "relatedLots": [
@@ -430,7 +430,7 @@ payload_cnonpn_obligatory_data_model = {
         "documents": [
             {
                 "documentType": "illustration",
-                "id": document_one_was_uploaded["data"]["id"],
+                "id": document_one_was_uploaded[0]["data"]["id"],
                 "title": "title of document"
             }
         ]

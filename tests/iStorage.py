@@ -100,7 +100,7 @@ class Document:
         uploading = requests.post(
             url=f"{host}:9131/storage/upload/{self.doc_id}",
             files=file).json()
-        return uploading
+        return uploading, self.filename, self.m.hexdigest(), self.weight
 
 # class Document:
 #     def __init__(self, path, filename):

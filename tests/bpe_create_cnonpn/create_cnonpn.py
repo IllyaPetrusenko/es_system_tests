@@ -3,19 +3,29 @@ import json
 import time
 
 import requests
-
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
-from tests.bpe_create_cnonpn.payloads import payload_cnonpn_auction_full_data_model
 from tests.cassandra_inserts_into_Database import insert_into_db_create_pn_full_data_model, \
     insert_into_db_create_pn_obligatory_data_model
-from tests.iStorage import Document
 from tests.kafka_messages import get_message_from_kafka
 from tests.presets import create_cn, set_instance_for_request
 from useful_functions import prepared_cpid, get_contract_period, get_new_period
+from cassandra.cluster import Cluster
+from cassandra.auth import PlainTextAuthProvider
+
+from tests.presets import set_instance_for_cassandra
 
 contract_period = get_contract_period()
 period = get_new_period()
 
+password_dev = '6AH7vbrkMWnfK'
+password_sandbox = 'brT4Kn27RQs'
+cluster_dev = '10.0.20.104'
+cluster_sandbox = '10.0.10.104'
+
+instance = set_instance_for_cassandra()
+username = instance[1]
+password = instance[2]
+host = instance[0]
 
 class CNonPN:
     def __init__(self):
@@ -344,9 +354,18 @@ class CNonPN:
         return cnonpn
 
     def get_message_from_kafka(self):
-        time.sleep(3)
+        time.sleep(3.3)
         message_from_kafka = get_message_from_kafka(self.x_operation_id)
         return message_from_kafka
+
+    def delete_auction_from_database(self, cpid):
+        self.cpid = cpid
+        time.sleep(3)
+        auth_provider = PlainTextAuthProvider(username=username, password=password)
+        cluster = Cluster([host], auth_provider=auth_provider)
+        session = cluster.connect('auctions')
+        del_auction_from_database = session.execute(f"DELETE FROM auctions WHERE cpid='{cpid}';").one()
+        return del_auction_from_database
 
 # This is example of creating CNonPn
 # c = CNonPN()

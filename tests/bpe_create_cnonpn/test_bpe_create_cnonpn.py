@@ -12,6 +12,7 @@ from tests.authorization import get_x_operation_id, get_access_token_for_platfor
 from tests.bpe_create_cnonpn.create_cnonpn import CNonPN
 from tests.bpe_create_cnonpn.payloads import payload_cnonpn_auction_full_data_model, \
     payload_cnonpn_obligatory_data_model
+from tests.iStorage import get_hash_md5, get_weught, Document
 from tests.kafka_messages import get_message_from_kafka
 from tests.presets import create_cn, set_instance_for_request
 from useful_functions import prepared_cpid, get_human_date_in_utc_format, is_it_uuid, get_access_token_for_platform_two
@@ -25,6 +26,7 @@ class TestBpeCreateCN(object):
         pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
         payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
         create_cn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        cn.delete_auction_from_database(cpid)
         assert create_cn_response.text == "ok"
         assert create_cn_response.status_code == 202
 
@@ -36,6 +38,7 @@ class TestBpeCreateCN(object):
         payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
         cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert message_from_kafka["data"]["ocid"] == cpid
         assert message_from_kafka["data"]["url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}"
 
@@ -49,6 +52,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["status"] == "active"
         assert ev_release["releases"][0]["tender"]["statusDetails"] == "clarification"
 
@@ -62,6 +66,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tag"] == ["tender"]
 
     @pytestrail.case("27194")
@@ -78,7 +83,7 @@ class TestBpeCreateCN(object):
         ev_release_id = ev_release['releases'][0]['id']
         ev_release_timestamp = int(ev_release_id[46:59])
         date_from_timestamp = get_human_date_in_utc_format(ev_release_timestamp)
-
+        cn.delete_auction_from_database(cpid)
         assert ev_release_id[0:45] == message_from_kafka["data"]["outcomes"]["ev"][0]["id"]
         assert ev_release['releases'][0]['date'] == date_from_timestamp[0]
         assert ev_release['releases'][0][
@@ -91,6 +96,7 @@ class TestBpeCreateCN(object):
         pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
         payload = copy.deepcopy(payload_cnonpn_obligatory_data_model)
         create_cn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        cn.delete_auction_from_database(cpid)
         assert create_cn_response.text == "ok"
         assert create_cn_response.status_code == 202
 
@@ -102,6 +108,7 @@ class TestBpeCreateCN(object):
         payload = copy.deepcopy(payload_cnonpn_obligatory_data_model)
         cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert message_from_kafka["data"]["ocid"] == cpid
         assert message_from_kafka["data"]["url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}"
 
@@ -120,7 +127,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
-
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["awardCriteria"] == payload["tender"]["awardCriteria"]
         assert \
@@ -200,6 +207,7 @@ class TestBpeCreateCN(object):
         pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
         payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
         create_cn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        cn.delete_auction_from_database(cpid)
         assert create_cn_response.text == "ok"
         assert create_cn_response.status_code == 202
 
@@ -211,6 +219,7 @@ class TestBpeCreateCN(object):
         payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
         cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert message_from_kafka["data"]["ocid"] == cpid
         assert message_from_kafka["data"]["url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}"
 
@@ -224,6 +233,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["title"] == "Evaluation"
 
     @pytestrail.case("27206")
@@ -236,6 +246,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["description"] == "Evaluation stage of contracting process"
 
     @pytestrail.case("27206")
@@ -248,6 +259,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["procurementMethodRationale"] == payload["tender"][
             "procurementMethodRationale"]
 
@@ -261,6 +273,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["procurementMethodRationale"] == payload["tender"][
             "procurementMethodRationale"]
 
@@ -274,6 +287,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["awardCriteria"] == payload["tender"][
             "awardCriteria"]
 
@@ -287,6 +301,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["awardCriteriaDetails"] == payload["tender"][
             "awardCriteriaDetails"]
 
@@ -300,6 +315,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["tenderPeriod"]["endDate"] == \
                payload["tender"]["tenderPeriod"]["endDate"]
 
@@ -313,6 +329,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["enquiryPeriod"]["endDate"] == \
                payload["tender"]["enquiryPeriod"]["endDate"]
 
@@ -327,6 +344,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["electronicAuctions"]["details"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -341,6 +359,7 @@ class TestBpeCreateCN(object):
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(
             ev_release["releases"][0]["tender"]["electronicAuctions"]["details"][0]["relatedLot"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -353,6 +372,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"][0][
                 "eligibleMinimumDifference"]["amount"] == \
@@ -369,6 +389,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"][0][
                 "eligibleMinimumDifference"]["currency"] == \
@@ -394,6 +415,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["id"] == payload["tender"]["procuringEntity"]["id"]
 
     @pytestrail.case("27206")
@@ -415,6 +437,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["persones"][0]["title"] == payload["tender"]["procuringEntity"]["persones"][0][
             "title"]
 
@@ -437,6 +460,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["persones"][0]["name"] == payload["tender"]["procuringEntity"]["persones"][0][
             "name"]
 
@@ -459,6 +483,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["persones"][0]["identifier"]["scheme"] == \
                payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["scheme"]
 
@@ -481,6 +506,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["persones"][0]["identifier"]["id"] == \
                payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["id"]
 
@@ -503,6 +529,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["persones"][0]["identifier"]["uri"] == \
                payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["uri"]
 
@@ -525,6 +552,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["persones"][0]["businessFunctions"][0]["id"] == \
                payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["id"]
 
@@ -547,6 +575,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["persones"][0]["businessFunctions"][0]["type"] == \
                payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["type"]
 
@@ -569,6 +598,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["persones"][0]["businessFunctions"][0]["jobTitle"] == \
                payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["jobTitle"]
 
@@ -591,6 +621,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["persones"][0]["businessFunctions"][0]["period"]["startDate"] == \
                payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["period"]["startDate"]
 
@@ -613,6 +644,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert procuring_entity_obj[0]["persones"][0]["businessFunctions"][0]["documents"][0]["id"] == \
                payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["id"]
 
@@ -635,6 +667,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert \
             procuring_entity_obj[0]["persones"][0]["businessFunctions"][0]["documents"][0]["documentType"] == \
             payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["documentType"]
@@ -658,6 +691,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert \
             procuring_entity_obj[0]["persones"][0]["businessFunctions"][0]["documents"][0]["title"] == \
             payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["title"]
@@ -681,6 +715,7 @@ class TestBpeCreateCN(object):
         for p in ms_release["releases"][0]["parties"]:
             if p["roles"] == ["procuringEntity"]:
                 procuring_entity_obj.append(p)
+        cn.delete_auction_from_database(cpid)
         assert \
             procuring_entity_obj[0]["persones"][0]["businessFunctions"][0]["documents"][0]["description"] == \
             payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["description"]
@@ -696,6 +731,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["criteria"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -708,6 +744,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["criteria"][0]["title"] == payload["tender"]["criteria"][0]["title"]
 
     @pytestrail.case("27206")
@@ -720,6 +757,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["criteria"][0]["relatesTo"] == payload["tender"]["criteria"][0][
             "relatesTo"]
 
@@ -733,6 +771,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["criteria"][0]["classification"]["id"] == \
                payload["tender"]["criteria"][0]["classification"]["id"]
 
@@ -746,6 +785,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["criteria"][0]["classification"]["scheme"] == \
                payload["tender"]["criteria"][0]["classification"]["scheme"]
 
@@ -759,6 +799,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["criteria"][0]["description"] == \
                payload["tender"]["criteria"][0]["description"]
 
@@ -773,6 +814,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -787,6 +829,7 @@ class TestBpeCreateCN(object):
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(
             ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -799,6 +842,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["title"] \
                == payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["title"]
 
@@ -812,6 +856,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["dataType"] \
             == payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["dataType"]
@@ -826,6 +871,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
                 "expectedValue"] == payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
@@ -841,6 +887,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0][
                 "minValue"] == payload["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0][
@@ -856,6 +903,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0][
                 "maxValue"] == payload["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0][
@@ -871,6 +919,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
                 "eligibleEvidences"][0]["id"] == \
@@ -886,6 +935,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
                 "eligibleEvidences"][0]["title"] == \
@@ -901,6 +951,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
                 "eligibleEvidences"][0]["description"] == \
@@ -917,6 +968,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
                 "eligibleEvidences"][0]["type"] == \
@@ -933,6 +985,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
                 "eligibleEvidences"][0]["relatedDocument"]["id"] == \
@@ -949,6 +1002,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0][
                 "period"]["startDate"] == \
@@ -964,6 +1018,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0][
                 "period"]["endDate"] == \
@@ -980,6 +1035,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["conversions"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -992,6 +1048,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["conversions"][0]["relatesTo"] == \
             payload["tender"]["conversions"][0]["relatesTo"]
@@ -1007,6 +1064,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["conversions"][0]["relatedItem"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -1019,6 +1077,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["conversions"][0]["rationale"] == \
             payload["tender"]["conversions"][0]["rationale"]
@@ -1033,6 +1092,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["conversions"][0]["description"] == \
             payload["tender"]["conversions"][0]["description"]
@@ -1048,6 +1108,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["conversions"][0]["coefficients"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -1060,6 +1121,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["conversions"][0]["coefficients"][0]["value"] == \
                payload["tender"]["conversions"][0]["coefficients"][0]["value"]
 
@@ -1073,6 +1135,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["conversions"][0]["coefficients"][0]["coefficient"] == \
                payload["tender"]["conversions"][0]["coefficients"][0]["coefficient"]
 
@@ -1087,6 +1150,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["lots"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -1099,6 +1163,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["lots"][0]["internalId"] == \
                payload["tender"]["lots"][0]["internalId"]
 
@@ -1112,6 +1177,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["lots"][0]["title"] == \
                payload["tender"]["lots"][0]["title"]
 
@@ -1125,6 +1191,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["lots"][0]["description"] == \
                payload["tender"]["lots"][0]["description"]
 
@@ -1138,6 +1205,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["lots"][0]["value"]["amount"] == \
                payload["tender"]["lots"][0]["value"]["amount"]
 
@@ -1151,6 +1219,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["lots"][0]["value"]["currency"] == \
                payload["tender"]["lots"][0]["value"]["currency"]
 
@@ -1164,6 +1233,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["lots"][0]["contractPeriod"]["startDate"] == \
                payload["tender"]["lots"][0]["contractPeriod"]["startDate"]
 
@@ -1177,6 +1247,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["lots"][0]["contractPeriod"]["endDate"] == \
                payload["tender"]["lots"][0]["contractPeriod"]["endDate"]
 
@@ -1190,6 +1261,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["streetAddress"] == \
                payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["streetAddress"]
 
@@ -1203,6 +1275,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["postalCode"] == \
                payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["postalCode"]
 
@@ -1216,6 +1289,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
                 "country"][
@@ -1232,6 +1306,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"][
                 "id"] == payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]["id"]
@@ -1251,6 +1326,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
                 "locality"][
@@ -1272,6 +1348,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
                 "locality"]["scheme"] == \
@@ -1292,6 +1369,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
                 "locality"]["description"] == \
@@ -1307,6 +1385,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["description"] == \
             payload["tender"]["lots"][0]["placeOfPerformance"]["description"]
@@ -1321,6 +1400,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["hasOptions"] == \
             payload["tender"]["lots"][0]["hasOptions"]
@@ -1335,6 +1415,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["options"][0]["description"] == \
             payload["tender"]["lots"][0]["options"][0]["description"]
@@ -1349,6 +1430,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["options"][0]["period"]["durationInDays"] == \
             payload["tender"]["lots"][0]["options"][0]["period"]["durationInDays"]
@@ -1363,6 +1445,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["options"][0]["period"]["startDate"] == \
             payload["tender"]["lots"][0]["options"][0]["period"]["startDate"]
@@ -1377,6 +1460,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["options"][0]["period"]["endDate"] == \
             payload["tender"]["lots"][0]["options"][0]["period"]["endDate"]
@@ -1391,6 +1475,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["options"][0]["period"]["maxExtentDate"] == \
             payload["tender"]["lots"][0]["options"][0]["period"]["maxExtentDate"]
@@ -1405,6 +1490,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["hasRecurrence"] == \
             payload["tender"]["lots"][0]["hasRecurrence"]
@@ -1419,6 +1505,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["recurrence"]["dates"][0]["startDate"] == \
             payload["tender"]["lots"][0]["recurrence"]["dates"][0]["startDate"]
@@ -1433,6 +1520,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["recurrence"]["description"] == \
             payload["tender"]["lots"][0]["recurrence"]["description"]
@@ -1447,6 +1535,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["hasRenewal"] == \
             payload["tender"]["lots"][0]["hasRenewal"]
@@ -1461,6 +1550,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["renewal"]["description"] == \
             payload["tender"]["lots"][0]["renewal"]["description"]
@@ -1475,6 +1565,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["renewal"]["minimumRenewals"] == \
             payload["tender"]["lots"][0]["renewal"]["minimumRenewals"]
@@ -1489,6 +1580,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["renewal"]["maximumRenewals"] == \
             payload["tender"]["lots"][0]["renewal"]["maximumRenewals"]
@@ -1503,6 +1595,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["renewal"]["period"]["durationInDays"] == \
             payload["tender"]["lots"][0]["renewal"]["period"]["durationInDays"]
@@ -1517,6 +1610,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["renewal"]["period"]["startDate"] == \
             payload["tender"]["lots"][0]["renewal"]["period"]["startDate"]
@@ -1531,6 +1625,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["renewal"]["period"]["endDate"] == \
             payload["tender"]["lots"][0]["renewal"]["period"]["endDate"]
@@ -1545,6 +1640,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["lots"][0]["renewal"]["period"]["maxExtentDate"] == \
             payload["tender"]["lots"][0]["renewal"]["period"]["maxExtentDate"]
@@ -1560,6 +1656,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["items"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -1572,6 +1669,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["items"][0]["internalId"] == \
             payload["tender"]["items"][0]["internalId"]
@@ -1586,6 +1684,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["items"][0]["classification"]["id"] == \
             payload["tender"]["items"][0]["classification"]["id"]
@@ -1600,6 +1699,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["id"] == \
             payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
@@ -1614,6 +1714,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["items"][0]["quantity"] == payload["tender"]["items"][0]["quantity"]
 
@@ -1627,6 +1728,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["items"][0]["unit"]["id"] == \
             payload["tender"]["items"][0]["unit"]["id"]
@@ -1641,6 +1743,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["items"][0]["description"] == \
             payload["tender"]["items"][0]["description"]
@@ -1656,6 +1759,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["items"][0]["relatedLot"], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27206")
@@ -1668,6 +1772,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["documents"][0]["documentType"] == \
             payload["tender"]["documents"][0]["documentType"]
@@ -1682,6 +1787,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["documents"][0]["id"] == \
             payload["tender"]["documents"][0]["id"]
@@ -1696,6 +1802,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["documents"][0]["title"] == \
             payload["tender"]["documents"][0]["title"]
@@ -1710,6 +1817,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert \
             ev_release["releases"][0]["tender"]["documents"][0]["description"] == \
             payload["tender"]["documents"][0]["description"]
@@ -1725,6 +1833,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["documents"][0]["relatedLots"][0], 4)
+        cn.delete_auction_from_database(cpid)
         assert checking_uuid == True
 
     @pytestrail.case("27197")
@@ -1736,6 +1845,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
@@ -1750,6 +1860,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["title"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -1776,6 +1887,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["description"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -1802,6 +1914,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["awardCriteria"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -1830,6 +1943,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["awardCriteriaDetails"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.84"
@@ -1846,6 +1960,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["tenderPeriod"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.04.00"
@@ -1870,6 +1985,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["tenderPeriod"]["endDate"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.04.00"
@@ -1895,6 +2011,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["enquiryPeriod"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.05.00"
@@ -1921,6 +2038,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["enquiryPeriod"]["endDate"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.05.00"
@@ -1947,6 +2065,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procurementMethodModalities"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.67"
@@ -1977,6 +2096,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["electronicAuctions"]["details"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2007,6 +2127,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["electronicAuctions"]["details"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2041,6 +2162,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["electronicAuctions"]["details"][0]["relatedLot"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2075,6 +2197,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2111,6 +2234,7 @@ class TestBpeCreateCN(object):
             "eligibleMinimumDifference"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2153,6 +2277,7 @@ class TestBpeCreateCN(object):
             "eligibleMinimumDifference"]["amount"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2198,6 +2323,7 @@ class TestBpeCreateCN(object):
             "eligibleMinimumDifference"]["currency"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2241,6 +2367,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2271,6 +2398,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["title"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2299,6 +2427,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["name"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2327,6 +2456,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["identifier"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2355,6 +2485,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["scheme"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2385,6 +2516,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2414,6 +2546,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2443,6 +2576,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2473,6 +2607,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["type"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2503,6 +2638,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["jobTitle"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2533,6 +2669,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["period"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2564,6 +2701,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["period"]["startDate"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2596,6 +2734,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "500.14.00"
@@ -2621,6 +2760,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["documentType"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2653,6 +2793,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["title"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -2684,6 +2825,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.80"
@@ -2699,6 +2841,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2723,6 +2866,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["title"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2747,6 +2891,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["relatesTo"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2772,6 +2917,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["classification"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2797,6 +2943,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["classification"]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2824,6 +2971,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["classification"]["scheme"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2850,6 +2998,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["requirementGroups"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2875,6 +3024,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["requirementGroups"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2902,6 +3052,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2929,6 +3080,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2952,6 +3104,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["title"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2975,6 +3128,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["dataType"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -2998,6 +3152,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3021,6 +3176,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][0]["title"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3044,6 +3200,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][0]["type"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3068,6 +3225,7 @@ class TestBpeCreateCN(object):
             "relatedDocument"]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3091,6 +3249,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0]["period"]["startDate"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3114,6 +3273,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0]["period"]["endDate"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3137,6 +3297,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["conversions"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.84"
@@ -3154,6 +3315,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["conversions"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3178,6 +3340,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["conversions"][0]["relatesTo"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3202,6 +3365,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["conversions"][0]["relatedItem"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3227,6 +3391,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["conversions"][0]["rationale"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3252,6 +3417,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["conversions"][0]["coefficients"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3276,6 +3442,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["conversions"][0]["coefficients"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3302,6 +3469,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["conversions"][0]["coefficients"][0]["value"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3329,6 +3497,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["conversions"][0]["coefficients"][0]["coefficient"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3356,6 +3525,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3379,6 +3549,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3404,6 +3575,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["title"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3429,6 +3601,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["description"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3454,6 +3627,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["value"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3478,6 +3652,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["value"]["amount"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3504,6 +3679,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["value"]["currency"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3530,6 +3706,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["contractPeriod"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3555,6 +3732,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["contractPeriod"]["startDate"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3581,6 +3759,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["contractPeriod"]["endDate"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3608,6 +3787,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3634,6 +3814,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3658,6 +3839,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["streetAddress"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3682,6 +3864,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3706,6 +3889,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3732,6 +3916,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3759,6 +3944,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3784,6 +3970,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3810,6 +3997,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3836,6 +4024,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3862,6 +4051,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3888,6 +4078,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["description"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -3915,6 +4106,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["items"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3937,6 +4129,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["items"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3960,6 +4153,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["items"][0]["classification"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -3983,6 +4177,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["items"][0]["classification"]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -4008,6 +4203,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4032,6 +4228,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["items"][0]["quantity"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4054,6 +4251,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["items"][0]["unit"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4076,6 +4274,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["items"][0]["unit"]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4099,6 +4298,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["items"][0]["description"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -4124,6 +4324,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["items"][0]["relatedLot"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -4147,6 +4348,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["documents"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -4170,6 +4372,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["documents"][0]["documentType"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -4195,6 +4398,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["documents"][0]["id"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "500.14.00"
@@ -4217,6 +4421,7 @@ class TestBpeCreateCN(object):
         del payload["tender"]["documents"][0]["title"]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -4250,6 +4455,7 @@ class TestBpeCreateCN(object):
             if d["relationship"] == ["parent"]:
                 ms_url.append(d["uri"])
         ms_release = requests.get(url=ms_url[0]).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka
@@ -4273,6 +4479,7 @@ class TestBpeCreateCN(object):
             if d["relationship"] == ["parent"]:
                 ms_url.append(d["uri"])
         ms_release = requests.get(url=ms_url[0]).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka
@@ -4290,6 +4497,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka
@@ -4306,6 +4514,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka
@@ -4322,6 +4531,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka
@@ -4344,6 +4554,7 @@ class TestBpeCreateCN(object):
             if d["relationship"] == ["parent"]:
                 ms_url.append(d["uri"])
         ms_release = requests.get(url=ms_url[0]).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert ms_release["releases"][0]["tender"]["procurementMethodAdditionalInfo"] == \
@@ -4358,6 +4569,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["awardCriteria"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -4386,6 +4598,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["awardCriteriaDetails"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -4413,6 +4626,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["tenderPeriod"]["endDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.04.00"
@@ -4433,6 +4647,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["enquiryPeriod"]["endDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.05.00"
@@ -4454,6 +4669,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -4482,6 +4698,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["electronicAuctions"]["details"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert checking_uuid == True
@@ -4497,6 +4714,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.15.10.01"
@@ -4517,6 +4735,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -4556,6 +4775,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.15.10.01"
@@ -4572,6 +4792,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4594,6 +4815,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4618,6 +4840,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4642,6 +4865,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4667,6 +4891,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4692,6 +4917,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4717,6 +4943,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4745,6 +4972,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4771,6 +4999,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4795,12 +5024,10 @@ class TestBpeCreateCN(object):
         payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
         payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["period"][
             "startDate"] = False
-        value_of_key = str(
-            payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["period"][
-                "startDate"]).lower()
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4832,6 +5059,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.14.00.14"
@@ -4848,6 +5076,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4877,6 +5106,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4906,6 +5136,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -4937,6 +5168,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["criteria"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert checking_uuid == True
@@ -4953,7 +5185,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
-
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert ev_release["releases"][0]["tender"]["criteria"][0]["title"] == str(
@@ -4969,6 +5201,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -5000,6 +5233,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.79"
@@ -5015,6 +5249,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.79"
@@ -5032,6 +5267,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert ev_release["releases"][0]["tender"]["criteria"][0]["description"] == str(
@@ -5049,9 +5285,10 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
-        checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["id"], 4)
         assert checking_uuid == True
 
     @pytestrail.case("27198")
@@ -5066,10 +5303,11 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
-        assert create_cnonpn_response.text == "ok"
-        assert create_cnonpn_response.status_code == 202
         checking_uuid = is_it_uuid(
             ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
         assert checking_uuid == True
 
     @pytestrail.case("27198")
@@ -5084,6 +5322,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
@@ -5100,6 +5339,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -5131,6 +5371,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -5165,6 +5406,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
@@ -5185,6 +5427,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
@@ -5205,6 +5448,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert ev_release["releases"][0]["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
@@ -5225,6 +5469,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -5248,11 +5493,10 @@ class TestBpeCreateCN(object):
         payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
         payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][
             0]["relatedDocument"]["id"] = False
-        value_of_key = str(payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0][
-                               "eligibleEvidences"][0]["type"]).lower()
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.79"
@@ -5268,6 +5512,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -5298,6 +5543,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -5330,6 +5576,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -5359,6 +5606,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -5389,9 +5637,10 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["conversions"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
-        checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["conversions"][0]["id"], 4)
         assert checking_uuid == True
 
     @pytestrail.case("27198")
@@ -5405,6 +5654,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -5434,6 +5684,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["conversions"][0]["relatedItem"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.80"
@@ -5452,6 +5703,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert \
@@ -5470,6 +5722,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert \
@@ -5489,6 +5742,7 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         checking_uuid = is_it_uuid(ev_release["releases"][0]["tender"]["conversions"][0]["id"], 4)
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert checking_uuid == True
@@ -5503,6 +5757,7 @@ class TestBpeCreateCN(object):
         value_of_key = str(payload["tender"]["conversions"][0]["coefficients"][0]["coefficient"]).lower()
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -5531,6 +5786,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["id"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5552,6 +5808,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["internalId"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5573,6 +5830,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["title"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5594,6 +5852,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["description"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5615,6 +5874,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["value"]["amount"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5639,6 +5899,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["value"]["currency"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5661,6 +5922,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["contractPeriod"]["startDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5684,6 +5946,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["contractPeriod"]["endDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5706,6 +5969,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["streetAddress"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5730,6 +5994,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["postalCode"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5754,6 +6019,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"]["id"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5781,6 +6047,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]["id"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5808,6 +6075,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5835,6 +6103,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5863,6 +6132,7 @@ class TestBpeCreateCN(object):
             "description"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5890,6 +6160,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["placeOfPerformance"]["description"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5913,6 +6184,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["options"][0]["description"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5936,6 +6208,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["options"][0]["period"]["durationInDays"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5962,6 +6235,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["options"][0]["period"]["startDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -5986,6 +6260,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["options"][0]["period"]["endDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6010,6 +6285,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["options"][0]["period"]["maxExtentDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6034,6 +6310,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["recurrence"]["dates"][0]["startDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6058,6 +6335,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["recurrence"]["description"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6080,6 +6358,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["description"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6102,6 +6381,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["minimumRenewals"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6126,6 +6406,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["maximumRenewals"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6150,6 +6431,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["period"]["durationInDays"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6176,6 +6458,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["period"]["startDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6200,6 +6483,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["period"]["endDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6224,6 +6508,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["period"]["maxExtentDate"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6248,6 +6533,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["id"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6269,6 +6555,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["internalId"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6290,6 +6577,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["classification"]["id"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.54"
@@ -6305,12 +6593,13 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
         assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind." \
                                                                  "JsonMappingException: (was com.procurement." \
-                                                                 "mdm.exception.InErrorException) (through0 " \
+                                                                 "mdm.exception.InErrorException) (through " \
                                                                  "reference chain: com.procurement.mdm.model." \
                                                                  "dto.data.TD[\"tender\"]->com.procurement.mdm." \
                                                                  "model.dto.data.TenderTD[\"items\"]->java.util." \
@@ -6328,6 +6617,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["quantity"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6351,6 +6641,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["unit"]["id"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6373,6 +6664,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["description"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6394,6 +6686,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["relatedLot"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.20.00"
@@ -6415,6 +6708,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["documents"][0]["documentType"] = False
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.00"
@@ -6457,6 +6751,7 @@ class TestBpeCreateCN(object):
         value_of_key = str(payload["tender"]["documents"][0]["id"]).lower()
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.14.00.14"
@@ -6473,6 +6768,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert ev_release["releases"][0]["tender"]["documents"][0]["title"] == str(
@@ -6489,6 +6785,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert ev_release["releases"][0]["tender"]["documents"][0]["description"] == str(
@@ -6503,6 +6800,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["documents"][0]["relatedLots"] = [False]
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.06"
@@ -6515,6 +6813,7 @@ class TestBpeCreateCN(object):
         pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
         payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
 
@@ -6526,6 +6825,7 @@ class TestBpeCreateCN(object):
         payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
         cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert message_from_kafka["data"]["ocid"] == cpid
         assert message_from_kafka["data"]["url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}"
 
@@ -6539,6 +6839,7 @@ class TestBpeCreateCN(object):
         message_from_kafka = cn.get_message_from_kafka()
         execute_cql_from_orchestrator_operation_step_by_oper_id(
             message_from_kafka["X-OPERATION-ID"], "NoticeCreateReleaseTask")
+        cn.delete_auction_from_database(cpid)
 
     @pytestrail.case("27196")
     def test_27196_4_smoke_regression(self, additional_value):
@@ -6552,6 +6853,7 @@ class TestBpeCreateCN(object):
             message_from_kafka["X-OPERATION-ID"], "NoticeCreateReleaseTask")[3]["startDate"]
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
         assert ev_release["releases"][0]["date"] == context_start_date_from_database
 
     @pytestrail.case("27200")
@@ -6572,6 +6874,7 @@ class TestBpeCreateCN(object):
                 'Content-Type': 'application/json'},
             json=payload)
         dict = json.loads(create_cnonpn_response.text)
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.status_code == 401
         assert dict["errors"][0]["code"] == "401.81.02.02"
         assert dict["errors"][0][
@@ -6597,6 +6900,7 @@ class TestBpeCreateCN(object):
             json=payload)
         time.sleep(2)
         error_from_DB = execute_cql_from_orchestrator_operation_step(cpid, 'AccessCheckOwnerTokenTask')
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert error_from_DB['errors'][0]['code'] == '400.03.00.02'
@@ -6621,6 +6925,7 @@ class TestBpeCreateCN(object):
             json=payload)
         time.sleep(2)
         dict = json.loads(create_cnonpn_response.text)
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.status_code == 400
         assert dict["errors"][0]["code"] == "400.00.00.00"
         assert dict["errors"][0]["description"] == \
@@ -6646,8 +6951,1903 @@ class TestBpeCreateCN(object):
             json=payload)
         time.sleep(2)
         message_from_kafka = get_message_from_kafka(x_operation_id)
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
         assert message_from_kafka["errors"][0]["code"] == "400.03.10.04"
         assert message_from_kafka["errors"][0]["description"] == "Invalid token."
+
+    @pytestrail.case("27204")
+    def test_27204_1_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        document = Document("/home/roman/Documents/git/es_system_tests/API.pdf", "API.pdf")
+        document_was_uploaded = document.uploading_document()
+        payload["tender"]["documents"][1]["id"] = document_was_uploaded[0]["data"]["id"]
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+
+    @pytestrail.case("27204")
+    def test_27204_2_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        document = Document("/home/roman/Documents/git/es_system_tests/API.pdf", "API.pdf")
+        document_was_uploaded = document.uploading_document()
+        payload["tender"]["documents"][1]["id"] = document_was_uploaded[0]["data"]["id"]
+        cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert message_from_kafka["data"]["ocid"] == cpid
+        assert message_from_kafka["data"]["url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}"
+
+    @pytestrail.case("27204")
+    def test_27204_3_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        document = Document("/home/roman/Documents/git/es_system_tests/API.pdf", "API.pdf")
+        document_was_uploaded = document.uploading_document()
+        hash_of_document = document_was_uploaded[2]
+        weight_of_document = document_was_uploaded[3]
+        payload["tender"]["documents"][1]["id"] = document_was_uploaded[0]["data"]["id"]
+        cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+
+        f = open(f"/home/roman/Documents/git/es_system_tests/download/{document_was_uploaded[1]}",
+                 "wb")
+        open_document = requests.get(
+            url=ev_release["releases"][0]["tender"]["documents"][1]["url"]).content
+        f.write(open_document)
+        f.close()
+        hash_of_downloaded_file = get_hash_md5(
+            f"/home/roman/Documents/git/es_system_tests/download/{payload['tender']['documents'][1]['id']}")
+        weight_of_downloaded_file = get_weught(
+            f"/home/roman/Documents/git/es_system_tests/download/{payload['tender']['documents'][1]['id']}")
+        cn.delete_auction_from_database(cpid)
+        assert hash_of_document == hash_of_downloaded_file
+        assert weight_of_document == weight_of_downloaded_file
+
+    @pytestrail.case("27199")
+    def test_27199_1_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        previous_ms_release = cn.get_previous_ms_release(pn)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["planning"]["rationale"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        ms_url = list()
+        for d in ev_release["releases"][0]["relatedProcesses"]:
+            if d["relationship"] == ["parent"]:
+                ms_url.append(d["uri"])
+        ms_release = requests.get(url=ms_url[0]).json()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka
+        assert ms_release["releases"][0]["planning"]["rationale"] == previous_ms_release["releases"][0]["planning"][
+            "rationale"]
+
+    @pytestrail.case("27199")
+    def test_27199_2_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        previous_ms_release = cn.get_previous_ms_release(pn)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["planning"]["budget"]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        ms_url = list()
+        for d in ev_release["releases"][0]["relatedProcesses"]:
+            if d["relationship"] == ["parent"]:
+                ms_url.append(d["uri"])
+        ms_release = requests.get(url=ms_url[0]).json()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka
+        assert ms_release["releases"][0]["planning"]["budget"]["description"] == \
+               previous_ms_release["releases"][0]["planning"]["budget"]["description"]
+
+    @pytestrail.case("27199")
+    def test_27199_3_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["title"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka
+        assert ev_release["releases"][0]["tender"]["title"] == "Evaluation"
+
+    @pytestrail.case("27199")
+    def test_27199_4_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka
+        assert ev_release["releases"][0]["tender"]["description"] == "Evaluation stage of contracting process"
+
+    @pytestrail.case("27199")
+    def test_27199_5_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procurementMethodRationale"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procurementMethod" \
+                                                                 "Rationale' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_6_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procurementMethodAdditionalInfo"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procurementMethodAdditionalInfo' is empty " \
+                                                                 "or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_7_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["awardCriteria"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "InvalidDefinitionException: Cannot construct " \
+                                                                 "instance of `com.procurement.access.domain.model." \
+                                                                 "enums.AwardCriteria`, problem: Unknown value for " \
+                                                                 "enumType com.procurement.access.domain.model." \
+                                                                 "enums.AwardCriteria: , Allowed values are " \
+                                                                 "priceOnly, costOnly, qualityOnly, ratedCriteria\n " \
+                                                                 "at [Source: UNKNOWN; line: -1, column: -1] " \
+                                                                 "(through reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"awardCriteria\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_8_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["awardCriteriaDetails"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.exc.Invalid" \
+                                                                 "DefinitionException: Cannot construct instance " \
+                                                                 "of `com.procurement.access.domain.model.enums." \
+                                                                 "AwardCriteriaDetails`, problem: Unknown value " \
+                                                                 "for enumType com.procurement.access.domain.model." \
+                                                                 "enums.AwardCriteriaDetails: , Allowed values are " \
+                                                                 "manual, automated\n at [Source: UNKNOWN; line: " \
+                                                                 "-1, column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"awardCriteriaDetails\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_9_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["tenderPeriod"]["endDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.04.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at " \
+                                                                 "index 0 (through reference chain: com." \
+                                                                 "procurement.submission.infrastructure.handler." \
+                                                                 "v1.model.request.PeriodRq[\"tenderPeriod\"]" \
+                                                                 "->com.procurement.submission.model.dto.ocds." \
+                                                                 "Period[\"endDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_10_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["enquiryPeriod"]["endDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.05.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at " \
+                                                                 "index 0 (through reference chain: com." \
+                                                                 "procurement.clarification.infrastructure." \
+                                                                 "handler.v1.model.request.PeriodRq" \
+                                                                 "[\"enquiryPeriod\"]->com.procurement." \
+                                                                 "clarification.model.dto.ocds.Period[\"endDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_11_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procurementMethodModalities"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.exc.Mismatched" \
+                                                                 "InputException: Cannot construct instance of " \
+                                                                 "`java.util.HashSet` (although at least one " \
+                                                                 "Creator exists): no String-argument constructor" \
+                                                                 "/factory method to deserialize from String value " \
+                                                                 "('')\n at [Source: UNKNOWN; line: -1, column: " \
+                                                                 "-1] (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"procurementMethod" \
+                                                                 "Modalities\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_12_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.electronicAuctions.details[0].id' " \
+                                                                 "is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_13_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["relatedLot"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.15.10.01'
+        assert message_from_kafka['errors'][0]['description'] == "Electronic auctions contain an invalid " \
+                                                                 "related lot: ''."
+
+    @pytestrail.case("27199")
+    def test_27199_14_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"][0][
+            "eligibleMinimumDifference"]["currency"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.15.10.01'
+        assert message_from_kafka['errors'][0]['description'] == "Electronic auction with id: '1' contain invalid " \
+                                                                 "currency in 'EligibleMinimumDifference' attribute."
+
+    @pytestrail.case("27199")
+    def test_27199_15_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procuringEntity.id' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_16_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["title"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procuringEntity.persones.title' is " \
+                                                                 "empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_17_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["name"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procuringEntity.persones.name' is " \
+                                                                 "empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_18_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procuringEntity.persones.identifier.id' " \
+                                                                 "is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_19_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["scheme"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procuringEntity.persones.identifier." \
+                                                                 "scheme' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_20_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["identifier"]["uri"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procuringEntity.persones.identifier.uri' " \
+                                                                 "is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_21_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procuringEntity.persones." \
+                                                                 "businessFunctions.id' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_22_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["type"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.exc." \
+                                                                 "InvalidDefinitionException: Cannot construct " \
+                                                                 "instance of `com.procurement.access.domain." \
+                                                                 "model.enums.BusinessFunctionType`, problem: " \
+                                                                 "Unknown value for enumType com.procurement." \
+                                                                 "access.domain.model.enums.BusinessFunctionType:" \
+                                                                 " , Allowed values are chairman, procurement" \
+                                                                 "Officer, contactPoint, technicalEvaluator, " \
+                                                                 "technicalOpener, priceOpener, priceEvaluator\n " \
+                                                                 "at [Source: UNKNOWN; line: -1, column: -1] " \
+                                                                 "(through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model." \
+                                                                 "request.OpenCnOnPnRequest[\"tender\"]->com." \
+                                                                 "procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"procuringEntity\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$ProcuringEntity" \
+                                                                 "[\"persones\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$" \
+                                                                 "ProcuringEntity$Persone[\"businessFunctions\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$ProcuringEntity$" \
+                                                                 "Persone$BusinessFunction[\"type\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_23_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["jobTitle"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procuringEntity.persones.businessFunctions." \
+                                                                 "jobTitle' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_24_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["period"]["startDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: Text '' could not " \
+                                                                 "be parsed at index 0 (through reference " \
+                                                                 "chain: com.procurement.mdm.model.dto.data." \
+                                                                 "TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"procuringEntity\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.Organization" \
+                                                                 "Reference[\"persones\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "Persone[\"businessFunctions\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.BusinessFunction[\"period\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.Period" \
+                                                                 "[\"startDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_25_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.14.00.02'
+        assert message_from_kafka['errors'][0]['description'] == "Invalid documents ids: The id of the document " \
+                                                                 "is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_26_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["documentType"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.exc.Invalid" \
+                                                                 "DefinitionException: Cannot construct instance " \
+                                                                 "of `com.procurement.access.domain.model.enums." \
+                                                                 "BusinessFunctionDocumentType`, problem: Unknown " \
+                                                                 "value for enumType com.procurement.access.domain." \
+                                                                 "model.enums.BusinessFunctionDocumentType: , " \
+                                                                 "Allowed values are regulatoryDocument\n at " \
+                                                                 "[Source: UNKNOWN; line: -1, column: -1] (through " \
+                                                                 "reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest[\"tender\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest$Tender[\"procuringEntity\"]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$Procuring" \
+                                                                 "Entity[\"persones\"]->java.util.ArrayList[0]->" \
+                                                                 "com.procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$Procuring" \
+                                                                 "Entity$Persone[\"businessFunctions\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest$Tender$ProcuringEntity$Persone$" \
+                                                                 "BusinessFunction[\"documents\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$ProcuringEntity$" \
+                                                                 "Persone$BusinessFunction$Document[\"documentType\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_27_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["title"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procuringEntity.persones.business" \
+                                                                 "Functions.documents.title' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_28_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.procuringEntity.persones.business" \
+                                                                 "Functions.documents.description' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_29_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].id' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_30_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["title"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].title' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_31_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["relatesTo"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.exc.Invalid" \
+                                                                 "DefinitionException: Cannot construct instance " \
+                                                                 "of `com.procurement.access.domain.model.enums." \
+                                                                 "CriteriaRelatesTo`, problem: Unknown value for " \
+                                                                 "enumType com.procurement.access.domain.model." \
+                                                                 "enums.CriteriaRelatesTo: , Allowed values are " \
+                                                                 "award, item, lot, qualification, tender, " \
+                                                                 "tenderer\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"criteria\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.criterion.CriterionRequest" \
+                                                                 "[\"relatesTo\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_32_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["classification"]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.79'
+        assert message_from_kafka['errors'][0]['description'] == "Invalid criteria value. FReq-1.1.1.31"
+
+    @pytestrail.case("27199")
+    def test_27199_33_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["classification"]["scheme"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.79'
+        assert message_from_kafka['errors'][0]['description'] == "Invalid criteria value. FReq-1.1.1.34 "
+
+    @pytestrail.case("27199")
+    def test_27199_34_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].description' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_35_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].requirementGroups[0].id' " \
+                                                                 "is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_36_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].requirementGroups[0]." \
+                                                                 "requirements[0].id' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_37_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["title"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].requirementGroups[0]." \
+                                                                 "requirements[0].title' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_38_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["dataType"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: Unknown value for enumType " \
+                                                                 "com.procurement.access.domain.model.enums." \
+                                                                 "RequirementDataType: , Allowed values are boolean, " \
+                                                                 "string, number, integer (through reference " \
+                                                                 "chain: com.procurement.access.infrastructure." \
+                                                                 "handler.v1.model.request.OpenCnOnPnRequest" \
+                                                                 "[\"tender\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"criteria\"]->" \
+                                                                 "java.util.ArrayList[0]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model." \
+                                                                 "request.criterion.CriterionRequest" \
+                                                                 "[\"requirementGroups\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest$Requirement" \
+                                                                 "Group[\"requirements\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_39_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["expectedValue"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].requirementGroups[0]." \
+                                                                 "requirements[0].expectedValue' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_40_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0]["period"]["startDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at index " \
+                                                                 "0 (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"criteria\"]->java." \
+                                                                 "util.ArrayList[3]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest[\"requirementGroups\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.criterion." \
+                                                                 "CriterionRequest$RequirementGroup[\"requirements\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_41_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][3]["requirementGroups"][0]["requirements"][0]["period"]["endDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at index " \
+                                                                 "0 (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"criteria\"]->java." \
+                                                                 "util.ArrayList[3]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest[\"requirementGroups\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.criterion." \
+                                                                 "CriterionRequest$RequirementGroup[\"requirements\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_42_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].requirementGroups[0]." \
+                                                                 "requirements[0].eligibleEvidences[0].id' " \
+                                                                 "is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_43_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][0][
+            "title"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].requirementGroups[0]." \
+                                                                 "requirements[0].eligibleEvidences[0].title' " \
+                                                                 "is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_44_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][0][
+            "description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].requirementGroups[0]." \
+                                                                 "requirements[0].eligibleEvidences[0]." \
+                                                                 "description' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_45_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][0][
+            "type"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Error of parsing element of " \
+                                                                 "'EligibleEvidenceType' enum. Invalid value ''. " \
+                                                                 "(through reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"criteria\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest[\"requirementGroups\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest$RequirementGroup" \
+                                                                 "[\"requirements\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_46_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][0][
+            "relatedDocument"]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.criteria[0].requirementGroups[0]." \
+                                                                 "requirements[0].eligibleEvidences[0]." \
+                                                                 "relatedDocument.id' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_47_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.conversions[0].id' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_48_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["relatesTo"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.exc.Invalid" \
+                                                                 "DefinitionException: Cannot construct instance " \
+                                                                 "of `com.procurement.access.domain.model.enums." \
+                                                                 "ConversionsRelatesTo`, problem: Unknown value " \
+                                                                 "for enumType com.procurement.access.domain.model." \
+                                                                 "enums.ConversionsRelatesTo: , Allowed values are " \
+                                                                 "requirement, observation, option\n at [Source: " \
+                                                                 "UNKNOWN; line: -1, column: -1] (through " \
+                                                                 "reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"conversions\"]->java." \
+                                                                 "util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "ConversionRequest[\"relatesTo\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_49_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["relatedItem"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.conversions[0].relatedItem' " \
+                                                                 "is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_50_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["rationale"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.conversions[0].rationale' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_51_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.conversions[0].description' is empty " \
+                                                                 "or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_52_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["coefficients"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.conversions[0].coefficients[0]." \
+                                                                 "id' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_53_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["coefficients"][0]["value"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.conversions[0].coefficients[0].value' " \
+                                                                 "is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_54_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].id' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_55_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["internalId"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].internalId' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_56_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["title"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].title' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_57_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].description' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_58_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["value"]["currency"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.15'
+        assert message_from_kafka['errors'][0]['description'] == "Invalid lot currency. Lot with id: '1' contains " \
+                                                                 "invalid currency (lot currency: '', budget " \
+                                                                 "amount currency: 'EUR')"
+
+    @pytestrail.case("27199")
+    def test_27199_59_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["contractPeriod"]["startDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at index " \
+                                                                 "0 (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot[\"contractPeriod\"]" \
+                                                                 "->com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender$Lot$" \
+                                                                 "ContractPeriod[\"startDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_60_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["contractPeriod"]["endDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at index " \
+                                                                 "0 (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot[\"contractPeriod\"]" \
+                                                                 "->com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender$Lot$" \
+                                                                 "ContractPeriod[\"endDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_61_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["streetAddress"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].placeOfPerformance.address." \
+                                                                 "streetAddress' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_62_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["postalCode"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].placeOfPerformance.address." \
+                                                                 "postalCode' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_63_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.00.11'
+        assert message_from_kafka['errors'][0]['description'] == "Country not found. "
+
+    @pytestrail.case("27199")
+    def test_27199_64_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.00.13'
+        assert message_from_kafka['errors'][0]['description'] == "Region not found. "
+
+    @pytestrail.case("27199")
+    def test_27199_65_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.00.14'
+        assert message_from_kafka['errors'][0]['description'] == "Locality not found. "
+
+    @pytestrail.case("27199")
+    def test_27199_66_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].placeOfPerformance.address." \
+                                                                 "addressDetails.locality.scheme' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_67_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]["id"] = "5700000"
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = "5711001"
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        cn.delete_auction_from_database(cpid)
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ev_release["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
+                   "locality"]["description"] == "s.Piteşti"
+
+    @pytestrail.case("27199")
+    def test_27199_68_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].placeOfPerformance.description' " \
+                                                                 "is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_69_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].options[0].description' is " \
+                                                                 "empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_70_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0]["period"]["startDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at index " \
+                                                                 "0 (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot[\"options\"]->" \
+                                                                 "java.util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest$Tender$Lot$Option[\"period\"]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$Lot$" \
+                                                                 "Period[\"startDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_71_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0]["period"]["endDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at index " \
+                                                                 "0 (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot[\"options\"]->" \
+                                                                 "java.util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest$Tender$Lot$Option[\"period\"]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$Lot$" \
+                                                                 "Period[\"endDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_72_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0]["period"]["maxExtentDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at index " \
+                                                                 "0 (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest$Tender$Lot[\"options\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest$Tender$Lot$Option[\"period\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender$Lot$" \
+                                                                 "Period[\"maxExtentDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_73_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["recurrence"]["dates"][0]["startDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at index " \
+                                                                 "0 (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot[\"recurrence\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender$Lot$" \
+                                                                 "Recurrence[\"dates\"]->java.util.ArrayList[0]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender$Lot$" \
+                                                                 "Recurrence$Date[\"startDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_74_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["recurrence"]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].recurrence.description' is " \
+                                                                 "empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_75_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.lots[0].renewal.description' is " \
+                                                                 "empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_76_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["period"]["startDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at index" \
+                                                                 " 0 (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot[\"renewal\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender$Lot$" \
+                                                                 "Renewal[\"period\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest$Tender$Lot$Period[\"startDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_77_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["period"]["endDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: Text '' could not be parsed at index" \
+                                                                 " 0 (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot[\"renewal\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender$Lot$" \
+                                                                 "Renewal[\"period\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest$Tender$Lot$Period[\"endDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_78_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["period"]["maxExtentDate"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind." \
+                                                                 "JsonMappingException: Text '' could not be " \
+                                                                 "parsed at index 0 (through reference chain: " \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"lots\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$Lot" \
+                                                                 "[\"renewal\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot$Renewal[\"period\"]" \
+                                                                 "->com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender$" \
+                                                                 "Lot$Period[\"maxExtentDate\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_79_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.items[0].id' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_80_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["internalId"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.items[0].internalId' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_81_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["classification"]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.54'
+        assert message_from_kafka['errors'][0]['description'] == "The calculated CPV code does not match the CPV " \
+                                                                 "code in the tender."
+
+    @pytestrail.case("27199")
+    def test_27199_82_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.01.05'
+        assert message_from_kafka['errors'][0]['description'] == "Invalid cpvs code. "
+
+    @pytestrail.case("27199")
+    def test_27199_83_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["unit"]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.01.06'
+        assert message_from_kafka['errors'][0]['description'] == "Invalid unit code. "
+
+    @pytestrail.case("27199")
+    def test_27199_84_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.items[0].description' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_85_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["relatedLot"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.items[0].relatedLot' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_86_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["id"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.14.00.02'
+        assert message_from_kafka['errors'][0]['description'] == "Invalid documents ids: The id of the " \
+                                                                 "document is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_87_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["documentType"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.exc.Invalid" \
+                                                                 "DefinitionException: Cannot construct instance " \
+                                                                 "of `com.procurement.access.domain.model.enums." \
+                                                                 "DocumentType`, problem: Unknown value for " \
+                                                                 "enumType com.procurement.access.domain.model." \
+                                                                 "enums.DocumentType: , Allowed values are " \
+                                                                 "evaluationCriteria, eligibilityCriteria, " \
+                                                                 "billOfQuantity, illustration, marketStudies, " \
+                                                                 "tenderNotice, biddingDocuments, procurementPlan, " \
+                                                                 "technicalSpecifications, contractDraft, " \
+                                                                 "hearingNotice, clarifications, environmental" \
+                                                                 "Impact, assetAndLiabilityAssessment, risk" \
+                                                                 "Provisions, complaints, needsAssessment, " \
+                                                                 "feasibilityStudy, projectPlan, conflict" \
+                                                                 "OfInterest, cancellationDetails, shortlisted" \
+                                                                 "Firms, evaluationReports, contractArrangements, " \
+                                                                 "contractGuarantees\n at [Source: UNKNOWN; line: " \
+                                                                 "-1, column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"documents\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.document.DocumentRequest" \
+                                                                 "[\"documentType\"])"
+
+    @pytestrail.case("27199")
+    def test_27199_88_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["title"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.documents[0].title' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_89_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["description"] = ""
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.documents[0].description' is empty or blank."
+
+    @pytestrail.case("27199")
+    def test_27199_90_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["relatedLots"] = [""]
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        time.sleep(3)
+        message_from_kafka = cn.get_message_from_kafka()
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. The attribute " \
+                                                                 "'tender.documents[0].relatedLots[0]' is " \
+                                                                 "empty or blank."
+
+
+
+
+
+
+
+
