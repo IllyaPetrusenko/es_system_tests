@@ -36,13 +36,16 @@ def prepared_cpid():
     cp_id = "ocds-t1s2t3-MD-" + str(int(time.time()) * 1000 + random.randint(1, 100))
     return cp_id
 
+
 def prepared_test_cpid():
     cp_id = "test-t1s2t3-MD-" + str(int(time.time()) * 1000 + random.randint(1, 100))
     return cp_id
 
+
 def prepared_fs_ocid(prepared_cpid):
     oc_id = f"{prepared_cpid}-FS-" + str(int(time.time()) * 1000 + random.randint(1, 100))
     return oc_id
+
 
 def prepared_pn_ocid(prepared_cpid):
     oc_id = f"{prepared_cpid}-PN-" + str(int(time.time()) * 1000 + random.randint(1, 100))
@@ -87,7 +90,8 @@ def get_new_period():
     end_date = duration_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     yesterday = yesterday_start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     tomorrow = tomorrow_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
-    return start_date, end_date, yesterday, tomorrow
+    today = date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return start_date, end_date, yesterday, tomorrow, today
 
 
 def get_contract_period():
@@ -185,3 +189,16 @@ def get_new_classification_id(classification_1, classification_2):
         new.append("0")
 
     return str(new[0] + new[1] + new[2] + new[3] + new[4] + new[5] + new[6] + new[7] + new[8] + new[9])
+
+
+def create_enquiry_and_tender_period():
+    date = datetime.datetime.now()
+    duration_enquiry_end_date = date + datetime.timedelta(seconds=121)
+    enquiry_start_date = date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    enquiry_end_date = duration_enquiry_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    duration_tender_end_date = date + datetime.timedelta(seconds=300)
+    tender_start_date = duration_enquiry_end_date
+    tender_end_date = duration_tender_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    return enquiry_start_date, enquiry_end_date, tender_start_date, tender_end_date
