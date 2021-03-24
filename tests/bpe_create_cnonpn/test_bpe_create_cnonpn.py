@@ -4967,8 +4967,6 @@ class TestBpeCreateCN(object):
         pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
         payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
         payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["type"] = False
-        value_of_key = str(
-            payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["type"]).lower()
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
@@ -8361,7 +8359,6 @@ class TestBpeCreateCN(object):
         ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
         ev_release = requests.get(url=ev_url).json()
         cn.delete_auction_from_database(cpid)
-        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert ev_release["releases"][0]["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"][
@@ -8376,6 +8373,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["placeOfPerformance"]["description"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8392,6 +8390,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["options"][0]["description"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8408,6 +8407,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["options"][0]["period"]["startDate"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.00'
@@ -8437,6 +8437,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["options"][0]["period"]["endDate"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.00'
@@ -8466,6 +8467,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["options"][0]["period"]["maxExtentDate"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.00'
@@ -8495,6 +8497,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["recurrence"]["dates"][0]["startDate"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.00'
@@ -8524,6 +8527,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["recurrence"]["description"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8540,6 +8544,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["description"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8556,6 +8561,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["period"]["startDate"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.00'
@@ -8584,6 +8590,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["period"]["endDate"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.00'
@@ -8612,6 +8619,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["lots"][0]["renewal"]["period"]["maxExtentDate"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.00'
@@ -8641,6 +8649,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["id"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8656,6 +8665,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["internalId"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8671,6 +8681,7 @@ class TestBpeCreateCN(object):
         payload["tender"]["items"][0]["classification"]["id"] = ""
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.54'
@@ -8687,6 +8698,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.20.01.05'
@@ -8702,6 +8714,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.20.01.06'
@@ -8717,6 +8730,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8733,6 +8747,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8749,6 +8764,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.14.00.02'
@@ -8765,6 +8781,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.00'
@@ -8805,6 +8822,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8821,6 +8839,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8837,6 +8856,7 @@ class TestBpeCreateCN(object):
         create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
         time.sleep(3)
         message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
         assert create_cnonpn_response.text == "ok"
         assert create_cnonpn_response.status_code == 202
         assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
@@ -8844,10 +8864,1605 @@ class TestBpeCreateCN(object):
                                                                  "'tender.documents[0].relatedLots[0]' is " \
                                                                  "empty or blank."
 
+    @pytestrail.case("27205")
+    def test_27205_1_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        previous_ms_release = cn.get_previous_ms_release(pn)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["planning"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        ms_url = list()
+        for d in ev_release["releases"][0]["relatedProcesses"]:
+            if d["relationship"] == ["parent"]:
+                ms_url.append(d["uri"])
+        ms_release = requests.get(url=ms_url[0]).json()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ms_release["releases"][0]["planning"] == previous_ms_release["releases"][0]["planning"]
 
+    @pytestrail.case("27205")
+    def test_27205_2_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        previous_ms_release = cn.get_previous_ms_release(pn)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["planning"]["budget"]["description"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        ms_url = list()
+        for d in ev_release["releases"][0]["relatedProcesses"]:
+            if d["relationship"] == ["parent"]:
+                ms_url.append(d["uri"])
+        ms_release = requests.get(url=ms_url[0]).json()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert ms_release["releases"][0]["planning"]["budget"] == \
+               previous_ms_release["releases"][0]["planning"]["budget"]
 
+    @pytestrail.case("27205")
+    def test_27205_3_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.05.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin." \
+                                                                 "MissingKotlinParameterException: " \
+                                                                 "Instantiation of [simple type, " \
+                                                                 "class com.procurement.clarification." \
+                                                                 "infrastructure.handler.v1.model." \
+                                                                 "request.PeriodRq] value failed for " \
+                                                                 "JSON property enquiryPeriod due to " \
+                                                                 "missing (therefore NULL) value for " \
+                                                                 "creator parameter enquiryPeriod " \
+                                                                 "which is a non-nullable type\n at " \
+                                                                 "[Source: UNKNOWN; line: -1, column: " \
+                                                                 "-1] (through reference chain: com." \
+                                                                 "procurement.clarification." \
+                                                                 "infrastructure.handler.v1.model." \
+                                                                 "request.PeriodRq[\"enquiryPeriod\"])"
 
+    @pytestrail.case("27205")
+    def test_27205_4_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["tenderPeriod"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.04.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin." \
+                                                                 "MissingKotlinParameterException: " \
+                                                                 "Instantiation of [simple type, " \
+                                                                 "class com.procurement.submission." \
+                                                                 "model.dto.ocds.Period] value failed " \
+                                                                 "for JSON property endDate due to " \
+                                                                 "missing (therefore NULL) value for " \
+                                                                 "creator parameter endDate which is " \
+                                                                 "a non-nullable type\n at [Source: " \
+                                                                 "UNKNOWN; line: -1, column: -1] " \
+                                                                 "(through reference chain: com." \
+                                                                 "procurement.submission." \
+                                                                 "infrastructure.handler.v1.model." \
+                                                                 "request.PeriodRq[\"tenderPeriod\"]" \
+                                                                 "->com.procurement.submission.model." \
+                                                                 "dto.ocds.Period[\"endDate\"])"
 
+    @pytestrail.case("27205")
+    def test_27205_5_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["enquiryPeriod"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.05.01.02'
+        assert message_from_kafka['errors'][0]['description'] == "Invalid period."
 
+    @pytestrail.case("27205")
+    def test_27205_6_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procurementMethodModalities"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.67'
+        assert message_from_kafka['errors'][0]['description'] == "Incorrect an attribute value. Auction sign must " \
+                                                                 "be passed"
 
+    @pytestrail.case("27205")
+    def test_27205_7_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation " \
+                                                                 "of [simple type, class com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model." \
+                                                                 "request.OpenCnOnPnRequest$Tender$" \
+                                                                 "ElectronicAuctions] value failed for " \
+                                                                 "JSON property details due to missing " \
+                                                                 "(therefore NULL) value for creator " \
+                                                                 "parameter details which is a non-" \
+                                                                 "nullable type\n at [Source: UNKNOWN; " \
+                                                                 "line: -1, column: -1] (through reference chain: " \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"electronicAuctions\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest$Tender$ElectronicAuctions[\"details\"])"
 
+    @pytestrail.case("27205")
+    def test_27205_8_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.15.10.01'
+        assert message_from_kafka['errors'][0]['description'] == "Electronic auctions are empty."
+
+    @pytestrail.case("27205")
+    def test_27205_9_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module." \
+                                                                 "kotlin.MissingKotlinParameterException: " \
+                                                                 "Instantiation of [simple type, class com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$Electronic" \
+                                                                 "Auctions$Detail] value failed for JSON property " \
+                                                                 "id due to missing (therefore NULL) value for " \
+                                                                 "creator parameter id which is a non-nullable " \
+                                                                 "type\n at [Source: UNKNOWN; line: -1, column: " \
+                                                                 "-1] (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"electronicAuctions\"]" \
+                                                                 "->com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender$" \
+                                                                 "ElectronicAuctions[\"details\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest$Tender$ElectronicAuctions$Detail[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_10_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.15.10.01'
+        assert message_from_kafka['errors'][0]['description'] == "Electronic auctions modalities are empty."
+
+    @pytestrail.case("27205")
+    def test_27205_11_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin." \
+                                                                 "MissingKotlinParameterException: Instantiation " \
+                                                                 "of [simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$ElectronicAuctions$" \
+                                                                 "Detail$Modalities] value failed for JSON " \
+                                                                 "property eligibleMinimumDifference due to " \
+                                                                 "missing (therefore NULL) value for creator " \
+                                                                 "parameter eligibleMinimumDifference which is a " \
+                                                                 "non-nullable type\n at [Source: UNKNOWN; line: " \
+                                                                 "-1, column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"electronicAuctions\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$ElectronicAuctions" \
+                                                                 "[\"details\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$Electronic" \
+                                                                 "Auctions$Detail[\"electronicAuctionModalities\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest$Tender$ElectronicAuctions$Detail$" \
+                                                                 "Modalities[\"eligibleMinimumDifference\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_12_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"][0][
+            "eligibleMinimumDifference"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation " \
+                                                                 "of [simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest$Tender$ElectronicAuctions$Detail$" \
+                                                                 "Modalities] value failed for JSON property " \
+                                                                 "eligibleMinimumDifference due to missing " \
+                                                                 "(therefore NULL) value for creator parameter " \
+                                                                 "eligibleMinimumDifference which is a non-" \
+                                                                 "nullable type\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"electronicAuctions\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$ElectronicAuctions" \
+                                                                 "[\"details\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$Electronic" \
+                                                                 "Auctions$Detail[\"electronicAuctionModalities\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest$Tender$ElectronicAuctions$Detail$" \
+                                                                 "Modalities[\"eligibleMinimumDifference\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_12_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["electronicAuctions"]["details"][0]["electronicAuctionModalities"][0][
+            "eligibleMinimumDifference"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest$Tender$ElectronicAuctions$Detail$" \
+                                                                 "Modalities$EligibleMinimumDifference] value " \
+                                                                 "failed for JSON property amount due to missing " \
+                                                                 "(therefore NULL) value for creator parameter " \
+                                                                 "amount which is a non-nullable type\n at [Source: " \
+                                                                 "UNKNOWN; line: -1, column: -1] (through reference " \
+                                                                 "chain: com.procurement.access.infrastructure." \
+                                                                 "handler.v1.model.request.OpenCnOnPnRequest" \
+                                                                 "[\"tender\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest$Tender[\"electronicAuctions\"]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$" \
+                                                                 "ElectronicAuctions[\"details\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest$Tender$ElectronicAuctions$Detail" \
+                                                                 "[\"electronicAuctionModalities\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest$Tender$ElectronicAuctions$Detail$" \
+                                                                 "Modalities[\"eligibleMinimumDifference\"]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$Electronic" \
+                                                                 "Auctions$Detail$Modalities$EligibleMinimum" \
+                                                                 "Difference[\"amount\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_13_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlin" \
+                                                                 "ParameterException: Instantiation of [simple " \
+                                                                 "type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest$Tender$ProcuringEntity] value " \
+                                                                 "failed for JSON property id due to missing " \
+                                                                 "(therefore NULL) value for creator parameter " \
+                                                                 "id which is a non-nullable type\n at [Source: " \
+                                                                 "UNKNOWN; line: -1, column: -1] (through reference " \
+                                                                 "chain: com.procurement.access.infrastructure." \
+                                                                 "handler.v1.model.request.OpenCnOnPnRequest" \
+                                                                 "[\"tender\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest$Tender[\"procuringEntity\"]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$" \
+                                                                 "ProcuringEntity[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_14_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.01.12'
+        assert message_from_kafka['errors'][0]['description'] == "Persones array must not be empty. "
+
+    @pytestrail.case("27205")
+    def test_27205_15_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.mdm.model." \
+                                                                 "dto.data.Persone] value failed for JSON property " \
+                                                                 "title due to missing (therefore NULL) value for " \
+                                                                 "creator parameter title which is a non-nullable " \
+                                                                 "type\n at [Source: UNKNOWN; line: -1, column: " \
+                                                                 "-1] (through reference chain: com.procurement." \
+                                                                 "mdm.model.dto.data.TD[\"tender\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.TenderTD" \
+                                                                 "[\"procuringEntity\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.OrganizationReference" \
+                                                                 "[\"persones\"]->java.util.ArrayList[0]->" \
+                                                                 "com.procurement.mdm.model.dto.data." \
+                                                                 "Persone[\"title\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_16_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["identifier"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.mdm.model." \
+                                                                 "dto.data.Identifier] value failed for JSON " \
+                                                                 "property id due to missing (therefore NULL) " \
+                                                                 "value for creator parameter id which is a non" \
+                                                                 "-nullable type\n at [Source: UNKNOWN; line: " \
+                                                                 "-1, column: -1] (through reference chain: " \
+                                                                 "com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"procuringEntity\"]->com." \
+                                                                 "procurement.mdm.model.dto.data.Organization" \
+                                                                 "Reference[\"persones\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data." \
+                                                                 "Persone[\"identifier\"]->com.procurement." \
+                                                                 "mdm.model.dto.data.Identifier[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_17_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.66'
+        assert message_from_kafka['errors'][0]['description'] == "Invalid procuring entity. At least one " \
+                                                                 "businessFunctions detalization should be added. "
+
+    @pytestrail.case("27205")
+    def test_27205_18_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.mdm.model." \
+                                                                 "dto.data.BusinessFunction] value failed for " \
+                                                                 "JSON property id due to missing (therefore NULL) " \
+                                                                 "value for creator parameter id which is a non-" \
+                                                                 "nullable type\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.mdm.model.dto.data.TD[\"tender\"]->" \
+                                                                 "com.procurement.mdm.model.dto.data.TenderTD" \
+                                                                 "[\"procuringEntity\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.OrganizationReference[\"persones\"]->" \
+                                                                 "java.util.ArrayList[0]->com.procurement.mdm." \
+                                                                 "model.dto.data.Persone[\"businessFunctions\"]->" \
+                                                                 "java.util.ArrayList[0]->com.procurement.mdm." \
+                                                                 "model.dto.data.BusinessFunction[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_19_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["period"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.20.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.mdm.model." \
+                                                                 "dto.data.Period] value failed for JSON property " \
+                                                                 "startDate due to missing (therefore NULL) value " \
+                                                                 "for creator parameter startDate which is a non-" \
+                                                                 "nullable type\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.mdm.model.dto.data.TD[\"tender\"]->" \
+                                                                 "com.procurement.mdm.model.dto.data.TenderTD" \
+                                                                 "[\"procuringEntity\"]->com.procurement.mdm." \
+                                                                 "model.dto.data.OrganizationReference" \
+                                                                 "[\"persones\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.mdm.model.dto.data.Persone" \
+                                                                 "[\"businessFunctions\"]->java.util.ArrayList[0]" \
+                                                                 "->com.procurement.mdm.model.dto.data.Business" \
+                                                                 "Function[\"period\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.Period[\"startDate\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_20_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        cn.delete_auction_from_database(cpid)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        ms_url = list()
+        for d in ev_release["releases"][0]["relatedProcesses"]:
+            if d["relationship"] == ["parent"]:
+                ms_url.append(d["uri"])
+        ms_release = requests.get(url=ms_url[0]).json()
+        procuring_entity_obj = list()
+        for p in ms_release["releases"][0]["parties"]:
+            if p["roles"] == ["procuringEntity"]:
+                procuring_entity_obj.append(p)
+        check_documents_array_into_ms_releaase = "documents" in \
+                                                 procuring_entity_obj[0]["persones"][0]["businessFunctions"][0].keys()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert check_documents_array_into_ms_releaase == False
+
+    @pytestrail.case("27205")
+    def test_27205_21_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["procuringEntity"]["persones"][0]["businessFunctions"][0]["documents"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '500.14.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.storage." \
+                                                                 "model.dto.registration.Document] value failed " \
+                                                                 "for JSON property id due to missing (therefore " \
+                                                                 "NULL) value for creator parameter id which is a " \
+                                                                 "non-nullable type\n at [Source: UNKNOWN; line: " \
+                                                                 "-1, column: -1] (through reference chain: com." \
+                                                                 "procurement.storage.model.dto.registration." \
+                                                                 "DocumentsRq[\"documents\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.storage.model.dto." \
+                                                                 "registration.Document[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_22_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.82'
+        assert message_from_kafka['errors'][0]['description'] == "Collection is empty. All arrays of " \
+                                                                 "'CriterionRequest' in json must have at least " \
+                                                                 "one object have to be added "
+
+    @pytestrail.case("27205")
+    def test_27205_23_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest] value failed for " \
+                                                                 "JSON property id due to missing (therefore NULL) " \
+                                                                 "value for creator parameter id which is a non-" \
+                                                                 "nullable type\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"criteria\"]->java.util.ArrayList[0]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.criterion.CriterionRequest[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_24_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["classification"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionClassificationRequest] value " \
+                                                                 "failed for JSON property id due to missing " \
+                                                                 "(therefore NULL) value for creator parameter " \
+                                                                 "id which is a non-nullable type\n at [Source: " \
+                                                                 "UNKNOWN; line: -1, column: -1] (through " \
+                                                                 "reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"criteria\"]->java." \
+                                                                 "util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest[\"classification\"]" \
+                                                                 "->com.procurement.access.infrastructure." \
+                                                                 "handler.v1.model.request.criterion." \
+                                                                 "CriterionClassificationRequest[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_25_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.82'
+        assert message_from_kafka['errors'][0]['description'] == "Collection is empty. All arrays of 'Requirement" \
+                                                                 "Group' in json must have at least one object " \
+                                                                 "have to be added "
+
+    @pytestrail.case("27205")
+    def test_27205_26_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.00'
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest$RequirementGroup] " \
+                                                                 "value failed for JSON property id due to missing " \
+                                                                 "(therefore NULL) value for creator parameter id " \
+                                                                 "which is a non-nullable type\n at [Source: " \
+                                                                 "UNKNOWN; line: -1, column: -1] (through " \
+                                                                 "reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"criteria\"]->java." \
+                                                                 "util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest" \
+                                                                 "[\"requirementGroups\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.access.infrastructure." \
+                                                                 "handler.v1.model.request.criterion.Criterion" \
+                                                                 "Request$RequirementGroup[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_27_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == '400.03.10.82'
+        assert message_from_kafka['errors'][0]['description'] == "Collection is empty. All arrays of " \
+                                                                 "'Requirement' in json must have at least one " \
+                                                                 "object have to be added "
+
+    @pytestrail.case("27205")
+    def test_27205_28_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: (was java.lang.NullPointerException) " \
+                                                                 "(through reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"criteria\"]->java." \
+                                                                 "util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest[\"requirementGroups\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model." \
+                                                                 "request.criterion.CriterionRequest$Requirement" \
+                                                                 "Group[\"requirements\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_29_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        check_eligibleEvidences_into_criteria_array = "eligibleEvidences" in \
+                                                      ev_release["releases"][0]["tender"]["criteria"][0][
+                                                          "requirementGroups"][0]["requirements"][0].keys()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert check_eligibleEvidences_into_criteria_array == False
+
+    @pytestrail.case("27205")
+    def test_27205_30_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: (was java.lang.NullPointerException) " \
+                                                                 "(through reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model." \
+                                                                 "request.OpenCnOnPnRequest$Tender[\"criteria\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model." \
+                                                                 "request.criterion.CriterionRequest" \
+                                                                 "[\"requirementGroups\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest$Requirement" \
+                                                                 "Group[\"requirements\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_31_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["eligibleEvidences"][0][
+            "relatedDocument"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: (was java.lang.NullPointer" \
+                                                                 "Exception) (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest[\"tender\"]" \
+                                                                 "->com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"criteria\"]->java.util.ArrayList[0]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.criterion.CriterionRequest" \
+                                                                 "[\"requirementGroups\"]->java.util.ArrayList[0]" \
+                                                                 "->com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.criterion.CriterionRequest$" \
+                                                                 "RequirementGroup[\"requirements\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_32_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["criteria"][0]["requirementGroups"][0]["requirements"][0]["period"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.databind.JsonMapping" \
+                                                                 "Exception: (was java.lang.NullPointerException) " \
+                                                                 "(through reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest[\"tender\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest$Tender[\"criteria\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest[\"requirementGroups\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "criterion.CriterionRequest$Requirement" \
+                                                                 "Group[\"requirements\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_33_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.10.82"
+        assert message_from_kafka['errors'][0]['description'] == "Collection is empty. All arrays of " \
+                                                                 "'ConversionRequest' in json must have at least " \
+                                                                 "one object have to be added "
+
+    @pytestrail.case("27205")
+    def test_27205_34_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "ConversionRequest] value failed for JSON " \
+                                                                 "property id due to missing (therefore NULL) " \
+                                                                 "value for creator parameter id which is a non-" \
+                                                                 "nullable type\n at [Source: UNKNOWN; line: -1, " \
+                                                                 "column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"conversions\"]->java.util.ArrayList[0]->" \
+                                                                 "com.procurement.access.infrastructure.handler." \
+                                                                 "v1.model.request.ConversionRequest[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_35_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["coefficients"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.10.82"
+        assert message_from_kafka['errors'][0]['description'] == "Collection is empty. All arrays of 'Coefficient' " \
+                                                                 "in json must have at least one object have to " \
+                                                                 "be added "
+
+    @pytestrail.case("27205")
+    def test_27205_36_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["conversions"][0]["coefficients"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "ConversionRequest$Coefficient] value failed " \
+                                                                 "for JSON property id due to missing (therefore " \
+                                                                 "NULL) value for creator parameter id which is a " \
+                                                                 "non-nullable type\n at [Source: UNKNOWN; line: " \
+                                                                 "-1, column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender" \
+                                                                 "[\"conversions\"]->java.util.ArrayList[0]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.ConversionRequest[\"coefficients\"]->" \
+                                                                 "java.util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "ConversionRequest$Coefficient[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_37_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.10.29"
+        assert message_from_kafka['errors'][0]['description'] == "Lots must not be empty."
+
+    @pytestrail.case("27205")
+    def test_27205_38_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest$Tender$Lot] value failed for JSON " \
+                                                                 "property id due to missing (therefore NULL) value " \
+                                                                 "for creator parameter id which is a non-nullable " \
+                                                                 "type\n at [Source: UNKNOWN; line: -1, column: " \
+                                                                 "-1] (through reference chain: com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest[\"tender\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest$Tender$Lot[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_39_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["value"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest$Tender$Lot$Value] value failed for " \
+                                                                 "JSON property amount due to missing (therefore " \
+                                                                 "NULL) value for creator parameter amount which is " \
+                                                                 "a non-nullable type\n at [Source: UNKNOWN; line: " \
+                                                                 "-1, column: -1] (through reference chain: com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest[\"tender\"]->" \
+                                                                 "com.procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender[\"lots\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest$Tender$Lot[\"value\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot$Value[\"amount\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_40_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["contractPeriod"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest$Tender$Lot$ContractPeriod] value " \
+                                                                 "failed for JSON property startDate due to missing " \
+                                                                 "(therefore NULL) value for creator parameter " \
+                                                                 "startDate which is a non-nullable type\n at " \
+                                                                 "[Source: UNKNOWN; line: -1, column: -1] (through " \
+                                                                 "reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest[\"tender\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCnOn" \
+                                                                 "PnRequest$Tender[\"lots\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.access.infrastructure." \
+                                                                 "handler.v1.model.request.OpenCnOnPnRequest$" \
+                                                                 "Tender$Lot[\"contractPeriod\"]->com.procurement." \
+                                                                 "access.infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot$ContractPeriod" \
+                                                                 "[\"startDate\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_41_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["value"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlin" \
+                                                                 "ParameterException: Instantiation of [simple " \
+                                                                 "type, class com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request." \
+                                                                 "OpenCnOnPnRequest$Tender$Lot$Value] value failed " \
+                                                                 "for JSON property amount due to missing " \
+                                                                 "(therefore NULL) value for creator parameter " \
+                                                                 "amount which is a non-nullable type\n at [Source: " \
+                                                                 "UNKNOWN; line: -1, column: -1] (through " \
+                                                                 "reference chain: com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.OpenCn" \
+                                                                 "OnPnRequest[\"tender\"]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest$Tender[\"lots\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.access." \
+                                                                 "infrastructure.handler.v1.model.request.Open" \
+                                                                 "CnOnPnRequest$Tender$Lot[\"value\"]->com." \
+                                                                 "procurement.access.infrastructure.handler.v1." \
+                                                                 "model.request.OpenCnOnPnRequest$Tender$Lot$" \
+                                                                 "Value[\"amount\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_42_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.00"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data." \
+                                     "PlaceOfPerformance] value failed for JSON property address due to missing " \
+                                     "(therefore NULL) value for creator parameter address which is a non-nullable " \
+                                     "type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: " \
+                                     "com.procurement.mdm.model.dto.data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                     "dto.data.TenderTD[\"lots\"]->java.util.ArrayList[0]->com.procurement.mdm." \
+                                     "model.dto.data.LotTD[\"placeOfPerformance\"]->com.procurement.mdm.model." \
+                                     "dto.data.PlaceOfPerformance[\"address\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_43_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.00"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data." \
+                                     "Address] value failed for JSON property streetAddress due to missing " \
+                                     "(therefore NULL) value for creator parameter streetAddress which is a non-" \
+                                     "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through " \
+                                     "reference chain: com.procurement.mdm.model.dto.data.TD[\"tender\"]->com." \
+                                     "procurement.mdm.model.dto.data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
+                                     "->com.procurement.mdm.model.dto.data.LotTD[\"placeOfPerformance\"]->com." \
+                                     "procurement.mdm.model.dto.data.PlaceOfPerformance[\"address\"]->com." \
+                                     "procurement.mdm.model.dto.data.Address[\"streetAddress\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_44_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.00"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto." \
+                                     "data.AddressDetails] value failed for JSON property country due to " \
+                                     "missing (therefore NULL) value for creator parameter country which is a " \
+                                     "non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through " \
+                                     "reference chain: com.procurement.mdm.model.dto.data.TD[\"tender\"]->com." \
+                                     "procurement.mdm.model.dto.data.TenderTD[\"lots\"]->java.util.ArrayList[0]->" \
+                                     "com.procurement.mdm.model.dto.data.LotTD[\"placeOfPerformance\"]->com." \
+                                     "procurement.mdm.model.dto.data.PlaceOfPerformance[\"address\"]->com." \
+                                     "procurement.mdm.model.dto.data.Address[\"addressDetails\"]->com.procurement." \
+                                     "mdm.model.dto.data.AddressDetails[\"country\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_45_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.00"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data." \
+                                     "CountryDetails] value failed for JSON property id due to missing " \
+                                     "(therefore NULL) value for creator parameter id which is a non-nullable " \
+                                     "type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: " \
+                                     "com.procurement.mdm.model.dto.data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                     "dto.data.TenderTD[\"lots\"]->java.util.ArrayList[0]->com.procurement.mdm." \
+                                     "model.dto.data.LotTD[\"placeOfPerformance\"]->com.procurement.mdm.model.dto." \
+                                     "data.PlaceOfPerformance[\"address\"]->com.procurement.mdm.model.dto.data." \
+                                     "Address[\"addressDetails\"]->com.procurement.mdm.model.dto.data.Address" \
+                                     "Details[\"country\"]->com.procurement.mdm.model.dto.data.CountryDetails[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_46_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.00"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data." \
+                                     "RegionDetails] value failed for JSON property id due to missing (therefore " \
+                                     "NULL) value for creator parameter id which is a non-nullable type\n at " \
+                                     "[Source: UNKNOWN; line: -1, column: -1] (through reference chain: com." \
+                                     "procurement.mdm.model.dto.data.TD[\"tender\"]->com.procurement.mdm.model.dto." \
+                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]->com.procurement.mdm.model." \
+                                     "dto.data.LotTD[\"placeOfPerformance\"]->com.procurement.mdm.model.dto.data." \
+                                     "PlaceOfPerformance[\"address\"]->com.procurement.mdm.model.dto.data.Address" \
+                                     "[\"addressDetails\"]->com.procurement.mdm.model.dto.data.AddressDetails" \
+                                     "[\"region\"]->com.procurement.mdm.model.dto.data.RegionDetails[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_47_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.00"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.mdm.model.dto.data." \
+                                     "LocalityDetails] value failed for JSON property scheme due to missing " \
+                                     "(therefore NULL) value for creator parameter scheme which is a non-" \
+                                     "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through " \
+                                     "reference chain: com.procurement.mdm.model.dto.data.TD[\"tender\"]->com." \
+                                     "procurement.mdm.model.dto.data.TenderTD[\"lots\"]->java.util.ArrayList" \
+                                     "[0]->com.procurement.mdm.model.dto.data.LotTD[\"placeOfPerformance\"]->" \
+                                     "com.procurement.mdm.model.dto.data.PlaceOfPerformance[\"address\"]->com." \
+                                     "procurement.mdm.model.dto.data.Address[\"addressDetails\"]->com." \
+                                     "procurement.mdm.model.dto.data.AddressDetails[\"locality\"]->com." \
+                                     "procurement.mdm.model.dto.data.LocalityDetails[\"scheme\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_48_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        check_options_into_lots_array = "options" in ev_release["releases"][0]["tender"]["lots"][0].keys()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert check_options_into_lots_array == False
+
+    @pytestrail.case("27205")
+    def test_27205_49_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.01.12"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "tender.lots.options object must not be empty. "
+
+    @pytestrail.case("27205")
+    def test_27205_50_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["options"][0]["period"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.01.12"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "tender.lots.options.period object must not be empty. "
+
+    @pytestrail.case("27205")
+    def test_27205_51_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["recurrence"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.01.12"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "tender.lots.recurrence object must not be empty. "
+
+    @pytestrail.case("27205")
+    def test_27205_52_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["recurrence"]["dates"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        check_dates_into_recurrence_array = "dates" in ev_release["releases"][0]["tender"]["lots"][0][
+            "recurrence"].keys()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert check_dates_into_recurrence_array == False
+
+    @pytestrail.case("27205")
+    def test_27205_53_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["recurrence"]["dates"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.01.12"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "tender.lots.recurrence.dates object must not be empty. "
+
+    @pytestrail.case("27205")
+    def test_27205_54_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.01.12"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "tender.lots.renewal object must not be empty. "
+
+    @pytestrail.case("27205")
+    def test_27205_55_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["lots"][0]["renewal"]["period"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.01.12"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "tender.lots.renewal.period object must not be empty. "
+
+    @pytestrail.case("27205")
+    def test_27205_56_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.10.28"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "Items must not be empty. Items must not be empty."
+
+    @pytestrail.case("27205")
+    def test_27205_57_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.access.infrastructure." \
+                                     "handler.v1.model.request.CheckItemsRequest$Item] value failed for JSON " \
+                                     "property classification due to missing (therefore NULL) value for creator " \
+                                     "parameter classification which is a non-nullable type\n at [Source: " \
+                                     "UNKNOWN; line: -1, column: -1] (through reference chain: com.procurement." \
+                                     "access.infrastructure.handler.v1.model.request.CheckItemsRequest[\"items\"]" \
+                                     "->java.util.ArrayList[0]->com.procurement.access.infrastructure.handler.v1." \
+                                     "model.request.CheckItemsRequest$Item[\"classification\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_58_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["classification"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.00"
+        assert message_from_kafka['errors'][0][
+                   'description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: " \
+                                     "Instantiation of [simple type, class com.procurement.access.infrastructure." \
+                                     "handler.v1.model.request.CheckItemsRequest$Item$Classification] value " \
+                                     "failed for JSON property id due to missing (therefore NULL) value for " \
+                                     "creator parameter id which is a non-nullable type\n at [Source: UNKNOWN; " \
+                                     "line: -1, column: -1] (through reference chain: com.procurement.access." \
+                                     "infrastructure.handler.v1.model.request.CheckItemsRequest[\"items\"]->" \
+                                     "java.util.ArrayList[0]->com.procurement.access.infrastructure.handler.v1." \
+                                     "model.request.CheckItemsRequest$Item[\"classification\"]->com.procurement." \
+                                     "access.infrastructure.handler.v1.model.request.CheckItemsRequest$Item$" \
+                                     "Classification[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_59_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        check_additional_classification_into_items_array = "additionalClassifications" in \
+                                                           ev_release["releases"][0]["tender"]["items"][0].keys()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert check_additional_classification_into_items_array == False
+
+    @pytestrail.case("27205")
+    def test_27205_60_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.Missing" \
+                                                                 "KotlinParameterException: Instantiation of " \
+                                                                 "[simple type, class com.procurement.mdm.model." \
+                                                                 "dto.data.ClassificationTD] value failed for " \
+                                                                 "JSON property id due to missing (therefore " \
+                                                                 "NULL) value for creator parameter id which is " \
+                                                                 "a non-nullable type\n at [Source: UNKNOWN; " \
+                                                                 "line: -1, column: -1] (through reference chain: " \
+                                                                 "com.procurement.mdm.model.dto.data.TD" \
+                                                                 "[\"tender\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.TenderTD[\"items\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data.ItemTD" \
+                                                                 "[\"additionalClassifications\"]->java.util." \
+                                                                 "ArrayList[0]->com.procurement.mdm.model.dto." \
+                                                                 "data.ClassificationTD[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_61_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["items"][0]["unit"] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.20.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlin" \
+                                                                 "ParameterException: Instantiation of [simple " \
+                                                                 "type, class com.procurement.mdm.model.dto.data." \
+                                                                 "ItemUnitTD] value failed for JSON property id " \
+                                                                 "due to missing (therefore NULL) value for creator " \
+                                                                 "parameter id which is a non-nullable type\n at " \
+                                                                 "[Source: UNKNOWN; line: -1, column: -1] (through " \
+                                                                 "reference chain: com.procurement.mdm.model.dto." \
+                                                                 "data.TD[\"tender\"]->com.procurement.mdm.model." \
+                                                                 "dto.data.TenderTD[\"items\"]->java.util.ArrayList" \
+                                                                 "[0]->com.procurement.mdm.model.dto.data.ItemTD" \
+                                                                 "[\"unit\"]->com.procurement.mdm.model.dto." \
+                                                                 "data.ItemUnitTD[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_62_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "400.03.10.30"
+        assert message_from_kafka['errors'][0]['description'] == "Documents must not be empty. At least one " \
+                                                                 "document should be added to tenders documents. "
+
+    @pytestrail.case("27205")
+    def test_27205_63_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0] = {}
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert message_from_kafka['errors'][0]['code'] == "500.14.00"
+        assert message_from_kafka['errors'][0]['description'] == "com.fasterxml.jackson.module.kotlin.MissingKotlin" \
+                                                                 "ParameterException: Instantiation of [simple " \
+                                                                 "type, class com.procurement.storage.model.dto." \
+                                                                 "registration.Document] value failed for JSON " \
+                                                                 "property id due to missing (therefore NULL) value " \
+                                                                 "for creator parameter id which is a non-nullable " \
+                                                                 "type\n at [Source: UNKNOWN; line: -1, column: -1] " \
+                                                                 "(through reference chain: com.procurement.storage." \
+                                                                 "model.dto.registration.DocumentsRq[\"documents\"]" \
+                                                                 "->java.util.ArrayList[0]->com.procurement.storage." \
+                                                                 "model.dto.registration.Document[\"id\"])"
+
+    @pytestrail.case("27205")
+    def test_27205_64_smoke_regression(self, additional_value):
+        cn = CNonPN()
+        cpid = prepared_cpid()
+        pn = cn.create_pn_obligatory_data_model(cpid=cpid, additional_value=additional_value)
+        payload = copy.deepcopy(payload_cnonpn_auction_full_data_model)
+        payload["tender"]["documents"][0]["relatedLots"] = []
+        create_cnonpn_response = cn.create_request_cnonpn(cpid=cpid, pn=pn, payload=payload)
+        message_from_kafka = cn.get_message_from_kafka()
+        ev_url = requests.get(url=message_from_kafka["data"]["url"]).json()["actualReleases"][0]["uri"]
+        ev_release = requests.get(url=ev_url).json()
+        check_related_lots_into_documents_array = "relatedLots" in \
+                                                  ev_release["releases"][0]["tender"]["documents"][0].keys()
+        cn.delete_auction_from_database(cpid)
+        assert create_cnonpn_response.text == "ok"
+        assert create_cnonpn_response.status_code == 202
+        assert check_related_lots_into_documents_array == False
