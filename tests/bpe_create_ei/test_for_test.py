@@ -8,11 +8,11 @@ from pytest_testrail.plugin import pytestrail
 from useful_functions import is_valid_uuid
 from tests.bpe_create_ei.create_ei import bpe_create_ei
 from tests.bpe_create_ei.payloads import ei_full, ei_obligatory
-import allure
+import pytest
 
 
 class TestBpeCreateEI(object):
-    @allure.step
+    @pytest.allure.step
     @pytestrail.case("22132")
     def test_22132_1(self):
         ei = copy.deepcopy(ei_full)
@@ -25,6 +25,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response[1]["errors"][0]["code"] == "400.00.00.00"
         assert create_ei_response[1]["errors"][0]["description"] == "Data processing exception."
 
+    @pytest.allure.step
     @pytestrail.case("22132")
     def test_22132_2(self):
         ei = copy.deepcopy(ei_full)
