@@ -8,9 +8,12 @@ from pytest_testrail.plugin import pytestrail
 from useful_functions import is_valid_uuid
 from tests.bpe_create_ei.create_ei import bpe_create_ei
 from tests.bpe_create_ei.payloads import ei_full, ei_obligatory
+import allure
 
 
 class TestBpeCreateEI(object):
+    @allure.feature('Feature1')
+    @allure.story('Story1')
     @pytestrail.case("22132")
     def test_22132_1(self):
         ei = copy.deepcopy(ei_full)
