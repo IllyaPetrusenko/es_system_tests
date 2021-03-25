@@ -12,8 +12,6 @@ import allure
 
 
 class TestBpeCreateEI(object):
-    @allure.feature('Feature1')
-    @allure.story('Story1')
     @pytestrail.case("22132")
     def test_22132_1(self):
         ei = copy.deepcopy(ei_full)
