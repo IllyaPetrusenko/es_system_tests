@@ -44,8 +44,6 @@ def execute_cql_from_orchestrator_operation_step_by_oper_id(operation_id, task_i
     return request_data, response_data, step_date, context
 
 
-
-
 def execute_cql_from_orchestrator_operation_step(cp_id, task_id):
     auth_provider = PlainTextAuthProvider(username=username, password=password)
     cluster = Cluster([host], auth_provider=auth_provider)
@@ -83,6 +81,7 @@ def get_release_date(cpid, stage):
         f"ALLOW FILTERING;").one()
     return release_date[0]
 
+
 def get_publish_date(cpid, stage):
     auth_provider = PlainTextAuthProvider(username=username, password=password)
     cluster = Cluster([host], auth_provider=auth_provider)
@@ -92,3 +91,12 @@ def get_publish_date(cpid, stage):
         f"SELECT publish_date FROM notice_budget_compiled_release WHERE cp_id = '{cpid}' and stage ='{stage}' "
         f"ALLOW FILTERING;").one()
     return publish_date[0]
+
+
+def clear_auctions_auctions_by_cpid(cpid):
+    auth_provider = PlainTextAuthProvider(username=username, password=password)
+    cluster = Cluster([host], auth_provider=auth_provider)
+    session = cluster.connect('ocds')
+    del_auction_from_database = session.execute(f"DELETE FROM access_tender WHERE cp_id='{cpid}';").one()
+
+    return del_auction_from_database

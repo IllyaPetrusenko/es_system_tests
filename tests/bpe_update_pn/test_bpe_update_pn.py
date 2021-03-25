@@ -23,7 +23,7 @@ from useful_functions import prepared_cpid, get_access_token_for_platform_two, g
 
 class TestBpeCreatePN(object):
     @pytestrail.case("27179")
-    def test_27179_1(self, additional_value):
+    def test_27179_1_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["planning"]
@@ -45,7 +45,7 @@ class TestBpeCreatePN(object):
                                                                     "dto.pn.PnUpdate[\"planning\"])"
 
     @pytestrail.case("27179")
-    def test_27179_2(self, additional_value):
+    def test_27179_2_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["planning"]["budget"]
@@ -68,7 +68,7 @@ class TestBpeCreatePN(object):
                                                                     "dto.pn.PlanningPnUpdate[\"budget\"])"
 
     @pytestrail.case("27179")
-    def test_27179_3(self, additional_value):
+    def test_27179_3_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]
@@ -81,7 +81,7 @@ class TestBpeCreatePN(object):
         assert update_pn_response[1]["errors"][0]["description"] == "Data processing exception."
 
     @pytestrail.case("27179")
-    def test_27179_4(self, additional_value):
+    def test_27179_4_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["title"]
@@ -104,7 +104,7 @@ class TestBpeCreatePN(object):
                                                                     "pn.TenderPnUpdate[\"title\"])"
 
     @pytestrail.case("27179")
-    def test_27179_5(self, additional_value):
+    def test_27179_5_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["description"]
@@ -128,7 +128,7 @@ class TestBpeCreatePN(object):
                                                                     "dto.pn.TenderPnUpdate[\"description\"])"
 
     @pytestrail.case("27179")
-    def test_27179_6(self, additional_value):
+    def test_27179_6_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["tenderPeriod"]
@@ -152,7 +152,7 @@ class TestBpeCreatePN(object):
                                                                     "Update[\"tenderPeriod\"])"
 
     @pytestrail.case("27179")
-    def test_27179_7(self, additional_value):
+    def test_27179_7_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["tenderPeriod"]["startDate"]
@@ -177,7 +177,7 @@ class TestBpeCreatePN(object):
                                                                     "access.model.dto.pn.PeriodPnUpdate[\"startDate\"])"
 
     @pytestrail.case("27179")
-    def test_27179_8(self, additional_value):
+    def test_27179_8_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"]
@@ -190,7 +190,7 @@ class TestBpeCreatePN(object):
         assert update_pn_response[1]["errors"][0]["description"] == "Lots must not be empty."
 
     @pytestrail.case("27179")
-    def test_27179_9(self, additional_value):
+    def test_27179_9_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["id"]
@@ -215,7 +215,7 @@ class TestBpeCreatePN(object):
                                                                     "to.pn.LotPnUpdate[\"id\"])"
 
     @pytestrail.case("27179")
-    def test_27179_10(self, additional_value):
+    def test_27179_10_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["title"]
@@ -240,7 +240,7 @@ class TestBpeCreatePN(object):
                                                                     "LotPnUpdate[\"title\"])"
 
     @pytestrail.case("27179")
-    def test_27179_11(self, additional_value):
+    def test_27179_11_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["description"]
@@ -266,7 +266,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"description\"])"
 
     @pytestrail.case("27179")
-    def test_27179_12(self, additional_value):
+    def test_27179_12_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["value"]
@@ -291,7 +291,7 @@ class TestBpeCreatePN(object):
                                                                     "dto.pn.LotPnUpdate[\"value\"])"
 
     @pytestrail.case("27179")
-    def test_27179_13(self, additional_value):
+    def test_27179_13_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["value"]["amount"]
@@ -317,7 +317,7 @@ class TestBpeCreatePN(object):
                                                                     "access.model.dto.ocds.Value[\"amount\"])"
 
     @pytestrail.case("27179")
-    def test_27179_14(self, additional_value):
+    def test_27179_14_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["value"]["currency"]
@@ -344,7 +344,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.ocds.Value[\"currency\"])"
 
     @pytestrail.case("27179")
-    def test_27179_15(self, additional_value):
+    def test_27179_15_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["contractPeriod"]
@@ -370,7 +370,7 @@ class TestBpeCreatePN(object):
                                                                     "Update[\"contractPeriod\"])"
 
     @pytestrail.case("27179")
-    def test_27179_16(self, additional_value):
+    def test_27179_16_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["contractPeriod"]["startDate"]
@@ -398,7 +398,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"startDate\"])"
 
     @pytestrail.case("27179")
-    def test_27179_17(self, additional_value):
+    def test_27179_17_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["contractPeriod"]["endDate"]
@@ -426,7 +426,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"endDate\"])"
 
     @pytestrail.case("27179")
-    def test_27179_18(self, additional_value):
+    def test_27179_18_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]
@@ -452,7 +452,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.pn.LotPnUpdate[\"placeOfPerformance\"])"
 
     @pytestrail.case("27179")
-    def test_27179_19(self, additional_value):
+    def test_27179_19_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]
@@ -480,7 +480,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"address\"])"
 
     @pytestrail.case("27179")
-    def test_27179_20(self, additional_value):
+    def test_27179_20_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["streetAddress"]
@@ -509,7 +509,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"streetAddress\"])"
 
     @pytestrail.case("27179")
-    def test_27179_21(self, additional_value):
+    def test_27179_21_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]
@@ -538,7 +538,7 @@ class TestBpeCreatePN(object):
                                                                     "data.Address[\"addressDetails\"])"
 
     @pytestrail.case("27179")
-    def test_27179_22(self, additional_value):
+    def test_27179_22_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"]
@@ -567,7 +567,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.data.AddressDetails[\"country\"])"
 
     @pytestrail.case("27179")
-    def test_27179_23(self, additional_value):
+    def test_27179_23_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"]["id"]
@@ -598,7 +598,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.data.CountryDetails[\"id\"])"
 
     @pytestrail.case("27179")
-    def test_27179_24(self, additional_value):
+    def test_27179_24_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]
@@ -629,7 +629,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"region\"])"
 
     @pytestrail.case("27179")
-    def test_27179_25(self, additional_value):
+    def test_27179_25_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]["id"]
@@ -660,7 +660,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.data.RegionDetails[\"id\"])"
 
     @pytestrail.case("27179")
-    def test_27179_26(self, additional_value):
+    def test_27179_26_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]
@@ -690,7 +690,7 @@ class TestBpeCreatePN(object):
                                                                     "Details[\"locality\"])"
 
     @pytestrail.case("27179")
-    def test_27179_27(self, additional_value):
+    def test_27179_27_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"]
@@ -721,7 +721,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.data.LocalityDetails[\"scheme\"])"
 
     @pytestrail.case("27179")
-    def test_27179_28(self, additional_value):
+    def test_27179_28_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"]
@@ -752,7 +752,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.data.LocalityDetails[\"id\"])"
 
     @pytestrail.case("27179")
-    def test_27179_29(self, additional_value):
+    def test_27179_29_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["description"]
@@ -784,7 +784,7 @@ class TestBpeCreatePN(object):
                                                                     "Details[\"description\"])"
 
     @pytestrail.case("27179")
-    def test_27179_30(self, additional_value):
+    def test_27179_30_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"]
@@ -797,7 +797,7 @@ class TestBpeCreatePN(object):
         assert update_pn_response[1]["errors"][0]["description"] == "Items must not be empty."
 
     @pytestrail.case("27179")
-    def test_27179_31(self, additional_value):
+    def test_27179_31_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["id"]
@@ -823,7 +823,7 @@ class TestBpeCreatePN(object):
                                                                     "model.request.CheckItemsRequest$Item[\"id\"])"
 
     @pytestrail.case("27179")
-    def test_27179_32(self, additional_value):
+    def test_27179_32_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["classification"]
@@ -850,7 +850,7 @@ class TestBpeCreatePN(object):
                                                                     "CheckItemsRequest$Item[\"classification\"])"
 
     @pytestrail.case("27179")
-    def test_27179_33(self, additional_value):
+    def test_27179_33_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["classification"]["id"]
@@ -880,7 +880,7 @@ class TestBpeCreatePN(object):
                                                                     "Classification[\"id\"])"
 
     @pytestrail.case("27179")
-    def test_27179_34(self, additional_value):
+    def test_27179_34_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["classification"]["scheme"]
@@ -907,7 +907,7 @@ class TestBpeCreatePN(object):
                                                                     "access.model.dto.ocds.Classification[\"scheme\"])"
 
     @pytestrail.case("27179")
-    def test_27179_35(self, additional_value):
+    def test_27179_35_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["classification"]["description"]
@@ -935,7 +935,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"description\"])"
 
     @pytestrail.case("27179")
-    def test_27179_36(self, additional_value):
+    def test_27179_36_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
@@ -963,7 +963,7 @@ class TestBpeCreatePN(object):
                                                                     "Classification[\"id\"])"
 
     @pytestrail.case("27179")
-    def test_27179_37(self, additional_value):
+    def test_27179_37_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["additionalClassifications"][0]["scheme"]
@@ -991,7 +991,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.ocds.Classification[\"scheme\"])"
 
     @pytestrail.case("27179")
-    def test_27179_38(self, additional_value):
+    def test_27179_38_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["additionalClassifications"][0]["description"]
@@ -1020,7 +1020,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"description\"])"
 
     @pytestrail.case("27179")
-    def test_27179_39(self, additional_value):
+    def test_27179_39_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["quantity"]
@@ -1046,7 +1046,7 @@ class TestBpeCreatePN(object):
                                                                     "PnUpdate[\"quantity\"])"
 
     @pytestrail.case("27179")
-    def test_27179_40(self, additional_value):
+    def test_27179_40_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["unit"]
@@ -1071,7 +1071,7 @@ class TestBpeCreatePN(object):
                                                                     "dto.pn.ItemPnUpdate[\"unit\"])"
 
     @pytestrail.case("27179")
-    def test_27179_41(self, additional_value):
+    def test_27179_41_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["unit"]["id"]
@@ -1104,7 +1104,7 @@ class TestBpeCreatePN(object):
                                                                     "ocds.Unit[\"id\"])"
 
     @pytestrail.case("27179")
-    def test_27179_42(self, additional_value):
+    def test_27179_42_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["unit"]["name"]
@@ -1130,7 +1130,7 @@ class TestBpeCreatePN(object):
                                                                     "access.model.dto.ocds.Unit[\"name\"])"
 
     @pytestrail.case("27179")
-    def test_27179_43(self, additional_value):
+    def test_27179_43_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["description"]
@@ -1156,7 +1156,7 @@ class TestBpeCreatePN(object):
                                                                     "Update[\"description\"])"
 
     @pytestrail.case("27179")
-    def test_27179_44(self, additional_value):
+    def test_27179_44_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["items"][0]["relatedLot"]
@@ -1183,7 +1183,7 @@ class TestBpeCreatePN(object):
                                                                     "CheckItemsRequest$Item[\"relatedLot\"])"
 
     @pytestrail.case("27179")
-    def test_27179_45(self, additional_value):
+    def test_27179_45_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["documents"][0]["documentType"]
@@ -1209,7 +1209,7 @@ class TestBpeCreatePN(object):
                                                                     "Document[\"documentType\"])"
 
     @pytestrail.case("27179")
-    def test_27179_46(self, additional_value):
+    def test_27179_46_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["documents"][0]["id"]
@@ -1233,7 +1233,7 @@ class TestBpeCreatePN(object):
                                                                     "registration.Document[\"id\"])"
 
     @pytestrail.case("27179")
-    def test_27179_47(self, additional_value):
+    def test_27179_47_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         del payload["tender"]["documents"][0]["title"]
@@ -1247,7 +1247,7 @@ class TestBpeCreatePN(object):
                                                                     "'document.title' at 'tender'."
 
     @pytestrail.case("27180")
-    def test_27180_1(self, additional_value):
+    def test_27180_1_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
         del payload["planning"]
@@ -1269,7 +1269,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.pn.PnUpdate[\"planning\"])"
 
     @pytestrail.case("27180")
-    def test_27180_2(self, additional_value):
+    def test_27180_2_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
         del payload["planning"]["budget"]
@@ -1293,7 +1293,7 @@ class TestBpeCreatePN(object):
                                                                     "PnUpdate[\"budget\"])"
 
     @pytestrail.case("27180")
-    def test_27180_3(self, additional_value):
+    def test_27180_3_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
         del payload["tender"]
@@ -1306,7 +1306,7 @@ class TestBpeCreatePN(object):
         assert update_pn_response[1]["errors"][0]["description"] == "Data processing exception."
 
     @pytestrail.case("27180")
-    def test_27180_4(self, additional_value):
+    def test_27180_4_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
         del payload["tender"]["title"]
@@ -1329,7 +1329,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.pn.TenderPnUpdate[\"title\"])"
 
     @pytestrail.case("27180")
-    def test_27180_5(self, additional_value):
+    def test_27180_5_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
         del payload["tender"]["description"]
@@ -1353,7 +1353,7 @@ class TestBpeCreatePN(object):
                                                                     "PnUpdate[\"description\"])"
 
     @pytestrail.case("27180")
-    def test_27180_6(self, additional_value):
+    def test_27180_6_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
         del payload["tender"]["tenderPeriod"]
@@ -1377,7 +1377,7 @@ class TestBpeCreatePN(object):
                                                                     "Update[\"tenderPeriod\"])"
 
     @pytestrail.case("27180")
-    def test_27180_7(self, additional_value):
+    def test_27180_7_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_obligatory_data_model_without_documents)
         del payload["tender"]["tenderPeriod"]["startDate"]
@@ -1403,7 +1403,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"startDate\"])"
 
     @pytestrail.case("27190")
-    def test_27190_1(self, additional_value):
+    def test_27190_1_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["planning"]["rationale"] = False
@@ -1421,7 +1421,7 @@ class TestBpeCreatePN(object):
         assert multistage["releases"][0]["planning"]["rationale"] == str(payload["planning"]["rationale"]).lower()
 
     @pytestrail.case("27190")
-    def test_27190_2(self, additional_value):
+    def test_27190_2_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["planning"]["budget"]["description"] = False
@@ -1440,7 +1440,7 @@ class TestBpeCreatePN(object):
             payload["planning"]["budget"]["description"]).lower()
 
     @pytestrail.case("27190")
-    def test_27190_3(self, additional_value):
+    def test_27190_3_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["title"] = False
@@ -1458,7 +1458,7 @@ class TestBpeCreatePN(object):
         assert multistage["releases"][0]["tender"]["title"] == str(payload["tender"]["title"]).lower()
 
     @pytestrail.case("27190")
-    def test_27190_4(self, additional_value):
+    def test_27190_4_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["description"] = False
@@ -1476,7 +1476,7 @@ class TestBpeCreatePN(object):
         assert multistage["releases"][0]["tender"]["description"] == str(payload["tender"]["description"]).lower()
 
     @pytestrail.case("27190")
-    def test_27190_5(self, additional_value):
+    def test_27190_5_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["legalBasis"] = False
@@ -1495,7 +1495,7 @@ class TestBpeCreatePN(object):
                ms_after_updating["releases"][0]["tender"]["legalBasis"]
 
     @pytestrail.case("27190")
-    def test_27190_6(self, additional_value):
+    def test_27190_6_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["procurementMethodRationale"] = False
@@ -1514,7 +1514,7 @@ class TestBpeCreatePN(object):
             payload["tender"]["procurementMethodRationale"]).lower()
 
     @pytestrail.case("27190")
-    def test_27190_7(self, additional_value):
+    def test_27190_7_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["procurementMethodAdditionalInfo"] = False
@@ -1533,7 +1533,7 @@ class TestBpeCreatePN(object):
             payload["tender"]["procurementMethodAdditionalInfo"]).lower()
 
     @pytestrail.case("27190")
-    def test_27190_8(self, additional_value):
+    def test_27190_8_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["tenderPeriod"]["startDate"] = False
@@ -1553,7 +1553,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"startDate\"])"
 
     @pytestrail.case("27190")
-    def test_27190_9(self, additional_value):
+    def test_27190_9_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -1587,7 +1587,7 @@ class TestBpeCreatePN(object):
                                                                  "data.LotTD[\"id\"])"
 
     @pytestrail.case("27190")
-    def test_27190_10(self, additional_value):
+    def test_27190_10_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["internalId"] = False
@@ -1607,7 +1607,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"internalId\"])"
 
     @pytestrail.case("27190")
-    def test_27190_11(self, additional_value):
+    def test_27190_11_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["title"] = False
@@ -1627,7 +1627,7 @@ class TestBpeCreatePN(object):
                                                                     "data.LotTD[\"title\"])"
 
     @pytestrail.case("27190")
-    def test_27190_12(self, additional_value):
+    def test_27190_12_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["description"] = False
@@ -1647,7 +1647,7 @@ class TestBpeCreatePN(object):
                                                                     "data.LotTD[\"description\"])"
 
     @pytestrail.case("27190")
-    def test_27190_13(self, additional_value):
+    def test_27190_13_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["value"]["amount"] = False
@@ -1670,7 +1670,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"amount\"])"
 
     @pytestrail.case("27190")
-    def test_27190_14(self, additional_value):
+    def test_27190_14_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["value"]["currency"] = False
@@ -1691,7 +1691,7 @@ class TestBpeCreatePN(object):
                                                                     "Value[\"currency\"])"
 
     @pytestrail.case("27190")
-    def test_27190_15(self, additional_value):
+    def test_27190_15_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["contractPeriod"]["startDate"] = False
@@ -1713,7 +1713,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"startDate\"])"
 
     @pytestrail.case("27190")
-    def test_27190_16(self, additional_value):
+    def test_27190_16_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["contractPeriod"]["endDate"] = False
@@ -1734,7 +1734,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.data.ContractPeriod[\"endDate\"])"
 
     @pytestrail.case("27190")
-    def test_27190_17(self, additional_value):
+    def test_27190_17_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["streetAddress"] = False
@@ -1757,7 +1757,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"streetAddress\"])"
 
     @pytestrail.case("27190")
-    def test_27190_18(self, additional_value):
+    def test_27190_18_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["postalCode"] = False
@@ -1780,7 +1780,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"postalCode\"])"
 
     @pytestrail.case("27190")
-    def test_27190_19(self, additional_value):
+    def test_27190_19_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"]["id"] = False
@@ -1806,7 +1806,7 @@ class TestBpeCreatePN(object):
                                                                     "Details[\"id\"])"
 
     @pytestrail.case("27190")
-    def test_27190_20(self, additional_value):
+    def test_27190_20_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]["id"] = False
@@ -1832,7 +1832,7 @@ class TestBpeCreatePN(object):
                                                                     "data.RegionDetails[\"id\"])"
 
     @pytestrail.case("27190")
-    def test_27190_21(self, additional_value):
+    def test_27190_21_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = False
@@ -1858,7 +1858,7 @@ class TestBpeCreatePN(object):
                                                                     "Details[\"scheme\"])"
 
     @pytestrail.case("27190")
-    def test_27190_22(self, additional_value):
+    def test_27190_22_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["id"] = False
@@ -1884,7 +1884,7 @@ class TestBpeCreatePN(object):
                                                                     "Details[\"id\"])"
 
     @pytestrail.case("27190")
-    def test_27190_23(self, additional_value):
+    def test_27190_23_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"][
@@ -1911,7 +1911,7 @@ class TestBpeCreatePN(object):
                                                                     "Details[\"description\"])"
 
     @pytestrail.case("27190")
-    def test_27190_24(self, additional_value):
+    def test_27190_24_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["description"] = False
@@ -1935,7 +1935,7 @@ class TestBpeCreatePN(object):
 # we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.10.11 from eAccess
 # QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
-    def test_27190_25(self, additional_value):
+    def test_27190_25_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -2006,7 +2006,7 @@ class TestBpeCreatePN(object):
 # we expect to get error.code = 400.20.00 from eMDM, but system does not return error
 # QA team decided we had failed this case, but system had not returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
-    def test_27190_26(self, additional_value):
+    def test_27190_26_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["internalId"] = False
@@ -2026,7 +2026,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"internalId\"])"
 
     @pytestrail.case("27190")
-    def test_27190_27(self, additional_value):
+    def test_27190_27_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["classification"]["id"] = False
@@ -2042,7 +2042,7 @@ class TestBpeCreatePN(object):
 # we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.00 from eAccess
 # QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
-    def test_27190_28(self, additional_value):
+    def test_27190_28_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["classification"]["scheme"] = False
@@ -2063,7 +2063,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.data.ClassificationTD[\"scheme\"])"
 
     @pytestrail.case("27190")
-    def test_27190_29(self, additional_value):
+    def test_27190_29_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["classification"]["description"] = False
@@ -2077,7 +2077,7 @@ class TestBpeCreatePN(object):
                pn_after_updating["releases"][0]["tender"]["items"][0]["classification"]["description"]
 
     @pytestrail.case("27190")
-    def test_27190_30(self, additional_value):
+    def test_27190_30_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = False
@@ -2093,7 +2093,7 @@ class TestBpeCreatePN(object):
 # we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.00 from eAccess
 # QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
-    def test_27190_31(self, additional_value):
+    def test_27190_31_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["additionalClassifications"][0]["scheme"] = False
@@ -2115,7 +2115,7 @@ class TestBpeCreatePN(object):
                                                                     "model.dto.data.ClassificationTD[\"scheme\"])"
 
     @pytestrail.case("27190")
-    def test_27190_32(self, additional_value):
+    def test_27190_32_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["additionalClassifications"][0]["description"] = False
@@ -2132,7 +2132,7 @@ class TestBpeCreatePN(object):
 # we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.00 from eAccess
 # QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
-    def test_27190_33(self, additional_value):
+    def test_27190_33_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["quantity"] = False
@@ -2154,7 +2154,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"quantity\"])"
 
     @pytestrail.case("27190")
-    def test_27190_34(self, additional_value):
+    def test_27190_34_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["unit"]["id"] = False
@@ -2168,7 +2168,7 @@ class TestBpeCreatePN(object):
                pn_after_updating["releases"][0]["tender"]["items"][0]["unit"]["id"]
 
     @pytestrail.case("27190")
-    def test_27190_35(self, additional_value):
+    def test_27190_35_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["unit"]["id"] = False
@@ -2182,7 +2182,7 @@ class TestBpeCreatePN(object):
                pn_after_updating["releases"][0]["tender"]["items"][0]["unit"]["name"]
 
     @pytestrail.case("27190")
-    def test_27190_36(self, additional_value):
+    def test_27190_36_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["description"] = False
@@ -2198,7 +2198,7 @@ class TestBpeCreatePN(object):
 # we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.10.17 from eAccess
 # QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
     @pytestrail.case("27190")
-    def test_27190_37(self, additional_value):
+    def test_27190_37_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -2267,7 +2267,7 @@ class TestBpeCreatePN(object):
                                                                  "[\"relatedLot\"])"
 
     @pytestrail.case("27190")
-    def test_27190_38(self, additional_value):
+    def test_27190_38_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["documents"][0]["documentType"] = False
@@ -2302,7 +2302,7 @@ class TestBpeCreatePN(object):
                                                                     "[\"documentType\"])"
 
     @pytestrail.case("27190")
-    def test_27190_39(self, additional_value):
+    def test_27190_39_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -2365,7 +2365,7 @@ class TestBpeCreatePN(object):
                    "description"] == f"Files not found: [{str(payload['tender']['documents'][0]['id']).lower()}]"
 
     @pytestrail.case("27190")
-    def test_27190_40(self, additional_value):
+    def test_27190_40_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["documents"][0]["title"] = False
@@ -2379,7 +2379,7 @@ class TestBpeCreatePN(object):
                str(payload["tender"]["documents"][0]["title"]).lower()
 
     @pytestrail.case("27190")
-    def test_27190_41(self, additional_value):
+    def test_27190_41_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["documents"][0]["description"] = False
@@ -2393,7 +2393,7 @@ class TestBpeCreatePN(object):
                str(payload["tender"]["documents"][0]["description"]).lower()
 
     @pytestrail.case("27190")
-    def test_27190_42(self, additional_value):
+    def test_27190_42_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -2455,7 +2455,7 @@ class TestBpeCreatePN(object):
         assert message_from_kafka["errors"][0]["description"] == "Invalid documents related lots."
 
     @pytestrail.case("27185")
-    def test_27185_1(self, additional_value):
+    def test_27185_1_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["planning"]["rationale"] = ""
@@ -2470,7 +2470,7 @@ class TestBpeCreatePN(object):
                                      "empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_2(self, additional_value):
+    def test_27185_2_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["planning"]["budget"]["description"] = ""
@@ -2485,7 +2485,7 @@ class TestBpeCreatePN(object):
                                      "empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_3(self, additional_value):
+    def test_27185_3_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["title"] = ""
@@ -2499,7 +2499,7 @@ class TestBpeCreatePN(object):
                    "description"] == "Incorrect an attribute value. The attribute 'tender.title' is empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_4(self, additional_value):
+    def test_27185_4_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["description"] = ""
@@ -2514,7 +2514,7 @@ class TestBpeCreatePN(object):
                                      "or blank."
 
     @pytestrail.case("27185")
-    def test_27185_5(self, additional_value):
+    def test_27185_5_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["procurementMethodRationale"] = ""
@@ -2529,7 +2529,7 @@ class TestBpeCreatePN(object):
                                      "Rationale' is empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_6(self, additional_value):
+    def test_27185_6_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["procurementMethodAdditionalInfo"] = ""
@@ -2544,7 +2544,7 @@ class TestBpeCreatePN(object):
                                      "AdditionalInfo' is empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_7(self, additional_value):
+    def test_27185_7_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["tenderPeriod"]["startDate"] = ""
@@ -2562,7 +2562,7 @@ class TestBpeCreatePN(object):
                                      "[\"startDate\"])"
 
     @pytestrail.case("27190")
-    def test_27185_8(self, additional_value):
+    def test_27185_8_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -2624,7 +2624,7 @@ class TestBpeCreatePN(object):
         assert message_from_kafka["errors"][0]["description"] == "Invalid items related lots."
 
     @pytestrail.case("27185")
-    def test_27185_9(self, additional_value):
+    def test_27185_9_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["internalId"] = ""
@@ -2639,7 +2639,7 @@ class TestBpeCreatePN(object):
                                      "empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_10(self, additional_value):
+    def test_27185_10_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["title"] = ""
@@ -2654,7 +2654,7 @@ class TestBpeCreatePN(object):
                                      "empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_11(self, additional_value):
+    def test_27185_11_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["description"] = ""
@@ -2669,7 +2669,7 @@ class TestBpeCreatePN(object):
                                      "empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_12(self, additional_value):
+    def test_27185_12_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["value"]["currency"] = ""
@@ -2683,7 +2683,7 @@ class TestBpeCreatePN(object):
                    "description"] == "Invalid lot currency."
 
     @pytestrail.case("27185")
-    def test_27185_13(self, additional_value):
+    def test_27185_13_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["contractPeriod"]["startDate"] = ""
@@ -2702,7 +2702,7 @@ class TestBpeCreatePN(object):
                                      "Period[\"startDate\"])"
 
     @pytestrail.case("27185")
-    def test_27185_15(self, additional_value):
+    def test_27185_15_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["streetAddress"] = ""
@@ -2717,7 +2717,7 @@ class TestBpeCreatePN(object):
                                      "Performance.address.streetAddress' is empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_16(self, additional_value):
+    def test_27185_16_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["postalCode"] = ""
@@ -2732,7 +2732,7 @@ class TestBpeCreatePN(object):
                                      "address.postalCode' is empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_17(self, additional_value):
+    def test_27185_17_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["country"]["id"] = ""
@@ -2746,7 +2746,7 @@ class TestBpeCreatePN(object):
                    "description"] == "Country not found. "
 
     @pytestrail.case("27185")
-    def test_27185_18(self, additional_value):
+    def test_27185_18_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["region"]["id"] = ""
@@ -2763,7 +2763,7 @@ class TestBpeCreatePN(object):
 # locality.scheme was published as empty string on PublicPoint
 # https://ustudio.atlassian.net/browse/ES-5775
     @pytestrail.case("27185")
-    def test_27185_19(self, additional_value):
+    def test_27185_19_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = ""
@@ -2781,7 +2781,7 @@ class TestBpeCreatePN(object):
 # locality.id was published as empty string on PublicPoint
 # https://ustudio.atlassian.net/browse/ES-5775
     @pytestrail.case("27185")
-    def test_27185_20(self, additional_value):
+    def test_27185_20_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = "tEST"
@@ -2800,7 +2800,7 @@ class TestBpeCreatePN(object):
 # locality.id was published as empty sting on PublicPoint
 # https://ustudio.atlassian.net/browse/ES-5775
     @pytestrail.case("27185")
-    def test_27185_21(self, additional_value):
+    def test_27185_21_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = "tEST"
@@ -2816,7 +2816,7 @@ class TestBpeCreatePN(object):
                                      "address.addressDetails.locality.description' is empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_22(self, additional_value):
+    def test_27185_22_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["lots"][0]["placeOfPerformance"]["description"] = ""
@@ -2831,7 +2831,7 @@ class TestBpeCreatePN(object):
                                      "description' is empty or blank."
 
     @pytestrail.case("27190")
-    def test_27185_23(self, additional_value):
+    def test_27185_23_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -2894,7 +2894,7 @@ class TestBpeCreatePN(object):
                                                                  "'tender.items.id' is empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_24(self, additional_value):
+    def test_27185_24_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["internalId"] = ""
@@ -2909,7 +2909,7 @@ class TestBpeCreatePN(object):
                                      "empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_25(self, additional_value):
+    def test_27185_25_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["classification"]["scheme"] = ""
@@ -2931,7 +2931,7 @@ class TestBpeCreatePN(object):
                                      "procurement.access.model.dto.ocds.Classification[\"scheme\"])"
 
     @pytestrail.case("27185")
-    def test_27185_26(self, additional_value):
+    def test_27185_26_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["additionalClassifications"][0]["scheme"] = ""
@@ -2955,7 +2955,7 @@ class TestBpeCreatePN(object):
 
 
     @pytestrail.case("27185")
-    def test_27185_27(self, additional_value):
+    def test_27185_27_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["items"][0]["description"] = ""
@@ -2970,7 +2970,7 @@ class TestBpeCreatePN(object):
                                      "is empty or blank."
 
     @pytestrail.case("27190")
-    def test_27185_28(self, additional_value):
+    def test_27185_28_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3032,7 +3032,7 @@ class TestBpeCreatePN(object):
         assert message_from_kafka["errors"][0]["description"] == "Invalid items related lots."
 
     @pytestrail.case("27185")
-    def test_27185_29(self, additional_value):
+    def test_27185_29_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["documents"][0]["documentType"] = ""
@@ -3061,7 +3061,7 @@ class TestBpeCreatePN(object):
                                      "[\"documentType\"])"
 
     @pytestrail.case("27190")
-    def test_27185_30(self, additional_value):
+    def test_27185_30_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3124,7 +3124,7 @@ class TestBpeCreatePN(object):
                                                                  "is empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_31(self, additional_value):
+    def test_27185_31_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["documents"][0]["title"] = ""
@@ -3139,7 +3139,7 @@ class TestBpeCreatePN(object):
                                      "is empty or blank."
 
     @pytestrail.case("27185")
-    def test_27185_32(self, additional_value):
+    def test_27185_32_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         payload["tender"]["documents"][0]["description"] = ""
@@ -3154,7 +3154,7 @@ class TestBpeCreatePN(object):
                                      "is empty or blank."
 
     @pytestrail.case("27190")
-    def test_27185_30(self, additional_value):
+    def test_27185_30_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3216,7 +3216,7 @@ class TestBpeCreatePN(object):
         assert message_from_kafka["errors"][0]["description"] == "Invalid documents related lots."
 
     @pytestrail.case("27181")
-    def test_27181_1(self, additional_value):
+    def test_27181_1_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3241,7 +3241,7 @@ class TestBpeCreatePN(object):
         assert dict["errors"][0]["description"] == "The error of verification of the authentication token."
 
     @pytestrail.case("27182")
-    def test_27182_2(self, additional_value):
+    def test_27182_2_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3268,7 +3268,7 @@ class TestBpeCreatePN(object):
         assert message_from_kafka["errors"][0]["description"] == "Invalid token."
 
     @pytestrail.case("27183")
-    def test_27183_1(self, additional_value):
+    def test_27183_1_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3292,7 +3292,7 @@ class TestBpeCreatePN(object):
                    "description"] == "Missing request header 'X-TOKEN' for method parameter of type String"
 
     @pytestrail.case("27184")
-    def test_27184_1(self, additional_value):
+    def test_27184_1_smoke(self, additional_value):
         access_token = get_access_token_for_platform_two()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3317,7 +3317,7 @@ class TestBpeCreatePN(object):
         assert error_from_DB['errors'][0]['description'] == 'Invalid owner.'
 
     @pytestrail.case("27186")
-    def test_27186_1(self, additional_value):
+    def test_27186_1_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
@@ -3326,7 +3326,7 @@ class TestBpeCreatePN(object):
         assert update_pn_response[0].status_code == 202
 
     @pytestrail.case("27186")
-    def test_27186_2(self, additional_value):
+    def test_27186_2_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
@@ -3337,7 +3337,7 @@ class TestBpeCreatePN(object):
                    "url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}/{update_pn_response[5]}"
 
     @pytestrail.case("27186")
-    def test_27186_3(self, additional_value):
+    def test_27186_3_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
@@ -3349,7 +3349,7 @@ class TestBpeCreatePN(object):
         assert pn_record["releases"][0]["tender"]["statusDetails"] == "planning"
 
     @pytestrail.case("27186")
-    def test_27186_4(self, additional_value):
+    def test_27186_4_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
@@ -3360,7 +3360,7 @@ class TestBpeCreatePN(object):
         assert pn_record["releases"][0]["tag"] == ["planningUpdate"]
 
     @pytestrail.case("27186")
-    def test_27186_5(self, additional_value):
+    def test_27186_5_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
@@ -3379,7 +3379,7 @@ class TestBpeCreatePN(object):
         assert pn_record['releases'][0]['id'] == f"{update_pn_response[5]}" + f"-{str(timestamp)}"
 
     @pytestrail.case("27187")
-    def test_27187_1(self, additional_value):
+    def test_27187_1_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3403,7 +3403,7 @@ class TestBpeCreatePN(object):
         assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
 
     @pytestrail.case("27187")
-    def test_27187_2(self, additional_value):
+    def test_27187_2_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3428,7 +3428,7 @@ class TestBpeCreatePN(object):
                    "url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}/{create_pn[3]}"
 
     @pytestrail.case("27188")
-    def test_27188_1(self, additional_value):
+    def test_27188_1_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3452,7 +3452,7 @@ class TestBpeCreatePN(object):
         assert message_from_kafka["X-OPERATION-ID"] == x_operation_id
 
     @pytestrail.case("27188")
-    def test_27188_2(self, additional_value):
+    def test_27188_2_smoke(self, additional_value):
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         time.sleep(2)
@@ -3477,7 +3477,7 @@ class TestBpeCreatePN(object):
                    "url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}/{create_pn[3]}"
 
     @pytestrail.case("27191")
-    def test_27191_1(self, additional_value):
+    def test_27191_1_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
@@ -3498,7 +3498,7 @@ class TestBpeCreatePN(object):
                    "url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}/{update_pn_response[5]}"
 
     @pytestrail.case("27191")
-    def test_27191_3(self, additional_value):
+    def test_27191_3_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
@@ -3506,7 +3506,7 @@ class TestBpeCreatePN(object):
         execute_cql_from_orchestrator_operation_step_by_oper_id(update_pn_response[2], 'NoticeCreateReleaseTask')
 
     @pytestrail.case("27191")
-    def test_27191_4(self, additional_value):
+    def test_27191_4_smoke(self, additional_value):
         cpid = prepared_cpid()
         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
         update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
@@ -3520,7 +3520,7 @@ class TestBpeCreatePN(object):
         assert pn_record['releases'][0]['date'] == start_date_from_database[3]["startDate"]
 
     @pytestrail.case("27192")
-    def test_27192_1(self, additional_value):
+    def test_27192_1_smoke(self, additional_value):
         cpid = prepared_cpid()
         # We have this file ->
         path = "/home/roman/Documents/git/es_system_tests/API.pdf"
@@ -3539,7 +3539,7 @@ class TestBpeCreatePN(object):
         assert update_pn_response[0].status_code == 202
 
     @pytestrail.case("27192")
-    def test_27192_2(self, additional_value):
+    def test_27192_2_smoke(self, additional_value):
         cpid = prepared_cpid()
         # We have this file ->
         path = "/home/roman/Documents/git/es_system_tests/API.pdf"
@@ -3561,7 +3561,7 @@ class TestBpeCreatePN(object):
                    "url"] == f"http://dev.public.eprocurement.systems/tenders/{cpid}/{update_pn_response[5]}"
 
     @pytestrail.case("27192")
-    def test_27192_3(self, additional_value):
+    def test_27192_3_smoke(self, additional_value):
         cpid = prepared_cpid()
         # We have this file ->
         path = "/home/roman/Documents/git/es_system_tests/API.pdf"
@@ -3584,7 +3584,7 @@ class TestBpeCreatePN(object):
         assert pn_record['releases'][0]['tender']["documents"][0]["id"] == payload["tender"]["documents"][0]["id"]
 
     @pytestrail.case("27192")
-    def test_27192_4(self, additional_value):
+    def test_27192_4_smoke(self, additional_value):
         cpid = prepared_cpid()
         # We have this file ->
         path = "/home/roman/Documents/git/es_system_tests/API.pdf"
