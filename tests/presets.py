@@ -39,7 +39,7 @@ def set_instance_for_services():
         host = 'http://10.0.10.116'
         return host
 kafka_host = 'http://192.168.0.102:5000'
-create_ei = '/do/ei?country=MD'
+create_ei = '/do/ei'
 update_ei = '/do/ei/'
 create_fs = '/do/fs/'
 update_fs = '/do/fs/'
