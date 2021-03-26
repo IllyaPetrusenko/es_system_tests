@@ -45,7 +45,7 @@ class TestBpeCreateEI(object):
                                                                  "procurement.budget.model.dto.ei.request." \
                                                                  "EiCreate[\"tender\"]->com.procurement.budget." \
                                                                  "model.dto.ei.request.EiCreate$TenderEiCreate" \
-                                                                 "[\"title2\"])"
+                                                                 "[\"title\"])"
 
     @pytestrail.case("22132")
     def test_22132_3_smoke(self, country, language):
@@ -190,4 +190,5 @@ class TestBpeCreateEI(object):
                                                                  "[\"budget\"]->com.procurement.budget.model.dto." \
                                                                  "ei.request.EiCreate$PlanningEiCreate$Budget" \
                                                                  "EiCreate[\"period\"]->com.procurement.budget." \
-                                                                 "model.dto.ocds.Period[\"startDate\"])"
+                                                                 "model.dto.ocds.Period[\"startDate2\"])"
+
