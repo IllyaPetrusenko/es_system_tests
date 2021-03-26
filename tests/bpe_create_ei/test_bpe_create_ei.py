@@ -45,7 +45,7 @@ class TestBpeCreateEI(object):
                                                                  "procurement.budget.model.dto.ei.request." \
                                                                  "EiCreate[\"tender\"]->com.procurement.budget." \
                                                                  "model.dto.ei.request.EiCreate$TenderEiCreate" \
-                                                                 "[\"title\"])"
+                                                                 "[\"title2\"])"
 
     @pytestrail.case("22132")
     def test_22132_3_smoke(self, country, language):
