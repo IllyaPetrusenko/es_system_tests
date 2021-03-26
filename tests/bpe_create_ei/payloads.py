@@ -16,7 +16,7 @@ cpv_goods = ("03100000-2", "39100000-3", "48600000-4",)
 cpv_works = ("45100000-8", "45200000-9", "45100000-8",)
 cpv_services = ("76100000-4", "76200000-5", "90900000-6",)
 locality_scheme = ("CUATM", "other",)
-ei_full = {
+payload_ei_full_data_model= {
     "tender": {
         "title": "EI_FULL_WORKS",
         "description": "description of finansical sourse",
