@@ -1,4 +1,4 @@
-import copy
+import copy, allure
 import datetime
 import fnmatch
 from uuid import UUID
@@ -9,7 +9,9 @@ from useful_functions import is_valid_uuid
 from tests.bpe_create_ei.create_ei import bpe_create_ei
 from tests.bpe_create_ei.payloads import ei_full, ei_obligatory
 
+
 class TestBpeCreateEI(object):
+    @allure.feature('CreateEI')
     @pytestrail.case("22132")
     def test_22132_1(self):
         ei = copy.deepcopy(ei_full)
@@ -22,6 +24,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response[1]["errors"][0]["code"] == "400.00.00.00"
         assert create_ei_response[1]["errors"][0]["description"] == "Data processing exception."
 
+    @allure.feature('CreateEI')
     @pytestrail.case("22132")
     def test_22132_2(self):
         ei = copy.deepcopy(ei_full)
