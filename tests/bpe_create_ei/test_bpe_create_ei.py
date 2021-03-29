@@ -1,8 +1,4 @@
-import copy
-import datetime
-import fnmatch
-import time
-import requests
+import copy, datetime, fnmatch, time, requests
 from pytest_testrail.plugin import pytestrail
 from useful_functions import is_valid_uuid, is_it_uuid, get_human_date_in_utc_format, get_period
 from tests.bpe_create_ei.create_ei import EI
