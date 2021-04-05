@@ -10,8 +10,6 @@ class CheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
 
     @allure.step('Delete tender object from request')
     @pytestrail.case("22132")
-    @pytest.mark.regression
-    @pytest.mark.smoke
     def test_22132_1(self, country, language, tag):
         if tag == "regression":
             ei = EI()
@@ -36,8 +34,6 @@ class CheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
 
     @allure.step('Delete tender title from request')
     @pytestrail.case("22132")
-    @pytest.mark.regression
-    @pytest.mark.smoke
     def test_22132_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -63,8 +59,6 @@ class CheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
 
     @allure.step('Delete tender classification from request')
     @pytestrail.case("22132")
-    @pytest.mark.regression
-    @pytest.mark.smoke
     def test_22132_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
