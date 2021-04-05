@@ -15,27 +15,17 @@ class TestBpeCreateEI(object):
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
-    def test_22132_1(self, country, language, tag):
-        if tag == "regression":
-            ei = EI()
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]
-            create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-            message_from_kafka = ei.get_message_from_kafka()
-            assert create_ei_response.text == "ok"
-            assert create_ei_response.status_code == 202
-            assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
-            assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
-        elif tag == "smoke":
-                ei = EI()
-                payload = copy.deepcopy(payload_ei_full_data_model)
-                del payload["tender"]
-                create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-                message_from_kafka = ei.get_message_from_kafka()
-                assert create_ei_response.text == "ok"
-                assert create_ei_response.status_code == 202
-                assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
-                assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
+    def test_22132_1(self, country, language):
+        ei = EI()
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]
+        create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
+        message_from_kafka = ei.get_message_from_kafka()
+        assert create_ei_response.text == "ok"
+        assert create_ei_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
+        assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
+
 
 
     @pytestrail.case("22132")
@@ -118,6 +108,7 @@ class TestBpeCreateEI(object):
                                                                  "mdm.model.dto.data.ei.EIRequest$Tender$" \
                                                                  "Classification[\"id\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -140,6 +131,7 @@ class TestBpeCreateEI(object):
                                                                  "[Source: UNKNOWN; line: -1, column: -1] " \
                                                                  "(through reference chain: com.procurement." \
                                                                  "budget.model.dto.ei.request.EiCreate[\"planning\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -166,6 +158,7 @@ class TestBpeCreateEI(object):
                                                                  "EiCreate[\"planning\"]->com.procurement.budget." \
                                                                  "model.dto.ei.request.EiCreate$PlanningEiCreate" \
                                                                  "[\"budget\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -224,6 +217,7 @@ class TestBpeCreateEI(object):
                                                                  "EiCreate[\"period\"]->com.procurement.budget." \
                                                                  "model.dto.ocds.Period[\"startDate\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -252,6 +246,7 @@ class TestBpeCreateEI(object):
                                                                  "Create[\"period\"]->com.procurement.budget." \
                                                                  "model.dto.ocds.Period[\"endDate\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -274,6 +269,7 @@ class TestBpeCreateEI(object):
                                                                  "-1, column: -1] (through reference chain:" \
                                                                  " com.procurement.mdm.model.dto.data.ei." \
                                                                  "EIRequest[\"buyer\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -299,6 +295,7 @@ class TestBpeCreateEI(object):
                                                                  "Create[\"buyer\"]->com.procurement.budget.model." \
                                                                  "dto.ei.OrganizationReferenceEi[\"name\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -323,6 +320,7 @@ class TestBpeCreateEI(object):
                                                                  "budget.model.dto.ei.request.EiCreate" \
                                                                  "[\"buyer\"]->com.procurement.budget.model." \
                                                                  "dto.ei.OrganizationReferenceEi[\"identifier\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -350,6 +348,7 @@ class TestBpeCreateEI(object):
                                                                  "com.procurement.mdm.model.dto.data.Identifier" \
                                                                  "[\"scheme\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -375,6 +374,7 @@ class TestBpeCreateEI(object):
                                                                  "data.OrganizationReference[\"identifier\"]->" \
                                                                  "com.procurement.mdm.model.dto.data.Identifier" \
                                                                  "[\"id\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -402,6 +402,7 @@ class TestBpeCreateEI(object):
                                                                  "ReferenceEi[\"identifier\"]->com.procurement." \
                                                                  "budget.model.dto.ocds.Identifier[\"legalName\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -425,6 +426,7 @@ class TestBpeCreateEI(object):
                                                                  "com.procurement.budget.model.dto.ei.request." \
                                                                  "EiCreate[\"buyer\"]->com.procurement.budget.model." \
                                                                  "dto.ei.OrganizationReferenceEi[\"address\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -452,6 +454,7 @@ class TestBpeCreateEI(object):
                                                                  "procurement.mdm.model.dto.data.Address" \
                                                                  "[\"streetAddress\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -477,6 +480,7 @@ class TestBpeCreateEI(object):
                                                                  "data.OrganizationReference[\"address\"]->com." \
                                                                  "procurement.mdm.model.dto.data.Address" \
                                                                  "[\"addressDetails\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -504,6 +508,7 @@ class TestBpeCreateEI(object):
                                                                  "procurement.mdm.model.dto.data.Address" \
                                                                  "[\"addressDetails\"]->com.procurement.mdm.model." \
                                                                  "dto.data.AddressDetails[\"country\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -534,6 +539,7 @@ class TestBpeCreateEI(object):
                                                                  "procurement.mdm.model.dto.data.CountryDetails" \
                                                                  "[\"id\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -560,6 +566,7 @@ class TestBpeCreateEI(object):
                                                                  "procurement.mdm.model.dto.data.Address" \
                                                                  "[\"addressDetails\"]->com.procurement.mdm.model." \
                                                                  "dto.data.AddressDetails[\"region\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -589,6 +596,7 @@ class TestBpeCreateEI(object):
                                                                  "dto.data.AddressDetails[\"region\"]->com." \
                                                                  "procurement.mdm.model.dto.data.RegionDetails[\"id\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -616,6 +624,7 @@ class TestBpeCreateEI(object):
                                                                  "model.dto.data.Address[\"addressDetails\"]->" \
                                                                  "com.procurement.mdm.model.dto.data.Address" \
                                                                  "Details[\"locality\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -646,6 +655,7 @@ class TestBpeCreateEI(object):
                                                                  "procurement.mdm.model.dto.data.Locality" \
                                                                  "Details[\"scheme\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -674,6 +684,7 @@ class TestBpeCreateEI(object):
                                                                  "procurement.mdm.model.dto.data.AddressDetails" \
                                                                  "[\"locality\"]->com.procurement.mdm.model.dto." \
                                                                  "data.LocalityDetails[\"id\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -704,6 +715,7 @@ class TestBpeCreateEI(object):
                                                                  "com.procurement.mdm.model.dto.data.Locality" \
                                                                  "Details[\"description\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -729,6 +741,7 @@ class TestBpeCreateEI(object):
                                                                  "[\"buyer\"]->com.procurement.budget.model." \
                                                                  "dto.ei.OrganizationReferenceEi[\"contactPoint\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -753,6 +766,7 @@ class TestBpeCreateEI(object):
                                                                  "com.procurement.mdm.model.dto.data.Organization" \
                                                                  "Reference[\"contactPoint\"]->com.procurement." \
                                                                  "mdm.model.dto.data.ContactPoint[\"name\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -780,6 +794,7 @@ class TestBpeCreateEI(object):
                                                                  "->com.procurement.mdm.model.dto.data.Contact" \
                                                                  "Point[\"email\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -806,6 +821,7 @@ class TestBpeCreateEI(object):
                                                                  "[\"contactPoint\"]->com.procurement.mdm.model." \
                                                                  "dto.data.ContactPoint[\"telephone\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -831,6 +847,7 @@ class TestBpeCreateEI(object):
                                                                  "data.ei.EIRequest$Tender[\"items\"]->java.util." \
                                                                  "ArrayList[0]->com.procurement.mdm.model.dto." \
                                                                  "data.ei.EIRequest$Tender$Item[\"id\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -859,6 +876,7 @@ class TestBpeCreateEI(object):
                                                                  "com.procurement.mdm.model.dto.data.ei.EIRequest$" \
                                                                  "Tender$Item[\"description\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -885,6 +903,7 @@ class TestBpeCreateEI(object):
                                                                  "Tender[\"items\"]->java.util.ArrayList[0]->" \
                                                                  "com.procurement.mdm.model.dto.data.ei.EIRequest$" \
                                                                  "Tender$Item[\"classification\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -914,6 +933,7 @@ class TestBpeCreateEI(object):
                                                                  "[\"classification\"]->com.procurement.mdm." \
                                                                  "model.dto.data.ei.EIRequest$Tender$Item$" \
                                                                  "Classification[\"id\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -946,6 +966,7 @@ class TestBpeCreateEI(object):
                                                                  "EIRequest$Tender$Item$AdditionalClassification" \
                                                                  "[\"id\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -972,6 +993,7 @@ class TestBpeCreateEI(object):
                                                                  "Tender[\"items\"]->java.util.ArrayList[0]->" \
                                                                  "com.procurement.mdm.model.dto.data.ei." \
                                                                  "EIRequest$Tender$Item[\"deliveryAddress\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -1001,6 +1023,7 @@ class TestBpeCreateEI(object):
                                                                  "$Tender$Item[\"deliveryAddress\"]->com." \
                                                                  "procurement.mdm.model.dto.data.ei.EIRequest$" \
                                                                  "Tender$Item$DeliveryAddress[\"addressDetails\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -1034,6 +1057,7 @@ class TestBpeCreateEI(object):
                                                                  "->com.procurement.mdm.model.dto.data.ei." \
                                                                  "EIRequest$Tender$Item$DeliveryAddress$Address" \
                                                                  "Details[\"country\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -1070,6 +1094,7 @@ class TestBpeCreateEI(object):
                                                                  "data.ei.EIRequest$Tender$Item$DeliveryAddress$" \
                                                                  "AddressDetails$Country[\"id\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -1101,6 +1126,7 @@ class TestBpeCreateEI(object):
                                                                  "->com.procurement.mdm.model.dto.data.ei." \
                                                                  "EIRequest$Tender$Item$DeliveryAddress$Address" \
                                                                  "Details[\"region\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -1137,6 +1163,7 @@ class TestBpeCreateEI(object):
                                                                  "data.ei.EIRequest$Tender$Item$DeliveryAddress$" \
                                                                  "AddressDetails$Locality[\"scheme\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -1172,6 +1199,7 @@ class TestBpeCreateEI(object):
                                                                  "data.ei.EIRequest$Tender$Item$DeliveryAddress" \
                                                                  "$AddressDetails$Region[\"id\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -1206,6 +1234,7 @@ class TestBpeCreateEI(object):
                                                                  "->com.procurement.mdm.model.dto.data.ei." \
                                                                  "EIRequest$Tender$Item$DeliveryAddress$Address" \
                                                                  "Details$Locality[\"id\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -1243,6 +1272,7 @@ class TestBpeCreateEI(object):
                                                                  "EIRequest$Tender$Item$DeliveryAddress$Address" \
                                                                  "Details$Locality[\"description\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -1270,6 +1300,7 @@ class TestBpeCreateEI(object):
                                                                  "ArrayList[0]->com.procurement.mdm.model.dto." \
                                                                  "data.ei.EIRequest$Tender$Item[\"quantity\"])"
 
+
     @pytestrail.case("22132")
     @pytest.mark.regression
     @pytest.mark.smoke
@@ -1295,6 +1326,7 @@ class TestBpeCreateEI(object):
                                                                  "data.ei.EIRequest$Tender[\"items\"]->java.util." \
                                                                  "ArrayList[0]->com.procurement.mdm.model.dto." \
                                                                  "data.ei.EIRequest$Tender$Item[\"unit\"])"
+
 
     @pytestrail.case("22132")
     @pytest.mark.regression
@@ -1324,6 +1356,7 @@ class TestBpeCreateEI(object):
                                                                  "$Tender$Item[\"unit\"]->com.procurement.mdm." \
                                                                  "model.dto.data.ei.EIRequest$Tender$Item$Unit[\"id\"])"
 
+
     @pytestrail.case("22135")
     @pytest.mark.regression
     def test_22135_1(self, country, language):
@@ -1336,6 +1369,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22135")
     @pytest.mark.regression
@@ -1351,6 +1385,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert check_token == True
+
 
     @pytestrail.case("22135")
     @pytest.mark.regression
@@ -1372,6 +1407,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
                    "uri"] == "https://www.iso.org"
 
+
     @pytestrail.case("22136")
     @pytest.mark.regression
     def test_22136_1(self, country, language):
@@ -1385,6 +1421,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22136")
     @pytest.mark.regression
@@ -1402,6 +1439,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22136")
     @pytest.mark.regression
     def test_22136_3(self, country, language):
@@ -1418,6 +1456,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
                    "scheme"] == "iso-alpha2"
 
+
     @pytestrail.case("22137")
     @pytest.mark.regression
     def test_22137_1(self, country, language):
@@ -1431,6 +1470,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22137")
     @pytest.mark.regression
@@ -1448,6 +1488,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22137")
     @pytest.mark.regression
     def test_22137_3(self, country, language):
@@ -1464,6 +1505,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
                    "uri"] == "https://www.iso.org"
 
+
     @pytestrail.case("22138")
     @pytest.mark.regression
     def test_22138_1(self, country, language):
@@ -1477,6 +1519,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22138")
     @pytest.mark.regression
@@ -1494,6 +1537,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22138")
     @pytest.mark.regression
     def test_22138_3(self, country, language):
@@ -1510,6 +1554,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
                    "description"] == "Moldova, Republica"
 
+
     @pytestrail.case("22139")
     @pytest.mark.regression
     def test_22139_1(self, country, language):
@@ -1519,6 +1564,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == 'ok'
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22139")
     @pytest.mark.regression
@@ -1530,6 +1576,7 @@ class TestBpeCreateEI(object):
         message_from_kafka = ei.get_message_from_kafka()
         assert message_from_kafka["errors"][0]["code"] == "400.20.01.10"
         assert message_from_kafka["errors"][0]["description"] == "Invalid country. "
+
 
     @pytestrail.case("22140")
     @pytest.mark.regression
@@ -1544,6 +1591,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22140")
     @pytest.mark.regression
@@ -1560,6 +1608,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22140")
     @pytest.mark.regression
@@ -1582,6 +1631,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
                    "uri"] == "http://statistica.md"
 
+
     @pytestrail.case("22141")
     @pytest.mark.regression
     def test_22141_1(self, country, language):
@@ -1595,6 +1645,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22141")
     @pytest.mark.regression
@@ -1612,6 +1663,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22141")
     @pytest.mark.regression
     def test_22141_3(self, country, language):
@@ -1627,6 +1679,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
 
+
     @pytestrail.case("22142")
     @pytest.mark.regression
     def test_22142_1(self, country, language):
@@ -1639,6 +1692,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22142")
     @pytest.mark.regression
@@ -1655,6 +1709,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22142")
     @pytest.mark.regression
     def test_22142_3(self, country, language):
@@ -1670,6 +1725,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
                    "uri"] == "http://statistica.md"
 
+
     @pytestrail.case("22143")
     @pytest.mark.regression
     def test_22143_1(self, country, language):
@@ -1683,6 +1739,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22143")
     @pytest.mark.regression
@@ -1700,6 +1757,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22143")
     @pytest.mark.regression
     def test_22143_3(self, country, language):
@@ -1716,6 +1774,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
                    "description"] == "Cahul"
 
+
     @pytestrail.case("22144")
     @pytest.mark.regression
     def test_22144_1(self, country, language):
@@ -1725,6 +1784,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22144")
     @pytest.mark.regression
@@ -1736,6 +1796,7 @@ class TestBpeCreateEI(object):
         message_from_kafka = ei.get_message_from_kafka()
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.13"
         assert message_from_kafka["errors"][0]["description"] == "Region not found. "
+
 
     @pytestrail.case("22145")
     @pytest.mark.regression
@@ -1749,6 +1810,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22145")
     @pytest.mark.regression
     def test_22145_2(self, country, language):
@@ -1761,6 +1823,7 @@ class TestBpeCreateEI(object):
         message_from_kafka = ei.get_message_from_kafka()
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.14"
         assert message_from_kafka["errors"][0]["description"] == "Locality not found. "
+
 
     @pytestrail.case("22146")
     @pytest.mark.regression
@@ -1776,6 +1839,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22146")
     @pytest.mark.regression
@@ -1793,6 +1857,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22146")
     @pytest.mark.regression
@@ -1817,6 +1882,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
                    "uri"] == "http://statistica.md"
 
+
     @pytestrail.case("22147")
     @pytest.mark.regression
     def test_22147_1(self, country, language):
@@ -1828,6 +1894,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22147")
     @pytest.mark.regression
@@ -1856,6 +1923,7 @@ class TestBpeCreateEI(object):
                                                                  "AddressDetails[\"locality\"]->com.procurement." \
                                                                  "mdm.model.dto.data.LocalityDetails[\"description\"])"
 
+
     @pytestrail.case("22148")
     @pytest.mark.regression
     def test_22148_1(self, country, language):
@@ -1871,6 +1939,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22148")
     @pytest.mark.regression
@@ -1889,6 +1958,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22148")
     @pytest.mark.regression
@@ -1912,6 +1982,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
                    "description"] == "or.Donduşeni (r-l Donduşeni)"
 
+
     @pytestrail.case("22149")
     @pytest.mark.regression
     def test_22149_1(self, country, language):
@@ -1924,6 +1995,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22149")
     @pytest.mark.regression
@@ -1940,6 +2012,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22149")
     @pytest.mark.regression
     def test_22149_3(self, country, language):
@@ -1954,6 +2027,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert ei_release["releases"][0]["parties"][0]["identifier"]["scheme"] == "MD-IDNO"
 
+
     @pytestrail.case("22150")
     @pytest.mark.regression
     def test_22150_1(self, country, language):
@@ -1963,6 +2037,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22150")
     @pytest.mark.regression
@@ -1974,6 +2049,7 @@ class TestBpeCreateEI(object):
         message_from_kafka = ei.get_message_from_kafka()
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.12"
         assert message_from_kafka["errors"][0]["description"] == "Registration scheme not found. "
+
 
     @pytestrail.case("22151")
     @pytest.mark.regression
@@ -1987,6 +2063,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22151")
     @pytest.mark.regression
@@ -2003,6 +2080,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22151")
     @pytest.mark.regression
     def test_22151_3(self, country, language):
@@ -2018,6 +2096,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["details"]["typeOfBuyer"] == payload["buyer"]["details"][
             "typeOfBuyer"]
 
+
     @pytestrail.case("22152")
     @pytest.mark.regression
     def test_22152_1(self, country, language):
@@ -2027,6 +2106,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22152")
     @pytest.mark.regression
@@ -2052,6 +2132,7 @@ class TestBpeCreateEI(object):
                                                                  "Reference[\"details\"]->com.procurement.mdm." \
                                                                  "model.dto.data.Details[\"typeOfBuyer\"])"
 
+
     @pytestrail.case("22153")
     @pytest.mark.regression
     def test_22153_1(self, country, language):
@@ -2064,6 +2145,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22153")
     @pytest.mark.regression
@@ -2080,6 +2162,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22153")
     @pytest.mark.regression
     def test_22153_3(self, country, language):
@@ -2095,6 +2178,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["details"]["mainGeneralActivity"] == payload["buyer"]["details"][
             "mainGeneralActivity"]
 
+
     @pytestrail.case("22154")
     @pytest.mark.regression
     def test_22154_1(self, country, language):
@@ -2104,6 +2188,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22154")
     @pytest.mark.regression
@@ -2134,6 +2219,7 @@ class TestBpeCreateEI(object):
                                                                  f"Reference[\"details\"]->com.procurement.mdm." \
                                                                  f"model.dto.data.Details[\"mainGeneralActivity\"])"
 
+
     @pytestrail.case("22155")
     @pytest.mark.regression
     def test_22155_1(self, country, language):
@@ -2146,6 +2232,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22155")
     @pytest.mark.regression
@@ -2162,6 +2249,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22155")
     @pytest.mark.regression
     def test_22155_3(self, country, language):
@@ -2177,6 +2265,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["details"]["mainSectoralActivity"] == payload["buyer"][
             "details"]["mainSectoralActivity"]
 
+
     @pytestrail.case("22156")
     @pytest.mark.regression
     def test_22156_1(self, country, language):
@@ -2186,6 +2275,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22156")
     @pytest.mark.regression
@@ -2220,6 +2310,7 @@ class TestBpeCreateEI(object):
                                                                  f"com.procurement.mdm.model.dto.data." \
                                                                  f"Details[\"mainSectoralActivity\"])"
 
+
     @pytestrail.case("22157")
     @pytest.mark.regression
     def test_22157_1(self, country, language):
@@ -2231,6 +2322,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22157")
     @pytest.mark.regression
@@ -2246,6 +2338,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22157")
     @pytest.mark.regression
     def test_22157_3(self, country, language):
@@ -2260,6 +2353,7 @@ class TestBpeCreateEI(object):
         assert check_cpid_first_part == True
         assert convert_timestamp_to_date == message_from_kafka["data"]["operationDate"]
 
+
     @pytestrail.case("22158")
     @pytest.mark.regression
     def test_22158_1(self, country, language):
@@ -2271,6 +2365,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22158")
     @pytest.mark.regression
@@ -2285,6 +2380,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22158")
     @pytest.mark.regression
@@ -2302,6 +2398,7 @@ class TestBpeCreateEI(object):
         convert_date_to_human_date = convert_timestamp_to_date.strftime("%Y-%m-%dT%H:%M:%SZ")
         assert message_from_kafka["data"]["operationDate"] == convert_date_to_human_date
 
+
     @pytestrail.case("22159")
     @pytest.mark.regression
     def test_22159_1(self, country, language):
@@ -2313,6 +2410,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22159")
     @pytest.mark.regression
@@ -2328,6 +2426,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22159")
     @pytest.mark.regression
     def test_22159_3(self, country, language):
@@ -2340,6 +2439,7 @@ class TestBpeCreateEI(object):
         ei_release = requests.get(url=ei_url).json()
         assert message_from_kafka["data"]["operationDate"] == ei_release["releases"][0]["date"]
 
+
     @pytestrail.case("22160")
     @pytest.mark.regression
     def test_22160_1(self, country, language):
@@ -2351,6 +2451,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22160")
     @pytest.mark.regression
@@ -2366,6 +2467,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22160")
     @pytest.mark.regression
     def test_22160_3(self, country, language):
@@ -2379,6 +2481,7 @@ class TestBpeCreateEI(object):
         check_tender_id = is_it_uuid(ei_release['releases'][0]['tender']['id'], 4)
         assert check_tender_id == True
 
+
     @pytestrail.case("22161")
     @pytest.mark.regression
     def test_22161_1(self, country, language):
@@ -2390,6 +2493,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22161")
     @pytest.mark.regression
@@ -2405,6 +2509,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22161")
     @pytest.mark.regression
     def test_22161_3(self, country, language):
@@ -2417,6 +2522,7 @@ class TestBpeCreateEI(object):
         ei_release = requests.get(url=ei_url).json()
         assert ei_release["releases"][0]["tender"]["status"] == "planning"
 
+
     @pytestrail.case("22162")
     @pytest.mark.regression
     def test_22162_1(self, country, language):
@@ -2428,6 +2534,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22162")
     @pytest.mark.regression
@@ -2443,6 +2550,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22162")
     @pytest.mark.regression
     def test_22162_3(self, country, language):
@@ -2454,6 +2562,7 @@ class TestBpeCreateEI(object):
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
         assert ei_release["releases"][0]["tender"]["statusDetails"] == "empty"
+
 
     @pytestrail.case("22163")
     @pytest.mark.regression
@@ -2469,6 +2578,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22163")
     @pytest.mark.regression
     def test_22163_2(self, country, language):
@@ -2482,6 +2592,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22163")
     @pytest.mark.regression
@@ -2498,6 +2609,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["buyer"]["id"] == payload["buyer"]["identifier"]["scheme"] + "-" + \
                payload["buyer"]["identifier"]["id"]
 
+
     @pytestrail.case("22164")
     @pytest.mark.regression
     def test_22164_1(self, country, language):
@@ -2513,6 +2625,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22164")
     @pytest.mark.regression
@@ -2532,6 +2645,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22164")
     @pytest.mark.regression
     def test_22164_3(self, country, language):
@@ -2548,6 +2662,7 @@ class TestBpeCreateEI(object):
         ei_release = requests.get(url=ei_url).json()
         assert ei_release["releases"][0]["tender"]["classification"]["id"] == payload["tender"]["classification"]["id"]
 
+
     @pytestrail.case("22165")
     @pytest.mark.regression
     def test_22165_1(self, country, language):
@@ -2562,6 +2677,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22165")
     @pytest.mark.regression
@@ -2579,6 +2695,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22165")
     @pytest.mark.regression
@@ -2601,6 +2718,7 @@ class TestBpeCreateEI(object):
                payload["planning"]["budget"]["period"]["endDate"]
         assert result == True
 
+
     @pytestrail.case("22166")
     @pytest.mark.regression
     def test_22166_1(self, country, language):
@@ -2615,6 +2733,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22166")
     @pytest.mark.regression
@@ -2642,6 +2761,7 @@ class TestBpeCreateEI(object):
                                                                  f"procurement.budget.model.dto.ocds." \
                                                                  f"Period[\"startDate\"])"
 
+
     @pytestrail.case("22168")
     @pytest.mark.regression
     def test_22168_1(self, country, language):
@@ -2656,6 +2776,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22168")
     @pytest.mark.regression
@@ -2684,6 +2805,7 @@ class TestBpeCreateEI(object):
                                                                  f"[\"period\"]->com.procurement.budget.model." \
                                                                  f"dto.ocds.Period[\"startDate\"])"
 
+
     @pytestrail.case("22169")
     @pytest.mark.regression
     def test_22169_1(self, country, language):
@@ -2698,6 +2820,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22169")
     @pytest.mark.regression
@@ -2726,6 +2849,7 @@ class TestBpeCreateEI(object):
                                                                  f"[\"period\"]->com.procurement.budget.model." \
                                                                  f"dto.ocds.Period[\"startDate\"])"
 
+
     @pytestrail.case("22170")
     @pytest.mark.regression
     def test_22170_1(self, country, language):
@@ -2740,6 +2864,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22170")
     @pytest.mark.regression
@@ -2766,6 +2891,7 @@ class TestBpeCreateEI(object):
                                                                  f"Create[\"period\"]->com.procurement.budget." \
                                                                  f"model.dto.ocds.Period[\"endDate\"])"
 
+
     @pytestrail.case("22171")
     @pytest.mark.regression
     def test_22171_1(self, country, language):
@@ -2780,6 +2906,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22171")
     @pytest.mark.regression
@@ -2808,6 +2935,7 @@ class TestBpeCreateEI(object):
                                                                  f"[\"period\"]->com.procurement.budget.model." \
                                                                  f"dto.ocds.Period[\"endDate\"])"
 
+
     @pytestrail.case("22172")
     @pytest.mark.regression
     def test_22172_1(self, country, language):
@@ -2822,6 +2950,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22172")
     @pytest.mark.regression
@@ -2849,6 +2978,7 @@ class TestBpeCreateEI(object):
                                                                  f"$BudgetEiCreate[\"period\"]->com.procurement." \
                                                                  f"budget.model.dto.ocds.Period[\"endDate\"])"
 
+
     @pytestrail.case("22173")
     @pytest.mark.regression
     def test_22173_1(self, country, language):
@@ -2861,6 +2991,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22173")
     @pytest.mark.regression
@@ -2877,6 +3008,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22173")
     @pytest.mark.regression
     def test_22173_3(self, country, language):
@@ -2891,6 +3023,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert ei_release["releases"][0]["tender"]["classification"]["id"] == payload["tender"]["classification"]["id"]
 
+
     @pytestrail.case("22174")
     @pytest.mark.regression
     def test_22174_1(self, country, language):
@@ -2900,6 +3033,7 @@ class TestBpeCreateEI(object):
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22174")
     @pytest.mark.regression
@@ -2912,6 +3046,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.10.00.05"
         assert message_from_kafka["errors"][0]["description"] == "Invalid CPV."
 
+
     @pytestrail.case("22175")
     @pytest.mark.regression
     def test_22175_1(self, country, language):
@@ -2923,6 +3058,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22175")
     @pytest.mark.regression
@@ -2938,6 +3074,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22175")
     @pytest.mark.regression
     def test_22175_3(self, country, language):
@@ -2951,6 +3088,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert ei_release["releases"][0]["tag"][0] == "compiled"
 
+
     @pytestrail.case("22176")
     @pytest.mark.regression
     def test_22176_1(self, country, language):
@@ -2962,6 +3100,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22176")
     @pytest.mark.regression
@@ -2977,6 +3116,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22176")
     @pytest.mark.regression
     def test_22176_3(self, country, language):
@@ -2990,6 +3130,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert ei_release["releases"][0]["date"] == message_from_kafka["data"]["operationDate"]
 
+
     @pytestrail.case("22178")
     @pytest.mark.regression
     def test_22178_1(self, country, language):
@@ -3001,6 +3142,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22178")
     @pytest.mark.regression
@@ -3015,6 +3157,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22178")
     @pytest.mark.regression
@@ -3047,6 +3190,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22181")
     @pytest.mark.regression
     def test_22181_2(self, country, language):
@@ -3065,6 +3209,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22181")
     @pytest.mark.regression
@@ -3088,6 +3233,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["planning"]["budget"]["period"]["endDate"] == \
                payload["planning"]["budget"]["period"]["endDate"]
 
+
     @pytestrail.case("22182")
     @pytest.mark.regression
     def test_22182_1(self, country, language):
@@ -3101,6 +3247,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22182")
     @pytest.mark.regression
@@ -3118,6 +3265,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22182")
     @pytest.mark.regression
     def test_22182_3(self, country, language):
@@ -3134,6 +3282,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["tender"]["title"] == payload["tender"]["title"]
         assert ei_release["releases"][0]["tender"]["classification"]["id"] == payload["tender"]["classification"]["id"]
 
+
     @pytestrail.case("22183")
     @pytest.mark.regression
     def test_22183_1(self, country, language):
@@ -3148,6 +3297,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22183")
     @pytest.mark.regression
@@ -3166,6 +3316,7 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22183")
     @pytest.mark.regression
     def test_22183_3(self, country, language):
@@ -3183,6 +3334,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["id"] == payload["buyer"]["identifier"]["scheme"] + "-" + \
                payload["buyer"]["identifier"]["id"]
         assert ei_release["releases"][0]["parties"][0]["roles"][0] == "buyer"
+
 
     @pytestrail.case("22184")
     @pytest.mark.regression
@@ -3237,6 +3389,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22184")
     @pytest.mark.regression
@@ -3293,6 +3446,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22184")
     @pytest.mark.regression
@@ -3360,6 +3514,7 @@ class TestBpeCreateEI(object):
         assert check_procuring_entity_role == False
         assert check_buyer_role == True
 
+
     @pytestrail.case("22185")
     @pytest.mark.regression
     def test_22185_1(self, country, language):
@@ -3371,6 +3526,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
+
 
     @pytestrail.case("22185")
     @pytest.mark.regression
@@ -3385,6 +3541,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22185")
     @pytest.mark.regression
@@ -3401,6 +3558,7 @@ class TestBpeCreateEI(object):
                payload["buyer"]["identifier"]["id"]
         assert ei_release["releases"][0]["buyer"]["name"] == payload["buyer"]["name"]
 
+
     @pytestrail.case("22186")
     @pytest.mark.smoke
     @pytest.mark.regression
@@ -3413,6 +3571,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'tender.title' is empty or blank."
+
 
     @pytestrail.case("22186")
     @pytest.mark.smoke
@@ -3427,6 +3586,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'tender.description' is empty or blank."
 
+
     @pytestrail.case("22186")
     @pytest.mark.smoke
     @pytest.mark.regression
@@ -3439,6 +3599,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'planning.rationale' is empty or blank."
+
 
     @pytestrail.case("22186")
     @pytest.mark.smoke
@@ -3453,6 +3614,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'buyer.name' is empty or blank."
 
+
     @pytestrail.case("22186")
     @pytest.mark.smoke
     @pytest.mark.regression
@@ -3466,7 +3628,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'buyer.identifier.id' is empty or blank."
 
-    
+
     @pytestrail.case("22186")
     @pytest.mark.smoke
     @pytest.mark.regression
@@ -4275,6 +4437,7 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert check_cpid == True
         assert ei_token == True
+
 
     @pytestrail.case("22838")
     @pytest.mark.regression
@@ -5736,6 +5899,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
                                      "locality.description' is empty or blank."
+
 
     @pytestrail.case("25301")
     @pytest.mark.smoke
