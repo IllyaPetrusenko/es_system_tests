@@ -1,4 +1,4 @@
-import copy, datetime, fnmatch, time, requests
+import copy, datetime, fnmatch, time, requests, pytest, allure
 from pytest_testrail.plugin import pytestrail
 from useful_functions import is_valid_uuid, is_it_uuid, get_human_date_in_utc_format, get_period
 from tests.bpe_create_ei.create_ei import EI
@@ -7,8 +7,11 @@ from tests.bpe_create_ei.payloads import payload_ei_full_data_model
 
 class TestBpeCreateEI(object):
 
+    @allure.step
+    @pytest.mark.smoke
+    @pytest.mark.regression
     @pytestrail.case("22132")
-    def test_22132_1_smoke(self, country, language):
+    def test_22132_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]
@@ -19,8 +22,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
         assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
 
+    @pytest.mark.smoke
+    @pytest.mark.regression
     @pytestrail.case("22132")
-    def test_22132_2_smoke(self, country, language):
+    def test_22132_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["title"]
