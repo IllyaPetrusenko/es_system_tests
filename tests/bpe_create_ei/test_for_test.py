@@ -32,17 +32,14 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         ei.create_request_ei(payload=payload, lang=language, country=country)
         actual_result = ei.get_message_from_kafka()
         actual_result = str(actual_result['errors'])
-        expected_result = "{'X-OPERATION-ID': '84380e83-395c-4b98-94be-30596a3efcab', " \
-                          "'X-RESPONSE-ID': '7f3f03e0-9648-11eb-9039-695d67d72397', " \
-                          "'errors': [{'code': '400.10.00', " \
-                          "'description': 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException:" \
-                          " Instantiation of [simple type, class com.procurement.budget.model.dto." \
-                          "ei.request.EiCreate$TenderEiCreate] value failed for JSON property title" \
-                          " due to missing (therefore NULL) value for creator parameter title which" \
-                          " is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] " \
-                          "(through reference chain: com.procurement.budget.model.dto.ei.request." \
-                          "EiCreate[\"tender\"]->com.procurement.budget.model.dto.ei.request.EiCreate$TenderEiCreate" \
-                          "[\"title\"])'}]}"
+        expected_result = "[{'code': '400.10.00', 'description': 'com.fasterxml.jackson.module.kotlin." \
+                          "MissingKotlinParameterException: Instantiation of [simple type, " \
+                          "class com.procurement.budget.model.dto.ei.request.EiCreate$TenderEiCreate] " \
+                          "value failed for JSON property title due to missing (therefore NULL) " \
+                          "value for creator parameter title which is a non-nullable type\n at " \
+                          "[Source: UNKNOWN; line: -1, column: -1] (through reference chain: " \
+                          "com.procurement.budget.model.dto.ei.request.EiCreate[\"tender\"]->com.procurement." \
+                          "budget.model.dto.ei.request.EiCreate$TenderEiCreate[\"title\"])'}]"
         allure.attach(expected_result, 'Expected result')
         allure.attach(actual_result, 'Actual result')
         assert actual_result == expected_result
