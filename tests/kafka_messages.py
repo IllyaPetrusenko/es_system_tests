@@ -8,6 +8,6 @@ def get_message_from_kafka(x_operation_id):
         url=kafka_host + '/x-operation-id/' + x_operation_id
     ).json()
     del kafka_message['_id']
-    allure.attach(str(kafka_message), 'Kafka message')
+    allure.attach(str(kafka_message), 'Actual result')
     return kafka_message
 

@@ -16,11 +16,12 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = ei.get_message_from_kafka()
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
-        assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
-        assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
+        expected_result = '{"code":"400.00.00.00","description":"Data processing exception."}'
+        allure.attach(str(expected_result), 'Expected result')
+        assert actual_result == expected_result
 
     @allure.step('Delete tender title from request')
     @pytestrail.case("22132")
