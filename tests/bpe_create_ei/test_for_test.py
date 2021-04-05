@@ -23,3 +23,18 @@ def test_22132():
         assert create_ei_response.status_code == 202
         assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
         assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
+
+    @allure.step("Delete tender object from the payload.")
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    @pytestrail.case("22132")
+    def test_22132_1(self, country, language):
+        ei = EI()
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]
+        create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
+        message_from_kafka = ei.get_message_from_kafka()
+        assert create_ei_response.text == "ok"
+        assert create_ei_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
+        assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
