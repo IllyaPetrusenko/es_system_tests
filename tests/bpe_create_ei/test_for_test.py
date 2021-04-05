@@ -9,7 +9,7 @@ from tests.bpe_create_ei.payloads import payload_ei_full_data_model
 @allure.title("Check the impossibility to create EI without obligatory data")
 def test_22132():
 
-    @allure.title("Delete tender object from the payload.")
+    @allure.step("Delete tender object from the payload.")
     @pytest.mark.smoke
     @pytest.mark.regression
     @pytestrail.case("22132")
