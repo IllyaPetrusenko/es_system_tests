@@ -8,6 +8,7 @@ from tests.bpe_create_ei.payloads import payload_ei_full_data_model
 
 class TestBpeCreateEI(object):
 
+    @allure.title("Delete tender object from the payload. Send the request. See the result in the feed-point")
     @pytest.mark.smoke
     @pytest.mark.regression
     @pytestrail.case("22132")
