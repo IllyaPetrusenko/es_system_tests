@@ -45,7 +45,7 @@ class EI:
     def get_message_from_kafka(self):
         time.sleep(1.8)
         message_from_kafka = get_message_from_kafka(self.x_operation_id)
-        allure.attach(message_from_kafka, 'Kafka message')
+        allure.attach(str(message_from_kafka), 'Kafka message')
         return message_from_kafka
 
     def delete_data_from_database(self, cpid):
