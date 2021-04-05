@@ -6,7 +6,6 @@ from tests.bpe_create_ei.create_ei import EI
 from tests.bpe_create_ei.payloads import payload_ei_full_data_model
 
 
-@pytestrail.case("22132")
 class CheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
 
     @allure.step('Delete tender object from request')
