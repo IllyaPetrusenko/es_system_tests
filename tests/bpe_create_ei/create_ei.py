@@ -41,7 +41,6 @@ class EI:
             json=self.payload)
         return ei
 
-    @allure.step('Get Kafka message')
     def get_message_from_kafka(self):
         time.sleep(1.8)
         message_from_kafka = get_message_from_kafka(self.x_operation_id)
