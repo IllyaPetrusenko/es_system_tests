@@ -29,24 +29,23 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["title"]
-        create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-        message_from_kafka = ei.get_message_from_kafka()
-        assert create_ei_response.text == "ok"
-        assert create_ei_response.status_code == 202
-        assert message_from_kafka["errors"][0]["code"] == "400.10.00"
-        assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-                                                                 "KotlinParameterException: Instantiation of " \
-                                                                 "[simple type, class com.procurement.budget." \
-                                                                 "model.dto.ei.request.EiCreate$TenderEiCreate] " \
-                                                                 "value failed for JSON property title due to " \
-                                                                 "missing (therefore NULL) value for creator " \
-                                                                 "parameter title which is a non-nullable " \
-                                                                 "type\n at [Source: UNKNOWN; line: -1, " \
-                                                                 "column: -1] (through reference chain: com." \
-                                                                 "procurement.budget.model.dto.ei.request." \
-                                                                 "EiCreate[\"tender\"]->com.procurement.budget." \
-                                                                 "model.dto.ei.request.EiCreate$TenderEiCreate" \
-                                                                 "[\"title\"])"
+        ei.create_request_ei(payload=payload, lang=language, country=country)
+        actual_result = ei.get_message_from_kafka()
+        actual_result = str(actual_result['errors'])
+        expected_result = "{'X-OPERATION-ID': '84380e83-395c-4b98-94be-30596a3efcab', " \
+                          "'X-RESPONSE-ID': '7f3f03e0-9648-11eb-9039-695d67d72397', " \
+                          "'errors': [{'code': '400.10.00', " \
+                          "'description': 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException:" \
+                          " Instantiation of [simple type, class com.procurement.budget.model.dto." \
+                          "ei.request.EiCreate$TenderEiCreate] value failed for JSON property title" \
+                          " due to missing (therefore NULL) value for creator parameter title which" \
+                          " is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] " \
+                          "(through reference chain: com.procurement.budget.model.dto.ei.request." \
+                          "EiCreate[\"tender\"]->com.procurement.budget.model.dto.ei.request.EiCreate$TenderEiCreate" \
+                          "[\"title\"])'}]}"
+        allure.attach(expected_result, 'Expected result')
+        allure.attach(actual_result, 'Actual result')
+        assert actual_result == expected_result
 
     @allure.step('Delete tender classification from request')
     @pytestrail.case("22132")
