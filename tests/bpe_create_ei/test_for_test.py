@@ -18,7 +18,7 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         ei.create_request_ei(payload=payload, lang=language, country=country)
         actual_result = ei.get_message_from_kafka()
         actual_result = actual_result['errors']
-        expected_result = '[{"code":"400.00.00.00","description":"Data processing exception."}]'
+        expected_result = "[{'code':'400.00.00.00','description':'Data processing exception.'}]"
         allure.attach(expected_result, 'Expected result')
         allure.attach(actual_result, 'Actual result')
         assert actual_result == expected_result
