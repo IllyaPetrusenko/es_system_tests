@@ -1,5 +1,5 @@
 import time
-import requests
+import requests, allure
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
@@ -22,6 +22,7 @@ class EI:
         self.access_token = get_access_token_for_platform_one()
         self.x_operation_id = get_x_operation_id(self.access_token)
 
+    @allure.step('Create EI')
     def create_request_ei(self, payload, country='MD', lang='ro'):
         self.payload = payload
         self.country = country
@@ -40,11 +41,13 @@ class EI:
             json=self.payload)
         return ei
 
+    @allure.step('Get Kafka message')
     def get_message_from_kafka(self):
         time.sleep(1.8)
         message_from_kafka = get_message_from_kafka(self.x_operation_id)
         return message_from_kafka
 
+    @allure.step('Delete data from DB')
     def delete_data_from_database(self, cpid):
         self.cpid = cpid
         auth_provider = PlainTextAuthProvider(username=username, password=password)
