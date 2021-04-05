@@ -1,4 +1,9 @@
-import copy, datetime, fnmatch, time, requests
+import copy
+import datetime
+import fnmatch
+import time
+import pytest
+import requests
 from pytest_testrail.plugin import pytestrail
 from useful_functions import is_valid_uuid, is_it_uuid, get_human_date_in_utc_format, get_period
 from tests.bpe_create_ei.create_ei import EI
@@ -8,19 +13,35 @@ from tests.bpe_create_ei.payloads import payload_ei_full_data_model
 class TestBpeCreateEI(object):
 
     @pytestrail.case("22132")
-    def test_22132_1_smoke(self, country, language):
-        ei = EI()
-        payload = copy.deepcopy(payload_ei_full_data_model)
-        del payload["tender"]
-        create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-        message_from_kafka = ei.get_message_from_kafka()
-        assert create_ei_response.text == "ok"
-        assert create_ei_response.status_code == 202
-        assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
-        assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_1(self, country, language, tag):
+        if tag == "regression":
+            ei = EI()
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]
+            create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
+            message_from_kafka = ei.get_message_from_kafka()
+            assert create_ei_response.text == "ok"
+            assert create_ei_response.status_code == 202
+            assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
+            assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
+        elif tag == "smoke":
+                ei = EI()
+                payload = copy.deepcopy(payload_ei_full_data_model)
+                del payload["tender"]
+                create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
+                message_from_kafka = ei.get_message_from_kafka()
+                assert create_ei_response.text == "ok"
+                assert create_ei_response.status_code == 202
+                assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
+                assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
+
 
     @pytestrail.case("22132")
-    def test_22132_2_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["title"]
@@ -41,10 +62,13 @@ class TestBpeCreateEI(object):
                                                                  "procurement.budget.model.dto.ei.request." \
                                                                  "EiCreate[\"tender\"]->com.procurement.budget." \
                                                                  "model.dto.ei.request.EiCreate$TenderEiCreate" \
-                                                                 "[\"title2\"])"
+                                                                 "[\"title\"])"
+
 
     @pytestrail.case("22132")
-    def test_22132_3_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["classification"]
@@ -66,8 +90,11 @@ class TestBpeCreateEI(object):
                                                                  "procurement.mdm.model.dto.data.ei.EIRequest$" \
                                                                  "Tender[\"classification\"])"
 
+
     @pytestrail.case("22132")
-    def test_22132_4_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_4(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["classification"]["id"]
@@ -92,7 +119,9 @@ class TestBpeCreateEI(object):
                                                                  "Classification[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_5_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_5(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["planning"]
@@ -113,7 +142,9 @@ class TestBpeCreateEI(object):
                                                                  "budget.model.dto.ei.request.EiCreate[\"planning\"])"
 
     @pytestrail.case("22132")
-    def test_22132_6_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_6(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["planning"]["budget"]
@@ -137,7 +168,9 @@ class TestBpeCreateEI(object):
                                                                  "[\"budget\"])"
 
     @pytestrail.case("22132")
-    def test_22132_7_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_7(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["planning"]["budget"]["period"]
@@ -162,8 +195,11 @@ class TestBpeCreateEI(object):
                                                                  "ei.request.EiCreate$PlanningEiCreate$BudgetEi" \
                                                                  "Create[\"period\"])"
 
+
     @pytestrail.case("22132")
-    def test_22132_8_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_8(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["planning"]["budget"]["period"]["startDate"]
@@ -189,7 +225,9 @@ class TestBpeCreateEI(object):
                                                                  "model.dto.ocds.Period[\"startDate\"])"
 
     @pytestrail.case("22132")
-    def test_22132_9_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_9(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["planning"]["budget"]["period"]["endDate"]
@@ -215,7 +253,9 @@ class TestBpeCreateEI(object):
                                                                  "model.dto.ocds.Period[\"endDate\"])"
 
     @pytestrail.case("22132")
-    def test_22132_10_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_10(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]
@@ -236,7 +276,9 @@ class TestBpeCreateEI(object):
                                                                  "EIRequest[\"buyer\"])"
 
     @pytestrail.case("22132")
-    def test_22132_11_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_11(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["name"]
@@ -258,7 +300,9 @@ class TestBpeCreateEI(object):
                                                                  "dto.ei.OrganizationReferenceEi[\"name\"])"
 
     @pytestrail.case("22132")
-    def test_22132_12_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_12(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["identifier"]
@@ -281,7 +325,9 @@ class TestBpeCreateEI(object):
                                                                  "dto.ei.OrganizationReferenceEi[\"identifier\"])"
 
     @pytestrail.case("22132")
-    def test_22132_13_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_13(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["identifier"]["scheme"]
@@ -305,7 +351,9 @@ class TestBpeCreateEI(object):
                                                                  "[\"scheme\"])"
 
     @pytestrail.case("22132")
-    def test_22132_14_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_14(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["identifier"]["id"]
@@ -329,7 +377,9 @@ class TestBpeCreateEI(object):
                                                                  "[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_15_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_15(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["identifier"]["legalName"]
@@ -353,7 +403,9 @@ class TestBpeCreateEI(object):
                                                                  "budget.model.dto.ocds.Identifier[\"legalName\"])"
 
     @pytestrail.case("22132")
-    def test_22132_16_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_16(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]
@@ -375,7 +427,9 @@ class TestBpeCreateEI(object):
                                                                  "dto.ei.OrganizationReferenceEi[\"address\"])"
 
     @pytestrail.case("22132")
-    def test_22132_17_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_17(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]["streetAddress"]
@@ -399,7 +453,9 @@ class TestBpeCreateEI(object):
                                                                  "[\"streetAddress\"])"
 
     @pytestrail.case("22132")
-    def test_22132_18_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_18(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]["addressDetails"]
@@ -423,7 +479,9 @@ class TestBpeCreateEI(object):
                                                                  "[\"addressDetails\"])"
 
     @pytestrail.case("22132")
-    def test_22132_19_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_19(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]["addressDetails"]["country"]
@@ -448,7 +506,9 @@ class TestBpeCreateEI(object):
                                                                  "dto.data.AddressDetails[\"country\"])"
 
     @pytestrail.case("22132")
-    def test_22132_20_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_20(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]["addressDetails"]["country"]["id"]
@@ -475,7 +535,9 @@ class TestBpeCreateEI(object):
                                                                  "[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_21_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_21(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]["addressDetails"]["region"]
@@ -500,7 +562,9 @@ class TestBpeCreateEI(object):
                                                                  "dto.data.AddressDetails[\"region\"])"
 
     @pytestrail.case("22132")
-    def test_22132_22_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_22(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]["addressDetails"]["region"]["id"]
@@ -526,7 +590,9 @@ class TestBpeCreateEI(object):
                                                                  "procurement.mdm.model.dto.data.RegionDetails[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_23_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_23(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]["addressDetails"]["locality"]
@@ -552,7 +618,9 @@ class TestBpeCreateEI(object):
                                                                  "Details[\"locality\"])"
 
     @pytestrail.case("22132")
-    def test_22132_24_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_24(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"]
@@ -579,7 +647,9 @@ class TestBpeCreateEI(object):
                                                                  "Details[\"scheme\"])"
 
     @pytestrail.case("22132")
-    def test_22132_25_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_25(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]["addressDetails"]["locality"]["id"]
@@ -606,7 +676,9 @@ class TestBpeCreateEI(object):
                                                                  "data.LocalityDetails[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_26_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_26(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["address"]["addressDetails"]["locality"]["description"]
@@ -633,7 +705,9 @@ class TestBpeCreateEI(object):
                                                                  "Details[\"description\"])"
 
     @pytestrail.case("22132")
-    def test_22132_27_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_27(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["contactPoint"]
@@ -656,7 +730,9 @@ class TestBpeCreateEI(object):
                                                                  "dto.ei.OrganizationReferenceEi[\"contactPoint\"])"
 
     @pytestrail.case("22132")
-    def test_22132_28_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_28(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["contactPoint"]["name"]
@@ -679,7 +755,9 @@ class TestBpeCreateEI(object):
                                                                  "mdm.model.dto.data.ContactPoint[\"name\"])"
 
     @pytestrail.case("22132")
-    def test_22132_29_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_29(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["contactPoint"]["email"]
@@ -703,7 +781,9 @@ class TestBpeCreateEI(object):
                                                                  "Point[\"email\"])"
 
     @pytestrail.case("22132")
-    def test_22132_30_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_30(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["buyer"]["contactPoint"]["telephone"]
@@ -727,7 +807,9 @@ class TestBpeCreateEI(object):
                                                                  "dto.data.ContactPoint[\"telephone\"])"
 
     @pytestrail.case("22132")
-    def test_22132_31_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_31(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["id"]
@@ -751,7 +833,9 @@ class TestBpeCreateEI(object):
                                                                  "data.ei.EIRequest$Tender$Item[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_32_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_32(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["description"]
@@ -776,7 +860,9 @@ class TestBpeCreateEI(object):
                                                                  "Tender$Item[\"description\"])"
 
     @pytestrail.case("22132")
-    def test_22132_33_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_33(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["classification"]
@@ -801,7 +887,9 @@ class TestBpeCreateEI(object):
                                                                  "Tender$Item[\"classification\"])"
 
     @pytestrail.case("22132")
-    def test_22132_34_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_34(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["classification"]["id"]
@@ -828,7 +916,9 @@ class TestBpeCreateEI(object):
                                                                  "Classification[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_35_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_35(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
@@ -857,7 +947,9 @@ class TestBpeCreateEI(object):
                                                                  "[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_36_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_36(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]
@@ -882,7 +974,9 @@ class TestBpeCreateEI(object):
                                                                  "EIRequest$Tender$Item[\"deliveryAddress\"])"
 
     @pytestrail.case("22132")
-    def test_22132_37_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_37(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]
@@ -909,7 +1003,9 @@ class TestBpeCreateEI(object):
                                                                  "Tender$Item$DeliveryAddress[\"addressDetails\"])"
 
     @pytestrail.case("22132")
-    def test_22132_38_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_38(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]
@@ -940,7 +1036,9 @@ class TestBpeCreateEI(object):
                                                                  "Details[\"country\"])"
 
     @pytestrail.case("22132")
-    def test_22132_39_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_39(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"]
@@ -973,7 +1071,9 @@ class TestBpeCreateEI(object):
                                                                  "AddressDetails$Country[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_40_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_40(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]
@@ -1003,7 +1103,9 @@ class TestBpeCreateEI(object):
                                                                  "Details[\"region\"])"
 
     @pytestrail.case("22132")
-    def test_22132_41_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_41(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"]
@@ -1036,7 +1138,9 @@ class TestBpeCreateEI(object):
                                                                  "AddressDetails$Locality[\"scheme\"])"
 
     @pytestrail.case("22132")
-    def test_22132_42_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_42(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"]
@@ -1069,7 +1173,9 @@ class TestBpeCreateEI(object):
                                                                  "$AddressDetails$Region[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_43_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_43(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"]
@@ -1102,7 +1208,9 @@ class TestBpeCreateEI(object):
                                                                  "Details$Locality[\"id\"])"
 
     @pytestrail.case("22132")
-    def test_22132_44_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_44(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["description"]
@@ -1136,7 +1244,9 @@ class TestBpeCreateEI(object):
                                                                  "Details$Locality[\"description\"])"
 
     @pytestrail.case("22132")
-    def test_22132_45_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_45(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["quantity"]
@@ -1161,7 +1271,9 @@ class TestBpeCreateEI(object):
                                                                  "data.ei.EIRequest$Tender$Item[\"quantity\"])"
 
     @pytestrail.case("22132")
-    def test_22132_46_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_46(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["unit"]
@@ -1185,7 +1297,9 @@ class TestBpeCreateEI(object):
                                                                  "data.ei.EIRequest$Tender$Item[\"unit\"])"
 
     @pytestrail.case("22132")
-    def test_22132_47_smoke(self, country, language):
+    @pytest.mark.regression
+    @pytest.mark.smoke
+    def test_22132_47(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["unit"]["id"]
@@ -1211,6 +1325,7 @@ class TestBpeCreateEI(object):
                                                                  "model.dto.data.ei.EIRequest$Tender$Item$Unit[\"id\"])"
 
     @pytestrail.case("22135")
+    @pytest.mark.regression
     def test_22135_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1223,6 +1338,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22135")
+    @pytest.mark.regression
     def test_22135_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1237,6 +1353,7 @@ class TestBpeCreateEI(object):
         assert check_token == True
 
     @pytestrail.case("22135")
+    @pytest.mark.regression
     def test_22135_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1256,6 +1373,7 @@ class TestBpeCreateEI(object):
                    "uri"] == "https://www.iso.org"
 
     @pytestrail.case("22136")
+    @pytest.mark.regression
     def test_22136_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1269,6 +1387,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22136")
+    @pytest.mark.regression
     def test_22136_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1284,6 +1403,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22136")
+    @pytest.mark.regression
     def test_22136_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1299,6 +1419,7 @@ class TestBpeCreateEI(object):
                    "scheme"] == "iso-alpha2"
 
     @pytestrail.case("22137")
+    @pytest.mark.regression
     def test_22137_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1312,6 +1433,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22137")
+    @pytest.mark.regression
     def test_22137_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1327,6 +1449,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22137")
+    @pytest.mark.regression
     def test_22137_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1342,6 +1465,7 @@ class TestBpeCreateEI(object):
                    "uri"] == "https://www.iso.org"
 
     @pytestrail.case("22138")
+    @pytest.mark.regression
     def test_22138_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1355,6 +1479,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22138")
+    @pytest.mark.regression
     def test_22138_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1370,6 +1495,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22138")
+    @pytest.mark.regression
     def test_22138_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1385,6 +1511,7 @@ class TestBpeCreateEI(object):
                    "description"] == "Moldova, Republica"
 
     @pytestrail.case("22139")
+    @pytest.mark.regression
     def test_22139_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1394,6 +1521,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22139")
+    @pytest.mark.regression
     def test_22139_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1404,6 +1532,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Invalid country. "
 
     @pytestrail.case("22140")
+    @pytest.mark.regression
     def test_22140_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1417,6 +1546,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22140")
+    @pytest.mark.regression
     def test_22140_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1432,6 +1562,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22140")
+    @pytest.mark.regression
     def test_22140_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1452,6 +1583,7 @@ class TestBpeCreateEI(object):
                    "uri"] == "http://statistica.md"
 
     @pytestrail.case("22141")
+    @pytest.mark.regression
     def test_22141_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1465,6 +1597,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22141")
+    @pytest.mark.regression
     def test_22141_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1480,6 +1613,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22141")
+    @pytest.mark.regression
     def test_22141_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1494,6 +1628,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
 
     @pytestrail.case("22142")
+    @pytest.mark.regression
     def test_22142_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1506,6 +1641,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22142")
+    @pytest.mark.regression
     def test_22142_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1520,6 +1656,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22142")
+    @pytest.mark.regression
     def test_22142_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1534,6 +1671,7 @@ class TestBpeCreateEI(object):
                    "uri"] == "http://statistica.md"
 
     @pytestrail.case("22143")
+    @pytest.mark.regression
     def test_22143_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1547,6 +1685,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22143")
+    @pytest.mark.regression
     def test_22143_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1562,6 +1701,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22143")
+    @pytest.mark.regression
     def test_22143_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1577,6 +1717,7 @@ class TestBpeCreateEI(object):
                    "description"] == "Cahul"
 
     @pytestrail.case("22144")
+    @pytest.mark.regression
     def test_22144_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1586,6 +1727,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22144")
+    @pytest.mark.regression
     def test_22144_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1596,6 +1738,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Region not found. "
 
     @pytestrail.case("22145")
+    @pytest.mark.regression
     def test_22145_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1607,6 +1750,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22145")
+    @pytest.mark.regression
     def test_22145_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1619,6 +1763,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Locality not found. "
 
     @pytestrail.case("22146")
+    @pytest.mark.regression
     def test_22146_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1633,6 +1778,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22146")
+    @pytest.mark.regression
     def test_22146_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1649,6 +1795,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22146")
+    @pytest.mark.regression
     def test_22146_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1671,6 +1818,7 @@ class TestBpeCreateEI(object):
                    "uri"] == "http://statistica.md"
 
     @pytestrail.case("22147")
+    @pytest.mark.regression
     def test_22147_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1682,6 +1830,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22147")
+    @pytest.mark.regression
     def test_22147_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1708,6 +1857,7 @@ class TestBpeCreateEI(object):
                                                                  "mdm.model.dto.data.LocalityDetails[\"description\"])"
 
     @pytestrail.case("22148")
+    @pytest.mark.regression
     def test_22148_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1723,6 +1873,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22148")
+    @pytest.mark.regression
     def test_22148_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1740,6 +1891,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22148")
+    @pytest.mark.regression
     def test_22148_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1760,8 +1912,8 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
                    "description"] == "or.Donduşeni (r-l Donduşeni)"
 
-    pytestrail.case("22149")
-
+    @pytestrail.case("22149")
+    @pytest.mark.regression
     def test_22149_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1774,6 +1926,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22149")
+    @pytest.mark.regression
     def test_22149_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1788,6 +1941,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22149")
+    @pytest.mark.regression
     def test_22149_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1801,6 +1955,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["identifier"]["scheme"] == "MD-IDNO"
 
     @pytestrail.case("22150")
+    @pytest.mark.regression
     def test_22150_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1810,6 +1965,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22150")
+    @pytest.mark.regression
     def test_22150_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1820,6 +1976,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Registration scheme not found. "
 
     @pytestrail.case("22151")
+    @pytest.mark.regression
     def test_22151_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1832,6 +1989,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22151")
+    @pytest.mark.regression
     def test_22151_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1846,6 +2004,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22151")
+    @pytest.mark.regression
     def test_22151_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1860,6 +2019,7 @@ class TestBpeCreateEI(object):
             "typeOfBuyer"]
 
     @pytestrail.case("22152")
+    @pytest.mark.regression
     def test_22152_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1869,6 +2029,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22152")
+    @pytest.mark.regression
     def test_22152_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1892,6 +2053,7 @@ class TestBpeCreateEI(object):
                                                                  "model.dto.data.Details[\"typeOfBuyer\"])"
 
     @pytestrail.case("22153")
+    @pytest.mark.regression
     def test_22153_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1904,6 +2066,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22153")
+    @pytest.mark.regression
     def test_22153_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1918,6 +2081,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22153")
+    @pytest.mark.regression
     def test_22153_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1932,6 +2096,7 @@ class TestBpeCreateEI(object):
             "mainGeneralActivity"]
 
     @pytestrail.case("22154")
+    @pytest.mark.regression
     def test_22154_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1941,6 +2106,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22154")
+    @pytest.mark.regression
     def test_22154_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1969,6 +2135,7 @@ class TestBpeCreateEI(object):
                                                                  f"model.dto.data.Details[\"mainGeneralActivity\"])"
 
     @pytestrail.case("22155")
+    @pytest.mark.regression
     def test_22155_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1981,6 +2148,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22155")
+    @pytest.mark.regression
     def test_22155_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -1995,6 +2163,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22155")
+    @pytest.mark.regression
     def test_22155_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2009,6 +2178,7 @@ class TestBpeCreateEI(object):
             "details"]["mainSectoralActivity"]
 
     @pytestrail.case("22156")
+    @pytest.mark.regression
     def test_22156_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2018,6 +2188,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22156")
+    @pytest.mark.regression
     def test_22156_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2050,6 +2221,7 @@ class TestBpeCreateEI(object):
                                                                  f"Details[\"mainSectoralActivity\"])"
 
     @pytestrail.case("22157")
+    @pytest.mark.regression
     def test_22157_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2061,6 +2233,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22157")
+    @pytest.mark.regression
     def test_22157_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2074,6 +2247,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22157")
+    @pytest.mark.regression
     def test_22157_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2087,6 +2261,7 @@ class TestBpeCreateEI(object):
         assert convert_timestamp_to_date == message_from_kafka["data"]["operationDate"]
 
     @pytestrail.case("22158")
+    @pytest.mark.regression
     def test_22158_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2098,6 +2273,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22158")
+    @pytest.mark.regression
     def test_22158_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2111,6 +2287,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22158")
+    @pytest.mark.regression
     def test_22158_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2126,6 +2303,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["data"]["operationDate"] == convert_date_to_human_date
 
     @pytestrail.case("22159")
+    @pytest.mark.regression
     def test_22159_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2137,6 +2315,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22159")
+    @pytest.mark.regression
     def test_22159_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2150,6 +2329,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22159")
+    @pytest.mark.regression
     def test_22159_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2161,6 +2341,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["data"]["operationDate"] == ei_release["releases"][0]["date"]
 
     @pytestrail.case("22160")
+    @pytest.mark.regression
     def test_22160_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2172,6 +2353,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22160")
+    @pytest.mark.regression
     def test_22160_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2185,6 +2367,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22160")
+    @pytest.mark.regression
     def test_22160_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2197,6 +2380,7 @@ class TestBpeCreateEI(object):
         assert check_tender_id == True
 
     @pytestrail.case("22161")
+    @pytest.mark.regression
     def test_22161_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2208,6 +2392,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22161")
+    @pytest.mark.regression
     def test_22161_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2221,6 +2406,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22161")
+    @pytest.mark.regression
     def test_22161_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2232,6 +2418,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["tender"]["status"] == "planning"
 
     @pytestrail.case("22162")
+    @pytest.mark.regression
     def test_22162_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2243,6 +2430,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22162")
+    @pytest.mark.regression
     def test_22162_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2256,6 +2444,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22162")
+    @pytest.mark.regression
     def test_22162_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2267,6 +2456,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["tender"]["statusDetails"] == "empty"
 
     @pytestrail.case("22163")
+    @pytest.mark.regression
     def test_22163_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2280,6 +2470,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22163")
+    @pytest.mark.regression
     def test_22163_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2293,6 +2484,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22163")
+    @pytest.mark.regression
     def test_22163_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2307,6 +2499,7 @@ class TestBpeCreateEI(object):
                payload["buyer"]["identifier"]["id"]
 
     @pytestrail.case("22164")
+    @pytest.mark.regression
     def test_22164_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2322,6 +2515,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22164")
+    @pytest.mark.regression
     def test_22164_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2339,6 +2533,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22164")
+    @pytest.mark.regression
     def test_22164_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2354,6 +2549,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["tender"]["classification"]["id"] == payload["tender"]["classification"]["id"]
 
     @pytestrail.case("22165")
+    @pytest.mark.regression
     def test_22165_1(self, country, language):
         ei = EI()
         budget_period = get_period()
@@ -2368,6 +2564,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22165")
+    @pytest.mark.regression
     def test_22165_2(self, country, language):
         ei = EI()
         budget_period = get_period()
@@ -2384,6 +2581,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22165")
+    @pytest.mark.regression
     def test_22165_3(self, country, language):
         ei = EI()
         budget_period = get_period()
@@ -2404,6 +2602,7 @@ class TestBpeCreateEI(object):
         assert result == True
 
     @pytestrail.case("22166")
+    @pytest.mark.regression
     def test_22166_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2418,6 +2617,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22166")
+    @pytest.mark.regression
     def test_22166_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2443,6 +2643,7 @@ class TestBpeCreateEI(object):
                                                                  f"Period[\"startDate\"])"
 
     @pytestrail.case("22168")
+    @pytest.mark.regression
     def test_22168_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2457,6 +2658,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22168")
+    @pytest.mark.regression
     def test_22168_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2483,6 +2685,7 @@ class TestBpeCreateEI(object):
                                                                  f"dto.ocds.Period[\"startDate\"])"
 
     @pytestrail.case("22169")
+    @pytest.mark.regression
     def test_22169_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2497,6 +2700,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22169")
+    @pytest.mark.regression
     def test_22169_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2523,6 +2727,7 @@ class TestBpeCreateEI(object):
                                                                  f"dto.ocds.Period[\"startDate\"])"
 
     @pytestrail.case("22170")
+    @pytest.mark.regression
     def test_22170_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2537,6 +2742,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22170")
+    @pytest.mark.regression
     def test_22170_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2561,6 +2767,7 @@ class TestBpeCreateEI(object):
                                                                  f"model.dto.ocds.Period[\"endDate\"])"
 
     @pytestrail.case("22171")
+    @pytest.mark.regression
     def test_22171_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2575,6 +2782,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22171")
+    @pytest.mark.regression
     def test_22171_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2601,6 +2809,7 @@ class TestBpeCreateEI(object):
                                                                  f"dto.ocds.Period[\"endDate\"])"
 
     @pytestrail.case("22172")
+    @pytest.mark.regression
     def test_22172_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2615,6 +2824,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22172")
+    @pytest.mark.regression
     def test_22172_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2640,6 +2850,7 @@ class TestBpeCreateEI(object):
                                                                  f"budget.model.dto.ocds.Period[\"endDate\"])"
 
     @pytestrail.case("22173")
+    @pytest.mark.regression
     def test_22173_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2652,6 +2863,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22173")
+    @pytest.mark.regression
     def test_22173_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2666,6 +2878,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22173")
+    @pytest.mark.regression
     def test_22173_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2679,6 +2892,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["tender"]["classification"]["id"] == payload["tender"]["classification"]["id"]
 
     @pytestrail.case("22174")
+    @pytest.mark.regression
     def test_22174_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2688,6 +2902,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22174")
+    @pytest.mark.regression
     def test_22174_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2698,6 +2913,7 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Invalid CPV."
 
     @pytestrail.case("22175")
+    @pytest.mark.regression
     def test_22175_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2709,6 +2925,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22175")
+    @pytest.mark.regression
     def test_22175_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2722,6 +2939,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22175")
+    @pytest.mark.regression
     def test_22175_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2734,6 +2952,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["tag"][0] == "compiled"
 
     @pytestrail.case("22176")
+    @pytest.mark.regression
     def test_22176_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2745,6 +2964,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22176")
+    @pytest.mark.regression
     def test_22176_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2758,6 +2978,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22176")
+    @pytest.mark.regression
     def test_22176_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2770,6 +2991,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["date"] == message_from_kafka["data"]["operationDate"]
 
     @pytestrail.case("22178")
+    @pytest.mark.regression
     def test_22178_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2781,6 +3003,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22178")
+    @pytest.mark.regression
     def test_22178_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2794,6 +3017,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22178")
+    @pytest.mark.regression
     def test_22178_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2805,7 +3029,9 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert ei_release["releases"][0]["initiationType"] == "tender"
 
+
     @pytestrail.case("22181")
+    @pytest.mark.regression
     def test_22181_1(self, country, language):
         ei = EI()
         budget_period = get_period()
@@ -2822,6 +3048,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22181")
+    @pytest.mark.regression
     def test_22181_2(self, country, language):
         ei = EI()
         budget_period = get_period()
@@ -2840,6 +3067,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22181")
+    @pytest.mark.regression
     def test_22181_3(self, country, language):
         ei = EI()
         budget_period = get_period()
@@ -2861,6 +3089,7 @@ class TestBpeCreateEI(object):
                payload["planning"]["budget"]["period"]["endDate"]
 
     @pytestrail.case("22182")
+    @pytest.mark.regression
     def test_22182_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2874,6 +3103,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22182")
+    @pytest.mark.regression
     def test_22182_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2889,6 +3119,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22182")
+    @pytest.mark.regression
     def test_22182_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2904,6 +3135,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["tender"]["classification"]["id"] == payload["tender"]["classification"]["id"]
 
     @pytestrail.case("22183")
+    @pytest.mark.regression
     def test_22183_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2918,6 +3150,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22183")
+    @pytest.mark.regression
     def test_22183_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2934,6 +3167,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22183")
+    @pytest.mark.regression
     def test_22183_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2951,6 +3185,7 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["roles"][0] == "buyer"
 
     @pytestrail.case("22184")
+    @pytest.mark.regression
     def test_22184_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3004,6 +3239,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22184")
+    @pytest.mark.regression
     def test_22184_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3059,6 +3295,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22184")
+    @pytest.mark.regression
     def test_22184_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3124,6 +3361,7 @@ class TestBpeCreateEI(object):
         assert check_buyer_role == True
 
     @pytestrail.case("22185")
+    @pytest.mark.regression
     def test_22185_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3135,6 +3373,7 @@ class TestBpeCreateEI(object):
         assert create_ei_response.status_code == 202
 
     @pytestrail.case("22185")
+    @pytest.mark.regression
     def test_22185_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3148,6 +3387,7 @@ class TestBpeCreateEI(object):
         assert ei_token == True
 
     @pytestrail.case("22185")
+    @pytest.mark.regression
     def test_22185_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3162,6 +3402,8 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["buyer"]["name"] == payload["buyer"]["name"]
 
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3173,6 +3415,8 @@ class TestBpeCreateEI(object):
                                                                  "'tender.title' is empty or blank."
 
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3184,6 +3428,8 @@ class TestBpeCreateEI(object):
                                                                  "'tender.description' is empty or blank."
 
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3195,6 +3441,8 @@ class TestBpeCreateEI(object):
                                                                  "'planning.rationale' is empty or blank."
 
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_4(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3206,6 +3454,8 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.name' is empty or blank."
 
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_5(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3216,7 +3466,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'buyer.identifier.id' is empty or blank."
 
+    
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_6(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3227,7 +3480,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'buyer.identifier.legalName' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_7(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3238,7 +3494,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'buyer.identifier.uri' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_8(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3249,7 +3508,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'buyer.address.streetAddress' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_9(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3260,7 +3522,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'buyer.address.postalCode' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_10(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3272,7 +3537,10 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.address.addressDetails.locality.scheme' " \
                                                                  "is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_11(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3285,7 +3553,10 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.address.addressDetails.locality.id' " \
                                                                  "is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_12(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3298,7 +3569,10 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.address.addressDetails.locality." \
                                                                  "description' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_13(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3309,7 +3583,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == "Incorrect an attribute value.The attribute " \
                                                                  "'buyer.additionalIdentifiers.id' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_14(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3321,7 +3598,10 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.additionalIdentifiers.scheme' is empty " \
                                                                  "or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_15(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3333,7 +3613,10 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.additionalIdentifiers.legalName' is empty " \
                                                                  "or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_16(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3345,7 +3628,10 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.additionalIdentifiers.uri' " \
                                                                  "is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_17(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3357,7 +3643,10 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.contactPoint.name' is " \
                                                                  "empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_18(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3369,7 +3658,10 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.contactPoint.email' is " \
                                                                  "empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_19(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3381,7 +3673,10 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.contactPoint.telephone' is " \
                                                                  "empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_20(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3393,7 +3688,10 @@ class TestBpeCreateEI(object):
                                                                  "attribute 'buyer.contactPoint.faxNumber' is " \
                                                                  "empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_21(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3405,7 +3703,10 @@ class TestBpeCreateEI(object):
                                                                  "'buyer.contactPoint.url' is empty " \
                                                                  "or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_22(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3417,7 +3718,10 @@ class TestBpeCreateEI(object):
                                                                  "attribute 'tender.items.deliveryAddress." \
                                                                  "streetAddress' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_23(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3429,7 +3733,10 @@ class TestBpeCreateEI(object):
                                                                  "'tender.items.deliveryAddress." \
                                                                  "postalCode' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_24(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3441,7 +3748,10 @@ class TestBpeCreateEI(object):
                                                                  "'deliveryAddress.addressDetails." \
                                                                  "locality.scheme' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_25(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3454,7 +3764,10 @@ class TestBpeCreateEI(object):
                                                                  "'deliveryAddress.addressDetails." \
                                                                  "locality.id' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_26(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3467,7 +3780,10 @@ class TestBpeCreateEI(object):
                                                                  "'deliveryAddress.addressDetails." \
                                                                  "locality.description' is empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_27(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3479,7 +3795,10 @@ class TestBpeCreateEI(object):
                                                                  "'tender.items.description' is " \
                                                                  "empty or blank."
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_28(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3489,7 +3808,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.06"
         assert message_from_kafka["errors"][0]["description"] == "Cpv code not found. "
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_29(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3499,7 +3821,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.01.03"
         assert message_from_kafka["errors"][0]["description"] == "Invalid cpv code. "
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_30(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3509,7 +3834,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.01.05"
         assert message_from_kafka["errors"][0]["description"] == "Invalid cpvs code. "
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_31(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3519,7 +3847,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.01.10"
         assert message_from_kafka["errors"][0]["description"] == "Invalid country. "
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_32(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3529,7 +3860,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.13"
         assert message_from_kafka["errors"][0]["description"] == "Region not found. "
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_33(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3547,7 +3881,10 @@ class TestBpeCreateEI(object):
                                                                  "mdm.model.dto.data.ei.EIRequest$Tender$Item" \
                                                                  "[\"quantity\"])"
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_34(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3557,7 +3894,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.01.06"
         assert message_from_kafka["errors"][0]["description"] == "Invalid unit code. "
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_35(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3578,7 +3918,10 @@ class TestBpeCreateEI(object):
                                                                  f"[\"period\"]->com.procurement.budget.model." \
                                                                  f"dto.ocds.Period[\"startDate\"])"
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_36(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3599,7 +3942,10 @@ class TestBpeCreateEI(object):
                                                                  f"[\"period\"]->com.procurement.budget.model." \
                                                                  f"dto.ocds.Period[\"endDate\"])"
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_37(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3609,7 +3955,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.12"
         assert message_from_kafka["errors"][0]["description"] == "Registration scheme not found. "
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_38(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3619,7 +3968,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.11"
         assert message_from_kafka["errors"][0]["description"] == "Country not found. "
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_39(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3629,7 +3981,10 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.13"
         assert message_from_kafka["errors"][0]["description"] == "Region not found. "
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_40(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3652,7 +4007,10 @@ class TestBpeCreateEI(object):
                                                                  "[\"details\"]->com.procurement.mdm.model." \
                                                                  "dto.data.Details[\"typeOfBuyer\"])"
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_41(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3679,7 +4037,10 @@ class TestBpeCreateEI(object):
                                                                  "procurement.mdm.model.dto.data.Details" \
                                                                  "[\"mainGeneralActivity\"])"
 
+
     @pytestrail.case("22186")
+    @pytest.mark.smoke
+    @pytest.mark.regression
     def test_22186_42(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3708,7 +4069,9 @@ class TestBpeCreateEI(object):
                                                                  "com.procurement.mdm.model.dto.data." \
                                                                  "Details[\"mainSectoralActivity\"])"
 
+
     @pytestrail.case("22830")
+    @pytest.mark.regression
     def test_22830_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3719,7 +4082,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22830")
+    @pytest.mark.regression
     def test_22830_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3732,7 +4097,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22833")
+    @pytest.mark.regression
     def test_22833_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3741,7 +4108,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22833")
+    @pytest.mark.regression
     def test_22833_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3759,7 +4128,9 @@ class TestBpeCreateEI(object):
                                                                  "model.dto.data.ei.EIRequest$Tender$" \
                                                                  "Classification[\"id\"])"
 
+
     @pytestrail.case("22834")
+    @pytest.mark.regression
     def test_22834_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3768,7 +4139,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22834")
+    @pytest.mark.regression
     def test_22834_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3778,7 +4151,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.06"
         assert message_from_kafka["errors"][0]["description"] == "Cpv code not found. "
 
+
     @pytestrail.case("22835")
+    @pytest.mark.regression
     def test_22835_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3787,7 +4162,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22835")
+    @pytest.mark.regression
     def test_22835_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3797,7 +4174,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.06"
         assert message_from_kafka["errors"][0]["description"] == "Cpv code not found. "
 
+
     @pytestrail.case("22836")
+    @pytest.mark.regression
     def test_22836_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3806,7 +4185,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22836")
+    @pytest.mark.regression
     def test_22836_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3816,7 +4197,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.06"
         assert message_from_kafka["errors"][0]["description"] == "Cpv code not found. "
 
+
     @pytestrail.case("22837")
+    @pytest.mark.regression
     def test_22837_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3827,7 +4210,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22837")
+    @pytest.mark.regression
     def test_22837_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3843,7 +4228,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
-    @pytestrail.case('22837')
+
+    @pytestrail.case("22837")
+    @pytest.mark.regression
     def test_22837_4(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3858,7 +4245,9 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"] == "services"
 
+
     @pytestrail.case("22838")
+    @pytest.mark.regression
     def test_22838_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3869,7 +4258,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22838")
+    @pytest.mark.regression
     def test_22838_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3885,7 +4276,8 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
-    @pytestrail.case('22838')
+    @pytestrail.case("22838")
+    @pytest.mark.regression
     def test_22838_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3900,7 +4292,9 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"] == "works"
 
+
     @pytestrail.case("22839")
+    @pytest.mark.regression
     def test_22839_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3911,7 +4305,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22839")
+    @pytest.mark.regression
     def test_22839_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3927,7 +4323,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
-    @pytestrail.case('22839')
+
+    @pytestrail.case("22839")
+    @pytest.mark.regression
     def test_22839_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3942,7 +4340,9 @@ class TestBpeCreateEI(object):
         ei.delete_data_from_database(cpid)
         assert ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"] == "services"
 
+
     @pytestrail.case("22840")
+    @pytest.mark.regression
     def test_22840_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3951,7 +4351,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22840")
+    @pytest.mark.regression
     def test_22840_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3965,7 +4367,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
-    @pytestrail.case('22840')
+
+    @pytestrail.case("22840")
+    @pytest.mark.regression
     def test_22840_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3979,7 +4383,9 @@ class TestBpeCreateEI(object):
         assert ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"]["country"][
                    "id"] == "MD"
 
+
     @pytestrail.case("22841")
+    @pytest.mark.regression
     def test_22841_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -3988,7 +4394,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22841")
+    @pytest.mark.regression
     def test_22841_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4002,7 +4410,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
-    @pytestrail.case('22841')
+
+    @pytestrail.case("22841")
+    @pytest.mark.regression
     def test_22841_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4016,7 +4426,9 @@ class TestBpeCreateEI(object):
         assert ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"]["country"][
                    "scheme"] == "iso-alpha2"
 
+
     @pytestrail.case("22842")
+    @pytest.mark.regression
     def test_22842_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4025,7 +4437,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22842")
+    @pytest.mark.regression
     def test_22842_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4039,7 +4453,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
-    @pytestrail.case('22842')
+
+    @pytestrail.case("22842")
+    @pytest.mark.regression
     def test_22842_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4053,7 +4469,9 @@ class TestBpeCreateEI(object):
         assert ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"]["country"][
                    "description"] == "Moldova, Republica"
 
+
     @pytestrail.case("22843")
+    @pytest.mark.regression
     def test_22843_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4062,7 +4480,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22843")
+    @pytest.mark.regression
     def test_22843_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4076,7 +4496,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
-    @pytestrail.case('22843')
+
+    @pytestrail.case("22843")
+    @pytest.mark.regression
     def test_22843_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4090,7 +4512,9 @@ class TestBpeCreateEI(object):
         assert ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"]["country"][
                    "uri"] == "https://www.iso.org"
 
+
     @pytestrail.case("22908")
+    @pytest.mark.regression
     def test_22908_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4099,7 +4523,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22908")
+    @pytest.mark.regression
     def test_22908_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4113,7 +4539,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
-    @pytestrail.case('22908')
+
+    @pytestrail.case("22908")
+    @pytest.mark.regression
     def test_22908_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4242,7 +4670,9 @@ class TestBpeCreateEI(object):
                        "description"] == payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
                        "description"]
 
+
     @pytestrail.case("23995")
+    @pytest.mark.regression
     def test_23995_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4251,7 +4681,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("23995")
+    @pytest.mark.regression
     def test_23995_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4261,7 +4693,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.01.03"
         assert message_from_kafka["errors"][0]["description"] == "Invalid cpv code. "
 
+
     @pytestrail.case("23993")
+    @pytest.mark.regression
     def test_23993_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4270,7 +4704,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("23993")
+    @pytest.mark.regression
     def test_23993_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4280,7 +4716,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.01.05"
         assert message_from_kafka["errors"][0]["description"] == "Invalid cpvs code. "
 
+
     @pytestrail.case("23994")
+    @pytest.mark.regression
     def test_23994_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4289,7 +4727,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22994")
+    @pytest.mark.regression
     def test_23994_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4303,7 +4743,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("23994")
+    @pytest.mark.regression
     def test_23994_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4321,7 +4763,9 @@ class TestBpeCreateEI(object):
             assert ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0][
                        "description"] == "Oţel carbon"
 
+
     @pytestrail.case("23996")
+    @pytest.mark.regression
     def test_23996_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4330,7 +4774,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22996")
+    @pytest.mark.regression
     def test_23996_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4344,7 +4790,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("23996")
+    @pytest.mark.regression
     def test_23996_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4362,7 +4810,9 @@ class TestBpeCreateEI(object):
             assert ei_release["releases"][0]["tender"]["items"][0]["classification"][
                        "description"] == "Lucrări de pregătire a şantierului"
 
+
     @pytestrail.case("23997")
+    @pytest.mark.regression
     def test_23997_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4371,7 +4821,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("23997")
+    @pytest.mark.regression
     def test_23997_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4381,7 +4833,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.01.06"
         assert message_from_kafka["errors"][0]["description"] == "Invalid unit code. "
 
+
     @pytestrail.case("23998")
+    @pytest.mark.regression
     def test_23998_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4393,7 +4847,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("23998")
+    @pytest.mark.regression
     def test_23998_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4407,7 +4863,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("23998")
+    @pytest.mark.regression
     def test_23998_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4423,7 +4881,9 @@ class TestBpeCreateEI(object):
             assert ei_release["releases"][0]["tender"]["items"][0]["unit"]["id"] == \
                    payload["tender"]["items"][0]["unit"]["id"]
 
+
     @pytestrail.case("23999")
+    @pytest.mark.regression
     def test_23999_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4432,7 +4892,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("23999")
+    @pytest.mark.regression
     def test_23999_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4443,7 +4905,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.01.10"
         assert message_from_kafka["errors"][0]["description"] == "Invalid country. "
 
+
     @pytestrail.case("24000")
+    @pytest.mark.regression
     def test_24000_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4455,7 +4919,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("24000")
+    @pytest.mark.regression
     def test_24000_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4469,7 +4935,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("24000")
+    @pytest.mark.regression
     def test_24000_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4490,7 +4958,9 @@ class TestBpeCreateEI(object):
             assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
                        "uri"] == "https://www.iso.org"
 
+
     @pytestrail.case("22133")
+    @pytest.mark.regression
     def test_22133_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4501,7 +4971,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22133")
+    @pytest.mark.regression
     def test_22133_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4514,7 +4986,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case('22133')
+    @pytest.mark.regression
     def test_22133_3(self, language, country):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4571,7 +5045,9 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["parties"][0]["contactPoint"] == \
                payload["buyer"]["contactPoint"]
 
+
     @pytestrail.case("22167")
+    @pytest.mark.regression
     def test_22167_1(self, country, language):
         ei = EI()
         budget_period = get_period()
@@ -4582,7 +5058,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22167")
+    @pytest.mark.regression
     def test_22167_2(self, country, language):
         ei = EI()
         budget_period = get_period()
@@ -4594,7 +5072,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.10.01.01"
         assert message_from_kafka["errors"][0]["description"] == "Invalid period."
 
+
     @pytestrail.case("24001")
+    @pytest.mark.regression
     def test_24001_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4603,7 +5083,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("24001")
+    @pytest.mark.regression
     def test_24001_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4613,7 +5095,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.13"
         assert message_from_kafka["errors"][0]["description"] == "Region not found. "
 
+
     @pytestrail.case("24002")
+    @pytest.mark.regression
     def test_24002_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4625,7 +5109,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("24002")
+    @pytest.mark.regression
     def test_24002_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4639,7 +5125,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("24002")
+    @pytest.mark.regression
     def test_24002_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4659,7 +5147,9 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
                    "uri"] == "http://statistica.md"
 
+
     @pytestrail.case("24003")
+    @pytest.mark.regression
     def test_24003_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4669,7 +5159,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("24003")
+    @pytest.mark.regression
     def test_24003_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4680,7 +5172,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.14"
         assert message_from_kafka["errors"][0]["description"] == "Locality not found. "
 
+
     @pytestrail.case("24004")
+    @pytest.mark.regression
     def test_24004_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4691,7 +5185,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("24004")
+    @pytest.mark.regression
     def test_24004_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4703,7 +5199,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["code"] == "400.20.00.14"
         assert message_from_kafka["errors"][0]["description"] == "Locality not found. "
 
+
     @pytestrail.case("24005")
+    @pytest.mark.regression
     def test_24005_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4717,7 +5215,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("24005")
+    @pytest.mark.regression
     def test_24005_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4733,7 +5233,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("24005")
+    @pytest.mark.regression
     def test_24005_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4756,7 +5258,9 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
                    "uri"] == "http://statistica.md"
 
+
     @pytestrail.case("24006")
+    @pytest.mark.regression
     def test_24006_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4770,7 +5274,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("24006")
+    @pytest.mark.regression
     def test_24006_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4786,7 +5292,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("24006")
+    @pytest.mark.regression
     def test_24006_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4808,7 +5316,9 @@ class TestBpeCreateEI(object):
                    "description"] == payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
                    "description"]
 
+
     @pytestrail.case("24011")
+    @pytest.mark.regression
     def test_24011_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4820,7 +5330,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("24011")
+    @pytest.mark.regression
     def test_24011_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4834,7 +5346,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("24011")
+    @pytest.mark.regression
     def test_24011_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4848,7 +5362,9 @@ class TestBpeCreateEI(object):
         check_id_of_item = is_valid_uuid(ei_release["releases"][0]["tender"]["items"][0]["id"], 4)
         assert check_id_of_item == True
 
+
     @pytestrail.case("24013")
+    @pytest.mark.regression
     def test_24013_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4858,7 +5374,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("24013")
+    @pytest.mark.regression
     def test_24013_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4871,7 +5389,9 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0]["description"] == f"Invalid CPV.Invalid CPV code in " \
                                                                  f"classification(s) '{value_of_key}'"
 
+
     @pytestrail.case("24012")
+    @pytest.mark.regression
     def test_24012_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4907,7 +5427,9 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("24012")
+    @pytest.mark.regression
     def test_24012_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -4945,7 +5467,9 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("24012")
+    @pytest.mark.regression
     def test_24012_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -5033,8 +5557,11 @@ class TestBpeCreateEI(object):
         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
                    "locality"]["uri"] == "http://statistica.md"
 
+
     @pytestrail.case("25301")
-    def test_25301_1_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["title"] = " "
@@ -5044,8 +5571,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Incorrect an attribute value.The attribute 'tender.title' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_2_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["description"] = " "
@@ -5056,8 +5586,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'tender.description' is empty or " \
                                      "blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_3_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["planning"]["rationale"] = " "
@@ -5068,8 +5601,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'planning.rationale' is empty or " \
                                      "blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_4_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_4(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["name"] = " "
@@ -5079,8 +5615,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.name' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_5_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_5(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["identifier"]["id"] = " "
@@ -5091,8 +5630,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.identifier.id' is empty or " \
                                      "blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_6_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_6(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["identifier"]["legalName"] = " "
@@ -5103,8 +5645,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.identifier.legalName' " \
                                      "is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_7_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_7(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["identifier"]["uri"] = " "
@@ -5115,8 +5660,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.identifier.uri' " \
                                      "is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_8_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_8(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["address"]["streetAddress"] = " "
@@ -5127,8 +5675,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.address.streetAddress' " \
                                      "is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_9_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_9(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["address"]["postalCode"] = " "
@@ -5139,8 +5690,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.address.postalCode' " \
                                      "is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_10_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_10(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = " "
@@ -5151,8 +5705,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
                                      "locality.scheme' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_11_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_11(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
@@ -5164,8 +5721,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
                                      "locality.id' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_12_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_12(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
@@ -5178,7 +5738,9 @@ class TestBpeCreateEI(object):
                                      "locality.description' is empty or blank."
 
     @pytestrail.case("25301")
-    def test_25301_13_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_13(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["additionalIdentifiers"][0]["id"] = " "
@@ -5189,8 +5751,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers.id' " \
                                      "is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_14_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_14(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["additionalIdentifiers"][0]["scheme"] = " "
@@ -5201,8 +5766,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers." \
                                      "scheme' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_15_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_15(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["additionalIdentifiers"][0]["legalName"] = " "
@@ -5213,8 +5781,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers." \
                                      "legalName' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_16_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_16(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["additionalIdentifiers"][0]["uri"] = " "
@@ -5225,8 +5796,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers.uri' " \
                                      "is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_17_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_17(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["contactPoint"]["name"] = " "
@@ -5237,8 +5811,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.name' is " \
                                      "empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_18_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_18(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["contactPoint"]["email"] = " "
@@ -5249,8 +5826,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.email' is " \
                                      "empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_19_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_19(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["contactPoint"]["telephone"] = " "
@@ -5261,8 +5841,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.telephone' is " \
                                      "empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_20_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_20(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["contactPoint"]["faxNumber"] = " "
@@ -5273,8 +5856,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.faxNumber' is " \
                                      "empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_21_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_21(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["contactPoint"]["url"] = " "
@@ -5285,8 +5871,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.url' is empty " \
                                      "or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_22_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_22(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = " "
@@ -5297,8 +5886,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'tender.items.deliveryAddress." \
                                      "streetAddress' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_23_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_23(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["postalCode"] = " "
@@ -5309,8 +5901,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'tender.items.deliveryAddress." \
                                      "postalCode' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_24_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_24(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = " "
@@ -5321,8 +5916,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
                                      "locality.scheme' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_25_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_25(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "other"
@@ -5334,8 +5932,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
                                      "locality.id' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_26_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_26(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "other"
@@ -5347,8 +5948,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
                                      "locality.description' is empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_27_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_27(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["description"] = " "
@@ -5359,8 +5963,11 @@ class TestBpeCreateEI(object):
                    "description"] == "Incorrect an attribute value.The attribute 'tender.items.description' is " \
                                      "empty or blank."
 
+
     @pytestrail.case("25301")
-    def test_25301_28_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_28(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["classification"]["id"] = " "
@@ -5370,8 +5977,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Cpv code not found. "
 
+
     @pytestrail.case("25301")
-    def test_25301_29_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_29(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["classification"]["id"] = " "
@@ -5381,8 +5991,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Invalid cpv code. "
 
+
     @pytestrail.case("25301")
-    def test_25301_30_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_30(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = " "
@@ -5392,8 +6005,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Invalid cpvs code. "
 
+
     @pytestrail.case("25301")
-    def test_25301_31_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_31(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = " "
@@ -5403,8 +6019,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Invalid country. "
 
+
     @pytestrail.case("25301")
-    def test_25301_32_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_32(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = " "
@@ -5414,8 +6033,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Region not found. "
 
+
     @pytestrail.case("25301")
-    def test_25301_33_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_33(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["quantity"] = " "
@@ -5429,8 +6051,11 @@ class TestBpeCreateEI(object):
                                      "dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com." \
                                      "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"quantity\"])"
 
+
     @pytestrail.case("25301")
-    def test_25301_34_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_34(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["unit"]["id"] = " "
@@ -5440,8 +6065,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Invalid unit code. "
 
+
     @pytestrail.case("25301")
-    def test_25301_35_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_35(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["planning"]["budget"]["period"]["startDate"] = " "
@@ -5456,8 +6084,11 @@ class TestBpeCreateEI(object):
                                      "model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]" \
                                      "->com.procurement.budget.model.dto.ocds.Period[\"startDate\"])"
 
+
     @pytestrail.case("25301")
-    def test_25301_36_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_36(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["planning"]["budget"]["period"]["endDate"] = " "
@@ -5472,8 +6103,11 @@ class TestBpeCreateEI(object):
                                      "model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]" \
                                      "->com.procurement.budget.model.dto.ocds.Period[\"endDate\"])"
 
+
     @pytestrail.case("25301")
-    def test_25301_37_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_37(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["identifier"]["scheme"] = " "
@@ -5483,8 +6117,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Registration scheme not found. "
 
+
     @pytestrail.case("25301")
-    def test_25301_38_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_38(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["address"]["addressDetails"]["country"]["id"] = " "
@@ -5494,8 +6131,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Country not found. "
 
+
     @pytestrail.case("25301")
-    def test_25301_39_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_39(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["address"]["addressDetails"]["region"]["id"] = " "
@@ -5505,8 +6145,11 @@ class TestBpeCreateEI(object):
         assert message_from_kafka["errors"][0][
                    "description"] == "Region not found. "
 
+
     @pytestrail.case("25301")
-    def test_25301_40_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_40(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["details"]["typeOfBuyer"] = " "
@@ -5524,8 +6167,11 @@ class TestBpeCreateEI(object):
                                      "OrganizationReference[\"details\"]->com.procurement.mdm.model.dto." \
                                      "data.Details[\"typeOfBuyer\"])"
 
+
     @pytestrail.case("25301")
-    def test_25301_41_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_41(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["details"]["mainGeneralActivity"] = " "
@@ -5545,8 +6191,11 @@ class TestBpeCreateEI(object):
                                      "OrganizationReference[\"details\"]->com.procurement.mdm.model." \
                                      "dto.data.Details[\"mainGeneralActivity\"])"
 
+
     @pytestrail.case("25301")
-    def test_25301_42_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_25301_42(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["buyer"]["details"]["mainSectoralActivity"] = " "
@@ -5567,8 +6216,11 @@ class TestBpeCreateEI(object):
                                      "data.OrganizationReference[\"details\"]->com.procurement.mdm.model." \
                                      "dto.data.Details[\"mainSectoralActivity\"])"
 
+
     @pytestrail.case("22180")
-    def test_22180_1_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_22180_1(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
@@ -5578,8 +6230,11 @@ class TestBpeCreateEI(object):
         assert create_ei_response.text == "ok"
         assert create_ei_response.status_code == 202
 
+
     @pytestrail.case("22180")
-    def test_22180_2_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_22180_2(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         ei.create_request_ei(payload=payload, lang=language, country=country)
@@ -5591,8 +6246,11 @@ class TestBpeCreateEI(object):
         assert check_cpid == True
         assert ei_token == True
 
+
     @pytestrail.case("22180")
-    def test_22180_3_smoke(self, country, language):
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_22180_3(self, country, language):
         ei = EI()
         payload = copy.deepcopy(payload_ei_full_data_model)
         ei.create_request_ei(payload=payload, lang=language, country=country)

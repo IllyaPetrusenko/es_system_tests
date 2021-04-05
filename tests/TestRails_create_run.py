@@ -47,7 +47,7 @@ for case in cases:
 
 post_body = {
     "suite_id": suite_id,
-        "name": "BPE: create EI refactor (open) (This is a new test run for automation)",
+        "name": "BPE: create EI corona (open) (This is a new test run for automation)",
     "include_all": False,
     "case_ids": li
 
