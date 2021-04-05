@@ -18,6 +18,6 @@ def get_x_operation_id(platform_token):
         headers={
             'Authorization': 'Bearer ' + platform_token
         }).json()['data']['operationId']
-    allure.attach(x_operation_id)
+    allure.attach('Get x-operation-id', x_operation_id)
     return x_operation_id
 
