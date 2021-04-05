@@ -36,7 +36,7 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
                           "MissingKotlinParameterException: Instantiation of [simple type, " \
                           "class com.procurement.budget.model.dto.ei.request.EiCreate$TenderEiCreate] " \
                           "value failed for JSON property title due to missing (therefore NULL) " \
-                          "value for creator parameter title which is a non-nullable type at " \
+                          "value for creator parameter title which is a non-nullable type\n at " \
                           "[Source: UNKNOWN; line: -1, column: -1] (through reference chain: " \
                           "com.procurement.budget.model.dto.ei.request.EiCreate[\"tender\"]->com.procurement." \
                           "budget.model.dto.ei.request.EiCreate$TenderEiCreate[\"title\"])'}]"
