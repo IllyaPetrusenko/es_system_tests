@@ -11,6 +11,7 @@ def test_22132():
 
     @allure.title("Delete tender object from the payload.")
     @pytest.mark.smoke
+    @pytest.mark.regression
     @pytestrail.case("22132")
     def test_22132_1(self, country, language):
         ei = EI()
