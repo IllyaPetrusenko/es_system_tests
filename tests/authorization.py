@@ -9,6 +9,7 @@ def get_access_token_for_platform_one():
         headers={
             'Authorization': 'Basic dXNlcjpwYXNzd29yZA=='
         }).json()['data']['tokens']['access']
+    allure.attach(access_token)
     return access_token
 
 
@@ -19,5 +20,6 @@ def get_x_operation_id(platform_token):
         headers={
             'Authorization': 'Bearer ' + platform_token
         }).json()['data']['operationId']
+    allure.attach(x_operation_id)
     return x_operation_id
 

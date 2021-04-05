@@ -1,5 +1,5 @@
 # You have to choose instance
-import time, pytest, allure
+import time
 
 
 def choose_instance():
@@ -7,7 +7,6 @@ def choose_instance():
     return instance
 
 
-@allure.step('Set instance for Cassandra')
 def set_instance_for_cassandra():
     instance = choose_instance()
     if instance == "dev":
@@ -24,7 +23,6 @@ def set_instance_for_cassandra():
         return print("I don't know what you mean")
 
 
-@allure.step('Set instance')
 def set_instance_for_request():
     instance = choose_instance()
     if instance == "dev":
@@ -35,7 +33,6 @@ def set_instance_for_request():
         return host
 
 
-@allure.step('Set instance for services')
 def set_instance_for_services():
     instance = choose_instance()
     if instance == "dev":
