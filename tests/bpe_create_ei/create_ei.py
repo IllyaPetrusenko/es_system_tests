@@ -22,12 +22,12 @@ class EI:
         self.access_token = get_access_token_for_platform_one()
         self.x_operation_id = get_x_operation_id(self.access_token)
 
-    @allure.step('Create EI')
     def create_request_ei(self, payload, country='MD', lang='ro'):
         self.payload = payload
         self.country = country
         self.lang = lang
         host = set_instance_for_request()
+        allure.attach(host, 'HOST')
         ei = requests.post(
             url=host + create_ei,
             headers={
@@ -39,14 +39,15 @@ class EI:
                 'lang': lang
             },
             json=self.payload)
+        allure.attach(payload, 'PAYLOAD')
         return ei
 
     def get_message_from_kafka(self):
         time.sleep(1.8)
         message_from_kafka = get_message_from_kafka(self.x_operation_id)
+        allure.attach(message_from_kafka, 'Kafka message')
         return message_from_kafka
 
-    @allure.step('Delete data from DB')
     def delete_data_from_database(self, cpid):
         self.cpid = cpid
         auth_provider = PlainTextAuthProvider(username=username, password=password)
