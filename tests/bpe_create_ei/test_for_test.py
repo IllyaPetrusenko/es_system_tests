@@ -11,26 +11,16 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
     @allure.step('Delete tender object from request')
     @pytestrail.case("22132")
     def test_22132_1(self, country, language, tag):
-        if tag == "regression":
-            ei = EI()
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]
-            create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-            message_from_kafka = ei.get_message_from_kafka()
-            assert create_ei_response.text == "ok"
-            assert create_ei_response.status_code == 202
-            assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
-            assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
-        elif tag == "smoke":
-                ei = EI()
-                payload = copy.deepcopy(payload_ei_full_data_model)
-                del payload["tender"]
-                create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-                message_from_kafka = ei.get_message_from_kafka()
-                assert create_ei_response.text == "ok"
-                assert create_ei_response.status_code == 202
-                assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
-                assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
+
+        ei = EI()
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]
+        create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
+        message_from_kafka = ei.get_message_from_kafka()
+        assert create_ei_response.text == "ok"
+        assert create_ei_response.status_code == 202
+        assert message_from_kafka["errors"][0]["code"] == "400.00.00.00"
+        assert message_from_kafka["errors"][0]["description"] == "Data processing exception."
 
     @allure.step('Delete tender title from request')
     @pytestrail.case("22132")
