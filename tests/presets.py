@@ -1,6 +1,8 @@
 # You have to choose instance
 import time
 
+import allure
+
 
 def choose_instance():
     instance = "dev"
@@ -25,9 +27,11 @@ def set_instance_for_request():
     instance = choose_instance()
     if instance == "dev":
         host = 'http://10.0.20.126:8900/api/v1'
+        allure.attach(host, 'HOST')
         return host
     elif instance == "sandbox":
         host = 'http://10.0.10.116:8900/api/v1'
+        allure.attach(host, 'HOST')
         return host
 
 def set_instance_for_services():
