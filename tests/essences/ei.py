@@ -1,3 +1,4 @@
+import json
 import time
 
 import allure
@@ -40,6 +41,7 @@ class EI:
                 'lang': self.lang
             },
             json=self.payload)
+        json.dumps(self.payload)
         allure.attach(create_ei, 'ENDPOINT')
         allure.attach(str(self.payload), 'PAYLOAD')
         return ei
