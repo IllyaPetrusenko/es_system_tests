@@ -43,7 +43,7 @@ class EI:
             json=self.payload)
         json.dumps(self.payload)
         allure.attach(create_ei, 'ENDPOINT')
-        allure.attach(str(self.payload), 'PAYLOAD')
+        allure.attach(self.payload, 'PAYLOAD')
         return ei
 
     def get_message_from_kafka(self):
