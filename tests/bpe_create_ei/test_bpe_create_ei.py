@@ -6,18 +6,16 @@ from tests.payloads.ei_payload import payload_ei_full_data_model
 from useful_functions import compare_actual_result_and_expected_result
 
 
-class TestBpeCreateEI(object):
-
-    @allure.step('Delete tender title from request')
+class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
     @pytestrail.case("22132")
-    def test_22132_1(self, country, language):
+    def test_delete_tender_object_from_the_payload_22132_1(self, country, language):
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
-        expected_result = "[{'code': '400.00.00.01', 'description': 'Data processing exception.'}]"
+        expected_result = "[{'code': '400.00.00.00', 'description': 'Data processing exception.'}]"
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
