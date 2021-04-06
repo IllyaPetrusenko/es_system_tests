@@ -1,5 +1,4 @@
 import copy
-import allure
 from pytest_testrail.plugin import pytestrail
 from tests.essences.ei import EI
 from tests.payloads.ei_payload import payload_ei_full_data_model
@@ -14,253 +13,193 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         message_from_kafka = ei.get_message_from_kafka()
-        actual_result = str(message_from_kafka["errors"])
-        expected_result = "[{'code': '400.00.00.00', 'description': 'Data processing exception.'}]"
+        actual_result = str(message_from_kafka['errors'])
+        expected_result = str([{'code': '400.00.00.00', 'description': 'Data processing exception.'}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
+    @pytestrail.case("22132")
+    def test_delete_tender_title_field_from_the_payload_22132_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["title"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka['errors'])
+        expected_result = str([{"code": "400.10.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "budget.model.dto.ei.request.EiCreate$TenderEiCreate] value "
+                                               "failed for JSON property title due to missing (therefore NULL) "
+                                               "value for creator parameter title which is a non-nullable type\n "
+                                               "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                               "chain: com.procurement.budget.model.dto.ei.request.EiCreate"
+                                               "[\"tender\"]->com.procurement.budget.model.dto.ei.request."
+                                               "EiCreate$TenderEiCreate[\"title\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
+    @pytestrail.case("22132")
+    def test_delete_tender_classification_object_from_the_payload_22132_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["classification"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka['errors'])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender] value failed for JSON "
+                                               "property classification due to missing (therefore NULL) value "
+                                               "for creator parameter classification which is a non-nullable "
+                                               "type\n at [Source: UNKNOWN; line: -1, column: -1] (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"classification\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
-    # @pytestrail.case("22132")
-    # @pytest.mark.regression
-    # @pytest.mark.smoke
-    # def test_22132_2(self, country, language):
-    #     ei = EI()
-    #     payload = copy.deepcopy(payload_ei_full_data_model)
-    #     del payload["tender"]["title"]
-    #     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-    #     message_from_kafka = ei.get_message_from_kafka()
-    #     assert create_ei_response.text == "ok"
-    #     assert create_ei_response.status_code == 202
-    #     assert message_from_kafka["errors"][0]["code"] == "400.10.00"
-    #     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-    #                                                              "KotlinParameterException: Instantiation of " \
-    #                                                              "[simple type, class com.procurement.budget." \
-    #                                                              "model.dto.ei.request.EiCreate$TenderEiCreate] " \
-    #                                                              "value failed for JSON property title due to " \
-    #                                                              "missing (therefore NULL) value for creator " \
-    #                                                              "parameter title which is a non-nullable " \
-    #                                                              "type\n at [Source: UNKNOWN; line: -1, " \
-    #                                                              "column: -1] (through reference chain: com." \
-    #                                                              "procurement.budget.model.dto.ei.request." \
-    #                                                              "EiCreate[\"tender\"]->com.procurement.budget." \
-    #                                                              "model.dto.ei.request.EiCreate$TenderEiCreate" \
-    #                                                              "[\"title\"])"
-    #
-    #
-    # @pytestrail.case("22132")
-    # @pytest.mark.regression
-    # @pytest.mark.smoke
-    # def test_22132_3(self, country, language):
-    #     ei = EI()
-    #     payload = copy.deepcopy(payload_ei_full_data_model)
-    #     del payload["tender"]["classification"]
-    #     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-    #     message_from_kafka = ei.get_message_from_kafka()
-    #     assert create_ei_response.text == "ok"
-    #     assert create_ei_response.status_code == 202
-    #     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-    #     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-    #                                                              "KotlinParameterException: Instantiation of " \
-    #                                                              "[simple type, class com.procurement.mdm.model." \
-    #                                                              "dto.data.ei.EIRequest$Tender] value failed for " \
-    #                                                              "JSON property classification due to missing " \
-    #                                                              "(therefore NULL) value for creator parameter " \
-    #                                                              "classification which is a non-nullable type\n " \
-    #                                                              "at [Source: UNKNOWN; line: -1, column: -1] " \
-    #                                                              "(through reference chain: com.procurement.mdm." \
-    #                                                              "model.dto.data.ei.EIRequest[\"tender\"]->com." \
-    #                                                              "procurement.mdm.model.dto.data.ei.EIRequest$" \
-    #                                                              "Tender[\"classification\"])"
-    #
-    #
-    # @pytestrail.case("22132")
-    # @pytest.mark.regression
-    # @pytest.mark.smoke
-    # def test_22132_4(self, country, language):
-    #     ei = EI()
-    #     payload = copy.deepcopy(payload_ei_full_data_model)
-    #     del payload["tender"]["classification"]["id"]
-    #     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-    #     message_from_kafka = ei.get_message_from_kafka()
-    #     assert create_ei_response.text == "ok"
-    #     assert create_ei_response.status_code == 202
-    #     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-    #     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-    #                                                              "KotlinParameterException: Instantiation of " \
-    #                                                              "[simple type, class com.procurement.mdm.model." \
-    #                                                              "dto.data.ei.EIRequest$Tender$Classification] " \
-    #                                                              "value failed for JSON property id due to " \
-    #                                                              "missing (therefore NULL) value for creator " \
-    #                                                              "parameter id which is a non-nullable type\n " \
-    #                                                              "at [Source: UNKNOWN; line: -1, column: -1] " \
-    #                                                              "(through reference chain: com.procurement.mdm." \
-    #                                                              "model.dto.data.ei.EIRequest[\"tender\"]->com." \
-    #                                                              "procurement.mdm.model.dto.data.ei.EIRequest$" \
-    #                                                              "Tender[\"classification\"]->com.procurement." \
-    #                                                              "mdm.model.dto.data.ei.EIRequest$Tender$" \
-    #                                                              "Classification[\"id\"])"
-    #
-    #
-    # @pytestrail.case("22132")
-    # @pytest.mark.regression
-    # @pytest.mark.smoke
-    # def test_22132_5(self, country, language):
-    #     ei = EI()
-    #     payload = copy.deepcopy(payload_ei_full_data_model)
-    #     del payload["planning"]
-    #     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-    #     message_from_kafka = ei.get_message_from_kafka()
-    #     assert create_ei_response.text == "ok"
-    #     assert create_ei_response.status_code == 202
-    #     assert message_from_kafka["errors"][0]["code"] == "400.10.00"
-    #     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-    #                                                              "KotlinParameterException: Instantiation of " \
-    #                                                              "[simple type, class com.procurement.budget." \
-    #                                                              "model.dto.ei.request.EiCreate] value failed " \
-    #                                                              "for JSON property planning due to missing " \
-    #                                                              "(therefore NULL) value for creator parameter " \
-    #                                                              "planning which is a non-nullable type\n at " \
-    #                                                              "[Source: UNKNOWN; line: -1, column: -1] " \
-    #                                                              "(through reference chain: com.procurement." \
-    #                                                              "budget.model.dto.ei.request.EiCreate[\"planning\"])"
-    #
-    #
-    # @pytestrail.case("22132")
-    # @pytest.mark.regression
-    # @pytest.mark.smoke
-    # def test_22132_6(self, country, language):
-    #     ei = EI()
-    #     payload = copy.deepcopy(payload_ei_full_data_model)
-    #     del payload["planning"]["budget"]
-    #     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-    #     message_from_kafka = ei.get_message_from_kafka()
-    #     assert create_ei_response.text == "ok"
-    #     assert create_ei_response.status_code == 202
-    #     assert message_from_kafka["errors"][0]["code"] == "400.10.00"
-    #     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlin" \
-    #                                                              "ParameterException: Instantiation of " \
-    #                                                              "[simple type, class com.procurement.budget." \
-    #                                                              "model.dto.ei.request.EiCreate$PlanningEiCreate] " \
-    #                                                              "value failed for JSON property budget due to " \
-    #                                                              "missing (therefore NULL) value for creator " \
-    #                                                              "parameter budget which is a non-nullable " \
-    #                                                              "type\n at [Source: UNKNOWN; line: -1, " \
-    #                                                              "column: -1] (through reference chain: com." \
-    #                                                              "procurement.budget.model.dto.ei.request." \
-    #                                                              "EiCreate[\"planning\"]->com.procurement.budget." \
-    #                                                              "model.dto.ei.request.EiCreate$PlanningEiCreate" \
-    #                                                              "[\"budget\"])"
-    #
-    #
-    # @pytestrail.case("22132")
-    # @pytest.mark.regression
-    # @pytest.mark.smoke
-    # def test_22132_7(self, country, language):
-    #     ei = EI()
-    #     payload = copy.deepcopy(payload_ei_full_data_model)
-    #     del payload["planning"]["budget"]["period"]
-    #     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-    #     message_from_kafka = ei.get_message_from_kafka()
-    #     assert create_ei_response.text == "ok"
-    #     assert create_ei_response.status_code == 202
-    #     assert message_from_kafka["errors"][0]["code"] == "400.10.00"
-    #     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-    #                                                              "KotlinParameterException: Instantiation of " \
-    #                                                              "[simple type, class com.procurement.budget." \
-    #                                                              "model.dto.ei.request.EiCreate$PlanningEiCreate$" \
-    #                                                              "BudgetEiCreate] value failed for JSON property " \
-    #                                                              "period due to missing (therefore NULL) value for " \
-    #                                                              "creator parameter period which is a non-nullable " \
-    #                                                              "type\n at [Source: UNKNOWN; line: -1, column: " \
-    #                                                              "-1] (through reference chain: com.procurement." \
-    #                                                              "budget.model.dto.ei.request.EiCreate" \
-    #                                                              "[\"planning\"]->com.procurement.budget.model." \
-    #                                                              "dto.ei.request.EiCreate$PlanningEiCreate" \
-    #                                                              "[\"budget\"]->com.procurement.budget.model.dto." \
-    #                                                              "ei.request.EiCreate$PlanningEiCreate$BudgetEi" \
-    #                                                              "Create[\"period\"])"
-    #
-    #
-    # @pytestrail.case("22132")
-    # @pytest.mark.regression
-    # @pytest.mark.smoke
-    # def test_22132_8(self, country, language):
-    #     ei = EI()
-    #     payload = copy.deepcopy(payload_ei_full_data_model)
-    #     del payload["planning"]["budget"]["period"]["startDate"]
-    #     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-    #     message_from_kafka = ei.get_message_from_kafka()
-    #     assert create_ei_response.text == "ok"
-    #     assert create_ei_response.status_code == 202
-    #     assert message_from_kafka["errors"][0]["code"] == "400.10.00"
-    #     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlin" \
-    #                                                              "ParameterException: Instantiation of [simple " \
-    #                                                              "type, class com.procurement.budget.model.dto." \
-    #                                                              "ocds.Period] value failed for JSON property " \
-    #                                                              "startDate due to missing (therefore NULL) value " \
-    #                                                              "for creator parameter startDate which is a " \
-    #                                                              "non-nullable type\n at [Source: UNKNOWN; line: " \
-    #                                                              "-1, column: -1] (through reference chain: " \
-    #                                                              "com.procurement.budget.model.dto.ei.request." \
-    #                                                              "EiCreate[\"planning\"]->com.procurement.budget." \
-    #                                                              "model.dto.ei.request.EiCreate$PlanningEiCreate" \
-    #                                                              "[\"budget\"]->com.procurement.budget.model.dto." \
-    #                                                              "ei.request.EiCreate$PlanningEiCreate$Budget" \
-    #                                                              "EiCreate[\"period\"]->com.procurement.budget." \
-    #                                                              "model.dto.ocds.Period[\"startDate\"])"
-    #
-    #
-    # @pytestrail.case("22132")
-    # @pytest.mark.regression
-    # @pytest.mark.smoke
-    # def test_22132_9(self, country, language):
-    #     ei = EI()
-    #     payload = copy.deepcopy(payload_ei_full_data_model)
-    #     del payload["planning"]["budget"]["period"]["endDate"]
-    #     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-    #     message_from_kafka = ei.get_message_from_kafka()
-    #     assert create_ei_response.text == "ok"
-    #     assert create_ei_response.status_code == 202
-    #     assert message_from_kafka["errors"][0]["code"] == "400.10.00"
-    #     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.MissingKotlin" \
-    #                                                              "ParameterException: Instantiation of [simple " \
-    #                                                              "type, class com.procurement.budget.model.dto." \
-    #                                                              "ocds.Period] value failed for JSON property " \
-    #                                                              "endDate due to missing (therefore NULL) value " \
-    #                                                              "for creator parameter endDate which is a " \
-    #                                                              "non-nullable type\n at [Source: UNKNOWN; " \
-    #                                                              "line: -1, column: -1] (through reference chain: " \
-    #                                                              "com.procurement.budget.model.dto.ei.request." \
-    #                                                              "EiCreate[\"planning\"]->com.procurement.budget." \
-    #                                                              "model.dto.ei.request.EiCreate$PlanningEiCreate" \
-    #                                                              "[\"budget\"]->com.procurement.budget.model.dto." \
-    #                                                              "ei.request.EiCreate$PlanningEiCreate$BudgetEi" \
-    #                                                              "Create[\"period\"]->com.procurement.budget." \
-    #                                                              "model.dto.ocds.Period[\"endDate\"])"
-    #
-    #
-    # @pytestrail.case("22132")
-    # @pytest.mark.regression
-    # @pytest.mark.smoke
-    # def test_22132_10(self, country, language):
-    #     ei = EI()
-    #     payload = copy.deepcopy(payload_ei_full_data_model)
-    #     del payload["buyer"]
-    #     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-    #     message_from_kafka = ei.get_message_from_kafka()
-    #     assert create_ei_response.text == "ok"
-    #     assert create_ei_response.status_code == 202
-    #     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-    #     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-    #                                                              "KotlinParameterException: Instantiation of " \
-    #                                                              "[simple type, class com.procurement.mdm.model." \
-    #                                                              "dto.data.ei.EIRequest] value failed for JSON " \
-    #                                                              "property buyer due to missing (therefore NULL) " \
-    #                                                              "value for creator parameter buyer which is a " \
-    #                                                              "non-nullable type\n at [Source: UNKNOWN; line: " \
-    #                                                              "-1, column: -1] (through reference chain:" \
-    #                                                              " com.procurement.mdm.model.dto.data.ei." \
-    #                                                              "EIRequest[\"buyer\"])"
+    @pytestrail.case("22132")
+    def test_delete_tender_classification_id_field_from_the_payload_22132_4(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka['errors'])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Classification] value "
+                                               "failed for JSON property id due to missing (therefore NULL) "
+                                               "value for creator parameter id which is a non-nullable type\n "
+                                               "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]"
+                                               "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender"
+                                               "[\"classification\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Classification[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22132")
+    def test_delete_planning_object_from_the_payload_22132_5(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["planning"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka['errors'])
+        expected_result = str([{"code": "400.10.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "budget.model.dto.ei.request.EiCreate] value failed for JSON "
+                                               "property planning due to missing (therefore NULL) value for "
+                                               "creator parameter planning which is a non-nullable type\n at "
+                                               "[Source: UNKNOWN; line: -1, column: -1] (through reference chain: "
+                                               "com.procurement.budget.model.dto.ei.request.EiCreate[\"planning\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22132")
+    def test_delete_planning_budget_object_from_the_payload_22132_6(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["planning"]["budget"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka['errors'])
+        expected_result = str([{"code": "400.10.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "budget.model.dto.ei.request.EiCreate$PlanningEiCreate] value "
+                                               "failed for JSON property budget due to missing (therefore NULL) "
+                                               "value for creator parameter budget which is a non-nullable type\n "
+                                               "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                               "chain: com.procurement.budget.model.dto.ei.request.EiCreate"
+                                               "[\"planning\"]->com.procurement.budget.model.dto.ei.request."
+                                               "EiCreate$PlanningEiCreate[\"budget\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22132")
+    def test_delete_planning_budget_period_object_from_the_payload_22132_7(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["planning"]["budget"]["period"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka['errors'])
+        expected_result = str([{"code": "400.10.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "budget.model.dto.ei.request.EiCreate$PlanningEiCreate$Budget"
+                                               "EiCreate] value failed for JSON property period due to missing "
+                                               "(therefore NULL) value for creator parameter period which is a "
+                                               "non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                               "(through reference chain: com.procurement.budget.model.dto.ei."
+                                               "request.EiCreate[\"planning\"]->com.procurement.budget.model."
+                                               "dto.ei.request.EiCreate$PlanningEiCreate[\"budget\"]->com."
+                                               "procurement.budget.model.dto.ei.request.EiCreate$PlanningEi"
+                                               "Create$BudgetEiCreate[\"period\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22132")
+    def test_delete_planning_budget_period_startDate_field_from_the_payload_22132_8(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["planning"]["budget"]["period"]["startDate"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka['errors'])
+        expected_result = str([{"code": "400.10.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "budget.model.dto.ocds.Period] value failed for JSON property "
+                                               "startDate due to missing (therefore NULL) value for creator "
+                                               "parameter startDate which is a non-nullable type\n at [Source: "
+                                               "UNKNOWN; line: -1, column: -1] (through reference chain: com."
+                                               "procurement.budget.model.dto.ei.request.EiCreate[\"planning\"]->"
+                                               "com.procurement.budget.model.dto.ei.request.EiCreate$Planning"
+                                               "EiCreate[\"budget\"]->com.procurement.budget.model.dto.ei.request."
+                                               "EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]->"
+                                               "com.procurement.budget.model.dto.ocds.Period[\"startDate\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22132")
+    def test_delete_planning_budget_period_endDate_field_from_the_payload_22132_9(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["planning"]["budget"]["period"]["endDate"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka['errors'])
+        expected_result = str([{"code": "400.10.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "budget.model.dto.ocds.Period] value failed for JSON property "
+                                               "endDate due to missing (therefore NULL) value for creator "
+                                               "parameter endDate which is a non-nullable type\n at [Source: "
+                                               "UNKNOWN; line: -1, column: -1] (through reference chain: "
+                                               "com.procurement.budget.model.dto.ei.request.EiCreate"
+                                               "[\"planning\"]->com.procurement.budget.model.dto.ei.request."
+                                               "EiCreate$PlanningEiCreate[\"budget\"]->com.procurement.budget."
+                                               "model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate"
+                                               "[\"period\"]->com.procurement.budget.model.dto.ocds.Period"
+                                               "[\"endDate\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22132")
+    def test_delete_buyer_object_from_the_payload_22132_10(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["buyer"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka['errors'])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest] value failed for JSON property "
+                                               "buyer due to missing (therefore NULL) value for creator parameter "
+                                               "buyer which is a non-nullable type\n at [Source: UNKNOWN; line: "
+                                               "-1, column: -1] (through reference chain: com.procurement.mdm."
+                                               "model.dto.data.ei.EIRequest[\"buyer\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
     #
     #
     # @pytestrail.case("22132")
