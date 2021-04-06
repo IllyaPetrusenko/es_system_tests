@@ -17,7 +17,7 @@ class TestBpeCreateEI(object):
         ei.create_ei()
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
-        expected_result = "[{'code': '400.00.00.00', 'description': 'Data processing exception.'}]"
+        expected_result = "[{'code': '400.00.00.01', 'description': 'Data processing exception.'}]"
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
