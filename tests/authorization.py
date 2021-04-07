@@ -18,12 +18,17 @@ def get_access_token_for_platform_one():
     return access_token
 
 
+@allure.step('Get X-OPERATION-ID')
 def get_x_operation_id(platform_token):
+    allure.attach(platform_token, 'Platform access token')
     x_operation_id = requests.post(
         url=host + '/operations',
         headers={
             'Authorization': 'Bearer ' + platform_token
-        }).json()['data']['operationId']
+        }).json()
+    allure.attach(json.dumps(x_operation_id), 'Response from auth service')
+    x_operation_id = x_operation_id['data']['operationId']
+    allure.attach(host + '/operations', 'HOST')
     allure.attach(str(x_operation_id), 'X-OPERATION-ID')
     return x_operation_id
 
