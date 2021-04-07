@@ -1,4 +1,6 @@
 import copy
+
+import requests
 from pytest_testrail.plugin import pytestrail
 from tests.essences.ei import EI
 from tests.payloads.ei_payload import payload_ei_full_data_model
