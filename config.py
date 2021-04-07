@@ -3,9 +3,11 @@ from tests.presets import choose_instance
 instance = choose_instance()
 if instance == "dev":
     host = 'http://10.0.20.126:8900/api/v1'
+    platform_1 = 'Basic dXNlcjpwYXNzd29yZA=='
 
 elif instance == "sandbox":
     host = 'http://10.0.10.116:8900/api/v1'
+    platform_1 = 'Basic dXNlcjpwYXNzd29yZA=='
 
 kafka_host = 'http://82.144.223.29:5000'
 create_ei = '/do/ei'

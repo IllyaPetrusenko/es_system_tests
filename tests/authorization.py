@@ -1,14 +1,16 @@
 import allure
 import requests
-from config import host
+from config import host, platform_1
 
 
+@allure.step('Get access token')
 def get_access_token_for_platform_one():
     access_token = requests.get(
         url=host + '/auth/signin',
         headers={
-            'Authorization': 'Basic dXNlcjpwYXNzd29yZA=='
+            'Authorization': platform_1
         }).json()['data']['tokens']['access']
+    allure.attach(platform_1, 'Platform credentials for authorization')
     allure.attach(str(access_token), 'Access token')
     return access_token
 
