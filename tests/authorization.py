@@ -9,7 +9,10 @@ def get_access_token_for_platform_one():
         url=host + '/auth/signin',
         headers={
             'Authorization': platform_1
-        }).json()['data']['tokens']['access']
+        }).json()
+    allure.attach(host + '/auth/signin', 'HOST')
+    allure.attach(access_token, 'Response from auth service')
+    access_token = access_token['data']['tokens']['access']
     allure.attach(platform_1, 'Platform credentials for authorization')
     allure.attach(str(access_token), 'Access token')
     return access_token
