@@ -3,6 +3,8 @@ import random
 import datetime
 import time
 from uuid import UUID
+
+import allure
 import requests
 from config import host
 
@@ -202,3 +204,12 @@ def create_enquiry_and_tender_period():
     tender_end_date = duration_tender_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     return enquiry_start_date, enquiry_end_date, tender_start_date, tender_end_date
+
+
+def compare_actual_result_and_expected_result(expected_result, actual_result):
+    allure.attach(expected_result, "Expected result")
+    allure.attach(actual_result, "Actual result")
+    if expected_result == actual_result:
+        return True
+    else:
+        return False
