@@ -1,4 +1,4 @@
-import copy
+import copy, allure
 from pytest_testrail.plugin import pytestrail
 from tests.essences.ei import EI
 from tests.payloads.ei_payload import payload_ei_full_data_model
@@ -7,6 +7,7 @@ from useful_functions import compare_actual_result_and_expected_result
 
 class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
     @pytestrail.case("22132")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_delete_tender_object_from_the_payload_22132_1(self, country, language):
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]
@@ -18,6 +19,7 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22132")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_delete_tender_title_field_from_the_payload_22132_2(self, country, language):
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["title"]
@@ -38,6 +40,7 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22132")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_delete_tender_classification_object_from_the_payload_22132_3(self, country, language):
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["classification"]
@@ -58,6 +61,7 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22132")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_delete_tender_classification_id_field_from_the_payload_22132_4(self, country, language):
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["classification"]["id"]
@@ -79,6 +83,7 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22132")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_delete_planning_object_from_the_payload_22132_5(self, country, language):
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["planning"]
@@ -97,6 +102,7 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22132")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_delete_planning_budget_object_from_the_payload_22132_6(self, country, language):
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["planning"]["budget"]
