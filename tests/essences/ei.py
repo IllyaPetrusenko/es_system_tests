@@ -1,3 +1,4 @@
+import fnmatch
 import json
 import time
 
@@ -8,6 +9,7 @@ from cassandra.cluster import Cluster
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 from tests.kafka_messages import get_message_from_kafka
 from tests.presets import set_instance_for_cassandra, set_instance_for_request, create_ei
+from useful_functions import is_it_uuid
 
 password_dev = '6AH7vbrkMWnfK'
 password_sandbox = 'brT4Kn27RQs'
@@ -53,8 +55,8 @@ class EI:
         allure.attach(json.dumps(message_from_kafka), 'Message in feed-point')
         return message_from_kafka
 
-    def delete_data_from_database(self, cpid):
-        self.cpid = cpid
+    def delete_data_from_database(self):
+        cpid = get_message_from_kafka(self.x_operation_id)['data']['outcomes']['ei'][0]['id']
         auth_provider = PlainTextAuthProvider(username=username, password=password)
         cluster = Cluster([host], auth_provider=auth_provider)
         session = cluster.connect('ocds')
@@ -70,3 +72,21 @@ class EI:
         return del_orchestrator_context_from_database, del_budget_ei_from_database, \
                del_notice_budget_release_from_database, del_notice_budget_offset_from_database, \
                del_notice_budget_compiled_release_from_database
+
+    def check_on_that_message_is_successfull(self):
+        message = get_message_from_kafka(self.x_operation_id)
+        check_x_operartion_id = is_it_uuid(message["X-OPERATION-ID"], 4)
+        check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
+        check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
+        check_ocid = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
+        check_url = fnmatch.fnmatch(message["data"]["url"],
+                                    f"http://dev.public.eprocurement.systems/budgets/{message['data']['ocid']}")
+        check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
+        check_ei_id = fnmatch.fnmatch(message["data"]["outcomes"]["ei"][0]["id"], "ocds-t1s2t3-MD-*")
+        check_ei_token = is_it_uuid(message["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
+        if check_x_operartion_id == True and check_x_response_id == True and check_initiator == True and \
+                check_ocid == True and check_url == True and check_operation_date == True and check_ei_id == True and \
+                check_ei_token == True:
+            return True
+        else:
+            return False
