@@ -206,8 +206,8 @@ def create_enquiry_and_tender_period():
     return enquiry_start_date, enquiry_end_date, tender_start_date, tender_end_date
 
 
-@allure.step('See result')
 def compare_actual_result_and_expected_result(expected_result, actual_result):
+    allure.step('Compare actual and expected results')
     allure.attach(expected_result, "Expected result")
     allure.attach(actual_result, "Actual result")
     if expected_result == actual_result:
