@@ -8,6 +8,7 @@ def choose_instance():
     instance = "dev"
     return instance
 
+
 def set_instance_for_cassandra():
     instance = choose_instance()
     if instance == "dev":
@@ -23,16 +24,16 @@ def set_instance_for_cassandra():
     else:
         return print("I don't know what you mean")
 
+
 def set_instance_for_request():
     instance = choose_instance()
     if instance == "dev":
         host = 'http://10.0.20.126:8900/api/v1'
-        allure.attach(host, 'HOST')
         return host
     elif instance == "sandbox":
         host = 'http://10.0.10.116:8900/api/v1'
-        allure.attach(host, 'HOST')
         return host
+
 
 def set_instance_for_services():
     instance = choose_instance()
@@ -42,6 +43,8 @@ def set_instance_for_services():
     elif instance == "sandbox":
         host = 'http://10.0.10.116'
         return host
+
+
 kafka_host = 'http://192.168.0.102:5000'
 create_ei = '/do/ei'
 update_ei = '/do/ei/'

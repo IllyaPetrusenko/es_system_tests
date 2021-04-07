@@ -28,6 +28,7 @@ class EI:
         self.access_token = get_access_token_for_platform_one()
         self.x_operation_id = get_x_operation_id(self.access_token)
 
+    @allure.step('Create EI')
     def create_ei(self):
         environment_host = set_instance_for_request()
         ei = requests.post(
@@ -41,13 +42,15 @@ class EI:
                 'lang': self.lang
             },
             json=self.payload)
-        allure.attach(create_ei, 'ENDPOINT')
-        allure.attach(json.dumps(self.payload), 'PAYLOAD')
+        allure.attach(environment_host + create_ei, 'URL')
+        allure.attach(json.dumps(self.payload), 'Prepared payload')
         return ei
 
+    @allure.step('Receive message in feed-point')
     def get_message_from_kafka(self):
         time.sleep(1.8)
         message_from_kafka = get_message_from_kafka(self.x_operation_id)
+        allure.attach(json.dumps(message_from_kafka), 'Message in feed-point')
         return message_from_kafka
 
     def delete_data_from_database(self, cpid):

@@ -1,5 +1,5 @@
 import time
-import requests
+import requests, allure
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
@@ -27,6 +27,7 @@ class EI:
         self.country = country
         self.lang = lang
         host = set_instance_for_request()
+        allure.attach(host, 'HOST')
         ei = requests.post(
             url=host + create_ei,
             headers={
@@ -38,6 +39,7 @@ class EI:
                 'lang': lang
             },
             json=self.payload)
+        allure.attach(str(payload), 'PAYLOAD')
         return ei
 
     def get_message_from_kafka(self):
