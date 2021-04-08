@@ -1235,7 +1235,7 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfCountry(object):
         ei_release = requests.get(url=ei_url).json()
         ei.delete_data_from_database()
         actual_result_country_description = \
-        ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["description"]
+            ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["description"]
         expected_result_country_description = "Moldova, Republica"
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_description,
                                                          actual_result=actual_result_country_description)
@@ -1580,47 +1580,47 @@ class TestCheckTheSuitableLocalityAddressIdCanBeUsed(object):
                                                          actual_result=actual_result_locality_description)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_uri,
                                                          actual_result=actual_result_locality_uri)
-#
-#
-# @pytestrail.case("22147")
-# @pytest.mark.regression
-# def test_22147_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
-#     del payload["buyer"]["address"]["addressDetails"]["locality"]["description"]
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22147")
-# @pytest.mark.regression
-# def test_22147_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
-#     del payload["buyer"]["address"]["addressDetails"]["locality"]["description"]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-#     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                              "KotlinParameterException: Instantiation of " \
-#                                                              "[simple type, class com.procurement.mdm.model." \
-#                                                              "dto.data.LocalityDetails] value failed for JSON " \
-#                                                              "property description due to missing (therefore " \
-#                                                              "NULL) value for creator parameter description " \
-#                                                              "which is a non-nullable type\n at [Source: " \
-#                                                              "UNKNOWN; line: -1, column: -1] (through reference " \
-#                                                              "chain: com.procurement.mdm.model.dto.data.ei." \
-#                                                              "EIRequest[\"buyer\"]->com.procurement.mdm.model." \
-#                                                              "dto.data.OrganizationReference[\"address\"]->com." \
-#                                                              "procurement.mdm.model.dto.data.Address[\"address" \
-#                                                              "Details\"]->com.procurement.mdm.model.dto.data." \
-#                                                              "AddressDetails[\"locality\"]->com.procurement." \
-#                                                              "mdm.model.dto.data.LocalityDetails[\"description\"])"
+
+
+class TestCheckWhenTheOtherSchemeForLocalityAddressUsedDescriptionIsObligatory(object):
+    @pytestrail.case("22147")
+    def test_send_the_request_22147_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
+        del payload["buyer"]["address"]["addressDetails"]["locality"]["description"]
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("22147")
+    def test_see_the_result_in_feed_point_22147_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
+        del payload["buyer"]["address"]["addressDetails"]["locality"]["description"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.LocalityDetails] value failed for JSON "
+                                               "property description due to missing (therefore NULL) value for "
+                                               "creator parameter description which is a non-nullable type\n "
+                                               "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]"
+                                               "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                               "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                               "[\"addressDetails\"]->com.procurement.mdm.model.dto.data."
+                                               "AddressDetails[\"locality\"]->com.procurement.mdm.model.dto."
+                                               "data.LocalityDetails[\"description\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 #
 #
 # @pytestrail.case("22148")
