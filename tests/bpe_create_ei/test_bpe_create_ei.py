@@ -1,10 +1,11 @@
 import copy
+import datetime
 
 import requests
 from pytest_testrail.plugin import pytestrail
 from tests.essences.ei import EI
 from tests.payloads.ei_payload import payload_ei_full_data_model
-from useful_functions import compare_actual_result_and_expected_result
+from useful_functions import compare_actual_result_and_expected_result, get_human_date_in_utc_format, is_it_uuid
 
 
 class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
@@ -1827,355 +1828,324 @@ class TestCheckTheInvalidValueForTypeOfBuyerFieldCantBeUsed(object):
                                                "ionReference[\"details\"]->com.procurement.mdm.model.dto."
                                                "data.Details[\"typeOfBuyer\"])"}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
-#
-#
-# @pytestrail.case("22153")
-# @pytest.mark.regression
-# def test_22153_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainGeneralActivity"] = "SOCIAL_PROTECTION"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22153")
-# @pytest.mark.regression
-# def test_22153_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainGeneralActivity"] = "SOCIAL_PROTECTION"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22153")
-# @pytest.mark.regression
-# def test_22153_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainGeneralActivity"] = "SOCIAL_PROTECTION"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_release["releases"][0]["parties"][0]["details"]["mainGeneralActivity"] == payload["buyer"]["details"][
-#         "mainGeneralActivity"]
-#
-#
-# @pytestrail.case("22154")
-# @pytest.mark.regression
-# def test_22154_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainGeneralActivity"] = "SOC"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22154")
-# @pytest.mark.regression
-# def test_22154_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainGeneralActivity"] = "SOC"
-#     value_of_key = payload["buyer"]["details"]["mainGeneralActivity"]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-#     assert message_from_kafka["errors"][0]["description"] == f"com.fasterxml.jackson.databind.exc.InvalidFormat" \
-#                                                              f"Exception: Cannot deserialize value of type " \
-#                                                              f"`com.procurement.mdm.model.dto.data." \
-#                                                              f"MainGeneralActivity` from String " \
-#                                                              f"\"{value_of_key}\": value not one of " \
-#                                                              f"declared Enum instance names: [DEFENCE, " \
-#                                                              f"PUBLIC_ORDER_AND_SAFETY, " \
-#                                                              f"ECONOMIC_AND_FINANCIAL_AFFAIRS, ENVIRONMENT, " \
-#                                                              f"RECREATION_CULTURE_AND_RELIGION, EDUCATION, " \
-#                                                              f"SOCIAL_PROTECTION, HEALTH, " \
-#                                                              f"GENERAL_PUBLIC_SERVICES, " \
-#                                                              f"HOUSING_AND_COMMUNITY_AMENITIES]\n at " \
-#                                                              f"[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                              f"(through reference chain: com.procurement" \
-#                                                              f".mdm.model.dto.data.ei.EIRequest[\"buyer\"]->" \
-#                                                              f"com.procurement.mdm.model.dto.data.Organization" \
-#                                                              f"Reference[\"details\"]->com.procurement.mdm." \
-#                                                              f"model.dto.data.Details[\"mainGeneralActivity\"])"
-#
-#
-# @pytestrail.case("22155")
-# @pytest.mark.regression
-# def test_22155_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainSectoralActivity"] = "WATER"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22155")
-# @pytest.mark.regression
-# def test_22155_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainSectoralActivity"] = "WATER"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22155")
-# @pytest.mark.regression
-# def test_22155_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainSectoralActivity"] = "WATER"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_release["releases"][0]["parties"][0]["details"]["mainSectoralActivity"] == payload["buyer"][
-#         "details"]["mainSectoralActivity"]
-#
-#
-# @pytestrail.case("22156")
-# @pytest.mark.regression
-# def test_22156_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainSectoralActivity"] = "WAT"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22156")
-# @pytest.mark.regression
-# def test_22156_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainSectoralActivity"] = "WAT"
-#     value_of_key = payload["buyer"]["details"]["mainSectoralActivity"]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-#     assert message_from_kafka["errors"][0]["description"] == f"com.fasterxml.jackson.databind.exc." \
-#                                                              f"InvalidFormatException: Cannot deserialize " \
-#                                                              f"value of type `com.procurement.mdm.model.dto." \
-#                                                              f"data.MainSectoralActivity` from String " \
-#                                                              f"\"{value_of_key}\": value not one of " \
-#                                                              f"declared Enum instance names: " \
-#                                                              f"[EXPLORATION_EXTRACTION_GAS_OIL, " \
-#                                                              f"ELECTRICITY, POSTAL_SERVICES, " \
-#                                                              f"PRODUCTION_TRANSPORT_DISTRIBUTION_GAS_HEAT, " \
-#                                                              f"WATER, " \
-#                                                              f"URBAN_RAILWAY_TRAMWAY_TROLLEYBUS_BUS_SERVICES, " \
-#                                                              f"PORT_RELATED_ACTIVITIES, RAILWAY_SERVICES, " \
-#                                                              f"EXPLORATION_EXTRACTION_COAL_OTHER_SOLID_FUEL, " \
-#                                                              f"AIRPORT_RELATED_ACTIVITIES]\n at [Source: " \
-#                                                              f"UNKNOWN; line: -1, column: -1] " \
-#                                                              f"(through reference chain: " \
-#                                                              f"com.procurement.mdm.model." \
-#                                                              f"dto.data.ei.EIRequest[\"buyer\"]->" \
-#                                                              f"com.procurement.mdm.model.dto.data." \
-#                                                              f"OrganizationReference[\"details\"]->" \
-#                                                              f"com.procurement.mdm.model.dto.data." \
-#                                                              f"Details[\"mainSectoralActivity\"])"
-#
-#
-# @pytestrail.case("22157")
-# @pytest.mark.regression
-# def test_22157_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22157")
-# @pytest.mark.regression
-# def test_22157_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22157")
-# @pytest.mark.regression
-# def test_22157_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     convert_timestamp_to_date = get_human_date_in_utc_format(int(cpid[15:28]))[0]
-#     check_cpid_first_part = fnmatch.fnmatch(cpid[0:15], "ocds-t1s2t3-MD-")
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid_first_part == True
-#     assert convert_timestamp_to_date == message_from_kafka["data"]["operationDate"]
-#
-#
-# @pytestrail.case("22158")
-# @pytest.mark.regression
-# def test_22158_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22158")
-# @pytest.mark.regression
-# def test_22158_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22158")
-# @pytest.mark.regression
-# def test_22158_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     release_id = ei_release["releases"][0]["id"]
-#     timestamp = int(release_id[29:39])
-#     convert_timestamp_to_date = datetime.datetime.utcfromtimestamp(timestamp)
-#     convert_date_to_human_date = convert_timestamp_to_date.strftime("%Y-%m-%dT%H:%M:%SZ")
-#     assert message_from_kafka["data"]["operationDate"] == convert_date_to_human_date
-#
-#
-# @pytestrail.case("22159")
-# @pytest.mark.regression
-# def test_22159_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22159")
-# @pytest.mark.regression
-# def test_22159_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22159")
-# @pytest.mark.regression
-# def test_22159_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     assert message_from_kafka["data"]["operationDate"] == ei_release["releases"][0]["date"]
-#
-#
-# @pytestrail.case("22160")
-# @pytest.mark.regression
-# def test_22160_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22160")
-# @pytest.mark.regression
-# def test_22160_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22160")
-# @pytest.mark.regression
-# def test_22160_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     check_tender_id = is_it_uuid(ei_release['releases'][0]['tender']['id'], 4)
-#     assert check_tender_id == True
+
+
+class TestCheckTheValidValueForMainGeneralActivityField(object):
+    @pytestrail.case("22153")
+    def test_send_the_request_22153_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainGeneralActivity"] = "SOCIAL_PROTECTION"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22153")
+    def test_see_the_result_in_feed_point_22153_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainGeneralActivity"] = "SOCIAL_PROTECTION"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22153")
+    def test_check_the_buyer_details_mainGeneralActivity_field_in_the_EI_record_22153_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainGeneralActivity"] = "SOCIAL_PROTECTION"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        actual_result = ei_release["releases"][0]["parties"][0]["details"]["mainGeneralActivity"]
+        expected_result = payload["buyer"]["details"]["mainGeneralActivity"]
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+
+class TestCheckTheInvalidValueForMainGeneralActivityFieldCantBeUsed(object):
+    @pytestrail.case("22154")
+    def test_send_the_request_22154_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainGeneralActivity"] = "SOC"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22154")
+    def test_see_the_result_in_feed_point_22154_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainGeneralActivity"] = "SOC"
+        value_of_key = payload["buyer"]["details"]["mainGeneralActivity"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": f"com.fasterxml.jackson.databind.exc.InvalidFormatException: "
+                                               f"Cannot deserialize value of type `com.procurement.mdm.model.dto."
+                                               f"data.MainGeneralActivity` from String \"{value_of_key}\": value "
+                                               f"not one of declared Enum instance names: [DEFENCE, "
+                                               f"PUBLIC_ORDER_AND_SAFETY, ECONOMIC_AND_FINANCIAL_AFFAIRS, "
+                                               f"ENVIRONMENT, RECREATION_CULTURE_AND_RELIGION, EDUCATION, "
+                                               f"SOCIAL_PROTECTION, HEALTH, GENERAL_PUBLIC_SERVICES, "
+                                               f"HOUSING_AND_COMMUNITY_AMENITIES]\n at [Source: UNKNOWN; "
+                                               f"line: -1, column: -1] (through reference chain: "
+                                               f"com.procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]"
+                                               f"->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                               f"[\"details\"]->com.procurement.mdm.model.dto.data.Details"
+                                               f"[\"mainGeneralActivity\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheValidValueForMainSectoralActivityField(object):
+    @pytestrail.case("22155")
+    def test_send_the_request_22155_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainSectoralActivity"] = "WATER"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22155")
+    def test_see_the_result_in_feed_point_22155_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainSectoralActivity"] = "WATER"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22155")
+    def test_check_the_buyer_details_mainSectoralActivity_in_the_EI_record_22155_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainSectoralActivity"] = "WATER"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        actual_result = payload["buyer"]["details"]["mainSectoralActivity"]
+        expected_result = ei_release["releases"][0]["parties"][0]["details"]["mainSectoralActivity"]
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+
+class TestCheckTheInvalidValueForMainSectoralActivityFieldCantBeUsed(object):
+    @pytestrail.case("22156")
+    def test_send_the_request_22156_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainSectoralActivity"] = "WAT"
+        value_of_key = payload["buyer"]["details"]["mainSectoralActivity"]
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22156")
+    def test_see_the_result_in_feed_point_22156_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainSectoralActivity"] = "WAT"
+        value_of_key = payload["buyer"]["details"]["mainSectoralActivity"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": f"com.fasterxml.jackson.databind.exc.InvalidFormatException: "
+                                               f"Cannot deserialize value of type `com.procurement.mdm.model."
+                                               f"dto.data.MainSectoralActivity` from String \"{value_of_key}\": "
+                                               f"value not one of declared Enum instance names: "
+                                               f"[EXPLORATION_EXTRACTION_GAS_OIL, ELECTRICITY, "
+                                               f"POSTAL_SERVICES, PRODUCTION_TRANSPORT_DISTRIBUTION_GAS_HEAT, "
+                                               f"WATER, URBAN_RAILWAY_TRAMWAY_TROLLEYBUS_BUS_SERVICES, "
+                                               f"PORT_RELATED_ACTIVITIES, RAILWAY_SERVICES, "
+                                               f"EXPLORATION_EXTRACTION_COAL_OTHER_SOLID_FUEL, "
+                                               f"AIRPORT_RELATED_ACTIVITIES]\n at [Source: UNKNOWN; line: -1, "
+                                               f"column: -1] (through reference chain: com.procurement.mdm."
+                                               f"model.dto.data.ei.EIRequest[\"buyer\"]->com.procurement."
+                                               f"mdm.model.dto.data.OrganizationReference[\"details\"]->"
+                                               f"com.procurement.mdm.model.dto.data.Details"
+                                               f"[\"mainSectoralActivity\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheCpIdOfEIisFormedCorrectly(object):
+    @pytestrail.case("22157")
+    def test_send_the_request_22157_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22157")
+    def test_see_the_result_in_feed_point_22157_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22157")
+    def test_check_the_EI_cpid_is_formed_according_to_the_pattern_22157_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        actual_result_date = get_human_date_in_utc_format(int(cpid[15:28]))[0]
+        expected_result_date = message_from_kafka["data"]["operationDate"]
+        actual_result_cpid_first_part = cpid[0:15]
+        expected_result_cpid_first_part = "ocds-t1s2t3-MD-"
+        assert compare_actual_result_and_expected_result(expected_result=expected_result_date,
+                                                         actual_result=actual_result_date)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result_cpid_first_part,
+                                                         actual_result=actual_result_cpid_first_part)
+
+
+class TestCheckTheTimestampOfEIocidOfCoincidesWithRequestSentDate(object):
+    @pytestrail.case("22158")
+    def test_send_the_request_22158_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22158")
+    def test_see_the_result_in_feed_point_22158_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22158")
+    def test_check_the_timestamp_of_the_EI_coincides_with_the_release_date_22158_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        release_id = ei_release["releases"][0]["id"]
+        timestamp = int(release_id[29:39])
+        convert_timestamp_to_date = datetime.datetime.utcfromtimestamp(timestamp)
+        convert_date_to_human_date = convert_timestamp_to_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+        actual_result = convert_date_to_human_date
+        expected_result = message_from_kafka["data"]["operationDate"]
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheReleaseDateCoincidesWithRequestSentDate(object):
+    @pytestrail.case("22159")
+    def test_send_the_request_22159_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22159")
+    def test_see_the_result_in_feed_point_22159_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22159")
+    def test_check_the_release_date_in_EI_record_coincides_with_the_date_of_request_22159_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        expected_result = message_from_kafka["data"]["operationDate"]
+        actual_result = ei_release["releases"][0]["date"]
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheIdentificationOfTenderEqualsTheOCIDofTheEI(object):
+    @pytestrail.case("22160")
+    def test_send_the_request_22160_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22160")
+    def test_see_the_result_in_feed_point_22160_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22160")
+    def test_check_the_tender_id_has_the_same_value_as_cpid_of_the_EI_22160_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        actual_result = str(is_it_uuid(ei_release['releases'][0]['tender']['id'], 4))
+        expected_result = "True"
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 #
 #
 # @pytestrail.case("22161")
