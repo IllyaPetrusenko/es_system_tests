@@ -1726,29 +1726,31 @@ class TestCheckTheValidSchemeForBuyerIdentifier(object):
         expected_result_identifier_scheme = "MD-IDNO"
         assert compare_actual_result_and_expected_result(expected_result=expected_result_identifier_scheme,
                                                          actual_result=actual_result_identifier_scheme)
-#
-#
-# @pytestrail.case("22150")
-# @pytest.mark.regression
-# def test_22150_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["identifier"]["scheme"] = "MD-NE-DNO"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22150")
-# @pytest.mark.regression
-# def test_22150_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["identifier"]["scheme"] = "MD-NE-DNO"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.12"
-#     assert message_from_kafka["errors"][0]["description"] == "Registration scheme not found. "
+
+
+class TestCheckTheInvalidSchemeForBuyerIdentifierCantBeUsed(object):
+    @pytestrail.case("22150")
+    def test_send_the_request_22150_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["scheme"] = "MD-NE-DNO"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22150")
+    def test_see_the_result_in_feed_point_22150_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["scheme"] = "MD-NE-DNO"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.12",
+                                "description": "Registration scheme not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 #
 #
 # @pytestrail.case("22151")
