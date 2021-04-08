@@ -1621,65 +1621,69 @@ class TestCheckWhenTheOtherSchemeForLocalityAddressUsedDescriptionIsObligatory(o
                                                "data.LocalityDetails[\"description\"])"}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
-#
-#
-# @pytestrail.case("22148")
-# @pytest.mark.regression
-# def test_22148_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "desc"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22148")
-# @pytest.mark.regression
-# def test_22148_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "desc"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22148")
-# @pytest.mark.regression
-# def test_22148_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "desc"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
-#                "scheme"] == "CUATM"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["id"] == \
-#            payload["buyer"]["address"]["addressDetails"]["locality"]["id"]
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
-#                "description"] == "or.Donduşeni (r-l Donduşeni)"
+
+
+class TestCheckTheOtherSchemeForLocalityAddressCanBeUsed(object):
+    @pytestrail.case("22148")
+    def test_send_the_request_22148_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "desc"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22148")
+    def test_see_the_result_in_feed_point_22148_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "desc"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22148")
+    def test_check_the_locality_object_has_values_from_the_request_22148_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "desc"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        actual_result_locality_id = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
+            "id"]
+        expected_result_locality_id = payload["buyer"]["address"]["addressDetails"]["locality"]["id"]
+        actual_result_locality_scheme = \
+            ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
+                "scheme"]
+        expected_result_locality_scheme = payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"]
+        actual_result_locality_description = \
+            ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["description"]
+        expected_result_locality_description = "or.Donduşeni (r-l Donduşeni)"
+        assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_id,
+                                                         actual_result=actual_result_locality_id)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_scheme,
+                                                         actual_result=actual_result_locality_scheme)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_description,
+                                                         actual_result=actual_result_locality_description)
 #
 #
 # @pytestrail.case("22149")
