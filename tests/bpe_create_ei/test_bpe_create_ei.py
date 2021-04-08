@@ -1793,42 +1793,40 @@ class TestCheckTheValidValueForTypeOfBuyerField(object):
         expected_result_type_of_buyer = payload["buyer"]["details"]["typeOfBuyer"] = "MINISTRY"
         assert compare_actual_result_and_expected_result(expected_result=expected_result_type_of_buyer,
                                                          actual_result=actual_result_type_of_buyer)
-#
-#
-# @pytestrail.case("22152")
-# @pytest.mark.regression
-# def test_22152_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["typeOfBuyer"] = "SCHOOL IS NOT HOME"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22152")
-# @pytest.mark.regression
-# def test_22152_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["typeOfBuyer"] = "SCHOOL IS NOT HOME"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-#     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc.Invalid" \
-#                                                              "FormatException: Cannot deserialize value " \
-#                                                              "of type `com.procurement.mdm.model.dto.data." \
-#                                                              "TypeOfBuyer` from String \"SCHOOL IS NOT " \
-#                                                              "HOME\": value not one of declared Enum " \
-#                                                              "instance names: [NATIONAL_AGENCY, REGIONAL_" \
-#                                                              "AUTHORITY, REGIONAL_AGENCY, BODY_PUBLIC, " \
-#                                                              "EU_INSTITUTION, MINISTRY]\n at [Source: " \
-#                                                              "UNKNOWN; line: -1, column: -1] (through " \
-#                                                              "reference chain: com.procurement.mdm.model." \
-#                                                              "dto.data.ei.EIRequest[\"buyer\"]->com." \
-#                                                              "procurement.mdm.model.dto.data.Organization" \
-#                                                              "Reference[\"details\"]->com.procurement.mdm." \
-#                                                              "model.dto.data.Details[\"typeOfBuyer\"])"
+
+
+class TestCheckTheInvalidValueForTypeOfBuyerFieldCantBeUsed(object):
+    @pytestrail.case("22152")
+    def test_send_the_request_22152_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["typeOfBuyer"] = "SCHOOL IS NOT HOME"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22152")
+    def test_see_the_result_in_feed_point_22152_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["typeOfBuyer"] = "SCHOOL IS NOT HOME"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.exc.InvalidFormatException: "
+                                               "Cannot deserialize value of type `com.procurement.mdm.model.dto."
+                                               "data.TypeOfBuyer` from String \"SCHOOL IS NOT HOME\": value not "
+                                               "one of declared Enum instance names: [NATIONAL_AGENCY, "
+                                               "REGIONAL_AUTHORITY, REGIONAL_AGENCY, BODY_PUBLIC, EU_INSTITUTION, "
+                                               "MINISTRY]\n at [Source: UNKNOWN; line: -1, column: -1] (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"buyer\"]->com.procurement.mdm.model.dto.data.Organizat"
+                                               "ionReference[\"details\"]->com.procurement.mdm.model.dto."
+                                               "data.Details[\"typeOfBuyer\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 #
 #
 # @pytestrail.case("22153")
