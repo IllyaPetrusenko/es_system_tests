@@ -1460,56 +1460,61 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfRegion(object):
         expected_result_country_id = "Cahul"
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_id,
                                                          actual_result=actual_result_country_id)
-#
-#
-# @pytestrail.case("22144")
-# @pytest.mark.regression
-# def test_22144_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000aa"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22144")
-# @pytest.mark.regression
-# def test_22144_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000aa"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.13"
-#     assert message_from_kafka["errors"][0]["description"] == "Region not found. "
-#
-#
-# @pytestrail.case("22145")
-# @pytest.mark.regression
-# def test_22145_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22145")
-# @pytest.mark.regression
-# def test_22145_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.14"
-#     assert message_from_kafka["errors"][0]["description"] == "Locality not found. "
+
+
+class TestValidateTheInvalidRegionIdCantBeUsed(object):
+    @pytestrail.case("22144")
+    def test_send_the_request_22144_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "UK"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("22144")
+    def test_see_the_result_in_feed_point_22144_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "UK"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.13",
+                                "description": "Region not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+
+class TestCheckTheUnsuitableLocalityAddressIdCantBeUsed(object):
+    @pytestrail.case("22145")
+    def test_send_the_request_22145_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22145")
+    def test_see_the_result_in_feed_point_22145_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.14",
+                                "description": "Locality not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 #
 #
 # @pytestrail.case("22146")
