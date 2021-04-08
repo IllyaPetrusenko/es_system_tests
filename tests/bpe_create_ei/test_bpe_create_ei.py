@@ -1265,60 +1265,69 @@ class TestValidateTheInvalidCountryIdCantBeUsed(object):
                                 "description": "Invalid country. "}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
-#
-#
-# @pytestrail.case("22140")
-# @pytest.mark.regression
-# def test_22140_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22140")
-# @pytest.mark.regression
-# def test_22140_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka['data']['outcomes']['ei'][0]['id']
-#     check_cpid = fnmatch.fnmatch(cpid, 'ocds-t1s2t3-MD-*')
-#     ei_token = is_it_uuid(message_from_kafka['data']['outcomes']['ei'][0]['X-TOKEN'], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22140")
-# @pytest.mark.regression
-# def test_22140_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka['data']['outcomes']['ei'][0]['id']
-#     ei_url = message_from_kafka['data']['url'] + '/' + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["id"] == \
-#            payload["buyer"]["address"]["addressDetails"]["region"]["id"]
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
-#                "description"] == "Donduşeni"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
-#                "uri"] == "http://statistica.md"
+
+
+class TestCheckTheRegionAddressIsFormedCorrectly(object):
+    @pytestrail.case("22140")
+    def test_send_the_request_22140_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22140")
+    def test_see_the_result_in_feed_point_22140_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22140")
+    def test_check_the_attribute_country_in_the_EI_record_22140_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "3400000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "3401000"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        actual_result_country_id = payload["buyer"]["address"]["addressDetails"]["region"]["id"]
+        expected_result_country_id = \
+            ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
+                "id"]
+        actual_result_country_scheme = "CUATM"
+        expected_result_country_scheme = \
+            ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
+                "scheme"]
+        actual_result_country_description = "Donduşeni"
+        expected_result_country_description = \
+            ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["description"]
+        actual_result_country_uri = "http://statistica.md"
+        expected_result_country_uri = \
+            ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["uri"]
+        assert compare_actual_result_and_expected_result(expected_result=expected_result_country_id,
+                                                         actual_result=actual_result_country_id)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result_country_scheme,
+                                                         actual_result=actual_result_country_scheme)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result_country_description,
+                                                         actual_result=actual_result_country_description)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result_country_uri,
+                                                         actual_result=actual_result_country_uri)
 #
 #
 # @pytestrail.case("22141")
