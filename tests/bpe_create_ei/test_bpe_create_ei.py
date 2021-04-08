@@ -1684,51 +1684,48 @@ class TestCheckTheOtherSchemeForLocalityAddressCanBeUsed(object):
                                                          actual_result=actual_result_locality_scheme)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_description,
                                                          actual_result=actual_result_locality_description)
-#
-#
-# @pytestrail.case("22149")
-# @pytest.mark.regression
-# def test_22149_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22149")
-# @pytest.mark.regression
-# def test_22149_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22149")
-# @pytest.mark.regression
-# def test_22149_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_release["releases"][0]["parties"][0]["identifier"]["scheme"] == "MD-IDNO"
+
+
+class TestCheckTheValidSchemeForBuyerIdentifier(object):
+    @pytestrail.case("22149")
+    def test_send_the_request_22149_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22149")
+    def test_see_the_result_in_feed_point_22149_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22149")
+    def test_check_the_identifier_object_in_the_EI_record_22149_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        actual_result_identifier_scheme = ei_release["releases"][0]["parties"][0]["identifier"]["scheme"]
+        expected_result_identifier_scheme = "MD-IDNO"
+        assert compare_actual_result_and_expected_result(expected_result=expected_result_identifier_scheme,
+                                                         actual_result=actual_result_identifier_scheme)
 #
 #
 # @pytestrail.case("22150")
