@@ -3754,134 +3754,137 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
                                                "->com.procurement.mdm.model.dto.data.Details"
                                                "[\"mainSectoralActivity\"])"}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
-#
-#
-# @pytestrail.case("22830")
-# @pytest.mark.regression
-# def test_22830_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22830")
-# @pytest.mark.regression
-# def test_22830_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22833")
-# @pytest.mark.regression
-# def test_22833_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = True
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22833")
-# @pytest.mark.regression
-# def test_22833_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = True
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-#     assert message_from_kafka["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                              "Exception: (was com.procurement.mdm.exception." \
-#                                                              "InErrorException) (through reference chain: " \
-#                                                              "com.procurement.mdm.model.dto.data.ei." \
-#                                                              "EIRequest[\"tender\"]->com.procurement.mdm." \
-#                                                              "model.dto.data.ei.EIRequest$Tender" \
-#                                                              "[\"classification\"]->com.procurement.mdm." \
-#                                                              "model.dto.data.ei.EIRequest$Tender$" \
-#                                                              "Classification[\"id\"])"
-#
-#
-# @pytestrail.case("22834")
-# @pytest.mark.regression
-# def test_22834_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = ""
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22834")
-# @pytest.mark.regression
-# def test_22834_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = ""
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.06"
-#     assert message_from_kafka["errors"][0]["description"] == "Cpv code not found. "
-#
-#
-# @pytestrail.case("22835")
-# @pytest.mark.regression
-# def test_22835_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "12322"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22835")
-# @pytest.mark.regression
-# def test_22835_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "12322"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.06"
-#     assert message_from_kafka["errors"][0]["description"] == "Cpv code not found. "
-#
-#
-# @pytestrail.case("22836")
-# @pytest.mark.regression
-# def test_22836_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "86655566"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22836")
-# @pytest.mark.regression
-# def test_22836_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "86655566"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.06"
-#     assert message_from_kafka["errors"][0]["description"] == "Cpv code not found. "
+
+
+class TestCheckThePossibilityToFetXtokenAndCpidAfterEiCreation(object):
+    @pytestrail.case("22830")
+    def test_send_the_request_22830_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22830")
+    def test_see_the_result_in_feed_point_22830_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheImpossibilityToCreateEiWithBooleanValueAsTheCpvCode(object):
+    @pytestrail.case("22833")
+    def test_send_the_request_22833_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22833")
+    def test_see_the_result_in_feed_point_22833_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                               "procurement.mdm.exception.InErrorException) (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]"
+                                               "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender"
+                                               "[\"classification\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Classification[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheImpossibilityToCreateEiWithEmptyValueInaCpvCode(object):
+    @pytestrail.case("22834")
+    def test_send_the_request_22834_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = ""
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22834")
+    def test_see_the_result_in_feed_point_22834_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = ""
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.06", "description": "Cpv code not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+class TestCheckTheImpossibilityToCreateEiWithBooleanTypeAsTheCpv(object):
+    @pytestrail.case("22835")
+    def test_send_the_request_22835_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22835")
+    def test_see_the_result_in_feed_point_22835_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
+                                               "Tender[\"classification\"]->com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest$Tender$Classification[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheImpossibilityToCreateEiWithTheIncorrectCpv(object):
+    @pytestrail.case("22836")
+    def test_send_the_request_22836_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "86655566"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22836")
+    def test_see_the_result_in_feed_point_22836_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "86655566"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.06", "description": "Cpv code not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 #
 #
 # @pytestrail.case("22837")
