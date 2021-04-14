@@ -1082,7 +1082,6 @@ class TestCheckTheCountryAddressIsFormedCorrectly(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_country_id = payload["buyer"]["address"]["addressDetails"]["country"]["id"]
         expected_result_country_id = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
@@ -1097,6 +1096,7 @@ class TestCheckTheCountryAddressIsFormedCorrectly(object):
         actual_result_country_uri = "https://www.iso.org"
         expected_result_country_uri = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["uri"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_id,
                                                          actual_result=actual_result_country_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_scheme,
@@ -1145,10 +1145,10 @@ class TestCheckOnCorrectnessOfEnrichingTheSchemeOfCountry(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_country_scheme = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
             "scheme"]
         expected_result_country_scheme = "iso-alpha2"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_scheme,
                                                          actual_result=actual_result_country_scheme)
 
@@ -1191,10 +1191,10 @@ class TestCheckOnCorrectnessOfEnrichingTheUriOfCountry(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_country_uri = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
             "uri"]
         expected_result_country_uri = "https://www.iso.org"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_uri,
                                                          actual_result=actual_result_country_uri)
 
@@ -1237,10 +1237,10 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfCountry(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_country_description = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["description"]
         expected_result_country_description = "Moldova, Republica"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_description,
                                                          actual_result=actual_result_country_description)
 
@@ -1309,7 +1309,6 @@ class TestCheckTheRegionAddressIsFormedCorrectly(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_region_id = payload["buyer"]["address"]["addressDetails"]["region"]["id"]
         expected_result_region_id = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
@@ -1324,6 +1323,7 @@ class TestCheckTheRegionAddressIsFormedCorrectly(object):
         actual_result_region_uri = "http://statistica.md"
         expected_result_region_uri = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["uri"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_region_id,
                                                          actual_result=actual_result_region_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_region_scheme,
@@ -1372,10 +1372,10 @@ class TestCheckOnCorrectnessOfEnrichingTheSchemeOfRegion(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_region_scheme = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
             "scheme"]
         expected_result_region_scheme = "CUATM"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_region_scheme,
                                                          actual_result=actual_result_region_scheme)
 
@@ -1415,10 +1415,10 @@ class TestCheckOnCorrectnessOfEnrichingTheUriOfRegion(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_region_uri = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
             "uri"]
         expected_result_region_uri = "http://statistica.md"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_region_uri,
                                                          actual_result=actual_result_region_uri)
 
@@ -1458,10 +1458,10 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfRegion(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_region_description = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["description"]
         expected_result_region_description = "Cahul"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_region_description,
                                                          actual_result=actual_result_region_description)
 
@@ -1562,7 +1562,6 @@ class TestCheckTheSuitableLocalityAddressIdCanBeUsed(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_locality_id = payload["buyer"]["address"]["addressDetails"]["locality"]["id"]
         expected_result_locality_id = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
             "id"]
@@ -1576,6 +1575,7 @@ class TestCheckTheSuitableLocalityAddressIdCanBeUsed(object):
         actual_result_locality_uri = "http://statistica.md"
         expected_result_locality_uri = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["uri"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_id,
                                                          actual_result=actual_result_locality_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_scheme,
@@ -1671,7 +1671,6 @@ class TestCheckTheOtherSchemeForLocalityAddressCanBeUsed(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_locality_id = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
             "id"]
         expected_result_locality_id = payload["buyer"]["address"]["addressDetails"]["locality"]["id"]
@@ -1682,6 +1681,7 @@ class TestCheckTheOtherSchemeForLocalityAddressCanBeUsed(object):
         actual_result_locality_description = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["description"]
         expected_result_locality_description = "or.Donduşeni (r-l Donduşeni)"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_id,
                                                          actual_result=actual_result_locality_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_scheme,
@@ -1725,9 +1725,9 @@ class TestCheckTheValidSchemeForBuyerIdentifier(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_identifier_scheme = ei_release["releases"][0]["parties"][0]["identifier"]["scheme"]
         expected_result_identifier_scheme = "MD-IDNO"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_identifier_scheme,
                                                          actual_result=actual_result_identifier_scheme)
 
@@ -1792,9 +1792,9 @@ class TestCheckTheValidValueForTypeOfBuyerField(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result_type_of_buyer = ei_release["releases"][0]["parties"][0]["details"]["typeOfBuyer"]
         expected_result_type_of_buyer = payload["buyer"]["details"]["typeOfBuyer"] = "MINISTRY"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_type_of_buyer,
                                                          actual_result=actual_result_type_of_buyer)
 
@@ -1868,9 +1868,9 @@ class TestCheckTheValidValueForMainGeneralActivityField(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result = ei_release["releases"][0]["parties"][0]["details"]["mainGeneralActivity"]
         expected_result = payload["buyer"]["details"]["mainGeneralActivity"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
@@ -1948,9 +1948,9 @@ class TestCheckTheValidValueForMainSectoralActivityField(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         actual_result = payload["buyer"]["details"]["mainSectoralActivity"]
         expected_result = ei_release["releases"][0]["parties"][0]["details"]["mainSectoralActivity"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
@@ -2030,6 +2030,7 @@ class TestCheckTheCpIdOfEIisFormedCorrectly(object):
         expected_result_date = message_from_kafka["data"]["operationDate"]
         actual_result_cpid_first_part = cpid[0:15]
         expected_result_cpid_first_part = "ocds-t1s2t3-MD-"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_date,
                                                          actual_result=actual_result_date)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_cpid_first_part,
@@ -2074,6 +2075,7 @@ class TestCheckTheTimestampOfEIocidOfCoincidesWithRequestSentDate(object):
         convert_date_to_human_date = convert_timestamp_to_date.strftime("%Y-%m-%dT%H:%M:%SZ")
         actual_result = convert_date_to_human_date
         expected_result = message_from_kafka["data"]["operationDate"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2111,6 +2113,7 @@ class TestCheckTheReleaseDateCoincidesWithRequestSentDate(object):
         ei_release = requests.get(url=ei_url).json()
         expected_result = message_from_kafka["data"]["operationDate"]
         actual_result = ei_release["releases"][0]["date"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2148,6 +2151,7 @@ class TestCheckTheIdentificationOfTenderEqualsTheOCIDofTheEI(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = str(is_it_uuid(ei_release['releases'][0]['tender']['id'], 4))
         expected_result = "True"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2185,6 +2189,7 @@ class TestCheckTheStatusOfTTender(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["tender"]["status"]
         expected_result = "planning"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2222,6 +2227,7 @@ class TestCheckTheStatusDetailsOfTheTender(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["tender"]["statusDetails"]
         expected_result = "empty"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2260,6 +2266,7 @@ class TesCheckTheBuyerIdentifierIsFormedCorrectly(object):
         actual_result = ei_release["releases"][0]["buyer"]["id"]
         expected_result = payload["buyer"]["identifier"]["scheme"] + "-" + \
                           payload["buyer"]["identifier"]["id"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2309,6 +2316,7 @@ class TestCheckTheBudgetIDisTenderClassificationID(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["planning"]["budget"]["id"]
         expected_result = ei_release["releases"][0]["tender"]["classification"]["id"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=payload["planning"]["budget"]["id"],
                                                          actual_result=ei_release["releases"][0]["planning"]["budget"][
                                                              "id"])
@@ -2365,6 +2373,7 @@ class TestCheckTheValidValueForTheEiPlanningDates(object):
 
         actual_result_end_date = ei_release["releases"][0]["planning"]["budget"]["period"]["endDate"]
         expected_result_end_date = payload["planning"]["budget"]["period"]["endDate"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_start_date,
                                                          actual_result=actual_result_start_date)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_end_date,
@@ -2665,6 +2674,7 @@ class TestCheckClassificationIdIsSentCorrectly(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["tender"]["classification"]["id"]
         expected_result = payload["tender"]["classification"]["id"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2727,6 +2737,7 @@ class TestCheckTheTagHasAppropriateValueInTheEiRecord(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["tag"][0]
         expected_result = "compiled"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2764,6 +2775,7 @@ class TestCheckTheDateHasAppropriateValueInTheEiRecord(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["date"]
         expected_result = message_from_kafka["data"]["operationDate"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2801,6 +2813,7 @@ class TestCheckTheInitiationTypeHasAnAppropriateValueInTheEiRecord(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["initiationType"]
         expected_result = "tender"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2857,6 +2870,7 @@ class TestCheckThePlanningSectionInTheEiRecord(object):
         expected_result_period_start_date = payload["planning"]["budget"]["period"]["startDate"]
         actual_result_period_end_date = ei_release["releases"][0]["planning"]["budget"]["period"]["endDate"]
         expected_result_period_end_date = payload["planning"]["budget"]["period"]["endDate"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_budget_id,
                                                          actual_result=actual_result_budget_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_period_start_date,
@@ -2907,13 +2921,14 @@ class TestCheckTheTenderSectionInTheEiRecord(object):
         expected_result_tender_title = payload["tender"]["title"]
         actual_result_tender_classification_id = ei_release["releases"][0]["tender"]["classification"]["id"]
         expected_result_tender_classification_id = payload["tender"]["classification"]["id"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_tender_title,
                                                          actual_result=actual_result_tender_title)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_tender_classification_id,
                                                          actual_result=actual_result_tender_classification_id)
 
 
-class TestCheckTheBuyerSectionInTheEiRecord(object):
+class TestCheckThePartiesSectionInTheEiRecord(object):
     @pytestrail.case("22183")
     def test_send_the_request_22183_1(self, country, language):
         payload = copy.deepcopy(payload_ei_full_data_model)
@@ -2959,6 +2974,7 @@ class TestCheckTheBuyerSectionInTheEiRecord(object):
                                      payload["buyer"]["identifier"]["id"]
         actual_result_parties_role = ei_release["releases"][0]["parties"][0]["roles"][0]
         expected_result_parties_role = "buyer"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_parties_id,
                                                          actual_result=actual_result_parties_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_parties_role,
@@ -3134,6 +3150,7 @@ class TestCheckTheOtherRolesAreIgnoredInTheEiCreationRequest(object):
         parties_obj_dict = dict(parties_obj_list[0])
         actual_result_procuring_entity_role = ["procuringEntity"] in parties_obj_dict.values()
         actual_result_buyer_role = ["buyer"] in parties_obj_dict.values()
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=str(False),
                                                          actual_result=str(actual_result_procuring_entity_role))
         assert compare_actual_result_and_expected_result(expected_result=str(True),
@@ -3178,6 +3195,7 @@ class TestCheckTheBuyerSectionInTheEiRecord(object):
                                    payload["buyer"]["identifier"]["id"]
         actual_result_buyer_name = ei_release["releases"][0]["buyer"]["name"]
         expected_result_buyer_name = payload["buyer"]["name"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_buyer_id,
                                                          actual_result=actual_result_buyer_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_buyer_name,
@@ -3933,6 +3951,7 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyGoods(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"]
         expected_result = "goods"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -3979,6 +3998,7 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyWorks(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"]
         expected_result = "works"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -4025,6 +4045,7 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyServices(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"]
         expected_result = "services"
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -4064,6 +4085,7 @@ class TestCheckTheCountryIdIsSetsCorrectly(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
             "country"]["id"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="MD", actual_result=actual_result)
 
 
@@ -4103,6 +4125,7 @@ class TestCheckTheCountrySchemeIsSetsCorrectly(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
             "country"]["scheme"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="iso-alpha2", actual_result=actual_result)
 
 
@@ -4142,6 +4165,7 @@ class TestCheckTheCountryDescriptionIsSetsCorrectly(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
             "country"]["description"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="Moldova, Republica",
                                                          actual_result=actual_result)
 
@@ -4182,6 +4206,7 @@ class TestCheckTheCountryUriIsSetsCorrectly(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
             "country"]["uri"]
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="https://www.iso.org",
                                                          actual_result=actual_result)
 
@@ -4477,6 +4502,7 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
                 keys_list.append(i)
             if i == "endDate":
                 keys_list.append(i)
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[0])
         assert compare_actual_result_and_expected_result(expected_result="version", actual_result=keys_list[1])
         assert compare_actual_result_and_expected_result(expected_result="extensions", actual_result=keys_list[2])
@@ -4844,6 +4870,7 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
             expected_result=payload["planning"]["rationale"],
             actual_result=ei_release["releases"][0]["planning"]["rationale"])
 
+
 class TestCheckOnImpossibilityToCreateEiWithCpvsCodeIdWhichIsNotPresentInTheDictionary(object):
     @pytestrail.case("23993")
     def test_send_the_request_23993_1(self, country, language):
@@ -4866,6 +4893,7 @@ class TestCheckOnImpossibilityToCreateEiWithCpvsCodeIdWhichIsNotPresentInTheDict
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.01.05", "description": "Invalid cpvs code. "}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
 
 class TestCheckOnImpossibilityToCreateEiWithCpvCodeIdWhichIsNotPresentInTheDictionary(object):
     @pytestrail.case("23995")
@@ -4935,6 +4963,7 @@ class TestCheckOnItemsAdditionalClassificationsIsSupplementedWithSchemeAndDescri
         assert compare_actual_result_and_expected_result(expected_result="Oţel carbon", actual_result=ei_release[
             "releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["description"])
 
+
 class TestCheckOnItemClassificationIsSupplementedWithSchemeAndDescription(object):
     @pytestrail.case("23996")
     def test_send_the_request_23996_1(self, country, language):
@@ -4980,6 +5009,7 @@ class TestCheckOnItemClassificationIsSupplementedWithSchemeAndDescription(object
             expected_result="Lucrări de pregătire a şantierului", actual_result=ei_release[
                 "releases"][0]["tender"]["items"][0]["classification"]["description"])
 
+
 class TestCheckOnImpossibiltyToCreateEiWithItemsUnitIdWhichIsNotPresentInTheDictionary(object):
     @pytestrail.case("23997")
     def test_send_the_request_23997_1(self, country, language):
@@ -5002,6 +5032,7 @@ class TestCheckOnImpossibiltyToCreateEiWithItemsUnitIdWhichIsNotPresentInTheDict
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.01.06", "description": "Invalid unit code. "}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
 
 class TestCheckOnItemsUnitIsSupplementedWithNameById(object):
     @pytestrail.case("23998")
@@ -5046,6 +5077,7 @@ class TestCheckOnItemsUnitIsSupplementedWithNameById(object):
                                                          actual_result=ei_release["releases"][0]["tender"][
                                                              "items"][0]["unit"]["id"])
 
+
 class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsCountryIdIsNotPresentInDictionary(object):
     @pytestrail.case("23999")
     def test_send_the_request_23999_1(self, country, language):
@@ -5068,6 +5100,7 @@ class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsCountryIdI
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.01.10", "description": "Invalid country. "}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
 
 class TestCheckOnDeliveryAddressAddressDetailsCountryObjectIsSupplementedWithSchemeDescriptionUri(object):
     @pytestrail.case("24000")
@@ -5115,12 +5148,14 @@ class TestCheckOnDeliveryAddressAddressDetailsCountryObjectIsSupplementedWithSch
                 "country"]["scheme"])
         assert compare_actual_result_and_expected_result(
             expected_result="Moldova, Republica",
-            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-                   "description"])
+            actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
+                "description"])
         assert compare_actual_result_and_expected_result(
             expected_result="https://www.iso.org",
             actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
                 "country"]["uri"])
+
 
 class TestCheckThePossibilityToCreateEiOnObligatoryDataModelAddItems(object):
     @pytestrail.case("22133")
@@ -5237,6 +5272,7 @@ class TestCheckThePossibilityToCreateEiOnObligatoryDataModelAddItems(object):
             expected_result=str(payload["buyer"]["contactPoint"]),
             actual_result=str(ei_release["releases"][0]["parties"][0]["contactPoint"]))
 
+
 class TestCheckTheStartDateIsLaterThanEndDateForPlanningBudget(object):
     @pytestrail.case("22167")
     def test_send_the_request_22167_1(self, country, language):
@@ -5263,6 +5299,7 @@ class TestCheckTheStartDateIsLaterThanEndDateForPlanningBudget(object):
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.10.01.01", "description": "Invalid period."}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
 
 class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsRegionIdIsNotPresentInDictionary(object):
     @pytestrail.case("24001")
@@ -5341,6 +5378,7 @@ class TestCheckOnDeliveryAddressAddressDetailsRegionObjectIsSupplementedWithSche
             actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
                 "region"]["uri"])
 
+
 class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalityIdIsNotPresentInDictionary(object):
     @pytestrail.case("24003")
     def test_send_the_request_24003_1(self, country, language):
@@ -5365,6 +5403,7 @@ class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalityId
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00.14", "description": "Locality not found. "}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
 
 class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalityIdIsNotRelatedToValueOfRegionId(object):
     @pytestrail.case("24004")
@@ -5392,6 +5431,7 @@ class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalityId
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00.14", "description": "Locality not found. "}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
 
 class TestCheckOnDeliveryAddressAddressDetailsLocalityObjectIsSupplementedWithDescriptionUri(object):
     @pytestrail.case("24005")
@@ -5453,6 +5493,7 @@ class TestCheckOnDeliveryAddressAddressDetailsLocalityObjectIsSupplementedWithDe
             ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
                 "uri"])
 
+
 class TestCheckOnPossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalitySchemeIsNotCuatm(object):
     @pytestrail.case("24006")
     def test_send_the_request_24006_1(self, country, language):
@@ -5511,6 +5552,7 @@ class TestCheckOnPossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalitySche
             ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
                 "description"])
 
+
 class TestCheckOnIfTemporalItemsIdHaveChangedToPermanent(object):
     @pytestrail.case("24011")
     def test_send_the_request_24011_1(self, country, language):
@@ -5546,6 +5588,7 @@ class TestCheckOnIfTemporalItemsIdHaveChangedToPermanent(object):
         ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=str(True), actual_result=str(is_it_uuid(
             ei_release["releases"][0]["tender"]["items"][0]["id"], 4)))
+
 
 class TestCheckOnTenderItemsInRelease(object):
     @pytestrail.case("24012")
@@ -5654,6 +5697,7 @@ class TestCheckOnTenderItemsInRelease(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=str(True), actual_result=str(is_it_uuid(
             ei_release["releases"][0]["tender"]["items"][0]["id"], 4)))
         assert compare_actual_result_and_expected_result(expected_result=payload["tender"]["items"][0]["description"],
@@ -5732,6 +5776,7 @@ class TestCheckOnTenderItemsInRelease(object):
             expected_result="http://statistica.md", actual_result=ei_release["releases"][0]["tender"]["items"][0][
                 "deliveryAddress"]["addressDetails"]["locality"]["uri"])
 
+
 class TestTenderClassificationIdDoesNotMatchToTenderItemsClassificationIdBy3FirstSymbols(object):
     @pytestrail.case("24013")
     def test_send_the_request_24013_1(self, country, language):
@@ -5758,715 +5803,1411 @@ class TestTenderClassificationIdDoesNotMatchToTenderItemsClassificationIdBy3Firs
         expected_result = str([{"code": "400.10.00.05", "description": f"Invalid CPV.Invalid CPV code in "
                                                                        f"classification(s) '{value_of_key}'"}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
-#
-#
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["title"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'tender.title' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["description"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'tender.description' is empty or " \
-#                                  "blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["planning"]["rationale"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'planning.rationale' is empty or " \
-#                                  "blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_4(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["name"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.name' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_5(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["identifier"]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.identifier.id' is empty or " \
-#                                  "blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_6(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["identifier"]["legalName"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.identifier.legalName' " \
-#                                  "is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_7(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["identifier"]["uri"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.identifier.uri' " \
-#                                  "is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_8(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["streetAddress"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.address.streetAddress' " \
-#                                  "is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_9(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["postalCode"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.address.postalCode' " \
-#                                  "is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_10(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
-#                                  "locality.scheme' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_11(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
-#                                  "locality.id' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_12(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
-#     payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.address.addressDetails." \
-#                                  "locality.description' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_13(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["additionalIdentifiers"][0]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers.id' " \
-#                                  "is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_14(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["additionalIdentifiers"][0]["scheme"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers." \
-#                                  "scheme' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_15(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["additionalIdentifiers"][0]["legalName"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers." \
-#                                  "legalName' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_16(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["additionalIdentifiers"][0]["uri"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.additionalIdentifiers.uri' " \
-#                                  "is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_17(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["contactPoint"]["name"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.name' is " \
-#                                  "empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_18(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["contactPoint"]["email"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.email' is " \
-#                                  "empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_19(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["contactPoint"]["telephone"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.telephone' is " \
-#                                  "empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_20(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["contactPoint"]["faxNumber"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.faxNumber' is " \
-#                                  "empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_21(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["contactPoint"]["url"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'buyer.contactPoint.url' is empty " \
-#                                  "or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_22(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'tender.items.deliveryAddress." \
-#                                  "streetAddress' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_23(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["postalCode"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'tender.items.deliveryAddress." \
-#                                  "postalCode' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_24(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
-#                                  "locality.scheme' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_25(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "other"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
-#                                  "locality.id' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_26(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "other"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["description"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'deliveryAddress.addressDetails." \
-#                                  "locality.description' is empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_27(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["description"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.20.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Incorrect an attribute value.The attribute 'tender.items.description' is " \
-#                                  "empty or blank."
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_28(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.06"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Cpv code not found. "
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_29(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["classification"]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.01.03"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Invalid cpv code. "
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_30(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.01.05"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Invalid cpvs code. "
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_31(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.01.10"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Invalid country. "
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_32(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.13"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Region not found. "
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_33(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["quantity"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "com.fasterxml.jackson.databind.JsonMappingException: (was com.procurement." \
-#                                  "mdm.exception.InErrorException) (through reference chain: com.procurement." \
-#                                  "mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm.model." \
-#                                  "dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com." \
-#                                  "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"quantity\"])"
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_34(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["unit"]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.01.06"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Invalid unit code. "
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_35(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["planning"]["budget"]["period"]["startDate"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.00"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "com.fasterxml.jackson.databind.JsonMappingException: Text ' ' could not be " \
-#                                  "parsed at index 0 (through reference chain: com.procurement.budget.model.dto." \
-#                                  "ei.request.EiCreate[\"planning\"]->com.procurement.budget.model.dto.ei." \
-#                                  "request.EiCreate$PlanningEiCreate[\"budget\"]->com.procurement.budget." \
-#                                  "model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]" \
-#                                  "->com.procurement.budget.model.dto.ocds.Period[\"startDate\"])"
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_36(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["planning"]["budget"]["period"]["endDate"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.00"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "com.fasterxml.jackson.databind.JsonMappingException: Text ' ' could not be " \
-#                                  "parsed at index 0 (through reference chain: com.procurement.budget.model.dto." \
-#                                  "ei.request.EiCreate[\"planning\"]->com.procurement.budget.model.dto.ei." \
-#                                  "request.EiCreate$PlanningEiCreate[\"budget\"]->com.procurement.budget." \
-#                                  "model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate[\"period\"]" \
-#                                  "->com.procurement.budget.model.dto.ocds.Period[\"endDate\"])"
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_37(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["identifier"]["scheme"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.12"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Registration scheme not found. "
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_38(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.11"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Country not found. "
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_39(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["region"]["id"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.13"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "Region not found. "
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_40(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["typeOfBuyer"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot " \
-#                                  "deserialize value of type `com.procurement.mdm.model.dto.data." \
-#                                  "TypeOfBuyer` from String \"\": value not one of declared Enum " \
-#                                  "instance names: [NATIONAL_AGENCY, REGIONAL_AUTHORITY, REGIONAL_AGENCY, " \
-#                                  "BODY_PUBLIC, EU_INSTITUTION, MINISTRY]\n at [Source: UNKNOWN; line: -1, " \
-#                                  "column: -1] (through reference chain: com.procurement.mdm.model.dto." \
-#                                  "data.ei.EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data." \
-#                                  "OrganizationReference[\"details\"]->com.procurement.mdm.model.dto." \
-#                                  "data.Details[\"typeOfBuyer\"])"
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_41(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainGeneralActivity"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot " \
-#                                  "deserialize value of type `com.procurement.mdm.model.dto.data." \
-#                                  "MainGeneralActivity` from String \"\": value not one of declared Enum " \
-#                                  "instance names: [DEFENCE, PUBLIC_ORDER_AND_SAFETY, ECONOMIC_AND_FINANCIAL_" \
-#                                  "AFFAIRS, ENVIRONMENT, RECREATION_CULTURE_AND_RELIGION, EDUCATION, " \
-#                                  "SOCIAL_PROTECTION, HEALTH, GENERAL_PUBLIC_SERVICES, HOUSING_AND_" \
-#                                  "COMMUNITY_AMENITIES]\n at [Source: UNKNOWN; line: -1, column: -1] " \
-#                                  "(through reference chain: com.procurement.mdm.model.dto.data.ei." \
-#                                  "EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data." \
-#                                  "OrganizationReference[\"details\"]->com.procurement.mdm.model." \
-#                                  "dto.data.Details[\"mainGeneralActivity\"])"
-#
-#
-# @pytestrail.case("25301")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_25301_42(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["details"]["mainSectoralActivity"] = " "
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00"
-#     assert message_from_kafka["errors"][0][
-#                "description"] == "com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot " \
-#                                  "deserialize value of type `com.procurement.mdm.model.dto.data." \
-#                                  "MainSectoralActivity` from String \"\": value not one of declared Enum " \
-#                                  "instance names: [EXPLORATION_EXTRACTION_GAS_OIL, ELECTRICITY, POSTAL_" \
-#                                  "SERVICES, PRODUCTION_TRANSPORT_DISTRIBUTION_GAS_HEAT, WATER, URBAN_" \
-#                                  "RAILWAY_TRAMWAY_TROLLEYBUS_BUS_SERVICES, PORT_RELATED_ACTIVITIES, " \
-#                                  "RAILWAY_SERVICES, EXPLORATION_EXTRACTION_COAL_OTHER_SOLID_FUEL, " \
-#                                  "AIRPORT_RELATED_ACTIVITIES]\n at [Source: UNKNOWN; line: -1, " \
-#                                  "column: -1] (through reference chain: com.procurement.mdm.model." \
-#                                  "dto.data.ei.EIRequest[\"buyer\"]->com.procurement.mdm.model.dto." \
-#                                  "data.OrganizationReference[\"details\"]->com.procurement.mdm.model." \
-#                                  "dto.data.Details[\"mainSectoralActivity\"])"
-#
-#
-# @pytestrail.case("22180")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_22180_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22180")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_22180_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22180")
-# @pytest.mark.smoke
-# @pytest.mark.regression
-# def test_22180_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     ei_release_id = ei_release["releases"][0]["id"]
-#     ei_release_timestamp = int(ei_release_id[29:42])
-#     convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
-#     assert ei_release_id[0:28] == cpid
-#     assert ei_release["releases"][0]["date"] == convert_timestamp_to_date[0]
-#     assert ei_release["releases"][0]["id"] == f"{cpid}" + f"-{str(ei_release_timestamp)}"
+
+
+class TestCheckTheFieldsWithSpaceDigitInFieldsAreNotPublishedInThePublicPoint(object):
+    @pytestrail.case("25301")
+    def test_tender_title_as_space_digit_in_field_25301_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["title"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'tender.title' is empty "
+                                               "or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_description_as_space_digit_in_field_25301_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["description"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'tender.description' "
+                                               "is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_planning_rationale_as_space_digit_in_field_25301_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["planning"]["rationale"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11", "description": "Incorrect an attribute value.The attribute "
+                                                                       "'planning.rationale' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_name_as_space_digit_in_field_25301_4(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["name"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11", "description": "Incorrect an attribute value.The attribute "
+                                                                       "'buyer.name' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_identifier_id_as_space_digit_in_field_25301_5(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11", "description": "Incorrect an attribute value.The attribute "
+                                                                       "'buyer.identifier.id' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_identifier_legalName_as_space_digit_in_field_25301_6(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["legalName"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.identifier."
+                                               "legalName' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_identifier_uri_as_space_digit_in_field_25301_7(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["uri"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.identifier.uri' "
+                                               "is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_address_streetAddress_as_space_digit_in_field_25301_8(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["streetAddress"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.address."
+                                               "streetAddress' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_address_postalCode_as_space_digit_in_field_25301_9(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["postalCode"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.address."
+                                               "postalCode' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_address_addressDetails_locality_scheme_as_space_digit_in_field_25301_10(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11", "description": "Incorrect an attribute value.The attribute "
+                                                                       "'buyer.address.addressDetails.locality."
+                                                                       "scheme' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_address_addressDetails_locality_id_as_space_digit_in_field_25301_11(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.address."
+                                               "addressDetails.locality.id' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_address_addressDetails_locality_description_as_space_digit_in_field_25301_12(self, country,
+                                                                                                language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.address."
+                                               "addressDetails.locality.description' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_additionalIdentifiers_id_as_space_digit_in_field_25301_13(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer."
+                                               "additionalIdentifiers.id' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_additionalIdentifiers_scheme_as_space_digit_in_field_25301_14(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer."
+                                               "additionalIdentifiers.scheme' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_additionalIdentifiers_legalName_as_space_digit_in_field_25301_15(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer."
+                                               "additionalIdentifiers.legalName' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_additionalIdentifiers_uri_as_space_digit_in_field_25301_16(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer."
+                                               "additionalIdentifiers.uri' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_contactPoint_name_as_space_digit_in_field_25301_17(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["contactPoint"]["name"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.contactPoint.name' "
+                                               "is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_contactPoint_email_as_space_digit_in_field_25301_18(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["contactPoint"]["email"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.contactPoint."
+                                               "email' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_contactPoint_telephone_as_space_digit_in_field_25301_19(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["contactPoint"]["telephone"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.contactPoint."
+                                               "telephone' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_contactPoint_faxNumber_as_space_digit_in_field_25301_20(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["contactPoint"]["faxNumber"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.contactPoint."
+                                               "faxNumber' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_contactPoint_url_as_space_digit_in_field_25301_21(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["contactPoint"]["url"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'buyer.contactPoint."
+                                               "url' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_deliveryAddress_streetAddress_as_space_digit_in_field_25301_22(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'tender.items."
+                                               "deliveryAddress.streetAddress' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_deliveryAddress_postalCode_as_space_digit_in_field_25301_23(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["postalCode"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'tender.items."
+                                               "deliveryAddress.postalCode' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_deliveryAddress_addressDetails_locality_scheme_as_space_digit_in_field_25301_24(self, country,
+                                                                                                          language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'deliveryAddress."
+                                               "addressDetails.locality.scheme' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_deliveryAddress_addressDetails_locality_id_25301_25(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "other"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'deliveryAddress."
+                                               "addressDetails.locality.id' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_deliveryAddress_addressDetails_locality_description_25301_26(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "other"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["description"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'deliveryAddress."
+                                               "addressDetails.locality.description' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_description_as_empty_string_as_space_digit_in_field_25301_27(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["description"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'tender.items."
+                                               "description' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_classification_id_as_empty_string_as_space_digit_in_field_25301_28(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.06", "description": "Cpv code not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_classification_id_as_space_digit_in_field_25301_29(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["classification"]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.01.03", "description": "Invalid cpv code. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_additionalClassifications_id_as_space_digit_in_field_25301_30(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.01.05", "description": "Invalid cpvs code. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_deliveryAddress_addressDetails_country_id_as_space_digit_in_field_25301_31(self, country,
+                                                                                                     language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.01.10", "description": "Invalid country. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_deliveryAddress_addressDetails_region_id_as_space_digit_in_field_25301_32(self, country,
+                                                                                                    language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.13", "description": "Region not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_quantity_as_space_digit_in_field_25301_33(self, country,
+                                                                    language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["quantity"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"quantity\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_tender_items_unit_id_as_space_digit_in_field25301_34(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["unit"]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.01.06", "description": "Invalid unit code. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_planning_budget_period_startDate_as_space_digit_in_field_25301_35(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["planning"]["budget"]["period"]["startDate"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.00", "description": "com.fasterxml.jackson.databind.JsonMapping"
+                                                                    "Exception: Text ' ' could not be parsed at "
+                                                                    "index 0 (through reference chain: com."
+                                                                    "procurement.budget.model.dto.ei.request.Ei"
+                                                                    "Create[\"planning\"]->com.procurement.budget."
+                                                                    "model.dto.ei.request.EiCreate$PlanningEi"
+                                                                    "Create[\"budget\"]->com.procurement.budget."
+                                                                    "model.dto.ei.request.EiCreate$PlanningEi"
+                                                                    "Create$BudgetEiCreate[\"period\"]->com."
+                                                                    "procurement.budget.model.dto.ocds."
+                                                                    "Period[\"startDate\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_planning_budget_period_endDate_as_space_digit_in_field_25301_36(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["planning"]["budget"]["period"]["endDate"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.00", "description": "com.fasterxml.jackson.databind.JsonMapping"
+                                                                    "Exception: Text ' ' could not be parsed at "
+                                                                    "index 0 (through reference chain: com."
+                                                                    "procurement.budget.model.dto.ei.request."
+                                                                    "EiCreate[\"planning\"]->com.procurement."
+                                                                    "budget.model.dto.ei.request.EiCreate$Planning"
+                                                                    "EiCreate[\"budget\"]->com.procurement.budget."
+                                                                    "model.dto.ei.request.EiCreate$PlanningEiCreate$"
+                                                                    "BudgetEiCreate[\"period\"]->com.procurement."
+                                                                    "budget.model.dto.ocds.Period[\"endDate\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_identifier_scheme_as_space_digit_in_field_25301_37(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["scheme"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.12", "description": "Registration scheme not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_address_addressDetails_country_id_as_space_digit_in_field_25301_38(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.11", "description": "Country not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_address_addressDetails_region_id_as_space_digit_in_field_25301_39(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.13", "description": "Region not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_details_typeOfBuyer_as_space_digit_in_field_25301_40(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["typeOfBuyer"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.exc.InvalidFormatException: "
+                                               "Cannot deserialize value of type `com.procurement.mdm.model."
+                                               "dto.data.TypeOfBuyer` from String \"\": value not one of declared "
+                                               "Enum instance names: [NATIONAL_AGENCY, REGIONAL_AUTHORITY, "
+                                               "REGIONAL_AGENCY, BODY_PUBLIC, EU_INSTITUTION, MINISTRY]\n at "
+                                               "[Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"buyer\"]->com.procurement.mdm.model.dto.data.Organization"
+                                               "Reference[\"details\"]->com.procurement.mdm.model.dto.data."
+                                               "Details[\"typeOfBuyer\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_details_mainGeneralActivity_as_space_digit_in_field_25301_41(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainGeneralActivity"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.exc.InvalidFormatException: "
+                                               "Cannot deserialize value of type `com.procurement.mdm.model.dto."
+                                               "data.MainGeneralActivity` from String \"\": value not one of "
+                                               "declared Enum instance names: [DEFENCE, PUBLIC_ORDER_AND_SAFETY, "
+                                               "ECONOMIC_AND_FINANCIAL_AFFAIRS, ENVIRONMENT, "
+                                               "RECREATION_CULTURE_AND_RELIGION, EDUCATION, SOCIAL_PROTECTION, "
+                                               "HEALTH, GENERAL_PUBLIC_SERVICES, HOUSING_AND_COMMUNITY_"
+                                               "AMENITIES]\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                               "(through reference chain: com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"details\"]->com.procurement.mdm.model."
+                                               "dto.data.Details[\"mainGeneralActivity\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_details_mainSectoralActivity_as_space_digit_in_field_25301_42(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainGeneralActivity"] = " "
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.exc.InvalidFormatException: "
+                                               "Cannot deserialize value of type `com.procurement.mdm.model.dto."
+                                               "data.MainGeneralActivity` from String \"\": value not one of "
+                                               "declared Enum instance names: [DEFENCE, PUBLIC_ORDER_AND_SAFETY, "
+                                               "ECONOMIC_AND_FINANCIAL_AFFAIRS, ENVIRONMENT, "
+                                               "RECREATION_CULTURE_AND_RELIGION, EDUCATION, SOCIAL_PROTECTION, "
+                                               "HEALTH, GENERAL_PUBLIC_SERVICES, HOUSING_AND_COMMUNITY_"
+                                               "AMENITIES]\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                               "(through reference chain: com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"details\"]->com.procurement.mdm.model."
+                                               "dto.data.Details[\"mainGeneralActivity\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+class TestCheck_on_the_impossibility_to_create_EI_with_invalid_data_type(object):
+    @pytestrail.case("25302")
+    def test_tender_title_as_boolean_25302_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["title"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: title "
+                                               "(through reference chain: com.procurement.budget.model.dto.ei."
+                                               "request.EiCreate[\"tender\"]->com.procurement.budget.model.dto."
+                                               "ei.request.EiCreate$TenderEiCreate[\"title\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_description_with_space_digit_in_field_25302_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["description"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.00", "description": "com.fasterxml.jackson.databind.JsonMapping"
+                                                                    "Exception: description (through reference "
+                                                                    "chain: com.procurement.budget.model.dto.ei."
+                                                                    "request.EiCreate[\"tender\"]->com.procurement."
+                                                                    "budget.model.dto.ei.request.EiCreate$TenderEi"
+                                                                    "Create[\"description\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_planning_rationale_as_space_digit_in_field_25302_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["planning"]["rationale"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: rationale "
+                                               "(through reference chain: com.procurement.budget.model.dto.ei."
+                                               "request.EiCreate[\"planning\"]->com.procurement.budget.model."
+                                               "dto.ei.request.EiCreate$PlanningEiCreate[\"rationale\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_name_as_space_digit_in_field_25302_4(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["name"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                               "procurement.mdm.exception.InErrorException) (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]"
+                                               "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                               "[\"name\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_identifier_id_as_space_digit_in_field_25301_5(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"buyer\"]->com.procurement.mdm.model.dto.data.Organization"
+                                               "Reference[\"identifier\"]->com.procurement.mdm.model.dto."
+                                               "data.Identifier[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_identifier_legalName_as_true_25302_6(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["legalName"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei.EI"
+                                               "Request[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"identifier\"]->com.procurement.mdm.model."
+                                               "dto.data.Identifier[\"legalName\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_identifier_uri_as_true_25302_7(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["uri"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"identifier\"]->com.procurement.mdm.model."
+                                               "dto.data.Identifier[\"uri\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_address_streetAddress_as_true_25302_8(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["streetAddress"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) "
+                                               "(through reference chain: com.procurement.mdm.model.dto."
+                                               "data.ei.EIRequest[\"buyer\"]->com.procurement.mdm.model."
+                                               "dto.data.OrganizationReference[\"address\"]->com.procurement."
+                                               "mdm.model.dto.data.Address[\"streetAddress\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_address_postalCode_as_true_25302_9(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["postalCode"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                               "procurement.mdm.exception.InErrorException) (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]"
+                                               "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                               "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                               "[\"postalCode\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_address_addressDetails_locality_scheme_as_true_25302_10(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00", "description": "com.fasterxml.jackson.databind.JsonMapping"
+                                                                    "Exception: (was com.procurement.mdm.exception."
+                                                                    "InErrorException) (through reference chain: "
+                                                                    "com.procurement.mdm.model.dto.data.ei."
+                                                                    "EIRequest[\"buyer\"]->com.procurement.mdm."
+                                                                    "model.dto.data.OrganizationReference"
+                                                                    "[\"address\"]->com.procurement.mdm.model.dto."
+                                                                    "data.Address[\"addressDetails\"]->com."
+                                                                    "procurement.mdm.model.dto.data.AddressDetails"
+                                                                    "[\"locality\"]->com.procurement.mdm.model.dto."
+                                                                    "data.LocalityDetails[\"scheme\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_address_addressDetails_locality_id_as_true_25302_11(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                               "procurement.mdm.exception.InErrorException) (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]"
+                                               "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                               "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                               "[\"addressDetails\"]->com.procurement.mdm.model.dto.data."
+                                               "AddressDetails[\"locality\"]->com.procurement.mdm.model.dto."
+                                               "data.LocalityDetails[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_address_addressDetails_locality_description_as_true_25302_12(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"address\"]->com.procurement.mdm.model."
+                                               "dto.data.Address[\"addressDetails\"]->com.procurement.mdm.model."
+                                               "dto.data.AddressDetails[\"locality\"]->com.procurement.mdm.model."
+                                               "dto.data.LocalityDetails[\"description\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_additionalIdentifiers_id_as_true_25302_13(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00", "description": "com.fasterxml.jackson.databind.JsonMapping"
+                                                                    "Exception: (was com.procurement.mdm.exception."
+                                                                    "InErrorException) (through reference chain: "
+                                                                    "com.procurement.mdm.model.dto.data.ei.EI"
+                                                                    "Request[\"buyer\"]->com.procurement.mdm."
+                                                                    "model.dto.data.OrganizationReference"
+                                                                    "[\"additionalIdentifiers\"]->java.util."
+                                                                    "ArrayList[0]->com.procurement.mdm.model.dto."
+                                                                    "data.Identifier[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_additionalIdentifiers_scheme_as_true_25302_14(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                               "procurement.mdm.exception.InErrorException) (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]"
+                                               "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                               "[\"additionalIdentifiers\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.Identifier[\"scheme\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_additionalIdentifiers_legalName_as_true_25302_15(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"additionalIdentifiers\"]->java.util."
+                                               "ArrayList[0]->com.procurement.mdm.model.dto.data."
+                                               "Identifier[\"legalName\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_additionalIdentifiers_uri_as_space_digit_in_field_25302_16(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"additionalIdentifiers\"]->java.util."
+                                               "ArrayList[0]->com.procurement.mdm.model.dto.data.Identifier"
+                                               "[\"uri\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_contactPoint_name_as_true_25302_17(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["contactPoint"]["name"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"buyer\"]->com.procurement.mdm.model.dto.data.Organization"
+                                               "Reference[\"contactPoint\"]->com.procurement.mdm.model.dto."
+                                               "data.ContactPoint[\"name\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_contactPoint_email_as_true_25302_18(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["contactPoint"]["email"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) "
+                                               "(through reference chain: com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"contactPoint\"]->com.procurement.mdm."
+                                               "model.dto.data.ContactPoint[\"email\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25301")
+    def test_buyer_contactPoint_telephone_as_true_25301_19(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["contactPoint"]["telephone"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"contactPoint\"]->com.procurement."
+                                               "mdm.model.dto.data.ContactPoint[\"telephone\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_contactPoint_faxNumber_as_true_25302_20(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["contactPoint"]["faxNumber"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00", "description": "com.fasterxml.jackson.databind.JsonMapping"
+                                                                    "Exception: (was com.procurement.mdm."
+                                                                    "exception.InErrorException) (through "
+                                                                    "reference chain: com.procurement.mdm.model."
+                                                                    "dto.data.ei.EIRequest[\"buyer\"]->com."
+                                                                    "procurement.mdm.model.dto.data.Organization"
+                                                                    "Reference[\"contactPoint\"]->com.procurement."
+                                                                    "mdm.model.dto.data.ContactPoint[\"faxNumber\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_contactPoint_url_as_true_25302_21(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["contactPoint"]["url"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"contactPoint\"]->com.procurement.mdm."
+                                               "model.dto.data.ContactPoint[\"url\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_deliveryAddress_streetAddress_as_true_25302_22(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) "
+                                               "(through reference chain: com.procurement.mdm.model.dto."
+                                               "data.ei.EIRequest[\"tender\"]->com.procurement.mdm.model."
+                                               "dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList"
+                                               "[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$"
+                                               "Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto."
+                                               "data.ei.EIRequest$Tender$Item$DeliveryAddress[\"streetAddress\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_deliveryAddress_postalCode_as_true_25302_23(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["postalCode"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) "
+                                               "(through reference chain: com.procurement.mdm.model.dto."
+                                               "data.ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto."
+                                               "data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->"
+                                               "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item$DeliveryAddress[\"postalCode\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_deliveryAddress_addressDetails_locality_scheme_as_true_25302_24(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Delivery"
+                                               "Address$AddressDetails[\"locality\"]->com.procurement.mdm.model."
+                                               "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
+                                               "Details$Locality[\"scheme\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_deliveryAddress_addressDetails_locality_id_as_true_25302_25(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
+                                               "Tender[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm."
+                                               "model.dto.data.ei.EIRequest$Tender$Item[\"deliveryAddress\"]->"
+                                               "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
+                                               "DeliveryAddress[\"addressDetails\"]->com.procurement.mdm.model."
+                                               "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails"
+                                               "[\"locality\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
+                                               "Tender$Item$DeliveryAddress$AddressDetails$Locality[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_deliveryAddress_addressDetails_locality_id_as_true_25302_26(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["description"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->"
+                                               "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
+                                               "DeliveryAddress$AddressDetails[\"locality\"]->com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                               "AddressDetails$Locality[\"description\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_description_as_true_25302_27(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["description"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"description\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_classification_id_as_true_25302_28(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) "
+                                               "(through reference chain: com.procurement.mdm.model.dto."
+                                               "data.ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto."
+                                               "data.ei.EIRequest$Tender[\"classification\"]->com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Classification[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_classification_id_as_true_25302_29(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["classification"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                               "procurement.mdm.exception.InErrorException) (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]"
+                                               "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]"
+                                               "->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item[\"classification\"]->com.procurement.mdm."
+                                               "model.dto.data.ei.EIRequest$Tender$Item$Classification[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_additionalClassifications_id_as_true_25302_30(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"additionalClassifications\"]->java.util.ArrayList[0]->"
+                                               "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
+                                               "AdditionalClassification[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_deliveryAddress_addressDetails_country_id_as_true_25302_31(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
+                                               "Tender[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm."
+                                               "model.dto.data.ei.EIRequest$Tender$Item[\"deliveryAddress\"]->"
+                                               "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
+                                               "DeliveryAddress[\"addressDetails\"]->com.procurement.mdm.model."
+                                               "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails"
+                                               "[\"country\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
+                                               "Tender$Item$DeliveryAddress$AddressDetails$Country[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_deliveryAddress_addressDetails_region_id_as_true_25301_32(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                               "procurement.mdm.exception.InErrorException) (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]"
+                                               "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender"
+                                               "[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm."
+                                               "model.dto.data.ei.EIRequest$Tender$Item[\"deliveryAddress\"]->"
+                                               "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
+                                               "DeliveryAddress[\"addressDetails\"]->com.procurement.mdm.model."
+                                               "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails"
+                                               "[\"region\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
+                                               "Tender$Item$DeliveryAddress$AddressDetails$Region[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_quantity_as_true_25302_33(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["quantity"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00", "description": "com.fasterxml.jackson.databind.exc."
+                                                                    "MismatchedInputException: Cannot deserialize "
+                                                                    "instance of `java.math.BigDecimal` out of "
+                                                                    "VALUE_TRUE token\n at [Source: UNKNOWN; line: "
+                                                                    "-1, column: -1] (through reference chain: com."
+                                                                    "procurement.mdm.model.dto.data.ei.EIRequest"
+                                                                    "[\"tender\"]->com.procurement.mdm.model.dto."
+                                                                    "data.ei.EIRequest$Tender[\"items\"]->java.util."
+                                                                    "ArrayList[0]->com.procurement.mdm.model.dto.data."
+                                                                    "ei.EIRequest$Tender$Item[\"quantity\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_tender_items_unit_id_as_true_25302_34(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["unit"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00", "description": "com.fasterxml.jackson.databind.JsonMapping"
+                                                                    "Exception: (was com.procurement.mdm.exception."
+                                                                    "InErrorException) (through reference chain: "
+                                                                    "com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                                                    "[\"tender\"]->com.procurement.mdm.model.dto."
+                                                                    "data.ei.EIRequest$Tender[\"items\"]->java.util."
+                                                                    "ArrayList[0]->com.procurement.mdm.model.dto.data."
+                                                                    "ei.EIRequest$Tender$Item[\"unit\"]->com."
+                                                                    "procurement.mdm.model.dto.data.ei.EIRequest$"
+                                                                    "Tender$Item$Unit[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_planning_budget_period_startDate_as_true_25302_35(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["planning"]["budget"]["period"]["startDate"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: Text "
+                                               "'true' could not be parsed at index 0 (through reference chain: "
+                                               "com.procurement.budget.model.dto.ei.request.EiCreate"
+                                               "[\"planning\"]->com.procurement.budget.model.dto.ei.request."
+                                               "EiCreate$PlanningEiCreate[\"budget\"]->com.procurement.budget."
+                                               "model.dto.ei.request.EiCreate$PlanningEiCreate$BudgetEiCreate"
+                                               "[\"period\"]->com.procurement.budget.model.dto.ocds.Period"
+                                               "[\"startDate\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_planning_budget_period_endDate_as_true_25302_36(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["planning"]["budget"]["period"]["endDate"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.00", "description": "com.fasterxml.jackson.databind.JsonMapping"
+                                                                    "Exception: Text 'true' could not be parsed at "
+                                                                    "index 0 (through reference chain: com."
+                                                                    "procurement.budget.model.dto.ei.request.Ei"
+                                                                    "Create[\"planning\"]->com.procurement.budget."
+                                                                    "model.dto.ei.request.EiCreate$PlanningEiCreate"
+                                                                    "[\"budget\"]->com.procurement.budget.model.dto."
+                                                                    "ei.request.EiCreate$PlanningEiCreate$BudgetEi"
+                                                                    "Create[\"period\"]->com.procurement.budget.model."
+                                                                    "dto.ocds.Period[\"endDate\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_identifier_scheme_as_true_25302_37(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["identifier"]["scheme"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                               "(was com.procurement.mdm.exception.InErrorException) (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"buyer\"]->com.procurement.mdm.model.dto.data."
+                                               "OrganizationReference[\"identifier\"]->com.procurement.mdm."
+                                               "model.dto.data.Identifier[\"scheme\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_address_addressDetails_country_id_as_true_25302_38(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                               "com.procurement.mdm.exception.InErrorException) (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]->"
+                                               "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                               "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                               "[\"addressDetails\"]->com.procurement.mdm.model.dto.data."
+                                               "AddressDetails[\"country\"]->com.procurement.mdm.model.dto.data."
+                                               "CountryDetails[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_address_addressDetails_region_id_as_true_25302_39(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                               "procurement.mdm.exception.InErrorException) (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]"
+                                               "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                               "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                               "[\"addressDetails\"]->com.procurement.mdm.model.dto.data."
+                                               "AddressDetails[\"region\"]->com.procurement.mdm.model.dto.data."
+                                               "RegionDetails[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_details_typeOfBuyer_as_true_25302_40(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["typeOfBuyer"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.exc.MismatchedInputException: "
+                                               "Cannot deserialize instance of `com.procurement.mdm.model.dto."
+                                               "data.TypeOfBuyer` out of VALUE_TRUE token\n at [Source: UNKNOWN; "
+                                               "line: -1, column: -1] (through reference chain: com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest[\"buyer\"]->com.procurement.mdm."
+                                               "model.dto.data.OrganizationReference[\"details\"]->com."
+                                               "procurement.mdm.model.dto.data.Details[\"typeOfBuyer\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_details_mainGeneralActivity_as_true_25302_41(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainGeneralActivity"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.exc.MismatchedInputException: "
+                                               "Cannot deserialize instance of `com.procurement.mdm.model.dto."
+                                               "data.MainGeneralActivity` out of VALUE_TRUE token\n at [Source: "
+                                               "UNKNOWN; line: -1, column: -1] (through reference chain: com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]->com."
+                                               "procurement.mdm.model.dto.data.OrganizationReference[\"details\"]"
+                                               "->com.procurement.mdm.model.dto.data.Details[\"mainGeneral"
+                                               "Activity\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("25302")
+    def test_buyer_details_mainSectoralActivity_as_true_25302_42(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["details"]["mainGeneralActivity"] = True
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.databind.exc.MismatchedInputException: "
+                                               "Cannot deserialize instance of `com.procurement.mdm.model.dto."
+                                               "data.MainGeneralActivity` out of VALUE_TRUE token\n at [Source: "
+                                               "UNKNOWN; line: -1, column: -1] (through reference chain: com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest[\"buyer\"]->com."
+                                               "procurement.mdm.model.dto.data.OrganizationReference[\"details\"]"
+                                               "->com.procurement.mdm.model.dto.data.Details[\"mainGeneral"
+                                               "Activity\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+class TestCheckTheIdInCompiledReleaseHasAnAppropriateValueInTheEiRecord(object):
+    @pytestrail.case("22180")
+    def test_send_the_request_22180_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22180")
+    def test_see_the_result_in_feed_point_22180_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22180")
+    def test_check_the_release_id_field_is_formed_on_the_pattern_cpid_plus_timestamp_22180_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei_release_id = ei_release["releases"][0]["id"]
+        ei_release_timestamp = int(ei_release_id[29:42])
+        convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=cpid, actual_result=ei_release_id[0:28])
+        assert compare_actual_result_and_expected_result(expected_result=convert_timestamp_to_date[0],
+                                                         actual_result=ei_release["releases"][0]["date"])
+        assert compare_actual_result_and_expected_result(expected_result=f"{cpid}" + f"-{str(ei_release_timestamp)}",
+                                                         actual_result=ei_release["releases"][0]["id"])
