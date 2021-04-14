@@ -60,7 +60,7 @@ payload_ei_full_data_model= {
 
                     }
                 },
-                "quantity": 1.0,
+                "quantity": 1,
                 "unit": {
                     "id": "10",
                     "name": "name"
