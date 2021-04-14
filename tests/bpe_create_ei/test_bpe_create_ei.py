@@ -5234,8 +5234,8 @@ class TestCheckThePossibilityToCreateEiOnObligatoryDataModelAddItems(object):
             expected_result="http://statistica.md",
             actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["uri"])
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["buyer"]["contactPoint"],
-            actual_result=ei_release["releases"][0]["parties"][0]["contactPoint"])
+            expected_result=str(payload["buyer"]["contactPoint"]),
+            actual_result=str(ei_release["releases"][0]["parties"][0]["contactPoint"]))
 
 class TestCheckTheStartDateIsLaterThanEndDateForPlanningBudget(object):
     @pytestrail.case("22167")
@@ -5556,7 +5556,7 @@ class TestCheckOnTenderItemsInRelease(object):
         payload["tender"]["items"][0]["description"] = "item_1"
         payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
         payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
-        payload["tender"]["items"][0]["quantity"] = 10
+        payload["tender"]["items"][0]["quantity"] = 10.0
         payload["tender"]["items"][0]["unit"]["id"] = "10"
         payload["tender"]["items"][0]["unit"]["name"] = "name"
         payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = "Khreshchatyk"
