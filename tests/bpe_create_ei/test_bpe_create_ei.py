@@ -1055,7 +1055,6 @@ class TestCheckTheCountryAddressIsFormedCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
@@ -1068,7 +1067,6 @@ class TestCheckTheCountryAddressIsFormedCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
@@ -1096,7 +1094,6 @@ class TestCheckTheCountryAddressIsFormedCorrectly(object):
         actual_result_country_uri = "https://www.iso.org"
         expected_result_country_uri = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["uri"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_id,
                                                          actual_result=actual_result_country_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_scheme,
@@ -1118,7 +1115,6 @@ class TestCheckOnCorrectnessOfEnrichingTheSchemeOfCountry(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22136")
@@ -1131,7 +1127,6 @@ class TestCheckOnCorrectnessOfEnrichingTheSchemeOfCountry(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22136")
@@ -1148,7 +1143,6 @@ class TestCheckOnCorrectnessOfEnrichingTheSchemeOfCountry(object):
         actual_result_country_scheme = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
             "scheme"]
         expected_result_country_scheme = "iso-alpha2"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_scheme,
                                                          actual_result=actual_result_country_scheme)
 
@@ -1164,7 +1158,6 @@ class TestCheckOnCorrectnessOfEnrichingTheUriOfCountry(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22137")
@@ -1177,7 +1170,6 @@ class TestCheckOnCorrectnessOfEnrichingTheUriOfCountry(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22137")
@@ -1194,7 +1186,6 @@ class TestCheckOnCorrectnessOfEnrichingTheUriOfCountry(object):
         actual_result_country_uri = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
             "uri"]
         expected_result_country_uri = "https://www.iso.org"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_uri,
                                                          actual_result=actual_result_country_uri)
 
@@ -1210,7 +1201,6 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfCountry(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22138")
@@ -1223,7 +1213,6 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfCountry(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22138")
@@ -1240,7 +1229,6 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfCountry(object):
         actual_result_country_description = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["description"]
         expected_result_country_description = "Moldova, Republica"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_country_description,
                                                          actual_result=actual_result_country_description)
 
@@ -1282,7 +1270,6 @@ class TestCheckTheRegionAddressIsFormedCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22140")
@@ -1295,7 +1282,6 @@ class TestCheckTheRegionAddressIsFormedCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22140")
@@ -1323,7 +1309,6 @@ class TestCheckTheRegionAddressIsFormedCorrectly(object):
         actual_result_region_uri = "http://statistica.md"
         expected_result_region_uri = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["uri"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_region_id,
                                                          actual_result=actual_result_region_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_region_scheme,
@@ -1345,7 +1330,6 @@ class TestCheckOnCorrectnessOfEnrichingTheSchemeOfRegion(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22141")
@@ -1358,7 +1342,6 @@ class TestCheckOnCorrectnessOfEnrichingTheSchemeOfRegion(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22141")
@@ -1375,7 +1358,6 @@ class TestCheckOnCorrectnessOfEnrichingTheSchemeOfRegion(object):
         actual_result_region_scheme = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
             "scheme"]
         expected_result_region_scheme = "CUATM"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_region_scheme,
                                                          actual_result=actual_result_region_scheme)
 
@@ -1390,7 +1372,6 @@ class TestCheckOnCorrectnessOfEnrichingTheUriOfRegion(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22142")
@@ -1402,7 +1383,6 @@ class TestCheckOnCorrectnessOfEnrichingTheUriOfRegion(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22142")
@@ -1418,7 +1398,6 @@ class TestCheckOnCorrectnessOfEnrichingTheUriOfRegion(object):
         actual_result_region_uri = ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
             "uri"]
         expected_result_region_uri = "http://statistica.md"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_region_uri,
                                                          actual_result=actual_result_region_uri)
 
@@ -1433,7 +1412,6 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfRegion(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22143")
@@ -1445,7 +1423,6 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfRegion(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22143")
@@ -1461,7 +1438,6 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfRegion(object):
         actual_result_region_description = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["description"]
         expected_result_region_description = "Cahul"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_region_description,
                                                          actual_result=actual_result_region_description)
 
@@ -1533,7 +1509,6 @@ class TestCheckTheSuitableLocalityAddressIdCanBeUsed(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22146")
@@ -1547,7 +1522,6 @@ class TestCheckTheSuitableLocalityAddressIdCanBeUsed(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22146")
@@ -1575,7 +1549,6 @@ class TestCheckTheSuitableLocalityAddressIdCanBeUsed(object):
         actual_result_locality_uri = "http://statistica.md"
         expected_result_locality_uri = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["uri"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_id,
                                                          actual_result=actual_result_locality_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_scheme,
@@ -1640,7 +1613,6 @@ class TestCheckTheOtherSchemeForLocalityAddressCanBeUsed(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22148")
@@ -1655,7 +1627,6 @@ class TestCheckTheOtherSchemeForLocalityAddressCanBeUsed(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22148")
@@ -1681,7 +1652,6 @@ class TestCheckTheOtherSchemeForLocalityAddressCanBeUsed(object):
         actual_result_locality_description = \
             ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["description"]
         expected_result_locality_description = "or.Donduşeni (r-l Donduşeni)"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_id,
                                                          actual_result=actual_result_locality_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_locality_scheme,
@@ -1700,7 +1670,6 @@ class TestCheckTheValidSchemeForBuyerIdentifier(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22149")
@@ -1712,7 +1681,6 @@ class TestCheckTheValidSchemeForBuyerIdentifier(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22149")
@@ -1727,7 +1695,6 @@ class TestCheckTheValidSchemeForBuyerIdentifier(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result_identifier_scheme = ei_release["releases"][0]["parties"][0]["identifier"]["scheme"]
         expected_result_identifier_scheme = "MD-IDNO"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_identifier_scheme,
                                                          actual_result=actual_result_identifier_scheme)
 
@@ -1767,7 +1734,6 @@ class TestCheckTheValidValueForTypeOfBuyerField(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22151")
@@ -1779,7 +1745,6 @@ class TestCheckTheValidValueForTypeOfBuyerField(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22151")
@@ -1794,7 +1759,6 @@ class TestCheckTheValidValueForTypeOfBuyerField(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result_type_of_buyer = ei_release["releases"][0]["parties"][0]["details"]["typeOfBuyer"]
         expected_result_type_of_buyer = payload["buyer"]["details"]["typeOfBuyer"] = "MINISTRY"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_type_of_buyer,
                                                          actual_result=actual_result_type_of_buyer)
 
@@ -1843,7 +1807,6 @@ class TestCheckTheValidValueForMainGeneralActivityField(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22153")
@@ -1855,7 +1818,6 @@ class TestCheckTheValidValueForMainGeneralActivityField(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22153")
@@ -1870,7 +1832,6 @@ class TestCheckTheValidValueForMainGeneralActivityField(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["parties"][0]["details"]["mainGeneralActivity"]
         expected_result = payload["buyer"]["details"]["mainGeneralActivity"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
@@ -1923,7 +1884,6 @@ class TestCheckTheValidValueForMainSectoralActivityField(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22155")
@@ -1935,7 +1895,6 @@ class TestCheckTheValidValueForMainSectoralActivityField(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22155")
@@ -1950,7 +1909,6 @@ class TestCheckTheValidValueForMainSectoralActivityField(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = payload["buyer"]["details"]["mainSectoralActivity"]
         expected_result = ei_release["releases"][0]["parties"][0]["details"]["mainSectoralActivity"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
@@ -2005,7 +1963,6 @@ class TestCheckTheCpIdOfEIisFormedCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22157")
@@ -2016,7 +1973,6 @@ class TestCheckTheCpIdOfEIisFormedCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22157")
@@ -2030,7 +1986,6 @@ class TestCheckTheCpIdOfEIisFormedCorrectly(object):
         expected_result_date = message_from_kafka["data"]["operationDate"]
         actual_result_cpid_first_part = cpid[0:15]
         expected_result_cpid_first_part = "ocds-t1s2t3-MD-"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_date,
                                                          actual_result=actual_result_date)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_cpid_first_part,
@@ -2046,7 +2001,6 @@ class TestCheckTheTimestampOfEIocidOfCoincidesWithRequestSentDate(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22158")
@@ -2057,7 +2011,6 @@ class TestCheckTheTimestampOfEIocidOfCoincidesWithRequestSentDate(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22158")
@@ -2075,7 +2028,6 @@ class TestCheckTheTimestampOfEIocidOfCoincidesWithRequestSentDate(object):
         convert_date_to_human_date = convert_timestamp_to_date.strftime("%Y-%m-%dT%H:%M:%SZ")
         actual_result = convert_date_to_human_date
         expected_result = message_from_kafka["data"]["operationDate"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2088,7 +2040,6 @@ class TestCheckTheReleaseDateCoincidesWithRequestSentDate(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22159")
@@ -2099,7 +2050,6 @@ class TestCheckTheReleaseDateCoincidesWithRequestSentDate(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22159")
@@ -2113,7 +2063,6 @@ class TestCheckTheReleaseDateCoincidesWithRequestSentDate(object):
         ei_release = requests.get(url=ei_url).json()
         expected_result = message_from_kafka["data"]["operationDate"]
         actual_result = ei_release["releases"][0]["date"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2126,7 +2075,6 @@ class TestCheckTheIdentificationOfTenderEqualsTheOCIDofTheEI(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22160")
@@ -2137,7 +2085,6 @@ class TestCheckTheIdentificationOfTenderEqualsTheOCIDofTheEI(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22160")
@@ -2151,7 +2098,6 @@ class TestCheckTheIdentificationOfTenderEqualsTheOCIDofTheEI(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = str(is_it_uuid(ei_release['releases'][0]['tender']['id'], 4))
         expected_result = "True"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2164,7 +2110,6 @@ class TestCheckTheStatusOfTTender(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22161")
@@ -2175,7 +2120,6 @@ class TestCheckTheStatusOfTTender(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22161")
@@ -2189,7 +2133,6 @@ class TestCheckTheStatusOfTTender(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["tender"]["status"]
         expected_result = "planning"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2202,7 +2145,6 @@ class TestCheckTheStatusDetailsOfTheTender(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22162")
@@ -2213,7 +2155,6 @@ class TestCheckTheStatusDetailsOfTheTender(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22162")
@@ -2227,7 +2168,6 @@ class TestCheckTheStatusDetailsOfTheTender(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["tender"]["statusDetails"]
         expected_result = "empty"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2240,7 +2180,6 @@ class TesCheckTheBuyerIdentifierIsFormedCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22163")
@@ -2251,7 +2190,6 @@ class TesCheckTheBuyerIdentifierIsFormedCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22163")
@@ -2266,7 +2204,6 @@ class TesCheckTheBuyerIdentifierIsFormedCorrectly(object):
         actual_result = ei_release["releases"][0]["buyer"]["id"]
         expected_result = payload["buyer"]["identifier"]["scheme"] + "-" + \
                           payload["buyer"]["identifier"]["id"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2283,7 +2220,6 @@ class TestCheckTheBudgetIDisTenderClassificationID(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22164")
@@ -2298,7 +2234,6 @@ class TestCheckTheBudgetIDisTenderClassificationID(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22164")
@@ -2316,7 +2251,6 @@ class TestCheckTheBudgetIDisTenderClassificationID(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["planning"]["budget"]["id"]
         expected_result = ei_release["releases"][0]["tender"]["classification"]["id"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=payload["planning"]["budget"]["id"],
                                                          actual_result=ei_release["releases"][0]["planning"]["budget"][
                                                              "id"])
@@ -2335,7 +2269,6 @@ class TestCheckTheValidValueForTheEiPlanningDates(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22165")
@@ -2349,7 +2282,6 @@ class TestCheckTheValidValueForTheEiPlanningDates(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22165")
@@ -2373,7 +2305,6 @@ class TestCheckTheValidValueForTheEiPlanningDates(object):
 
         actual_result_end_date = ei_release["releases"][0]["planning"]["budget"]["period"]["endDate"]
         expected_result_end_date = payload["planning"]["budget"]["period"]["endDate"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_start_date,
                                                          actual_result=actual_result_start_date)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_end_date,
@@ -2647,7 +2578,6 @@ class TestCheckClassificationIdIsSentCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22173")
@@ -2659,7 +2589,6 @@ class TestCheckClassificationIdIsSentCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22173")
@@ -2674,7 +2603,6 @@ class TestCheckClassificationIdIsSentCorrectly(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["tender"]["classification"]["id"]
         expected_result = payload["tender"]["classification"]["id"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2712,7 +2640,6 @@ class TestCheckTheTagHasAppropriateValueInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22175")
@@ -2723,7 +2650,6 @@ class TestCheckTheTagHasAppropriateValueInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22175")
@@ -2737,7 +2663,6 @@ class TestCheckTheTagHasAppropriateValueInTheEiRecord(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["tag"][0]
         expected_result = "compiled"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2750,7 +2675,6 @@ class TestCheckTheDateHasAppropriateValueInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22176")
@@ -2761,7 +2685,6 @@ class TestCheckTheDateHasAppropriateValueInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22176")
@@ -2775,7 +2698,6 @@ class TestCheckTheDateHasAppropriateValueInTheEiRecord(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["date"]
         expected_result = message_from_kafka["data"]["operationDate"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2788,7 +2710,6 @@ class TestCheckTheInitiationTypeHasAnAppropriateValueInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22178")
@@ -2799,7 +2720,6 @@ class TestCheckTheInitiationTypeHasAnAppropriateValueInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22178")
@@ -2813,7 +2733,6 @@ class TestCheckTheInitiationTypeHasAnAppropriateValueInTheEiRecord(object):
         ei_release = requests.get(url=ei_url).json()
         actual_result = ei_release["releases"][0]["initiationType"]
         expected_result = "tender"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -2831,7 +2750,6 @@ class TestCheckThePlanningSectionInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22181")
@@ -2847,7 +2765,6 @@ class TestCheckThePlanningSectionInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22181")
@@ -2870,7 +2787,6 @@ class TestCheckThePlanningSectionInTheEiRecord(object):
         expected_result_period_start_date = payload["planning"]["budget"]["period"]["startDate"]
         actual_result_period_end_date = ei_release["releases"][0]["planning"]["budget"]["period"]["endDate"]
         expected_result_period_end_date = payload["planning"]["budget"]["period"]["endDate"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_budget_id,
                                                          actual_result=actual_result_budget_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_period_start_date,
@@ -2890,7 +2806,6 @@ class TestCheckTheTenderSectionInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22182")
@@ -2903,7 +2818,6 @@ class TestCheckTheTenderSectionInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22182")
@@ -2921,7 +2835,6 @@ class TestCheckTheTenderSectionInTheEiRecord(object):
         expected_result_tender_title = payload["tender"]["title"]
         actual_result_tender_classification_id = ei_release["releases"][0]["tender"]["classification"]["id"]
         expected_result_tender_classification_id = payload["tender"]["classification"]["id"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_tender_title,
                                                          actual_result=actual_result_tender_title)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_tender_classification_id,
@@ -2940,7 +2853,6 @@ class TestCheckThePartiesSectionInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22183")
@@ -2954,7 +2866,6 @@ class TestCheckThePartiesSectionInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22183")
@@ -2974,7 +2885,6 @@ class TestCheckThePartiesSectionInTheEiRecord(object):
                                      payload["buyer"]["identifier"]["id"]
         actual_result_parties_role = ei_release["releases"][0]["parties"][0]["roles"][0]
         expected_result_parties_role = "buyer"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_parties_id,
                                                          actual_result=actual_result_parties_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_parties_role,
@@ -3032,7 +2942,6 @@ class TestCheckTheOtherRolesAreIgnoredInTheEiCreationRequest(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22184")
@@ -3085,7 +2994,6 @@ class TestCheckTheOtherRolesAreIgnoredInTheEiCreationRequest(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22184")
@@ -3150,7 +3058,6 @@ class TestCheckTheOtherRolesAreIgnoredInTheEiCreationRequest(object):
         parties_obj_dict = dict(parties_obj_list[0])
         actual_result_procuring_entity_role = ["procuringEntity"] in parties_obj_dict.values()
         actual_result_buyer_role = ["buyer"] in parties_obj_dict.values()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=str(False),
                                                          actual_result=str(actual_result_procuring_entity_role))
         assert compare_actual_result_and_expected_result(expected_result=str(True),
@@ -3166,7 +3073,6 @@ class TestCheckTheBuyerSectionInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22185")
@@ -3177,7 +3083,6 @@ class TestCheckTheBuyerSectionInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22185")
@@ -3195,7 +3100,6 @@ class TestCheckTheBuyerSectionInTheEiRecord(object):
                                    payload["buyer"]["identifier"]["id"]
         actual_result_buyer_name = ei_release["releases"][0]["buyer"]["name"]
         expected_result_buyer_name = payload["buyer"]["name"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result_buyer_id,
                                                          actual_result=actual_result_buyer_id)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_buyer_name,
@@ -3785,7 +3689,6 @@ class TestCheckThePossibilityToFetXtokenAndCpidAfterEiCreation(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22830")
@@ -3796,7 +3699,6 @@ class TestCheckThePossibilityToFetXtokenAndCpidAfterEiCreation(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -3920,7 +3822,6 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyGoods(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22837")
@@ -3934,7 +3835,6 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyGoods(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22837")
@@ -3951,7 +3851,6 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyGoods(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"]
         expected_result = "goods"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -3967,7 +3866,6 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyWorks(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22838")
@@ -3981,7 +3879,6 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyWorks(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22838")
@@ -3998,7 +3895,6 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyWorks(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"]
         expected_result = "works"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -4014,7 +3910,6 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyServices(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22839")
@@ -4028,7 +3923,6 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyServices(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22839")
@@ -4045,7 +3939,6 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyServices(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"]
         expected_result = "services"
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
@@ -4059,7 +3952,6 @@ class TestCheckTheCountryIdIsSetsCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22840")
@@ -4071,7 +3963,6 @@ class TestCheckTheCountryIdIsSetsCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22840")
@@ -4085,7 +3976,6 @@ class TestCheckTheCountryIdIsSetsCorrectly(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
             "country"]["id"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="MD", actual_result=actual_result)
 
 
@@ -4099,7 +3989,6 @@ class TestCheckTheCountrySchemeIsSetsCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22841")
@@ -4111,7 +4000,6 @@ class TestCheckTheCountrySchemeIsSetsCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22841")
@@ -4125,7 +4013,6 @@ class TestCheckTheCountrySchemeIsSetsCorrectly(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
             "country"]["scheme"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="iso-alpha2", actual_result=actual_result)
 
 
@@ -4139,7 +4026,6 @@ class TestCheckTheCountryDescriptionIsSetsCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22842")
@@ -4151,7 +4037,6 @@ class TestCheckTheCountryDescriptionIsSetsCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22842")
@@ -4165,7 +4050,6 @@ class TestCheckTheCountryDescriptionIsSetsCorrectly(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
             "country"]["description"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="Moldova, Republica",
                                                          actual_result=actual_result)
 
@@ -4180,7 +4064,6 @@ class TestCheckTheCountryUriIsSetsCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22843")
@@ -4192,7 +4075,6 @@ class TestCheckTheCountryUriIsSetsCorrectly(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22843")
@@ -4206,7 +4088,6 @@ class TestCheckTheCountryUriIsSetsCorrectly(object):
         ei_record = requests.get(url=ei_url).json()
         actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
             "country"]["uri"]
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="https://www.iso.org",
                                                          actual_result=actual_result)
 
@@ -4222,7 +4103,6 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22908")
@@ -4235,7 +4115,6 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22908")
@@ -4502,7 +4381,6 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
                 keys_list.append(i)
             if i == "endDate":
                 keys_list.append(i)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[0])
         assert compare_actual_result_and_expected_result(expected_result="version", actual_result=keys_list[1])
         assert compare_actual_result_and_expected_result(expected_result="extensions", actual_result=keys_list[2])
@@ -4929,7 +4807,6 @@ class TestCheckOnItemsAdditionalClassificationsIsSupplementedWithSchemeAndDescri
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("23994")
@@ -4941,7 +4818,6 @@ class TestCheckOnItemsAdditionalClassificationsIsSupplementedWithSchemeAndDescri
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("23994")
@@ -4954,7 +4830,6 @@ class TestCheckOnItemsAdditionalClassificationsIsSupplementedWithSchemeAndDescri
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="CPVS", actual_result=
         ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["scheme"])
         assert compare_actual_result_and_expected_result(
@@ -4974,7 +4849,6 @@ class TestCheckOnItemClassificationIsSupplementedWithSchemeAndDescription(object
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("23996")
@@ -4986,7 +4860,6 @@ class TestCheckOnItemClassificationIsSupplementedWithSchemeAndDescription(object
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("23996")
@@ -4999,7 +4872,6 @@ class TestCheckOnItemClassificationIsSupplementedWithSchemeAndDescription(object
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="CPV", actual_result=ei_release[
             "releases"][0]["tender"]["items"][0]["classification"]["scheme"])
         assert compare_actual_result_and_expected_result(
@@ -5044,7 +4916,6 @@ class TestCheckOnItemsUnitIsSupplementedWithNameById(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("23998")
@@ -5056,7 +4927,6 @@ class TestCheckOnItemsUnitIsSupplementedWithNameById(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("23998")
@@ -5069,7 +4939,6 @@ class TestCheckOnItemsUnitIsSupplementedWithNameById(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result="Milion decalitri",
                                                          actual_result=ei_release["releases"][0]["tender"][
                                                              "items"][0]["unit"]["name"])
@@ -5112,7 +4981,6 @@ class TestCheckOnDeliveryAddressAddressDetailsCountryObjectIsSupplementedWithSch
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24000")
@@ -5124,7 +4992,6 @@ class TestCheckOnDeliveryAddressAddressDetailsCountryObjectIsSupplementedWithSch
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24000")
@@ -5137,7 +5004,6 @@ class TestCheckOnDeliveryAddressAddressDetailsCountryObjectIsSupplementedWithSch
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(
             expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"],
             actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
@@ -5166,7 +5032,6 @@ class TestCheckThePossibilityToCreateEiOnObligatoryDataModelAddItems(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22133")
@@ -5177,7 +5042,6 @@ class TestCheckThePossibilityToCreateEiOnObligatoryDataModelAddItems(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22133")
@@ -5189,7 +5053,6 @@ class TestCheckThePossibilityToCreateEiOnObligatoryDataModelAddItems(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(
             expected_result=payload["tender"]["title"], actual_result=ei_release["releases"][0]["tender"]["title"])
         assert compare_actual_result_and_expected_result(
@@ -5335,7 +5198,6 @@ class TestCheckOnDeliveryAddressAddressDetailsRegionObjectIsSupplementedWithSche
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24002")
@@ -5347,7 +5209,6 @@ class TestCheckOnDeliveryAddressAddressDetailsRegionObjectIsSupplementedWithSche
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24002")
@@ -5360,7 +5221,6 @@ class TestCheckOnDeliveryAddressAddressDetailsRegionObjectIsSupplementedWithSche
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(
             expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"],
             actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
@@ -5445,7 +5305,6 @@ class TestCheckOnDeliveryAddressAddressDetailsLocalityObjectIsSupplementedWithDe
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24005")
@@ -5459,7 +5318,6 @@ class TestCheckOnDeliveryAddressAddressDetailsLocalityObjectIsSupplementedWithDe
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24005")
@@ -5474,7 +5332,6 @@ class TestCheckOnDeliveryAddressAddressDetailsLocalityObjectIsSupplementedWithDe
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(
             expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"],
             actual_result=
@@ -5506,7 +5363,6 @@ class TestCheckOnPossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalitySche
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24006")
@@ -5520,7 +5376,6 @@ class TestCheckOnPossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalitySche
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24006")
@@ -5535,7 +5390,6 @@ class TestCheckOnPossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalitySche
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(
             expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"],
             actual_result=
@@ -5562,7 +5416,6 @@ class TestCheckOnIfTemporalItemsIdHaveChangedToPermanent(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24011")
@@ -5573,7 +5426,6 @@ class TestCheckOnIfTemporalItemsIdHaveChangedToPermanent(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24011")
@@ -5585,7 +5437,6 @@ class TestCheckOnIfTemporalItemsIdHaveChangedToPermanent(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=str(True), actual_result=str(is_it_uuid(
             ei_release["releases"][0]["tender"]["items"][0]["id"], 4)))
 
@@ -5624,7 +5475,6 @@ class TestCheckOnTenderItemsInRelease(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24012")
@@ -5660,7 +5510,6 @@ class TestCheckOnTenderItemsInRelease(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24012")
@@ -5697,7 +5546,6 @@ class TestCheckOnTenderItemsInRelease(object):
         cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         ei_url = message_from_kafka["data"]["url"] + "/" + cpid
         ei_release = requests.get(url=ei_url).json()
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=str(True), actual_result=str(is_it_uuid(
             ei_release["releases"][0]["tender"]["items"][0]["id"], 4)))
         assert compare_actual_result_and_expected_result(expected_result=payload["tender"]["items"][0]["description"],
@@ -7177,7 +7025,6 @@ class TestCheckTheIdInCompiledReleaseHasAnAppropriateValueInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(create_ei_response.status_code)
         expected_result = str(202)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22180")
@@ -7190,7 +7037,6 @@ class TestCheckTheIdInCompiledReleaseHasAnAppropriateValueInTheEiRecord(object):
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfull())
         expected_result = str(True)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("22180")
@@ -7205,7 +7051,6 @@ class TestCheckTheIdInCompiledReleaseHasAnAppropriateValueInTheEiRecord(object):
         ei_release_id = ei_release["releases"][0]["id"]
         ei_release_timestamp = int(ei_release_id[29:42])
         convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
-        ei.delete_data_from_database()
         assert compare_actual_result_and_expected_result(expected_result=cpid, actual_result=ei_release_id[0:28])
         assert compare_actual_result_and_expected_result(expected_result=convert_timestamp_to_date[0],
                                                          actual_result=ei_release["releases"][0]["date"])
