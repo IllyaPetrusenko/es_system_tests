@@ -1,10 +1,12 @@
 import copy
 import datetime
+import json
 
 import requests
 from pytest_testrail.plugin import pytestrail
 from tests.essences.ei import EI
 from tests.payloads.ei_payload import payload_ei_full_data_model
+from tests.presets import choose_instance
 from useful_functions import compare_actual_result_and_expected_result, get_human_date_in_utc_format, is_it_uuid, \
     get_period
 
@@ -3833,6 +3835,7 @@ class TestCheckTheImpossibilityToCreateEiWithEmptyValueInaCpvCode(object):
         expected_result = str([{"code": "400.20.00.06", "description": "Cpv code not found. "}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
+
 class TestCheckTheImpossibilityToCreateEiWithBooleanTypeAsTheCpv(object):
     @pytestrail.case("22835")
     def test_send_the_request_22835_1(self, country, language):
@@ -3885,1367 +3888,1878 @@ class TestCheckTheImpossibilityToCreateEiWithTheIncorrectCpv(object):
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00.06", "description": "Cpv code not found. "}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheMainProcurementCategoryIsSetCorrectlyGoods(object):
+    @pytestrail.case("22837")
+    def test_send_the_request_22837_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "24200000-6"
+        payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
+        payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22837")
+    def test_see_the_result_in_feed_point_22837_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "24200000-6"
+        payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
+        payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22837")
+    def test_Check_the_attribute_records_compiledRelease_tender_mainProcurementCategory_22837_3(self, country,
+                                                                                                language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "24200000-6"
+        payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
+        payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        ei_url = message_from_kafka["data"]["url"]
+        ei_record = requests.get(url=ei_url).json()
+        actual_result = ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"]
+        expected_result = "goods"
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheMainProcurementCategoryIsSetCorrectlyWorks(object):
+    @pytestrail.case("22838")
+    def test_send_the_request_22838_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "45100000-8"
+        payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
+        payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22838")
+    def test_see_the_result_in_feed_point_22838_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "45100000-8"
+        payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
+        payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22838")
+    def test_Check_the_attribute_records_compiledRelease_tender_mainProcurementCategory_22838_3(self, country,
+                                                                                                language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "45100000-8"
+        payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
+        payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        ei_url = message_from_kafka["data"]["url"]
+        ei_record = requests.get(url=ei_url).json()
+        actual_result = ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"]
+        expected_result = "works"
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheMainProcurementCategoryIsSetCorrectlyServices(object):
+    @pytestrail.case("22839")
+    def test_send_the_request_22839_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "76100000-4"
+        payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
+        payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22839")
+    def test_see_the_result_in_feed_point_22839_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "76100000-4"
+        payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
+        payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22839")
+    def test_Check_the_attribute_records_compiledRelease_tender_mainProcurementCategory_22839_3(self, country,
+                                                                                                language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "76100000-4"
+        payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
+        payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        ei_url = message_from_kafka["data"]["url"]
+        ei_record = requests.get(url=ei_url).json()
+        actual_result = ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"]
+        expected_result = "services"
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckTheCountryIdIsSetsCorrectly(object):
+    @pytestrail.case("22840")
+    def test_send_the_request_22840_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22840")
+    def test_see_the_result_in_feed_point_22840_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22840")
+    def test_check_the_attribute_in_parties_address_addressDetails_country_id_22840_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        ei_url = message_from_kafka["data"]["url"]
+        ei_record = requests.get(url=ei_url).json()
+        actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
+            "country"]["id"]
+        assert compare_actual_result_and_expected_result(expected_result="MD", actual_result=actual_result)
+
+
+class TestCheckTheCountrySchemeIsSetsCorrectly(object):
+    @pytestrail.case("22841")
+    def test_send_the_request_22841_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22841")
+    def test_see_the_result_in_feed_point_22841_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22841")
+    def test_check_the_attribute_in_parties_address_addressDetails_country_scheme_22841_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        ei_url = message_from_kafka["data"]["url"]
+        ei_record = requests.get(url=ei_url).json()
+        actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
+            "country"]["scheme"]
+        assert compare_actual_result_and_expected_result(expected_result="iso-alpha2", actual_result=actual_result)
+
+
+class TestCheckTheCountryDescriptionIsSetsCorrectly(object):
+    @pytestrail.case("22842")
+    def test_send_the_request_22842_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22842")
+    def test_see_the_result_in_feed_point_22842_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22842")
+    def test_check_the_attribute_in_parties_address_addressDetails_country_description_22842_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        ei_url = message_from_kafka["data"]["url"]
+        ei_record = requests.get(url=ei_url).json()
+        actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
+            "country"]["description"]
+        assert compare_actual_result_and_expected_result(expected_result="Moldova, Republica",
+                                                         actual_result=actual_result)
+
+
+class TestCheckTheCountryUriIsSetsCorrectly(object):
+    @pytestrail.case("22843")
+    def test_send_the_request_22843_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22843")
+    def test_see_the_result_in_feed_point_22843_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22843")
+    def test_check_the_attribute_in_parties_address_addressDetails_country_uri_22843_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        ei_url = message_from_kafka["data"]["url"]
+        ei_record = requests.get(url=ei_url).json()
+        actual_result = ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"][
+            "country"]["uri"]
+        assert compare_actual_result_and_expected_result(expected_result="https://www.iso.org",
+                                                         actual_result=actual_result)
+
+
+class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
+    @pytestrail.case("22908")
+    def test_send_the_request_22908_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22908")
+    def test_see_the_result_in_feed_point_22908_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22908")
+    def test_check_the_attributes_of_the_expenditure_item_on_PublicPoint_22908_3(self, country, language):
+        instance = choose_instance()
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["buyer"]["address"]["addressDetails"]["region"]["uri"] = "test fro uri"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei_release_timestamp = int(ei_release["releases"][0]["id"][29:42])
+        convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
+        keys_list = list()
+        for i in ei_release.keys():
+            if i == "uri":
+                keys_list.append(i)
+            if i == "version":
+                keys_list.append(i)
+            if i == "extensions":
+                keys_list.append(i)
+            if i == "publisher":
+                keys_list.append(i)
+            if i == "license":
+                keys_list.append(i)
+            if i == "publicationPolicy":
+                keys_list.append(i)
+            if i == "publishedDate":
+                keys_list.append(i)
+            if i == "releases":
+                keys_list.append(i)
+        for i in ei_release["publisher"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in ei_release["releases"][0].keys():
+            if i == "ocid":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "date":
+                keys_list.append(i)
+            if i == "tag":
+                keys_list.append(i)
+            if i == "language":
+                keys_list.append(i)
+            if i == "initiationType":
+                keys_list.append(i)
+            if i == "tender":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "title":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "status":
+                keys_list.append(i)
+            if i == "statusDetails":
+                keys_list.append(i)
+            if i == "items":
+                keys_list.append(i)
+            if i == "mainProcurementCategory":
+                keys_list.append(i)
+            if i == "classification":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"]["items"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "classification":
+                keys_list.append(i)
+            if i == "additionalClassifications":
+                keys_list.append(i)
+            if i == "quantity":
+                keys_list.append(i)
+            if i == "unit":
+                keys_list.append(i)
+            if i == "deliveryAddress":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"]["items"][0]["classification"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"]["items"][0]["unit"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+            "locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["tender"]["items"][0]["classification"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["buyer"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["parties"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                keys_list.append(i)
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "details":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["parties"][0]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                keys_list.append(i)
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["parties"][0]["additionalIdentifiers"][0].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                keys_list.append(i)
+            if i == "url":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["parties"][0]["details"].keys():
+            if i == "typeOfBuyer":
+                keys_list.append(i)
+            if i == "mainGeneralActivity":
+                keys_list.append(i)
+            if i == "mainSectoralActivity":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["planning"].keys():
+            if i == "budget":
+                keys_list.append(i)
+            if i == "rationale":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["planning"]["budget"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "period":
+                keys_list.append(i)
+        for i in ei_release["releases"][0]["planning"]["budget"]["period"].keys():
+            if i == "startDate":
+                keys_list.append(i)
+            if i == "endDate":
+                keys_list.append(i)
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[0])
+        assert compare_actual_result_and_expected_result(expected_result="version", actual_result=keys_list[1])
+        assert compare_actual_result_and_expected_result(expected_result="extensions", actual_result=keys_list[2])
+        assert compare_actual_result_and_expected_result(expected_result="publisher", actual_result=keys_list[3])
+        assert compare_actual_result_and_expected_result(expected_result="license", actual_result=keys_list[4])
+        assert compare_actual_result_and_expected_result(expected_result="publicationPolicy",
+                                                         actual_result=keys_list[5])
+        assert compare_actual_result_and_expected_result(expected_result="publishedDate", actual_result=keys_list[6])
+        assert compare_actual_result_and_expected_result(expected_result="releases", actual_result=keys_list[7])
+        assert compare_actual_result_and_expected_result(expected_result="name", actual_result=keys_list[8])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[9])
+        assert compare_actual_result_and_expected_result(expected_result="ocid", actual_result=keys_list[10])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[11])
+        assert compare_actual_result_and_expected_result(expected_result="date", actual_result=keys_list[12])
+        assert compare_actual_result_and_expected_result(expected_result="tag", actual_result=keys_list[13])
+        assert compare_actual_result_and_expected_result(expected_result="language", actual_result=keys_list[14])
+        assert compare_actual_result_and_expected_result(expected_result="initiationType", actual_result=keys_list[15])
+        assert compare_actual_result_and_expected_result(expected_result="tender", actual_result=keys_list[16])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[17])
+        assert compare_actual_result_and_expected_result(expected_result="title", actual_result=keys_list[18])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[19])
+        assert compare_actual_result_and_expected_result(expected_result="status", actual_result=keys_list[20])
+        assert compare_actual_result_and_expected_result(expected_result="statusDetails", actual_result=keys_list[21])
+        assert compare_actual_result_and_expected_result(expected_result="items", actual_result=keys_list[22])
+        assert compare_actual_result_and_expected_result(expected_result="mainProcurementCategory",
+                                                         actual_result=keys_list[23])
+        assert compare_actual_result_and_expected_result(expected_result="classification", actual_result=keys_list[24])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[25])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[26])
+        assert compare_actual_result_and_expected_result(expected_result="classification", actual_result=keys_list[27])
+        assert compare_actual_result_and_expected_result(expected_result="additionalClassifications",
+                                                         actual_result=keys_list[28])
+        assert compare_actual_result_and_expected_result(expected_result="quantity", actual_result=keys_list[29])
+        assert compare_actual_result_and_expected_result(expected_result="unit", actual_result=keys_list[30])
+        assert compare_actual_result_and_expected_result(expected_result="deliveryAddress", actual_result=keys_list[31])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[32])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[33])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[34])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[35])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[36])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[37])
+        assert compare_actual_result_and_expected_result(expected_result="name", actual_result=keys_list[38])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[39])
+        assert compare_actual_result_and_expected_result(expected_result="streetAddress", actual_result=keys_list[40])
+        assert compare_actual_result_and_expected_result(expected_result="postalCode", actual_result=keys_list[41])
+        assert compare_actual_result_and_expected_result(expected_result="country", actual_result=keys_list[42])
+        assert compare_actual_result_and_expected_result(expected_result="region", actual_result=keys_list[43])
+        assert compare_actual_result_and_expected_result(expected_result="locality", actual_result=keys_list[44])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[45])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[46])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[47])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[48])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[49])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[50])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[51])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[52])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[53])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[54])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[55])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[56])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[57])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[58])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[59])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[60])
+        assert compare_actual_result_and_expected_result(expected_result="name", actual_result=keys_list[61])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[62])
+        assert compare_actual_result_and_expected_result(expected_result="name", actual_result=keys_list[63])
+        assert compare_actual_result_and_expected_result(expected_result="identifier", actual_result=keys_list[64])
+        assert compare_actual_result_and_expected_result(expected_result="address", actual_result=keys_list[65])
+        assert compare_actual_result_and_expected_result(expected_result="additionalIdentifiers",
+                                                         actual_result=keys_list[66])
+        assert compare_actual_result_and_expected_result(expected_result="contactPoint", actual_result=keys_list[67])
+        assert compare_actual_result_and_expected_result(expected_result="details", actual_result=keys_list[68])
+        assert compare_actual_result_and_expected_result(expected_result="roles", actual_result=keys_list[69])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[70])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[71])
+        assert compare_actual_result_and_expected_result(expected_result="legalName", actual_result=keys_list[72])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[73])
+        assert compare_actual_result_and_expected_result(expected_result="streetAddress", actual_result=keys_list[74])
+        assert compare_actual_result_and_expected_result(expected_result="postalCode", actual_result=keys_list[75])
+        assert compare_actual_result_and_expected_result(expected_result="addressDetails", actual_result=keys_list[76])
+        assert compare_actual_result_and_expected_result(expected_result="country", actual_result=keys_list[77])
+        assert compare_actual_result_and_expected_result(expected_result="region", actual_result=keys_list[78])
+        assert compare_actual_result_and_expected_result(expected_result="locality", actual_result=keys_list[79])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[80])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[81])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[82])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[83])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[84])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[85])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[86])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[87])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[88])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[89])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[90])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[91])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[92])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[93])
+        assert compare_actual_result_and_expected_result(expected_result="legalName", actual_result=keys_list[94])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[95])
+        assert compare_actual_result_and_expected_result(expected_result="name", actual_result=keys_list[96])
+        assert compare_actual_result_and_expected_result(expected_result="email", actual_result=keys_list[97])
+        assert compare_actual_result_and_expected_result(expected_result="telephone", actual_result=keys_list[98])
+        assert compare_actual_result_and_expected_result(expected_result="faxNumber", actual_result=keys_list[99])
+        assert compare_actual_result_and_expected_result(expected_result="url", actual_result=keys_list[100])
+        assert compare_actual_result_and_expected_result(expected_result="typeOfBuyer", actual_result=keys_list[101])
+        assert compare_actual_result_and_expected_result(expected_result="mainGeneralActivity",
+                                                         actual_result=keys_list[102])
+        assert compare_actual_result_and_expected_result(expected_result="mainSectoralActivity",
+                                                         actual_result=keys_list[103])
+        assert compare_actual_result_and_expected_result(expected_result="budget", actual_result=keys_list[104])
+        assert compare_actual_result_and_expected_result(expected_result="rationale", actual_result=keys_list[105])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[106])
+        assert compare_actual_result_and_expected_result(expected_result="period", actual_result=keys_list[107])
+        assert compare_actual_result_and_expected_result(expected_result="startDate", actual_result=keys_list[108])
+        assert compare_actual_result_and_expected_result(expected_result="endDate", actual_result=keys_list[109])
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=f"http://dev.public.eprocurement.systems/budgets/{cpid}/{cpid}",
+            actual_result=ei_release["uri"])
+        assert compare_actual_result_and_expected_result(expected_result="666", actual_result=ei_release["version"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/"
+                            "extension.json", actual_result=ei_release["extensions"][0])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
+                            "extension.js222", actual_result=ei_release["extensions"][1])
+        assert compare_actual_result_and_expected_result(
+            expected_result=instance.upper() + "-ENV", actual_result=ei_release["publisher"]["name"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://www.ustudio.com", actual_result=ei_release["publisher"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://opendefinition.org/licenses/222", actual_result=ei_release["license"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://opendefinition.org/licenses/222", actual_result=ei_release["publicationPolicy"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"], actual_result=ei_release["publishedDate"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=cpid, actual_result=ei_release["releases"][0]["ocid"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=cpid, actual_result=ei_release["releases"][0]["id"][0:28])
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"], actual_result=convert_timestamp_to_date[0])
+        assert compare_actual_result_and_expected_result(expected_result=message_from_kafka["data"]["operationDate"],
+                                                         actual_result=ei_release["releases"][0]["date"])
+        assert compare_actual_result_and_expected_result(expected_result="compiled",
+                                                         actual_result=ei_release["releases"][0]["tag"][0])
+        assert compare_actual_result_and_expected_result(expected_result=language,
+                                                         actual_result=ei_release["releases"][0]["language"])
+        assert compare_actual_result_and_expected_result(expected_result="tender",
+                                                         actual_result=ei_release["releases"][0]["initiationType"])
+        assert compare_actual_result_and_expected_result(expected_result=str(True), actual_result=str(is_it_uuid(
+            ei_release["releases"][0]["tender"]["id"], 4)))
+        assert compare_actual_result_and_expected_result(expected_result=payload["tender"]["title"],
+                                                         actual_result=ei_release["releases"][0]["tender"]["title"])
+        assert compare_actual_result_and_expected_result(expected_result=payload["tender"]["description"],
+                                                         actual_result=ei_release["releases"][0]["tender"][
+                                                             "description"])
+        assert compare_actual_result_and_expected_result(expected_result="planning",
+                                                         actual_result=ei_release["releases"][0]["tender"]["status"])
+        assert compare_actual_result_and_expected_result(expected_result="empty",
+                                                         actual_result=ei_release["releases"][0]["tender"][
+                                                             "statusDetails"])
+        assert compare_actual_result_and_expected_result(expected_result=str(True), actual_result=str(is_it_uuid(
+            ei_release["releases"][0]["tender"]["items"][0]["id"], 4)))
+        assert compare_actual_result_and_expected_result(expected_result=payload["tender"]["items"][0]["description"],
+                                                         actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                                                             "description"])
+        assert compare_actual_result_and_expected_result(expected_result="CPV", actual_result=ei_release[
+            "releases"][0]["tender"]["items"][0]["classification"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["classification"]["id"], actual_result=ei_release[
+                "releases"][0]["tender"]["items"][0]["classification"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Lucrări de pregătire a şantierului", actual_result=ei_release[
+                "releases"][0]["tender"]["items"][0]["classification"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CPVS",
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["additionalClassifications"][0]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Oţel carbon",
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0][
+                "description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["quantity"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["quantity"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Parsec", actual_result=ei_release["releases"][0]["tender"]["items"][0]["unit"]["name"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["unit"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["unit"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["streetAddress"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["postalCode"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["postalCode"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="iso-alpha2", actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "country"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Moldova, Republica", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["country"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://www.iso.org", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["country"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CUATM", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["region"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "region"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Cahul", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["region"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://statistica.md", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["region"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "locality"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "locality"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="mun.Cahul", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://statistica.md", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["locality"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="works", actual_result=ei_release["releases"][0]["tender"]["mainProcurementCategory"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["classification"]["scheme"],
+            actual_result=ei_release["releases"][0]["tender"]["classification"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["classification"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["classification"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Lucrări de pregătire a şantierului",
+            actual_result=ei_release["releases"][0]["tender"]["classification"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"]["scheme"] + "-" + payload["buyer"]["identifier"]["id"],
+            actual_result=ei_release["releases"][0]["buyer"]["id"])
+        assert compare_actual_result_and_expected_result(expected_result=payload["buyer"]["identifier"]["legalName"],
+                                                         actual_result=ei_release["releases"][0]["buyer"]["name"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"]["scheme"] + "-" + payload["buyer"]["identifier"]["id"],
+            actual_result=ei_release["releases"][0]["parties"][0]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"]["legalName"],
+            actual_result=ei_release["releases"][0]["parties"][0]["name"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"]["scheme"],
+            actual_result=ei_release["releases"][0]["parties"][0]["identifier"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"]["id"],
+            actual_result=ei_release["releases"][0]["parties"][0]["identifier"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"]["legalName"],
+            actual_result=ei_release["releases"][0]["parties"][0]["identifier"]["legalName"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"]["uri"],
+            actual_result=ei_release["releases"][0]["parties"][0]["identifier"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["address"]["streetAddress"],
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["streetAddress"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["address"]["postalCode"],
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["postalCode"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="iso-alpha2",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["address"]["addressDetails"]["country"]["id"],
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Moldova, Republica", actual_result=ei_release["releases"][0]["parties"][0]["address"][
+                "addressDetails"]["country"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://www.iso.org", actual_result=ei_release["releases"][0]["parties"][0]["address"][
+                "addressDetails"]["country"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CUATM",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["address"]["addressDetails"]["region"]["id"],
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Cahul", actual_result=ei_release["releases"][0]["parties"][0]["address"][
+                "addressDetails"]["region"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://statistica.md", actual_result=ei_release["releases"][0]["parties"][0]["address"][
+                "addressDetails"]["region"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CUATM",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="mun.Cahul", actual_result=ei_release["releases"][0]["parties"][0]["address"][
+                "addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://statistica.md", actual_result=ei_release["releases"][0]["parties"][0]["address"][
+                "addressDetails"]["locality"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["additionalIdentifiers"][0]["scheme"],
+            actual_result=ei_release["releases"][0]["parties"][0]["additionalIdentifiers"][0]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["additionalIdentifiers"][0]["id"],
+            actual_result=ei_release["releases"][0]["parties"][0]["additionalIdentifiers"][0]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["additionalIdentifiers"][0]["legalName"],
+            actual_result=ei_release["releases"][0]["parties"][0]["additionalIdentifiers"][0]["legalName"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["additionalIdentifiers"][0]["uri"],
+            actual_result=ei_release["releases"][0]["parties"][0]["additionalIdentifiers"][0]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["contactPoint"]["name"],
+            actual_result=ei_release["releases"][0]["parties"][0]["contactPoint"]["name"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["contactPoint"]["email"],
+            actual_result=ei_release["releases"][0]["parties"][0]["contactPoint"]["email"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["contactPoint"]["telephone"],
+            actual_result=ei_release["releases"][0]["parties"][0]["contactPoint"]["telephone"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["contactPoint"]["faxNumber"],
+            actual_result=ei_release["releases"][0]["parties"][0]["contactPoint"]["faxNumber"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["contactPoint"]["url"],
+            actual_result=ei_release["releases"][0]["parties"][0]["contactPoint"]["url"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["details"]["typeOfBuyer"],
+            actual_result=ei_release["releases"][0]["parties"][0]["details"]["typeOfBuyer"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["details"]["mainGeneralActivity"],
+            actual_result=ei_release["releases"][0]["parties"][0]["details"]["mainGeneralActivity"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["details"]["mainSectoralActivity"],
+            actual_result=ei_release["releases"][0]["parties"][0]["details"]["mainSectoralActivity"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="buyer", actual_result=ei_release["releases"][0]["parties"][0]["roles"][0])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["classification"]["id"],
+            actual_result=ei_release["releases"][0]["planning"]["budget"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["startDate"],
+            actual_result=ei_release["releases"][0]["planning"]["budget"]["period"]["startDate"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["endDate"],
+            actual_result=ei_release["releases"][0]["planning"]["budget"]["period"]["endDate"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["rationale"],
+            actual_result=ei_release["releases"][0]["planning"]["rationale"])
+
+class TestCheckOnImpossibilityToCreateEiWithCpvsCodeIdWhichIsNotPresentInTheDictionary(object):
+    @pytestrail.case("23993")
+    def test_send_the_request_23993_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "866zx"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("23993")
+    def test_see_the_result_in_feed_point_23993_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "866zx"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.01.05", "description": "Invalid cpvs code. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+class TestCheckOnImpossibilityToCreateEiWithCpvCodeIdWhichIsNotPresentInTheDictionary(object):
+    @pytestrail.case("23995")
+    def test_send_the_request_23995_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["classification"]["id"] = "86655566"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("23995")
+    def test_see_the_result_in_feed_point_23995_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["classification"]["id"] = "86655566"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.01.03", "description": "Invalid cpv code. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckOnItemsAdditionalClassificationsIsSupplementedWithSchemeAndDescription(object):
+    @pytestrail.case("23994")
+    def test_send_the_request_23994_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("23994")
+    def test_see_the_result_in_feed_point_23994_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("23994")
+    def test_check_items_additionalClassifications_object_23994_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result="CPVS", actual_result=
+        ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["additionalClassifications"][0]["id"], actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["id"])
+        assert compare_actual_result_and_expected_result(expected_result="Oţel carbon", actual_result=ei_release[
+            "releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["description"])
+
+class TestCheckOnItemClassificationIsSupplementedWithSchemeAndDescription(object):
+    @pytestrail.case("23996")
+    def test_send_the_request_23996_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["classification"]["id"] = "45100000-8"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("23996")
+    def test_see_the_result_in_feed_point_23996_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["classification"]["id"] = "45100000-8"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("23996")
+    def test_check_items_classifications_object_23996_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["classification"]["id"] = "45100000-8"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result="CPV", actual_result=ei_release[
+            "releases"][0]["tender"]["items"][0]["classification"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["classification"]["id"], actual_result=ei_release[
+                "releases"][0]["tender"]["items"][0]["classification"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Lucrări de pregătire a şantierului", actual_result=ei_release[
+                "releases"][0]["tender"]["items"][0]["classification"]["description"])
+
+class TestCheckOnImpossibiltyToCreateEiWithItemsUnitIdWhichIsNotPresentInTheDictionary(object):
+    @pytestrail.case("23997")
+    def test_send_the_request_23997_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["unit"]["id"] = "zx10"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("23997")
+    def test_see_the_result_in_feed_point_23997_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["unit"]["id"] = "zx10"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.01.06", "description": "Invalid unit code. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+class TestCheckOnItemsUnitIsSupplementedWithNameById(object):
+    @pytestrail.case("23998")
+    def test_send_the_request_23998_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["unit"]["id"] = "120"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("23998")
+    def test_see_the_result_in_feed_point_23998_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["unit"]["id"] = "120"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("23998")
+    def test_check_the_items_unit_object_in_the_EI_release_23998_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["unit"]["id"] = "120"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result="Milion decalitri",
+                                                         actual_result=ei_release["releases"][0]["tender"][
+                                                             "items"][0]["unit"]["name"])
+        assert compare_actual_result_and_expected_result(expected_result=payload["tender"]["items"][0]["unit"]["id"],
+                                                         actual_result=ei_release["releases"][0]["tender"][
+                                                             "items"][0]["unit"]["id"])
+
+class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsCountryIdIsNotPresentInDictionary(object):
+    @pytestrail.case("23999")
+    def test_send_the_request_23999_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "DE"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("23999")
+    def test_see_the_result_in_feed_point_23999_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "DE"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.01.10", "description": "Invalid country. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+class TestCheckOnDeliveryAddressAddressDetailsCountryObjectIsSupplementedWithSchemeDescriptionUri(object):
+    @pytestrail.case("24000")
+    def test_send_the_request_24000_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24000")
+    def test_see_the_result_in_feed_point_24000_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24000")
+    def test_check_the_deliveryAddress_addressDetails_country_24000_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "country"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="iso-alpha2",
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "country"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Moldova, Republica",
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
+                   "description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://www.iso.org",
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "country"]["uri"])
+
+class TestCheckThePossibilityToCreateEiOnObligatoryDataModelAddItems(object):
+    @pytestrail.case("22133")
+    def test_send_the_request_22133_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22133")
+    def test_see_the_result_in_feed_point_22133_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22133")
+    def test_check_sent_fields_are_published_in_the_EI_release_22133_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["title"], actual_result=ei_release["releases"][0]["tender"]["title"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CPV", actual_result=ei_release["releases"][0]["tender"]["classification"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["classification"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["classification"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Lucrări de pregătire a şantierului",
+            actual_result=ei_release["releases"][0]["tender"]["classification"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["classification"]["id"],
+            actual_result=ei_release["releases"][0]["planning"]["budget"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["startDate"],
+            actual_result=ei_release["releases"][0]["planning"]["budget"]["period"]["startDate"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["endDate"],
+            actual_result=ei_release["releases"][0]["planning"]["budget"]["period"]["endDate"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"]["scheme"] + "-" + payload["buyer"]["identifier"]["id"],
+            actual_result=ei_release["releases"][0]["buyer"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["name"], actual_result=ei_release["releases"][0]["buyer"]["name"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"]["scheme"] + "-" + payload["buyer"]["identifier"]["id"],
+            actual_result=ei_release["releases"][0]["parties"][0]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["name"], actual_result=ei_release["releases"][0]["parties"][0]["name"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"][
+                "scheme"], actual_result=ei_release["releases"][0]["parties"][0]["identifier"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"]["id"],
+            actual_result=ei_release["releases"][0]["parties"][0]["identifier"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["identifier"][
+                "legalName"], actual_result=ei_release["releases"][0]["parties"][0]["identifier"]["legalName"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["address"]["streetAddress"], actual_result=ei_release["releases"][0][
+                "parties"][0]["address"]["streetAddress"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="iso-alpha2",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+                "scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["address"]["addressDetails"]["country"]["id"],
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Moldova, Republica",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+                "description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://www.iso.org",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+                "uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CUATM",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="1700000",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Cahul",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
+                "description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://statistica.md",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CUATM", actual_result=ei_release["releases"][0]["parties"][0]["address"][
+                "addressDetails"]["locality"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="1701000",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://statistica.md",
+            actual_result=ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["buyer"]["contactPoint"],
+            actual_result=ei_release["releases"][0]["parties"][0]["contactPoint"])
+
+class TestCheckTheStartDateIsLaterThanEndDateForPlanningBudget(object):
+    @pytestrail.case("22167")
+    def test_send_the_request_22167_1(self, country, language):
+        budget_period = get_period()
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload['planning']['budget']['period']['startDate'] = budget_period[1]
+        payload["planning"]["budget"]["period"]["endDate"] = budget_period[0]
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("22167")
+    def test_see_the_result_in_feed_point_22167_2(self, country, language):
+        budget_period = get_period()
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload['planning']['budget']['period']['startDate'] = budget_period[1]
+        payload["planning"]["budget"]["period"]["endDate"] = budget_period[0]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.01.01", "description": "Invalid period."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsRegionIdIsNotPresentInDictionary(object):
+    @pytestrail.case("24001")
+    def test_send_the_request_24001_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "ABCD1234"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24001")
+    def test_see_the_result_in_feed_point_24001_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "ABCD1234"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.13", "description": "Region not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+
+class TestCheckOnDeliveryAddressAddressDetailsRegionObjectIsSupplementedWithSchemeDescriptionUri(object):
+    @pytestrail.case("24002")
+    def test_send_the_request_24002_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24002")
+    def test_see_the_result_in_feed_point_24002_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24002")
+    def test_check_deliveryAddress_addressDetails_regionobject_24002_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "region"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CUATM",
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "region"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Cahul",
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "region"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://statistica.md",
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "region"]["uri"])
+
+class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalityIdIsNotPresentInDictionary(object):
+    @pytestrail.case("24003")
+    def test_send_the_request_24003_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "ABCD1234"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24003")
+    def test_see_the_result_in_feed_point_24003_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "ABCD1234"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.14", "description": "Locality not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+class TestCheckOnImpossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalityIdIsNotRelatedToValueOfRegionId(object):
+    @pytestrail.case("24004")
+    def test_send_the_request_24004_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "0101000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24004")
+    def test_see_the_result_in_feed_point_24004_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "0101000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.14", "description": "Locality not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+class TestCheckOnDeliveryAddressAddressDetailsLocalityObjectIsSupplementedWithDescriptionUri(object):
+    @pytestrail.case("24005")
+    def test_send_the_request_24005_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24005")
+    def test_see_the_result_in_feed_point_24005_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24005")
+    def test_checkdeliveryAddress_addressDetails_locality_object_24005_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"],
+            actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+                "id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CUATM", actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+                "scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="mun.Cahul", actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+                "description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://statistica.md", actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+                "uri"])
+
+class TestCheckOnPossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalitySchemeIsNotCuatm(object):
+    @pytestrail.case("24006")
+    def test_send_the_request_24006_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "OTHER"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24006")
+    def test_see_the_result_in_feed_point_24006_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "OTHER"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24006")
+    def test_Check_tender_items_deliveryAddress_addressDetails_locality_object_24006_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "OTHER"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"],
+            actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+                "id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"],
+            actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+                "scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+                "description"], actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+                "description"])
+
+class TestCheckOnIfTemporalItemsIdHaveChangedToPermanent(object):
+    @pytestrail.case("24011")
+    def test_send_the_request_24011_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24011")
+    def test_see_the_result_in_feed_point_24011_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24011")
+    def test_check_tender_items_id_have_changed_to_permanent_24011_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=str(True), actual_result=str(is_it_uuid(
+            ei_release["releases"][0]["tender"]["items"][0]["id"], 4)))
+
+class TestCheckOnTenderItemsInRelease(object):
+    @pytestrail.case("24012")
+    def test_send_the_request_24012_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "45100000-8"
+        payload["tender"]["items"][0]["id"] = "1"
+        payload["tender"]["items"][0]["description"] = "item_1"
+        payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
+        payload["tender"]["items"][0]["quantity"] = 10
+        payload["tender"]["items"][0]["unit"]["id"] = "10"
+        payload["tender"]["items"][0]["unit"]["name"] = "name"
+        payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = "Khreshchatyk"
+        payload["tender"]["items"][0]["deliveryAddress"]["postalCode"] = "01124"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
+            "description"] = "description_1"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["scheme"] = "scheme_1"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["uri"] = "www.deutch"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "0101000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
+            "description"] = "description_2"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["scheme"] = "scheme_2"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["uri"] = "www,regi_16"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "0101000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["uri"] = "ww.io.io"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+            "description"] = "description_test"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24012")
+    def test_see_the_result_in_feed_point_24012_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "45100000-8"
+        payload["tender"]["items"][0]["id"] = "1"
+        payload["tender"]["items"][0]["description"] = "item_1"
+        payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
+        payload["tender"]["items"][0]["quantity"] = 10
+        payload["tender"]["items"][0]["unit"]["id"] = "10"
+        payload["tender"]["items"][0]["unit"]["name"] = "name"
+        payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = "Khreshchatyk"
+        payload["tender"]["items"][0]["deliveryAddress"]["postalCode"] = "01124"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
+            "description"] = "description_1"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["scheme"] = "scheme_1"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["uri"] = "www.deutch"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "0101000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
+            "description"] = "description_2"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["scheme"] = "scheme_2"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["uri"] = "www,regi_16"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "0101000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["uri"] = "ww.io.io"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+            "description"] = "description_test"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfull())
+        expected_result = str(True)
+        ei.delete_data_from_database()
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24012")
+    def test_check_tender_items_object_24012_3(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "45100000-8"
+        payload["tender"]["items"][0]["id"] = "1"
+        payload["tender"]["items"][0]["description"] = "item_1"
+        payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
+        payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
+        payload["tender"]["items"][0]["quantity"] = 10
+        payload["tender"]["items"][0]["unit"]["id"] = "10"
+        payload["tender"]["items"][0]["unit"]["name"] = "name"
+        payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = "Khreshchatyk"
+        payload["tender"]["items"][0]["deliveryAddress"]["postalCode"] = "01124"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
+            "description"] = "description_1"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["scheme"] = "scheme_1"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["uri"] = "www.deutch"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "0101000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
+            "description"] = "description_2"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["scheme"] = "scheme_2"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["uri"] = "www,regi_16"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "0101000"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["uri"] = "ww.io.io"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
+            "description"] = "description_test"
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
+        ei_url = message_from_kafka["data"]["url"] + "/" + cpid
+        ei_release = requests.get(url=ei_url).json()
+        assert compare_actual_result_and_expected_result(expected_result=str(True), actual_result=str(is_it_uuid(
+            ei_release["releases"][0]["tender"]["items"][0]["id"], 4)))
+        assert compare_actual_result_and_expected_result(expected_result=payload["tender"]["items"][0]["description"],
+                                                         actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                                                             "description"])
+        assert compare_actual_result_and_expected_result(expected_result="CPV", actual_result=ei_release[
+            "releases"][0]["tender"]["items"][0]["classification"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["classification"]["id"], actual_result=ei_release[
+                "releases"][0]["tender"]["items"][0]["classification"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Lucrări de valorificare a terenurilor virane", actual_result=ei_release[
+                "releases"][0]["tender"]["items"][0]["classification"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CPVS",
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["additionalClassifications"][0]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Oţel carbon",
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0][
+                "description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["quantity"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["quantity"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Parsec", actual_result=ei_release["releases"][0]["tender"]["items"][0]["unit"]["name"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["unit"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["unit"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["streetAddress"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["postalCode"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["postalCode"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="iso-alpha2", actual_result=
+            ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "country"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="Moldova, Republica", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["country"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://www.iso.org", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["country"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="CUATM", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["region"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "region"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="mun.Chişinău", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["region"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://statistica.md", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["region"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "locality"]["scheme"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"],
+            actual_result=ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
+                "locality"]["id"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="mun.Chişinău", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://statistica.md", actual_result=ei_release["releases"][0]["tender"]["items"][0][
+                "deliveryAddress"]["addressDetails"]["locality"]["uri"])
+
+class TestTenderClassificationIdDoesNotMatchToTenderItemsClassificationIdBy3FirstSymbols(object):
+    @pytestrail.case("24013")
+    def test_send_the_request_24013_1(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "90900000-6"
+        payload["tender"]["items"][0]["classification"]["id"] = "50100000-6"
+        ei = EI(payload=payload, lang=language, country=country)
+        create_ei_response = ei.create_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(create_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+
+    @pytestrail.case("24013")
+    def test_see_the_result_in_feed_point_24013_2(self, country, language):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["classification"]["id"] = "90900000-6"
+        payload["tender"]["items"][0]["classification"]["id"] = "50100000-6"
+        value_of_key = payload["tender"]["items"][0]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country)
+        ei.create_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.00.05", "description": f"Invalid CPV.Invalid CPV code in "
+                                                                       f"classification(s) '{value_of_key}'"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 #
 #
-# @pytestrail.case("22837")
-# @pytest.mark.regression
-# def test_22837_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "76100000-4"
-#     payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
-#     payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22837")
-# @pytest.mark.regression
-# def test_22837_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "76100000-4"
-#     payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
-#     payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22837")
-# @pytest.mark.regression
-# def test_22837_4(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "76100000-4"
-#     payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
-#     payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"]
-#     ei_record = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"] == "services"
-#
-#
-# @pytestrail.case("22838")
-# @pytest.mark.regression
-# def test_22838_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "45100000-8"
-#     payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
-#     payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22838")
-# @pytest.mark.regression
-# def test_22838_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "45100000-8"
-#     payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
-#     payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22838")
-# @pytest.mark.regression
-# def test_22838_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "45100000-8"
-#     payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
-#     payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"]
-#     ei_record = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"] == "works"
-#
-#
-# @pytestrail.case("22839")
-# @pytest.mark.regression
-# def test_22839_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "76100000-4"
-#     payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
-#     payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22839")
-# @pytest.mark.regression
-# def test_22839_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "76100000-4"
-#     payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
-#     payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22839")
-# @pytest.mark.regression
-# def test_22839_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "76100000-4"
-#     payload["planning"]["budget"]["id"] = payload["tender"]["classification"]["id"]
-#     payload["tender"]["items"][0]["classification"]["id"] = payload["tender"]["classification"]["id"]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"]
-#     ei_record = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_record["records"][0]["compiledRelease"]["tender"]["mainProcurementCategory"] == "services"
-#
-#
-# @pytestrail.case("22840")
-# @pytest.mark.regression
-# def test_22840_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22840")
-# @pytest.mark.regression
-# def test_22840_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22840")
-# @pytest.mark.regression
-# def test_22840_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"]
-#     ei_record = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"]["country"][
-#                "id"] == "MD"
-#
-#
-# @pytestrail.case("22841")
-# @pytest.mark.regression
-# def test_22841_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22841")
-# @pytest.mark.regression
-# def test_22841_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22841")
-# @pytest.mark.regression
-# def test_22841_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"]
-#     ei_record = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"]["country"][
-#                "scheme"] == "iso-alpha2"
-#
-#
-# @pytestrail.case("22842")
-# @pytest.mark.regression
-# def test_22842_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22842")
-# @pytest.mark.regression
-# def test_22842_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22842")
-# @pytest.mark.regression
-# def test_22842_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"]
-#     ei_record = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"]["country"][
-#                "description"] == "Moldova, Republica"
-#
-#
-# @pytestrail.case("22843")
-# @pytest.mark.regression
-# def test_22843_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22843")
-# @pytest.mark.regression
-# def test_22843_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22843")
-# @pytest.mark.regression
-# def test_22843_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"]
-#     ei_record = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_record["records"][0]["compiledRelease"]["parties"][0]["address"]["addressDetails"]["country"][
-#                "uri"] == "https://www.iso.org"
-#
-#
-# @pytestrail.case("22908")
-# @pytest.mark.regression
-# def test_22908_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22908")
-# @pytest.mark.regression
-# def test_22908_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("22908")
-# @pytest.mark.regression
-# def test_22908_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     is_uuid_tender_id = is_valid_uuid(ei_release["releases"][0]["tender"]["id"], 4)
-#     is_uuid_item_id = is_valid_uuid(ei_release["releases"][0]["tender"]["items"][0]["id"], 4)
-#     assert is_uuid_tender_id == True
-#     assert is_uuid_item_id == True
-#     assert ei_release["releases"][0]["tender"]["title"] == payload["tender"]['title']
-#
-#     assert ei_release["releases"][0]["tender"]["classification"]["scheme"] == payload["tender"]["classification"][
-#         "scheme"]
-#     assert ei_release["releases"][0]["tender"]["classification"]["id"] == payload["tender"]["classification"]["id"]
-#     assert ei_release["releases"][0]["tender"]["classification"][
-#                "description"] == "Lucrări de pregătire a şantierului"
-#     assert ei_release["releases"][0]["planning"]["budget"]["id"] == payload["tender"]["classification"]["id"]
-#     assert ei_release["releases"][0]["planning"]["budget"]["period"]["startDate"] == \
-#            payload["planning"]["budget"]["period"]["startDate"]
-#     assert ei_release["releases"][0]["planning"]["budget"]["period"]["endDate"] == \
-#            payload["planning"]["budget"]["period"]["endDate"]
-#     assert ei_release["releases"][0]["planning"]["rationale"] == payload["planning"]["rationale"]
-#     assert ei_release["releases"][0]["buyer"]["id"] == payload["buyer"]["identifier"]["scheme"] + "-" + \
-#            payload["buyer"]["identifier"]["id"]
-#     assert ei_release["releases"][0]["buyer"]["name"] == payload["buyer"]["name"]
-#     assert ei_release["releases"][0]["parties"][0]["id"] == payload["buyer"]["identifier"]["scheme"] + "-" + \
-#            payload["buyer"]["identifier"]["id"]
-#     assert ei_release["releases"][0]["parties"][0]["name"] == payload["buyer"]["name"]
-#     assert ei_release["releases"][0]["parties"][0]["identifier"]["scheme"] == payload["buyer"]["identifier"][
-#         "scheme"]
-#     assert ei_release["releases"][0]["parties"][0]["identifier"]["id"] == payload["buyer"]["identifier"]["id"]
-#     assert ei_release["releases"][0]["parties"][0]["identifier"]["legalName"] == payload["buyer"]["identifier"][
-#         "legalName"]
-#     assert ei_release["releases"][0]["parties"][0]["identifier"]["uri"] == payload["buyer"]["identifier"]["uri"]
-#     assert ei_release["releases"][0]["parties"][0]["address"]["streetAddress"] == payload["buyer"]["address"][
-#         "streetAddress"]
-#     assert ei_release["releases"][0]["parties"][0]["address"]["postalCode"] == payload["buyer"]["address"][
-#         "postalCode"]
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
-#                "scheme"] == "iso-alpha2"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["id"] == \
-#            payload["buyer"]["address"]["addressDetails"]["country"]["id"]
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
-#                "description"] == "Moldova, Republica"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
-#                "uri"] == "https://www.iso.org"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["id"] == "1700000"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
-#                "description"] == "Cahul"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
-#                "uri"] == "http://statistica.md"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
-#                "scheme"] == "CUATM"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["id"] == "1701000"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
-#                "uri"] == "http://statistica.md"
-#     assert ei_release["releases"][0]["parties"][0]["additionalIdentifiers"][0] == \
-#            payload["buyer"]["additionalIdentifiers"][0]
-#     assert ei_release["releases"][0]["parties"][0]["contactPoint"] == \
-#            payload["buyer"]["contactPoint"]
-#     assert ei_release["releases"][0]["parties"][0]["details"] == \
-#            payload["buyer"]["details"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["description"] == payload["tender"]["items"][0][
-#         "description"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["classification"]["scheme"] == "CPV"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["classification"]["id"] == \
-#            payload["tender"]["items"][0]["classification"]["id"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["classification"][
-#                "description"] == "Lucrări de pregătire a şantierului"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["scheme"] == "CPVS"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0][
-#                "description"] == "Oţel carbon"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["quantity"] == payload["tender"]["items"][0]["quantity"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["unit"]["name"] == "Parsec"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["unit"]["id"] == payload["tender"]["items"][0]["unit"][
-#         "id"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["streetAddress"] == \
-#            payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["postalCode"] == \
-#            payload["tender"]["items"][0]["deliveryAddress"]["postalCode"]
-#
-#     if payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] == "MD":
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#                    "id"] == \
-#                payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"]
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#                    "scheme"] == "iso-alpha2"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#                    "description"] == "Moldova, Republica"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#                    "uri"] == "https://www.iso.org"
-#     if payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] == "1700000":
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#                    "id"] == "1700000"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#                    "scheme"] == "CUATM"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#                    "description"] == "Cahul"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#                    "uri"] == "http://statistica.md"
-#
-#     if payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] == 'CUATM' and \
-#             payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] == '1701000':
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                    "id"] == "1701000"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                    "scheme"] == "CUATM"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                    "description"] == "mun.Cahul"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                    "uri"] == "http://statistica.md"
-#     elif payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] != "CUATM" and \
-#             payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] == "1701000":
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                    "id"] == "1701000"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                    "scheme"] == payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                    "scheme"]
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                    "description"] == payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                    "description"]
-#
-#
-# @pytestrail.case("23995")
-# @pytest.mark.regression
-# def test_23995_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["classification"]["id"] = "86655566"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("23995")
-# @pytest.mark.regression
-# def test_23995_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["classification"]["id"] = "86655566"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.01.03"
-#     assert message_from_kafka["errors"][0]["description"] == "Invalid cpv code. "
-#
-#
-# @pytestrail.case("23993")
-# @pytest.mark.regression
-# def test_23993_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "866zx"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("23993")
-# @pytest.mark.regression
-# def test_23993_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "866zx"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.01.05"
-#     assert message_from_kafka["errors"][0]["description"] == "Invalid cpvs code. "
-#
-#
-# @pytestrail.case("23994")
-# @pytest.mark.regression
-# def test_23994_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22994")
-# @pytest.mark.regression
-# def test_23994_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("23994")
-# @pytest.mark.regression
-# def test_23994_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["scheme"] == "CPVS"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["id"] == \
-#            payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
-#     if payload["tender"]["items"][0]["additionalClassifications"][0]["id"] == "AA12-4":
-#         assert ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0][
-#                    "description"] == "Oţel carbon"
-#
-#
-# @pytestrail.case("23996")
-# @pytest.mark.regression
-# def test_23996_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["classification"]["id"] = "45100000-8"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22996")
-# @pytest.mark.regression
-# def test_23996_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["classification"]["id"] = "45100000-8"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("23996")
-# @pytest.mark.regression
-# def test_23996_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["classification"]["id"] = "45100000-8"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     if payload["tender"]["items"][0]["classification"]["id"] == "45100000-8":
-#         assert ei_release["releases"][0]["tender"]["items"][0]["classification"]["scheme"] == "CPV"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["classification"]["id"] == \
-#                payload["tender"]["items"][0]["classification"]["id"]
-#         assert ei_release["releases"][0]["tender"]["items"][0]["classification"][
-#                    "description"] == "Lucrări de pregătire a şantierului"
-#
-#
-# @pytestrail.case("23997")
-# @pytest.mark.regression
-# def test_23997_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["unit"]["id"] = "zx10"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("23997")
-# @pytest.mark.regression
-# def test_23997_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["unit"]["id"] = "zx10"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.01.06"
-#     assert message_from_kafka["errors"][0]["description"] == "Invalid unit code. "
-#
-#
-# @pytestrail.case("23998")
-# @pytest.mark.regression
-# def test_23998_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["unit"]["id"] = '120'
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("23998")
-# @pytest.mark.regression
-# def test_23998_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["unit"]["id"] = '120'
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("23998")
-# @pytest.mark.regression
-# def test_23998_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["unit"]["id"] = "120"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     if payload["tender"]["items"][0]["unit"]["id"] == "120":
-#         assert ei_release["releases"][0]["tender"]["items"][0]["unit"]["name"] == "Milion decalitri"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["unit"]["id"] == \
-#                payload["tender"]["items"][0]["unit"]["id"]
-#
-#
-# @pytestrail.case("23999")
-# @pytest.mark.regression
-# def test_23999_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "DE"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("23999")
-# @pytest.mark.regression
-# def test_23999_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "DE"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     time.sleep(3)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.01.10"
-#     assert message_from_kafka["errors"][0]["description"] == "Invalid country. "
-#
-#
-# @pytestrail.case("24000")
-# @pytest.mark.regression
-# def test_24000_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("24000")
-# @pytest.mark.regression
-# def test_24000_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("24000")
-# @pytest.mark.regression
-# def test_24000_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     if payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] == "MD":
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#                    "id"] == payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"]
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#                    "scheme"] == "iso-alpha2"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#                    "description"] == "Moldova, Republica"
-#         assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#                    "uri"] == "https://www.iso.org"
-#
-#
-# @pytestrail.case("22133")
-# @pytest.mark.regression
-# def test_22133_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22133")
-# @pytest.mark.regression
-# def test_22133_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case('22133')
-# @pytest.mark.regression
-# def test_22133_3(self, language, country):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_release["releases"][0]["tender"]["title"] == payload["tender"]["title"]
-#     assert ei_release["releases"][0]["tender"]["classification"]["scheme"] == "CPV"
-#     assert ei_release["releases"][0]["tender"]["classification"]["id"] == payload["tender"]["classification"]["id"]
-#     assert ei_release["releases"][0]["tender"]["classification"][
-#                "description"] == "Lucrări de pregătire a şantierului"
-#     assert ei_release["releases"][0]["planning"]["budget"]["id"] == payload["tender"]["classification"]["id"]
-#     assert ei_release["releases"][0]["planning"]["budget"]["period"]["startDate"] == \
-#            payload["planning"]["budget"]["period"]["startDate"]
-#     assert ei_release["releases"][0]["planning"]["budget"]["period"]["endDate"] == \
-#            payload["planning"]["budget"]["period"]["endDate"]
-#     assert ei_release["releases"][0]["buyer"]["id"] == payload["buyer"]["identifier"]["scheme"] + "-" + \
-#            payload["buyer"]["identifier"]["id"]
-#     assert ei_release["releases"][0]["buyer"]["name"] == payload["buyer"]["name"]
-#     assert ei_release["releases"][0]["parties"][0]["id"] == payload["buyer"]["identifier"]["scheme"] + "-" + \
-#            payload["buyer"]["identifier"]["id"]
-#     assert ei_release["releases"][0]["parties"][0]["name"] == payload["buyer"]["name"]
-#     assert ei_release["releases"][0]["parties"][0]["identifier"]["scheme"] == payload["buyer"]["identifier"][
-#         "scheme"]
-#     assert ei_release["releases"][0]["parties"][0]["identifier"]["id"] == payload["buyer"]["identifier"]["id"]
-#     assert ei_release["releases"][0]["parties"][0]["identifier"]["legalName"] == payload["buyer"]["identifier"][
-#         "legalName"]
-#     assert ei_release["releases"][0]["parties"][0]["address"]["streetAddress"] == payload["buyer"]["address"][
-#         "streetAddress"]
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
-#                "scheme"] == "iso-alpha2"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"]["id"] == \
-#            payload["buyer"]["address"]["addressDetails"]["country"]["id"]
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
-#                "description"] == "Moldova, Republica"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
-#                "uri"] == "https://www.iso.org"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["scheme"] == "CUATM"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"]["id"] == "1700000"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
-#                "description"] == "Cahul"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
-#                "uri"] == "http://statistica.md"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
-#                "scheme"] == "CUATM"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
-#                "description"] == "mun.Cahul"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["id"] == "1701000"
-#     assert ei_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
-#                "uri"] == "http://statistica.md"
-#     assert ei_release["releases"][0]["parties"][0]["contactPoint"] == \
-#            payload["buyer"]["contactPoint"]
-#
-#
-# @pytestrail.case("22167")
-# @pytest.mark.regression
-# def test_22167_1(self, country, language):
-#     ei = EI()
-#     budget_period = get_period()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload['planning']['budget']['period']['startDate'] = budget_period[1]
-#     payload["planning"]["budget"]["period"]["endDate"] = budget_period[0]
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("22167")
-# @pytest.mark.regression
-# def test_22167_2(self, country, language):
-#     ei = EI()
-#     budget_period = get_period()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload['planning']['budget']['period']['startDate'] = budget_period[1]
-#     payload["planning"]["budget"]["period"]["endDate"] = budget_period[0]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.01.01"
-#     assert message_from_kafka["errors"][0]["description"] == "Invalid period."
-#
-#
-# @pytestrail.case("24001")
-# @pytest.mark.regression
-# def test_24001_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "ABCD1234"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("24001")
-# @pytest.mark.regression
-# def test_24001_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "ABCD1234"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.13"
-#     assert message_from_kafka["errors"][0]["description"] == "Region not found. "
-#
-#
-# @pytestrail.case("24002")
-# @pytest.mark.regression
-# def test_24002_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("24002")
-# @pytest.mark.regression
-# def test_24002_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("24002")
-# @pytest.mark.regression
-# def test_24002_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] \
-#            == payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#                "scheme"] == "CUATM"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#                "description"] == "Cahul"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#                "uri"] == "http://statistica.md"
-#
-#
-# @pytestrail.case("24003")
-# @pytest.mark.regression
-# def test_24003_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "ABCD1234"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("24003")
-# @pytest.mark.regression
-# def test_24003_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "ABCD1234"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.14"
-#     assert message_from_kafka["errors"][0]["description"] == "Locality not found. "
-#
-#
-# @pytestrail.case("24004")
-# @pytest.mark.regression
-# def test_24004_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "0101000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("24004")
-# @pytest.mark.regression
-# def test_24004_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "0101000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.20.00.14"
-#     assert message_from_kafka["errors"][0]["description"] == "Locality not found. "
-#
-#
-# @pytestrail.case("24005")
-# @pytest.mark.regression
-# def test_24005_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("24005")
-# @pytest.mark.regression
-# def test_24005_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("24005")
-# @pytest.mark.regression
-# def test_24005_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                "id"] == \
-#            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                "scheme"] == "CUATM"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                "description"] == "mun.Cahul"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                "uri"] == "http://statistica.md"
-#
-#
-# @pytestrail.case("24006")
-# @pytest.mark.regression
-# def test_24006_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "OTHER"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("24006")
-# @pytest.mark.regression
-# def test_24006_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "OTHER"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("24006")
-# @pytest.mark.regression
-# def test_24006_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "1700000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "1701000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "OTHER"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                "id"] == \
-#            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                "scheme"] == payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                "description"] == payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#                "description"]
-#
-#
-# @pytestrail.case("24011")
-# @pytest.mark.regression
-# def test_24011_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["id"] = "1"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("24011")
-# @pytest.mark.regression
-# def test_24011_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["id"] = "1"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("24011")
-# @pytest.mark.regression
-# def test_24011_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["items"][0]["id"] = "1"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     check_id_of_item = is_valid_uuid(ei_release["releases"][0]["tender"]["items"][0]["id"], 4)
-#     assert check_id_of_item == True
-#
-#
-# @pytestrail.case("24013")
-# @pytest.mark.regression
-# def test_24013_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "90900000-6"
-#     payload["tender"]["items"][0]["classification"]["id"] = "50100000-6"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("24013")
-# @pytest.mark.regression
-# def test_24013_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "90900000-6"
-#     payload["tender"]["items"][0]["classification"]["id"] = "50100000-6"
-#     value_of_key = payload["tender"]["items"][0]["classification"]["id"]
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     assert message_from_kafka["errors"][0]["code"] == "400.10.00.05"
-#     assert message_from_kafka["errors"][0]["description"] == f"Invalid CPV.Invalid CPV code in " \
-#                                                              f"classification(s) '{value_of_key}'"
-#
-#
-# @pytestrail.case("24012")
-# @pytest.mark.regression
-# def test_24012_1(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "45100000-8"
-#     payload["tender"]["items"][0]["id"] = "1"
-#     payload["tender"]["items"][0]["description"] = "item_1"
-#     payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
-#     payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
-#     payload["tender"]["items"][0]["quantity"] = 10
-#     payload["tender"]["items"][0]["unit"]["id"] = "10"
-#     payload["tender"]["items"][0]["unit"]["name"] = "name"
-#     payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = "Khreshchatyk"
-#     payload["tender"]["items"][0]["deliveryAddress"]["postalCode"] = "01124"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#         "description"] = "description_1"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["scheme"] = "scheme_1"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["uri"] = "www.deutch"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "0101000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#         "description"] = "description_2"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["scheme"] = "scheme_2"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["uri"] = "www,regi_16"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "0101000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["uri"] = "ww.io.io"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#         "description"] = "description_test"
-#     create_ei_response = ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei.delete_data_from_database(cpid)
-#     assert create_ei_response.text == "ok"
-#     assert create_ei_response.status_code == 202
-#
-#
-# @pytestrail.case("24012")
-# @pytest.mark.regression
-# def test_24012_2(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "45100000-8"
-#     payload["tender"]["items"][0]["id"] = "1"
-#     payload["tender"]["items"][0]["description"] = "item_1"
-#     payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
-#     payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
-#     payload["tender"]["items"][0]["quantity"] = 10
-#     payload["tender"]["items"][0]["unit"]["id"] = "10"
-#     payload["tender"]["items"][0]["unit"]["name"] = "name"
-#     payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = "Khreshchatyk"
-#     payload["tender"]["items"][0]["deliveryAddress"]["postalCode"] = "01124"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#         "description"] = "description_1"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["scheme"] = "scheme_1"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["uri"] = "www.deutch"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "0101000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#         "description"] = "description_2"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["scheme"] = "scheme_2"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["uri"] = "www,regi_16"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "0101000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["uri"] = "ww.io.io"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#         "description"] = "description_test"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     check_cpid = fnmatch.fnmatch(cpid, "ocds-t1s2t3-MD-*")
-#     ei_token = is_it_uuid(message_from_kafka["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-#     ei.delete_data_from_database(cpid)
-#     assert check_cpid == True
-#     assert ei_token == True
-#
-#
-# @pytestrail.case("24012")
-# @pytest.mark.regression
-# def test_24012_3(self, country, language):
-#     ei = EI()
-#     payload = copy.deepcopy(payload_ei_full_data_model)
-#     payload["tender"]["classification"]["id"] = "45100000-8"
-#     payload["tender"]["items"][0]["id"] = "1"
-#     payload["tender"]["items"][0]["description"] = "item_1"
-#     payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
-#     payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
-#     payload["tender"]["items"][0]["quantity"] = 10
-#     payload["tender"]["items"][0]["unit"]["id"] = "10"
-#     payload["tender"]["items"][0]["unit"]["name"] = "name"
-#     payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = "Khreshchatyk"
-#     payload["tender"]["items"][0]["deliveryAddress"]["postalCode"] = "01124"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"] = "MD"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#         "description"] = "description_1"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["scheme"] = "scheme_1"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["uri"] = "www.deutch"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"] = "0101000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#         "description"] = "description_2"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["scheme"] = "scheme_2"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["uri"] = "www,regi_16"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "CUATM"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = "0101000"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["uri"] = "ww.io.io"
-#     payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"][
-#         "description"] = "description_test"
-#     ei.create_request_ei(payload=payload, lang=language, country=country)
-#     message_from_kafka = ei.get_message_from_kafka()
-#     cpid = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
-#     ei_url = message_from_kafka["data"]["url"] + "/" + cpid
-#     ei_release = requests.get(url=ei_url).json()
-#     ei.delete_data_from_database(cpid)
-#     check_id_of_item = is_valid_uuid(ei_release["releases"][0]["tender"]["items"][0]["id"])
-#     assert check_id_of_item == True
-#     assert ei_release["releases"][0]["tender"]["items"][0]["description"] == \
-#            payload["tender"]["items"][0]["description"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["classification"]["scheme"] == "CPV"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["classification"]["id"] == \
-#            payload["tender"]["items"][0]["classification"]["id"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["classification"]["description"] == \
-#            "Lucrări de valorificare a terenurilor virane"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0][
-#                "scheme"] == "CPVS"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["id"] == \
-#            payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0][
-#                "description"] == "Oţel carbon"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["quantity"] == 10
-#     assert ei_release["releases"][0]["tender"]["items"][0]["unit"]["name"] == "Parsec"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["unit"]["id"] == \
-#            payload["tender"]["items"][0]["unit"]["id"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["streetAddress"] == \
-#            payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["postalCode"] == \
-#            payload["tender"]["items"][0]["deliveryAddress"]["postalCode"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#                "scheme"] == "iso-alpha2"
-#     assert \
-#         ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#             "id"] == "MD"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"][
-#                "description"] == "Moldova, Republica"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
-#                "country"]["uri"] == "https://www.iso.org"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
-#                "region"]["scheme"] == "CUATM"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
-#                "region"]["id"] == payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"][
-#                "id"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
-#                "region"]["description"] == "mun.Chişinău"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
-#                "region"]["uri"] == "http://statistica.md"
-#
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
-#                "locality"]["scheme"] == \
-#            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
-#                "locality"]["id"] == \
-#            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"]
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
-#                "locality"]["description"] == "mun.Chişinău"
-#     assert ei_release["releases"][0]["tender"]["items"][0]["deliveryAddress"]["addressDetails"][
-#                "locality"]["uri"] == "http://statistica.md"
 #
 #
 # @pytestrail.case("25301")
