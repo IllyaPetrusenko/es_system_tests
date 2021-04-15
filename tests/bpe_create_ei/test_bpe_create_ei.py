@@ -1,7 +1,5 @@
 import copy
 import datetime
-import json
-
 import requests
 from pytest_testrail.plugin import pytestrail
 from tests.essences.ei import EI
@@ -1065,7 +1063,7 @@ class TestCheckTheCountryAddressIsFormedCorrectly(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -1125,7 +1123,7 @@ class TestCheckOnCorrectnessOfEnrichingTheSchemeOfCountry(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1168,7 +1166,7 @@ class TestCheckOnCorrectnessOfEnrichingTheUriOfCountry(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1211,7 +1209,7 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfCountry(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1280,7 +1278,7 @@ class TestCheckTheRegionAddressIsFormedCorrectly(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1340,7 +1338,7 @@ class TestCheckOnCorrectnessOfEnrichingTheSchemeOfRegion(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1381,7 +1379,7 @@ class TestCheckOnCorrectnessOfEnrichingTheUriOfRegion(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1421,7 +1419,7 @@ class TestCheckOnCorrectnessOfEnrichingTheDescriptionOfRegion(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1520,7 +1518,7 @@ class TestCheckTheSuitableLocalityAddressIdCanBeUsed(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1625,7 +1623,7 @@ class TestCheckTheOtherSchemeForLocalityAddressCanBeUsed(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1679,7 +1677,7 @@ class TestCheckTheValidSchemeForBuyerIdentifier(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1743,7 +1741,7 @@ class TestCheckTheValidValueForTypeOfBuyerField(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1816,7 +1814,7 @@ class TestCheckTheValidValueForMainGeneralActivityField(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1893,7 +1891,7 @@ class TestCheckTheValidValueForMainSectoralActivityField(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -1971,7 +1969,7 @@ class TestCheckTheCpIdOfEIisFormedCorrectly(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2009,7 +2007,7 @@ class TestCheckTheTimestampOfEIocidOfCoincidesWithRequestSentDate(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2048,7 +2046,7 @@ class TestCheckTheReleaseDateCoincidesWithRequestSentDate(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2083,7 +2081,7 @@ class TestCheckTheIdentificationOfTenderEqualsTheOCIDofTheEI(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2118,7 +2116,7 @@ class TestCheckTheStatusOfTTender(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2153,7 +2151,7 @@ class TestCheckTheStatusDetailsOfTheTender(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2188,7 +2186,7 @@ class TesCheckTheBuyerIdentifierIsFormedCorrectly(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2232,7 +2230,7 @@ class TestCheckTheBudgetIDisTenderClassificationID(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2280,7 +2278,7 @@ class TestCheckTheValidValueForTheEiPlanningDates(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2587,7 +2585,7 @@ class TestCheckClassificationIdIsSentCorrectly(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2648,7 +2646,7 @@ class TestCheckTheTagHasAppropriateValueInTheEiRecord(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2683,7 +2681,7 @@ class TestCheckTheDateHasAppropriateValueInTheEiRecord(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2718,7 +2716,7 @@ class TestCheckTheInitiationTypeHasAnAppropriateValueInTheEiRecord(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2763,7 +2761,7 @@ class TestCheckThePlanningSectionInTheEiRecord(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2816,7 +2814,7 @@ class TestCheckTheTenderSectionInTheEiRecord(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2864,7 +2862,7 @@ class TestCheckThePartiesSectionInTheEiRecord(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -2992,7 +2990,7 @@ class TestCheckTheOtherRolesAreIgnoredInTheEiCreationRequest(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -3081,7 +3079,7 @@ class TestCheckTheBuyerSectionInTheEiRecord(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -3697,7 +3695,7 @@ class TestCheckThePossibilityToFetXtokenAndCpidAfterEiCreation(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -3833,7 +3831,7 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyGoods(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -3877,7 +3875,7 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyWorks(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -3921,7 +3919,7 @@ class TestCheckTheMainProcurementCategoryIsSetCorrectlyServices(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -3961,7 +3959,7 @@ class TestCheckTheCountryIdIsSetsCorrectly(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -3998,7 +3996,7 @@ class TestCheckTheCountrySchemeIsSetsCorrectly(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -4035,7 +4033,7 @@ class TestCheckTheCountryDescriptionIsSetsCorrectly(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -4073,7 +4071,7 @@ class TestCheckTheCountryUriIsSetsCorrectly(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -4113,7 +4111,7 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -4816,7 +4814,7 @@ class TestCheckOnItemsAdditionalClassificationsIsSupplementedWithSchemeAndDescri
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -4858,7 +4856,7 @@ class TestCheckOnItemClassificationIsSupplementedWithSchemeAndDescription(object
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -4925,7 +4923,7 @@ class TestCheckOnItemsUnitIsSupplementedWithNameById(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -4990,7 +4988,7 @@ class TestCheckOnDeliveryAddressAddressDetailsCountryObjectIsSupplementedWithSch
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -5040,7 +5038,7 @@ class TestCheckThePossibilityToCreateEiOnObligatoryDataModelAddItems(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -5207,7 +5205,7 @@ class TestCheckOnDeliveryAddressAddressDetailsRegionObjectIsSupplementedWithSche
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -5316,7 +5314,7 @@ class TestCheckOnDeliveryAddressAddressDetailsLocalityObjectIsSupplementedWithDe
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -5374,7 +5372,7 @@ class TestCheckOnPossibiltyToCreateEiIfDeliveryAddressAddressDetailsLocalitySche
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -5424,7 +5422,7 @@ class TestCheckOnIfTemporalItemsIdHaveChangedToPermanent(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -5508,7 +5506,7 @@ class TestCheckOnTenderItemsInRelease(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
@@ -7035,7 +7033,7 @@ class TestCheckTheIdInCompiledReleaseHasAnAppropriateValueInTheEiRecord(object):
         ei = EI(payload=payload, lang=language, country=country)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfull())
+        actual_result = str(ei.check_on_that_message_is_successfull_create_ei())
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
