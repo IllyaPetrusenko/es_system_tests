@@ -233,5 +233,5 @@ def request_update_ei(access_token, x_operation_id, cpid, ei_token, payload):
     allure.attach(x_operation_id, 'X-OPERATION-ID')
     allure.attach(cpid, 'CPID')
     allure.attach(ei_token, 'X-TOKEN')
-    allure.attach(payload, 'PAYLOAD')
+    allure.attach(str(payload), 'PAYLOAD')
     return update_ei_response
