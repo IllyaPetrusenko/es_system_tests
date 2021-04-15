@@ -23,7 +23,11 @@ host = instance[0]
 
 
 class EI:
-    def __init__(self, payload, country='MD', lang='ro'):
+    def __init__(self, payload, country='MD', lang='ro', tender_classification_id="45100000-8",
+                 tender_item_classification_id="45100000-8", planning_budget_id="45100000-8"):
+        self.tender_classification_id = tender_classification_id
+        self.tender_item_classification_id = tender_item_classification_id
+        self.planning_budget_id = planning_budget_id
         self.payload = payload
         self.country = country
         self.lang = lang
@@ -82,7 +86,7 @@ class EI:
                 "status": "planning",
                 "statusDetails": "empty",
                 "classification": {
-                    "id": "45100000-8",
+                    "id": self.tender_classification_id,
                     "scheme": "CPV",
                     "description": "Lucrări de pregătire a şantierului"
                 },
@@ -91,7 +95,7 @@ class EI:
                     "id": "6a565c47-ff11-4e2d-8ea1-3f34c5d751f9",
                     "description": "item 1",
                     "classification": {
-                        "id": "45100000-8",
+                        "id": self.tender_item_classification_id,
                         "description": "Lucrări de pregătire a şantierului",
                         "scheme": "CPV"
                     },
@@ -133,7 +137,7 @@ class EI:
             },
             "planning": {
                 "budget": {
-                    "id": "45100000-8",
+                    "id": self.planning_budget_id,
                     "period": {
                         "startDate": period[0],
                         "endDate": period[1]
@@ -212,7 +216,7 @@ class EI:
                     "description": "item 1",
                     "classification": {
                         "scheme": "CPV",
-                        "id": "45100000-8",
+                        "id": self.tender_item_classification_id,
                         "description": "Lucrări de pregătire a şantierului"
                     },
                     "additionalClassifications": [{
@@ -253,7 +257,7 @@ class EI:
                 "mainProcurementCategory": "works",
                 "classification": {
                     "scheme": "CPV",
-                    "id": "45100000-8",
+                    "id": self.tender_classification_id,
                     "description": "Lucrări de pregătire a şantierului"
                 }
             },
@@ -316,7 +320,7 @@ class EI:
             }],
             "planning": {
                 "budget": {
-                    "id": "45100000-8",
+                    "id": self.planning_budget_id,
                     "period": {
                         "startDate": period[0],
                         "endDate": period[1]
@@ -343,7 +347,7 @@ class EI:
                     "description": "item 1",
                     "classification": {
                         "scheme": "CPV",
-                        "id": "45100000-8",
+                        "id": self.tender_item_classification_id,
                         "description": "Lucrări de pregătire a şantierului"
                     },
                     "additionalClassifications": [{
@@ -384,7 +388,7 @@ class EI:
                 "mainProcurementCategory": "works",
                 "classification": {
                     "scheme": "CPV",
-                    "id": "45100000-8",
+                    "id": self.tender_classification_id,
                     "description": "Lucrări de pregătire a şantierului"
                 }
             },
@@ -447,7 +451,7 @@ class EI:
             }],
             "planning": {
                 "budget": {
-                    "id": "45100000-8",
+                    "id": self.planning_budget_id,
                     "period": {
                         "startDate": period[0],
                         "endDate": period[1]
@@ -515,7 +519,7 @@ class EI:
                 "status": "planning",
                 "statusDetails": "empty",
                 "classification": {
-                    "id": "45100000-8",
+                    "id": self.tender_classification_id,
                     "scheme": "CPV",
                     "description": "Lucrări de pregătire a şantierului"
                 },
@@ -524,7 +528,7 @@ class EI:
                     "id": "6a565c47-ff11-4e2d-8ea1-3f34c5d751f9",
                     "description": "item 1",
                     "classification": {
-                        "id": "45100000-8",
+                        "id": self.tender_item_classification_id,
                         "description": "Lucrări de pregătire a şantierului",
                         "scheme": "CPV"
                     },
@@ -553,7 +557,7 @@ class EI:
             },
             "planning": {
                 "budget": {
-                    "id": "45100000-8",
+                    "id": self.planning_budget_id,
                     "period": {
                         "startDate": period[0],
                         "endDate": period[1]
@@ -615,7 +619,7 @@ class EI:
                     "description": "item 1",
                     "classification": {
                         "scheme": "CPV",
-                        "id": "45100000-8",
+                        "id": self.tender_item_classification_id,
                         "description": "Lucrări de pregătire a şantierului"
                     },
                     "quantity": 10.000,
@@ -643,7 +647,7 @@ class EI:
                 "mainProcurementCategory": "works",
                 "classification": {
                     "scheme": "CPV",
-                    "id": "45100000-8",
+                    "id": self.tender_classification_id,
                     "description": "Lucrări de pregătire a şantierului"
                 }
             },
@@ -691,7 +695,7 @@ class EI:
             }],
             "planning": {
                 "budget": {
-                    "id": "45100000-8",
+                    "id": self.planning_budget_id,
                     "period": {
                         "startDate": period[0],
                         "endDate": period[1]
@@ -717,7 +721,7 @@ class EI:
                     "description": "item 1",
                     "classification": {
                         "scheme": "CPV",
-                        "id": "45100000-8",
+                        "id": self.tender_item_classification_id,
                         "description": "Lucrări de pregătire a şantierului"
                     },
                     "quantity": 10.000,
@@ -745,7 +749,7 @@ class EI:
                 "mainProcurementCategory": "works",
                 "classification": {
                     "scheme": "CPV",
-                    "id": "45100000-8",
+                    "id": self.tender_classification_id,
                     "description": "Lucrări de pregătire a şantierului"
                 }
             },
@@ -793,7 +797,7 @@ class EI:
             }],
             "planning": {
                 "budget": {
-                    "id": "45100000-8",
+                    "id": self.planning_budget_id,
                     "period": {
                         "startDate": period[0],
                         "endDate": period[1]
