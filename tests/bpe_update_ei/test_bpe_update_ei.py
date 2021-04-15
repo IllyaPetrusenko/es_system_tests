@@ -123,9 +123,9 @@ class TestCheckOnImpossibilityUpdateEiIfTokenFromRequestNotEqualTokenFromDB(obje
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
-    class TestCheckOnImpossibilityUpdateEiIfOwnerFromRequestNotEqualOwnerFromDB(object):
-        @pytestrail.case("24444")
-        def test_send_the_request_24444_1(self, country, language):
+class TestCheckOnImpossibilityUpdateEiIfOwnerFromRequestNotEqualOwnerFromDB(object):
+    @pytestrail.case("24444")
+    def test_send_the_request_24444_1(self, country, language):
             access_token = get_access_token_for_platform_two()
             x_operation_id = get_x_operation_id(access_token)
             payload = copy.deepcopy(payload_ei_obligatory_data_model)
@@ -138,8 +138,8 @@ class TestCheckOnImpossibilityUpdateEiIfTokenFromRequestNotEqualTokenFromDB(obje
             assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                              actual_result=actual_result)
 
-        @pytestrail.case("24444")
-        def test_see_the_result_in_feed_point_24444_2(self, country, language):
+    @pytestrail.case("24444")
+    def test_see_the_result_in_feed_point_24444_2(self, country, language):
             access_token = get_access_token_for_platform_two()
             x_operation_id = get_x_operation_id(access_token)
             payload = copy.deepcopy(payload_ei_obligatory_data_model)
