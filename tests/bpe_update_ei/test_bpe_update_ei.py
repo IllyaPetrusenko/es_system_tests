@@ -12,7 +12,7 @@ from tests.essences.ei import EI
 from tests.kafka_messages import get_message_from_kafka
 from tests.payloads.ei_payload import payload_ei_full_data_model, payload_ei_obligatory_data_model
 from tests.presets import set_instance_for_request, update_ei
-from useful_functions import compare_actual_result_and_expected_result
+from useful_functions import compare_actual_result_and_expected_result, request_update_ei
 
 
 class TestCheckOnPossibilityUpdateEiWithObligatoryFieldsInPayloadWithoutTenderItems(object):
@@ -93,54 +93,31 @@ class TestCheckOnPossibilityUpdateEiWithFullDataInPayload(object):
 class TestCheckOnImpossibilityUpdateEiIfTokenFromRequestNotEqualTokenFromDB(object):
     @pytestrail.case("24443")
     def test_send_the_request_24443_1(self, country, language):
-        environment_host = set_instance_for_request()
-        allure.attach(environment_host, 'HOST')
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
-        allure.attach(json.dumps(payload), 'Prepared payload')
         ei = EI(payload=payload, lang=language, country=country)
         insert_ei = ei.insert_ei_full_data_model()
-        print(insert_ei[2])
-        allure.attach(environment_host + update_ei + insert_ei[2], 'URL')
-        update_ei_response = requests.post(
-            url=environment_host + update_ei + insert_ei[2],
-            headers={
-                'Authorization': 'Bearer ' + access_token,
-                'X-OPERATION-ID': x_operation_id,
-                'X-TOKEN': f"{uuid4()}",
-                'Content-Type': 'application/json'},
-            json=payload)
-        actual_result = str(update_ei_response.status_code)
+        update_ei_response = request_update_ei(access_token=access_token, x_operation_id=x_operation_id,
+                                               cpid=insert_ei[2], ei_token=f"{uuid4()}", payload=payload)
         expected_result = str(202)
+        actual_result = str(update_ei_response.status_code)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
     @pytestrail.case("24443")
     def test_see_the_result_in_feed_point_24443_2(self, country, language):
-        environment_host = set_instance_for_request()
-        allure.attach(environment_host, 'HOST')
         access_token = get_access_token_for_platform_one()
         x_operation_id = get_x_operation_id(access_token)
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
-        allure.attach(json.dumps(payload), 'Prepared payload')
         ei = EI(payload=payload, lang=language, country=country)
         insert_ei = ei.insert_ei_full_data_model()
-        print(insert_ei[2])
-        allure.attach(environment_host + update_ei + insert_ei[2], 'URL')
-        requests.post(
-            url=environment_host + update_ei + insert_ei[2],
-            headers={
-                'Authorization': 'Bearer ' + access_token,
-                'X-OPERATION-ID': x_operation_id,
-                'X-TOKEN': f"{uuid4()}",
-                'Content-Type': 'application/json'},
-            json=payload)
+        request_update_ei(access_token=access_token, x_operation_id=x_operation_id,
+                                               cpid=insert_ei[2], ei_token=f"{uuid4()}", payload=payload)
         time.sleep(1.8)
         message_from_kafka = get_message_from_kafka(x_operation_id)
-        allure.attach(json.dumps(message_from_kafka), 'Message in feed-point')
-        actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.10.00.04", "description": "Invalid token."}])
+        actual_result = str(message_from_kafka["errors"])
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 

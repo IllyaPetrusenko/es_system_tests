@@ -476,8 +476,11 @@ class EI:
                         f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
                         f"1609943491271,1609943491271,'{self.cpid + '-' + f'{period[2]}'}',"
                         f"'EI');").one()
-
-        return f"http://dev.public.eprocurement.systems/budgets/{self.cpid}/{self.cpid}", self.ei_token, self.cpid
+        allure.attach(owner, 'OWNER')
+        allure.attach(self.cpid, 'CPID')
+        allure.attach(self.ei_token, 'X-TOKEN')
+        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{self.cpid}", 'URL')
+        return f"http://dev.public.eprocurement.systems/budgets/{self.cpid}", self.ei_token, self.cpid
 
     @allure.step('Insert EI')
     def insert_ei_obligatory_data_model(self):
@@ -818,7 +821,10 @@ class EI:
                         f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
                         f"1609943491271,1609943491271,'{self.cpid + '-' + f'{period[2]}'}',"
                         f"'EI');").one()
-
+        allure.attach(owner, 'OWNER')
+        allure.attach(self.cpid, 'CPID')
+        allure.attach(self.ei_token, 'X-TOKEN')
+        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{self.cpid}", 'URL')
         return f"http://dev.public.eprocurement.systems/budgets/{self.cpid}/{self.cpid}", self.ei_token, self.cpid
 
     @allure.step('Update EI')
@@ -836,11 +842,10 @@ class EI:
         allure.attach(json.dumps(self.payload), 'Prepared payload')
         return ei
 
-    @allure.step('Receive message in feed-point')
+
     def get_message_from_kafka(self):
         time.sleep(1.8)
         message_from_kafka = get_message_from_kafka(self.x_operation_id)
-        allure.attach(json.dumps(message_from_kafka), 'Message in feed-point')
         return message_from_kafka
 
     def delete_data_from_database(self):

@@ -7,6 +7,7 @@ from uuid import UUID
 import allure
 import requests
 from config import host
+from tests.presets import set_instance_for_request, update_ei
 
 
 def is_valid_uuid(uuid_to_test, version=4):
@@ -214,3 +215,23 @@ def compare_actual_result_and_expected_result(expected_result, actual_result):
         return True
     else:
         return False
+
+
+@allure.step('REQUEST_OF_UPDATE_EI')
+def request_update_ei(access_token, x_operation_id, cpid, ei_token, payload):
+    environment_host = set_instance_for_request()
+    update_ei_response = requests.post(
+        url=environment_host + update_ei + cpid,
+        headers={
+            'Authorization': 'Bearer ' + access_token,
+            'X-OPERATION-ID': x_operation_id,
+            'X-TOKEN': ei_token,
+            'Content-Type': 'application/json'},
+        json=payload)
+    allure.attach(environment_host + update_ei + cpid, 'URL')
+    allure.attach(access_token, 'ACCESS_TOKEN')
+    allure.attach(x_operation_id, 'X-OPERATION-ID')
+    allure.attach(cpid, 'CPID')
+    allure.attach(ei_token, 'X-TOKEN')
+    allure.attach(payload, 'PAYLOAD')
+    return update_ei_response
