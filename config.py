@@ -4,10 +4,11 @@ instance = choose_instance()
 if instance == "dev":
     host = 'http://10.0.20.126:8900/api/v1'
     platform_1 = 'Basic dXNlcjpwYXNzd29yZA=='
-
+    platform_2 = 'Basic YXV0b21hdGlvbl91c2VyOnBhc3N3b3Jk'
 elif instance == "sandbox":
     host = 'http://10.0.10.116:8900/api/v1'
     platform_1 = 'Basic dXNlcjpwYXNzd29yZA=='
+    platform_2 = 'Basic YXV0b21hdGlvbl91c2VyOnBhc3N3b3Jk'
 
 kafka_host = 'http://82.144.223.29:5000'
 create_ei = '/do/ei'

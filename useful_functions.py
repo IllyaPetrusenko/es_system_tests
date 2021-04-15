@@ -1,4 +1,5 @@
 import fnmatch
+import json
 import random
 import datetime
 import time
@@ -6,7 +7,7 @@ from uuid import UUID
 
 import allure
 import requests
-from config import host
+from config import host, platform_2
 from tests.presets import set_instance_for_request, update_ei
 
 
@@ -26,12 +27,18 @@ def is_it_uuid(uuid_to_test, version):
     return str(uuid_obj) == uuid_to_test
 
 
+@allure.step('Get access token')
 def get_access_token_for_platform_two():
     access_token = requests.get(
         url=host + '/auth/signin',
         headers={
-            'Authorization': 'Basic YXV0b21hdGlvbl91c2VyOnBhc3N3b3Jk'
-        }).json()['data']['tokens']['access']
+            'Authorization': platform_2
+        }).json()
+    allure.attach(host + '/auth/signin', 'HOST')
+    allure.attach(platform_2, 'Platform credentials for authorization')
+    allure.attach(json.dumps(access_token), 'Response from auth service')
+    access_token = access_token['data']['tokens']['access']
+    allure.attach(str(access_token), 'Access token')
     return access_token
 
 
