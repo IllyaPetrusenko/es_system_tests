@@ -115,7 +115,7 @@ class TestCheckOnImpossibilityUpdateEiIfTokenFromRequestNotEqualTokenFromDB(obje
         ei = EI(payload=payload, lang=language, country=country)
         insert_ei = ei.insert_ei_full_data_model()
         request_update_ei(access_token=access_token, x_operation_id=x_operation_id,
-                                               cpid=insert_ei[2], ei_token=f"{uuid4()}", payload=payload)
+                          cpid=insert_ei[2], ei_token=f"{uuid4()}", payload=payload)
         time.sleep(1.8)
         message_from_kafka = get_message_from_kafka(x_operation_id)
         expected_result = str([{"code": "400.10.00.04", "description": "Invalid token."}])
@@ -123,37 +123,36 @@ class TestCheckOnImpossibilityUpdateEiIfTokenFromRequestNotEqualTokenFromDB(obje
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
+
 class TestCheckOnImpossibilityUpdateEiIfOwnerFromRequestNotEqualOwnerFromDB(object):
     @pytestrail.case("24444")
     def test_send_the_request_24444_1(self, country, language):
-            access_token = get_access_token_for_platform_two()
-            x_operation_id = get_x_operation_id(access_token)
-            payload = copy.deepcopy(payload_ei_obligatory_data_model)
-            ei = EI(payload=payload, lang=language, country=country)
-            insert_ei = ei.insert_ei_full_data_model()
-            update_ei_response = request_update_ei(access_token=access_token, x_operation_id=x_operation_id,
-                                                   cpid=insert_ei[2], ei_token=f"{insert_ei[1]}", payload=payload)
-            expected_result = str(202)
-            actual_result = str(update_ei_response.status_code)
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+        access_token = get_access_token_for_platform_two()
+        x_operation_id = get_x_operation_id(access_token)
+        payload = copy.deepcopy(payload_ei_obligatory_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        insert_ei = ei.insert_ei_full_data_model()
+        update_ei_response = request_update_ei(access_token=access_token, x_operation_id=x_operation_id,
+                                               cpid=insert_ei[2], ei_token=f"{insert_ei[1]}", payload=payload)
+        expected_result = str(202)
+        actual_result = str(update_ei_response.status_code)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
     @pytestrail.case("24444")
     def test_see_the_result_in_feed_point_24444_2(self, country, language):
-            access_token = get_access_token_for_platform_two()
-            x_operation_id = get_x_operation_id(access_token)
-            payload = copy.deepcopy(payload_ei_obligatory_data_model)
-            ei = EI(payload=payload, lang=language, country=country)
-            insert_ei = ei.insert_ei_full_data_model()
-            request_update_ei(access_token=access_token, x_operation_id=x_operation_id,
-                              cpid=insert_ei[2], ei_token=f"{insert_ei[1]}", payload=payload)
-            print(insert_ei[2])
-
-            error_from_DB = execute_cql_from_orchestrator_operation_step(insert_ei[2], 'BudgetUpdateEiTask')
-            expected_result = str([{"code": "400.10.00.03", "description": "Invalid owner."}])
-            actual_result = str(error_from_DB)
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+        access_token = get_access_token_for_platform_two()
+        x_operation_id = get_x_operation_id(access_token)
+        payload = copy.deepcopy(payload_ei_obligatory_data_model)
+        ei = EI(payload=payload, lang=language, country=country)
+        insert_ei = ei.insert_ei_full_data_model()
+        request_update_ei(access_token=access_token, x_operation_id=x_operation_id,
+                          cpid=insert_ei[2], ei_token=f"{insert_ei[1]}", payload=payload)
+        error_from_DB = execute_cql_from_orchestrator_operation_step(insert_ei[2], 'BudgetUpdateEiTask')
+        expected_result = str([{"code": "400.10.00.03", "description": "Invalid owner."}])
+        actual_result = str(error_from_DB["errors"])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
     #
     # @pytestrail.case('24445')
     # def test_24445_1(self):
