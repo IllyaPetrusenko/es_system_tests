@@ -53,7 +53,7 @@ class EI:
         auth_provider = PlainTextAuthProvider(username=username, password=password)
         cluster = Cluster([host], auth_provider=auth_provider)
         session = cluster.connect('ocds')
-        self.ei_token = uuid4()
+        self.ei_token = str(uuid4())
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         self.cpid = prepared_cpid()
         period = get_period()
@@ -67,7 +67,7 @@ class EI:
             "owner": owner,
             "country": "MD",
             "language": "ro",
-            "token": f"{self.ei_token}",
+            "token": self.ei_token,
             "startDate": period[0],
             "timeStamp": period[2],
             "isAuction": False,
@@ -487,7 +487,7 @@ class EI:
         auth_provider = PlainTextAuthProvider(username=username, password=password)
         cluster = Cluster([host], auth_provider=auth_provider)
         session = cluster.connect('ocds')
-        self.ei_token = uuid4()
+        self.ei_token = str(uuid4())
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         self.cpid = prepared_cpid()
         period = get_period()
@@ -501,7 +501,7 @@ class EI:
             "owner": owner,
             "country": "MD",
             "language": "ro",
-            "token": f"{self.ei_token}",
+            "token": self.ei_token,
             "startDate": period[0],
             "timeStamp": period[2],
             "isAuction": False,
@@ -835,7 +835,7 @@ class EI:
             headers={
                 'Authorization': 'Bearer ' + self.access_token,
                 'X-OPERATION-ID': self.x_operation_id,
-                'X-TOKEN': f"{self.ei_token}",
+                'X-TOKEN': self.ei_token,
                 'Content-Type': 'application/json'},
             json=self.payload)
         allure.attach(environment_host + update_ei + self.cpid, 'URL')
