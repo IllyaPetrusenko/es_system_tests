@@ -1,20 +1,11 @@
 import copy
-import json
 import time
 from uuid import uuid4
-
-import allure
-import requests
 from pytest_testrail.plugin import pytestrail
-
 from tests.Cassandra_session import execute_cql_from_orchestrator_operation_step
-from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 from tests.essences.ei import EI
-from tests.kafka_messages import get_message_from_kafka
 from tests.payloads.ei_payload import payload_ei_full_data_model, payload_ei_obligatory_data_model
-from tests.presets import set_instance_for_request, update_ei
-from useful_functions import compare_actual_result_and_expected_result, request_update_ei, \
-    get_access_token_for_platform_two
+from useful_functions import compare_actual_result_and_expected_result, get_access_token_for_platform_two
 
 
 class TestCheckOnPossibilityUpdateEiWithObligatoryFieldsInPayloadWithoutTenderItems(object):
