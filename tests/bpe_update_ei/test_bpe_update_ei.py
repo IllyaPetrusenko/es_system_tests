@@ -109,7 +109,7 @@ class TestCheckOnImpossibilityUpdateEiIfTokenFromRequestNotEqualTokenFromDB(obje
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
         ei = EI(payload=payload, lang=language, country=country, ei_token_update_ei=str(uuid4()))
         ei.insert_ei_full_data_model()
-        update_ei_response = ei.update_ei()
+        ei.update_ei()
         time.sleep(1.8)
         message_from_kafka = ei.get_message_from_kafka()
         expected_result = str([{"code": "400.10.00.04", "description": "Invalid token."}])
