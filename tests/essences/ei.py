@@ -24,15 +24,21 @@ host = instance[0]
 
 class EI:
     def __init__(self, payload, country='MD', lang='ro', tender_classification_id="45100000-8",
-                 tender_item_classification_id="45100000-8", planning_budget_id="45100000-8"):
+                 tender_item_classification_id="45100000-8", planning_budget_id="45100000-8",
+                 access_token=get_access_token_for_platform_one(), ei_token=str(uuid4()), ei_token_update_ei=None):
+        self.ei_token_update_ei = ei_token_update_ei
+        self.ei_token = ei_token
         self.tender_classification_id = tender_classification_id
         self.tender_item_classification_id = tender_item_classification_id
         self.planning_budget_id = planning_budget_id
         self.payload = payload
         self.country = country
         self.lang = lang
-        self.access_token = get_access_token_for_platform_one()
+        self.access_token = access_token
         self.x_operation_id = get_x_operation_id(self.access_token)
+        if ei_token_update_ei is None:
+            self.ei_token_update_ei = self.ei_token
+
 
     @allure.step('Create EI')
     def create_ei(self):
@@ -57,7 +63,6 @@ class EI:
         auth_provider = PlainTextAuthProvider(username=username, password=password)
         cluster = Cluster([host], auth_provider=auth_provider)
         session = cluster.connect('ocds')
-        self.ei_token = str(uuid4())
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         self.cpid = prepared_cpid()
         period = get_period()
@@ -491,7 +496,6 @@ class EI:
         auth_provider = PlainTextAuthProvider(username=username, password=password)
         cluster = Cluster([host], auth_provider=auth_provider)
         session = cluster.connect('ocds')
-        self.ei_token = str(uuid4())
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         self.cpid = prepared_cpid()
         period = get_period()
@@ -839,7 +843,7 @@ class EI:
             headers={
                 'Authorization': 'Bearer ' + self.access_token,
                 'X-OPERATION-ID': self.x_operation_id,
-                'X-TOKEN': self.ei_token,
+                'X-TOKEN': self.ei_token_update_ei,
                 'Content-Type': 'application/json'},
             json=self.payload)
         allure.attach(environment_host + update_ei + self.cpid, 'URL')
