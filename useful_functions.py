@@ -101,7 +101,9 @@ def get_new_period():
     yesterday = yesterday_start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     tomorrow = tomorrow_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     today = date.strftime("%Y-%m-%dT%H:%M:%SZ")
-    return start_date, end_date, yesterday, tomorrow, today
+    start_date_plus_one_year = (duration_start_date + datetime.timedelta(days=365)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_date_plus_one_year = (duration_end_date + datetime.timedelta(days=365)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return start_date, end_date, yesterday, tomorrow, today, start_date_plus_one_year, end_date_plus_one_year
 
 
 def get_contract_period():
