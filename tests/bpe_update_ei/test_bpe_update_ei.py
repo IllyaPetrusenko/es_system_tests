@@ -2322,28 +2322,26 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     @pytestrail.case("24456")
     def test_delete_tender_items_additionalClassifications_id_field_from_the_payload_24456_7(self, country, language):
         payload = copy.deepcopy(payload_ei_full_data_model)
-        del payload["tender"]["items"][0]["additionalClassification"]["id"]
+        del payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
         ei = EI(payload=payload, lang=language, country=country)
         ei.insert_ei_full_data_model()
         ei.update_ei()
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
-        expected_result = str([{"code": "400.20.00", "description": "com.fasterxml.jackson.module.kotlin.Missing"
-                                                                    "KotlinParameterException: Instantiation of "
-                                                                    "[simple type, class com.procurement.mdm.model."
-                                                                    "dto.data.ei.EIRequest$Tender$Item$Classification] "
-                                                                    "value failed for JSON property id due to missing "
-                                                                    "(therefore NULL) value for creator parameter id "
-                                                                    "which is a non-nullable type\n at [Source: "
-                                                                    "UNKNOWN; line: -1, column: -1] (through reference "
-                                                                    "chain: com.procurement.mdm.model.dto.data.ei."
-                                                                    "EIRequest[\"tender\"]->com.procurement.mdm.model."
-                                                                    "dto.data.ei.EIRequest$Tender[\"items\"]->java."
-                                                                    "util.ArrayList[0]->com.procurement.mdm.model.dto."
-                                                                    "data.ei.EIRequest$Tender$Item[\"classification\"]"
-                                                                    "->com.procurement.mdm.model.dto.data.ei.EIRequest"
-                                                                    "$Tender$Item$Classification[\"id\"])"}])
-        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$Additional"
+                                               "Classification] value failed for JSON property id due to "
+                                               "missing (therefore NULL) value for creator parameter id which is "
+                                               "a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                               "(through reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"additionalClassifications\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Additional"
+                                               "Classification[\"id\"])"}])
 
     @pytestrail.case("24456")
     def test_delete_tender_items_deliveryAddress_field_from_the_payload_24456_8(self, country, language):
