@@ -2342,6 +2342,7 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
                                                "[\"additionalClassifications\"]->java.util.ArrayList[0]->com."
                                                "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Additional"
                                                "Classification[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("24456")
     def test_delete_tender_items_deliveryAddress_field_from_the_payload_24456_8(self, country, language):
