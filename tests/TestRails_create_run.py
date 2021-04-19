@@ -28,7 +28,7 @@ import testrail
 client = testrail.APIClient('https://ustudiocompany.testrail.io')  # do not include index.php?/api/v2
 client.user = 'noreply@ustudio.company'  # TestRail email address
 client.password = 'add2uStudio'  # TestRail password or API token
-suite_id = 246
+suite_id = 279
 project_id = 13
 type_of_case = 'smoke'
 
@@ -47,7 +47,7 @@ for case in cases:
 
 post_body = {
     "suite_id": suite_id,
-        "name": "BPE: update EI (open) (This is a new test run for automation)",
+        "name": "BPE: create FS (open) (This is a new test run for automation)",
     "include_all": False,
     "case_ids": li
 
