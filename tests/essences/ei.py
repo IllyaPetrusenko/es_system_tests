@@ -8,12 +8,12 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 from tests.kafka_messages import get_message_from_kafka
-from useful_functions import is_it_uuid, prepared_cpid, get_period, get_access_token_for_platform_two
+from useful_functions import is_it_uuid, prepared_cp_id, get_period, get_access_token_for_platform_two
 
 
 class EI:
     def __init__(self, payload, instance, cassandra_username, cassandra_password, country='MD',
-                 cpid=prepared_cpid(), ei_token=str(uuid4()), ei_token_update_ei=None,
+                 cpid=prepared_cp_id(), ei_token=str(uuid4()), ei_token_update_ei=None,
                  lang='ro', tender_classification_id="45100000-8",
                  tender_item_classification_id="45100000-8", planning_budget_id="45100000-8",
                  platform="platform_one",
