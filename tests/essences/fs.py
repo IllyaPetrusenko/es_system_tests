@@ -8,25 +8,15 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 from tests.kafka_messages import get_message_from_kafka
-from tests.presets import set_instance_for_cassandra, set_instance_for_request, create_fs
-from useful_functions import is_it_uuid, prepared_cpid, get_period
-
-password_dev = '6AH7vbrkMWnfK'
-password_sandbox = 'brT4Kn27RQs'
-cluster_dev = '10.0.20.104'
-cluster_sandbox = '10.0.10.104'
-
-instance = set_instance_for_cassandra()
-username = instance[1]
-password = instance[2]
-host = instance[0]
+from useful_functions import is_it_uuid, prepared_cpid, get_period, get_access_token_for_platform_two
 
 
 class FS:
-    def __init__(self, payload, country='MD', cpid=prepared_cpid(), ei_token=str(uuid4()),
+    def __init__(self, payload, instance, cassandra_username, cassandra_password, country='MD',
+                 cpid=prepared_cpid(), ei_token=str(uuid4()),
                  lang='ro', tender_classification_id="45100000-8",
                  tender_item_classification_id="45100000-8", planning_budget_id="45100000-8",
-                 access_token=get_access_token_for_platform_one(),
+                 platform="platform_one",
                  tender_classification_scheme="CPV", planning_budget_period_start_date=get_period()[0],
                  tender_classification_description="Lucrări de pregătire a şantierului",
                  planning_budget_period_end_date=get_period()[1], buyer_name="LLC Petrusenko",
@@ -56,6 +46,7 @@ class FS:
                  tender_items_delivery_street="Khreshchatyk", tender_items_delivery_postal="01124",
                  tender_items_unit_name="Parsec", tender_items_unit_id="10", tender_items_quantity=10.00,
                  tender_items_id="6a565c47-ff11-4e2d-8ea1-3f34c5d751f9"):
+        self.payload = payload
         self.cpid = cpid
         self.ei_token = ei_token
         self.tender_items_id = tender_items_id
@@ -105,31 +96,50 @@ class FS:
         self.tender_classification_id = tender_classification_id
         self.tender_item_classification_id = tender_item_classification_id
         self.planning_budget_id = planning_budget_id
-        self.payload = payload
+
         self.country = country
         self.lang = lang
-        self.access_token = access_token
-        self.x_operation_id = get_x_operation_id(self.access_token)
+        self.instance = instance
+        self.cassandra_username = cassandra_username
+        self.cassandra_password = cassandra_password
+        if instance == "dev":
+            self.cassandra_cluster = "10.0.20.104"
+            self.host_of_request = "http://10.0.20.126:8900/api/v1"
+            self.host_of_services = "http://10.0.20.126"
+            if platform == "platform_one":
+                self.access_token = get_access_token_for_platform_one(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+            elif platform == "platform_two":
+                self.access_token = get_access_token_for_platform_two(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+        elif instance == "sandbox":
+            self.cassandra_cluster = "10.0.10.106"
+            self.host_of_request = "http://10.0.10.116:8900/api/v1"
+            self.host_of_services = "http://10.0.10.116"
+            if platform == "platform_one":
+                self.access_token = get_access_token_for_platform_one(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+            elif platform == "platform_two":
+                self.access_token = get_access_token_for_platform_two(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
 
     @allure.step('Create FS')
     def create_fs(self):
-
-        environment_host = set_instance_for_request()
         fs = requests.post(
-            url=environment_host + create_fs + self.cpid,
+            url=self.host_of_request + "/do/fs/" + self.cpid,
             headers={
                 'Authorization': 'Bearer ' + self.access_token,
                 'X-OPERATION-ID': self.x_operation_id,
                 'Content-Type': 'application/json'},
             json=self.payload)
-        allure.attach(environment_host + create_fs + self.cpid, 'URL')
+        allure.attach(self.host_of_request + "/do/fs/" + self.cpid, 'URL')
         allure.attach(json.dumps(self.payload), 'Prepared payload')
         return fs
 
     @allure.step('Insert EI')
     def insert_ei_full_data_model(self):
-        auth_provider = PlainTextAuthProvider(username=username, password=password)
-        cluster = Cluster([host], auth_provider=auth_provider)
+        auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
+        cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         period = get_period()
@@ -562,8 +572,8 @@ class FS:
 
     @allure.step('Insert EI')
     def insert_ei_obligatory_data_model(self):
-        auth_provider = PlainTextAuthProvider(username=username, password=password)
-        cluster = Cluster([host], auth_provider=auth_provider)
+        auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
+        cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         period = get_period()
@@ -906,8 +916,8 @@ class FS:
 
     @allure.step('Insert EI')
     def insert_ei_full_data_model_without_item(self):
-        auth_provider = PlainTextAuthProvider(username=username, password=password)
-        cluster = Cluster([host], auth_provider=auth_provider)
+        auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
+        cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         period = get_period()
@@ -1216,10 +1226,30 @@ class FS:
         allure.attach(json.dumps(message_from_kafka), 'Message in feed-point')
         return message_from_kafka
 
+
+    def check_on_that_message_is_successfully_create_fs(self):
+        message = get_message_from_kafka(self.x_operation_id)
+        check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
+        check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
+        check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
+        check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
+        check_url = fnmatch.fnmatch(message["data"]["url"],
+                                    f"http://dev.public.eprocurement.systems/budgets/{message['data']['ocid']}")
+        check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
+        check_ei_id = fnmatch.fnmatch(message["data"]["outcomes"]["fs"][0]["id"], "ocds-t1s2t3-MD-*")
+        check_ei_token = is_it_uuid(message["data"]["outcomes"]["fs"][0]["X-TOKEN"], 4)
+        if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
+                check_oc_id is True and check_url is True and check_operation_date is True and check_ei_id is True and \
+                check_ei_token is True:
+            return True
+        else:
+            return False
+
+
     # def delete_data_from_database(self):
     #     cpid = self.cpid
-    #     auth_provider = PlainTextAuthProvider(username=username, password=password)
-    #     cluster = Cluster([host], auth_provider=auth_provider)
+    #     auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
+    #     cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
     #     session = cluster.connect('ocds')
     #     del_orchestrator_context_from_database = session.execute(
     #         f"DELETE FROM orchestrator_context WHERE cp_id='{cpid}';").one()
@@ -1233,21 +1263,3 @@ class FS:
     #     return del_orchestrator_context_from_database, del_budget_ei_from_database, \
     #            del_notice_budget_release_from_database, del_notice_budget_offset_from_database, \
     #            del_notice_budget_compiled_release_from_database
-
-    def check_on_that_message_is_successfull_create_fs(self):
-        message = get_message_from_kafka(self.x_operation_id)
-        check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
-        check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
-        check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
-        check_ocid = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
-        check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/budgets/{message['data']['ocid']}")
-        check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
-        check_ei_id = fnmatch.fnmatch(message["data"]["outcomes"]["fs"][0]["id"], "ocds-t1s2t3-MD-*")
-        check_ei_token = is_it_uuid(message["data"]["outcomes"]["fs"][0]["X-TOKEN"], 4)
-        if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
-                check_ocid is True and check_url is True and check_operation_date is True and check_ei_id is True and \
-                check_ei_token is True:
-            return True
-        else:
-            return False

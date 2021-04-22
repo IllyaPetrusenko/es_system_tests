@@ -14,9 +14,7 @@ Copyright Gurock Software GmbH. See license.md for details.
 
 import base64
 import json
-
 import requests
-
 
 
 class APIClient:
@@ -66,7 +64,7 @@ class APIClient:
         headers = {'Authorization': 'Basic ' + auth}
 
         if method == 'POST':
-            if uri[:14] == 'add_attachment':    # add_attachment API method
+            if uri[:14] == 'add_attachment':  # add_attachment API method
                 files = {'attachment': (open(data, 'rb'))}
                 response = requests.post(url, headers=headers, files=files)
                 files['attachment'].close()
@@ -81,22 +79,21 @@ class APIClient:
         if response.status_code > 201:
             try:
                 error = response.json()
-            except:     # response.content not formatted as JSON
+            except ValueError:  # response.content not formatted as JSON
                 error = str(response.content)
             raise APIError('TestRail API returned HTTP %s (%s)' % (response.status_code, error))
         else:
-            if uri[:15] == 'get_attachment/':   # Expecting file, not JSON
+            if uri[:15] == 'get_attachment/':  # Expecting file, not JSON
                 try:
                     open(data, 'wb').write(response.content)
-                    return (data)
-                except:
-                    return ("Error saving attachment.")
+                    return data
+                except ValueError:
+                    return "Error saving attachment."
             else:
                 try:
                     return response.json()
-                except: # Nothing to return
+                except ValueError:  # Nothing to return
                     return {}
-
 
 
 class APIError(Exception):

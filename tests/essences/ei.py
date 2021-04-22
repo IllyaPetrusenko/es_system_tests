@@ -8,26 +8,15 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 from tests.kafka_messages import get_message_from_kafka
-from tests.presets import set_instance_for_cassandra, set_instance_for_request, create_ei, update_ei
-from useful_functions import is_it_uuid, prepared_cpid, get_period
-
-password_dev = '6AH7vbrkMWnfK'
-password_sandbox = 'brT4Kn27RQs'
-cluster_dev = '10.0.20.104'
-cluster_sandbox = '10.0.10.104'
-
-instance = set_instance_for_cassandra()
-username = instance[1]
-password = instance[2]
-host = instance[0]
+from useful_functions import is_it_uuid, prepared_cpid, get_period, get_access_token_for_platform_two
 
 
 class EI:
-    def __init__(self, payload, country='MD',
+    def __init__(self, payload, instance, cassandra_username, cassandra_password, country='MD',
+                 cpid=prepared_cpid(), ei_token=str(uuid4()), ei_token_update_ei=None,
                  lang='ro', tender_classification_id="45100000-8",
                  tender_item_classification_id="45100000-8", planning_budget_id="45100000-8",
-                 access_token=get_access_token_for_platform_one(), cpid=prepared_cpid(), ei_token=str(uuid4()),
-                 ei_token_update_ei=None,
+                 platform="platform_one",
                  tender_classification_scheme="CPV", planning_budget_period_start_date=get_period()[0],
                  tender_classification_description="Lucrări de pregătire a şantierului",
                  planning_budget_period_end_date=get_period()[1], buyer_name="LLC Petrusenko",
@@ -57,7 +46,11 @@ class EI:
                  tender_items_delivery_street="Khreshchatyk", tender_items_delivery_postal="01124",
                  tender_items_unit_name="Parsec", tender_items_unit_id="10", tender_items_quantity=10.00,
                  tender_items_id="6a565c47-ff11-4e2d-8ea1-3f34c5d751f9"):
+        if ei_token_update_ei is None:
+            self.ei_token_update_ei = self.ei_token
+        self.payload = payload
         self.cpid = cpid
+        self.ei_token = ei_token
         self.tender_items_id = tender_items_id
         self.tender_items_unit_name = tender_items_unit_name
         self.tender_items_unit_id = tender_items_unit_id
@@ -102,24 +95,39 @@ class EI:
         self.planning_budget_period_start_date = planning_budget_period_start_date
         self.tender_classification_description = tender_classification_description
         self.tender_classification_scheme = tender_classification_scheme
-        self.ei_token_update_ei = ei_token_update_ei
-        self.ei_token = ei_token
         self.tender_classification_id = tender_classification_id
         self.tender_item_classification_id = tender_item_classification_id
         self.planning_budget_id = planning_budget_id
-        self.payload = payload
         self.country = country
         self.lang = lang
-        self.access_token = access_token
-        self.x_operation_id = get_x_operation_id(self.access_token)
-        if ei_token_update_ei is None:
-            self.ei_token_update_ei = self.ei_token
+        self.instance = instance
+        self.cassandra_username = cassandra_username
+        self.cassandra_password = cassandra_password
+        if instance == "dev":
+            self.cassandra_cluster = "10.0.20.104"
+            self.host_of_request = "http://10.0.20.126:8900/api/v1"
+            self.host_of_services = "http://10.0.20.126"
+            if platform == "platform_one":
+                self.access_token = get_access_token_for_platform_one(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+            elif platform == "platform_two":
+                self.access_token = get_access_token_for_platform_two(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+        elif instance == "sandbox":
+            self.cassandra_cluster = "10.0.10.106"
+            self.host_of_request = "http://10.0.10.116:8900/api/v1"
+            self.host_of_services = "http://10.0.10.116"
+            if platform == "platform_one":
+                self.access_token = get_access_token_for_platform_one(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+            elif platform == "platform_two":
+                self.access_token = get_access_token_for_platform_two(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
 
     @allure.step('Create EI')
     def create_ei(self):
-        environment_host = set_instance_for_request()
         ei = requests.post(
-            url=environment_host + create_ei,
+            url=self.host_of_request + "/do/ei",
             headers={
                 'Authorization': 'Bearer ' + self.access_token,
                 'X-OPERATION-ID': self.x_operation_id,
@@ -129,14 +137,28 @@ class EI:
                 'lang': self.lang
             },
             json=self.payload)
-        allure.attach(environment_host + create_ei, 'URL')
+        allure.attach(self.host_of_request + "/do/ei", 'URL')
+        allure.attach(json.dumps(self.payload), 'Prepared payload')
+        return ei
+
+    @allure.step('Update EI')
+    def update_ei(self):
+        ei = requests.post(
+            url=self.host_of_request + "/do/ei",
+            headers={
+                'Authorization': 'Bearer ' + self.access_token,
+                'X-OPERATION-ID': self.x_operation_id,
+                'X-TOKEN': self.ei_token_update_ei,
+                'Content-Type': 'application/json'},
+            json=self.payload)
+        allure.attach(self.host_of_request + "/do/ei", 'URL')
         allure.attach(json.dumps(self.payload), 'Prepared payload')
         return ei
 
     @allure.step('Insert EI')
     def insert_ei_full_data_model(self):
-        auth_provider = PlainTextAuthProvider(username=username, password=password)
-        cluster = Cluster([host], auth_provider=auth_provider)
+        auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
+        cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         period = get_period()
@@ -569,8 +591,8 @@ class EI:
 
     @allure.step('Insert EI')
     def insert_ei_obligatory_data_model(self):
-        auth_provider = PlainTextAuthProvider(username=username, password=password)
-        cluster = Cluster([host], auth_provider=auth_provider)
+        auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
+        cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         period = get_period()
@@ -913,8 +935,8 @@ class EI:
 
     @allure.step('Insert EI')
     def insert_ei_full_data_model_without_item(self):
-        auth_provider = PlainTextAuthProvider(username=username, password=password)
-        cluster = Cluster([host], auth_provider=auth_provider)
+        auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
+        cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         period = get_period()
@@ -1216,21 +1238,6 @@ class EI:
         allure.attach(f"http://dev.public.eprocurement.systems/budgets/{self.cpid}", 'URL')
         return f"http://dev.public.eprocurement.systems/budgets/{self.cpid}", self.ei_token, self.cpid
 
-    @allure.step('Update EI')
-    def update_ei(self):
-        environment_host = set_instance_for_request()
-        ei = requests.post(
-            url=environment_host + update_ei + self.cpid,
-            headers={
-                'Authorization': 'Bearer ' + self.access_token,
-                'X-OPERATION-ID': self.x_operation_id,
-                'X-TOKEN': self.ei_token_update_ei,
-                'Content-Type': 'application/json'},
-            json=self.payload)
-        allure.attach(environment_host + update_ei + self.cpid, 'URL')
-        allure.attach(json.dumps(self.payload), 'Prepared payload')
-        return ei
-
     @allure.step('Receive message in feed-point')
     def get_message_from_kafka(self):
         time.sleep(1.8)
@@ -1238,53 +1245,53 @@ class EI:
         allure.attach(json.dumps(message_from_kafka), 'Message in feed-point')
         return message_from_kafka
 
-    def delete_data_from_database(self):
-        cpid = get_message_from_kafka(self.x_operation_id)['data']['outcomes']['ei'][0]['id']
-        auth_provider = PlainTextAuthProvider(username=username, password=password)
-        cluster = Cluster([host], auth_provider=auth_provider)
-        session = cluster.connect('ocds')
-        del_orchestrator_context_from_db = session.execute(
-            f"DELETE FROM orchestrator_context WHERE cp_id='{cpid}';").one()
-        del_budget_ei_from_db = session.execute(f"DELETE FROM budget_ei WHERE cp_id='{cpid}';").one()
-        del_notice_budget_release_from_db = session.execute(
-            f"DELETE FROM notice_budget_release WHERE cp_id='{cpid}';").one()
-        del_notice_budget_offset_from_db = session.execute(
-            f"DELETE FROM notice_budget_offset WHERE cp_id='{cpid}';").one()
-        del_notice_budget_compiled_release_from_db = session.execute(
-            f"DELETE FROM notice_budget_compiled_release WHERE cp_id='{cpid}';").one()
-        return del_orchestrator_context_from_db, del_budget_ei_from_db, del_notice_budget_release_from_db, \
-               del_notice_budget_offset_from_db, del_notice_budget_compiled_release_from_db
-
     def check_on_that_message_is_successfull_create_ei(self):
         message = get_message_from_kafka(self.x_operation_id)
-        check_x_operartion_id = is_it_uuid(message["X-OPERATION-ID"], 4)
+        check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
-        check_ocid = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
+        check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
         check_url = fnmatch.fnmatch(message["data"]["url"],
                                     f"http://dev.public.eprocurement.systems/budgets/{message['data']['ocid']}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         check_ei_id = fnmatch.fnmatch(message["data"]["outcomes"]["ei"][0]["id"], "ocds-t1s2t3-MD-*")
         check_ei_token = is_it_uuid(message["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
-        if check_x_operartion_id is True and check_x_response_id is True and check_initiator is True and \
-                check_ocid is True and check_url is True and check_operation_date is True and check_ei_id is True and \
+        if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
+                check_oc_id is True and check_url is True and check_operation_date is True and check_ei_id is True and \
                 check_ei_token is True:
             return True
         else:
             return False
 
-    def check_on_that_message_is_successfull_update_ei(self):
+    def check_on_that_message_is_successfully_update_ei(self):
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
-        check_ocid = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
+        check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
         check_url = fnmatch.fnmatch(message["data"]["url"],
                                     f"http://dev.public.eprocurement.systems/budgets/{message['data']['ocid']}/"
                                     f"{message['data']['ocid']}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
-                check_ocid is True and check_url is True and check_operation_date is True:
+                check_oc_id is True and check_url is True and check_operation_date is True:
             return True
         else:
             return False
+
+    # def delete_data_from_database(self):
+    #     cpid = get_message_from_kafka(self.x_operation_id)['data']['outcomes']['ei'][0]['id']
+    #     auth_provider = PlainTextAuthProvider(username=username, password=password)
+    #     cluster = Cluster([host], auth_provider=auth_provider)
+    #     session = cluster.connect('ocds')
+    #     del_orchestrator_context_from_db = session.execute(
+    #         f"DELETE FROM orchestrator_context WHERE cp_id='{cpid}';").one()
+    #     del_budget_ei_from_db = session.execute(f"DELETE FROM budget_ei WHERE cp_id='{cpid}';").one()
+    #     del_notice_budget_release_from_db = session.execute(
+    #         f"DELETE FROM notice_budget_release WHERE cp_id='{cpid}';").one()
+    #     del_notice_budget_offset_from_db = session.execute(
+    #         f"DELETE FROM notice_budget_offset WHERE cp_id='{cpid}';").one()
+    #     del_notice_budget_compiled_release_from_db = session.execute(
+    #         f"DELETE FROM notice_budget_compiled_release WHERE cp_id='{cpid}';").one()
+    #     return del_orchestrator_context_from_db, del_budget_ei_from_db, del_notice_budget_release_from_db, \
+    #            del_notice_budget_offset_from_db, del_notice_budget_compiled_release_from_db
