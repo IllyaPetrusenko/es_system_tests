@@ -46,8 +46,7 @@ class EI:
                  tender_items_delivery_street="Khreshchatyk", tender_items_delivery_postal="01124",
                  tender_items_unit_name="Parsec", tender_items_unit_id="10", tender_items_quantity=10.00,
                  tender_items_id="6a565c47-ff11-4e2d-8ea1-3f34c5d751f9"):
-        if ei_token_update_ei is None:
-            self.ei_token_update_ei = self.ei_token
+
         self.payload = payload
         self.cpid = cpid
         self.ei_token = ei_token
@@ -103,6 +102,8 @@ class EI:
         self.instance = instance
         self.cassandra_username = cassandra_username
         self.cassandra_password = cassandra_password
+        if ei_token_update_ei is None:
+            self.ei_token_update_ei = self.ei_token
         if instance == "dev":
             self.cassandra_cluster = "10.0.20.104"
             self.host_of_request = "http://10.0.20.126:8900/api/v1"
