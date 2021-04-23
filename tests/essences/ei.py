@@ -104,6 +104,8 @@ class EI:
         self.cassandra_password = cassandra_password
         if ei_token_update_ei is None:
             self.ei_token_update_ei = self.ei_token
+        else:
+            self.ei_token_update_ei = ei_token_update_ei
         if instance == "dev":
             self.cassandra_cluster = "10.0.20.104"
             self.host_of_request = "http://10.0.20.126:8900/api/v1"
@@ -145,7 +147,7 @@ class EI:
     @allure.step('Update EI')
     def update_ei(self):
         ei = requests.post(
-            url=self.host_of_request + "/do/ei",
+            url=self.host_of_request + "/do/ei/" + self.cpid,
             headers={
                 'Authorization': 'Bearer ' + self.access_token,
                 'X-OPERATION-ID': self.x_operation_id,
@@ -1246,7 +1248,7 @@ class EI:
         allure.attach(json.dumps(message_from_kafka), 'Message in feed-point')
         return message_from_kafka
 
-    def check_on_that_message_is_successfull_create_ei(self):
+    def check_on_that_message_is_successfully_create_ei(self):
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
