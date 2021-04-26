@@ -1,201 +1,173 @@
 import copy
-import fnmatch
-import json
+import time
+from uuid import uuid4
 
 from pytest_testrail.plugin import pytestrail
 
-from tests.presets import set_instance_for_request
-from useful_functions import get_access_token_for_platform_two, is_valid_uuid
-from tests.Cassandra_session import execute_cql_from_orchestrator_operation_step
-from tests.bpe_update_ei.update_ei import bpe_update_ei
-from tests.bpe_update_ei.payloads import ei_update_full, \
-    ei_update_obligatory_fields_with_obligatory_fields_in_tender_items
-import requests, time
-from config import host, update_ei
-from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
-from tests.kafka_messages import get_message_from_kafka
-from tests.bpe_create_ei.payloads import ei_full, ei_obligatory
-from tests.bpe_create_ei.create_ei import bpe_create_ei
-from uuid import uuid4, UUID
+from tests.Cassandra_session import Cassandra
+from tests.essences.ei import EI
+from tests.payloads.ei_payload import payload_ei_obligatory_data_model, payload_ei_full_data_model
+from useful_functions import compare_actual_result_and_expected_result
 
 
+class TestCheckOnPossibilityUpdateEiWithObligatoryFieldsInPayloadWithoutTenderItems(object):
+    @pytestrail.case("23890")
+    def test_send_the_request_23890_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        payload = copy.deepcopy(payload_ei_obligatory_data_model)
+        del payload["tender"]["items"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        update_ei_response = ei.update_ei()
+        actual_result = str(update_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
-class TestBpeCreateEI(object):
-
-    @pytestrail.case('23890')
-    def test_23890_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('23890')
-    def test_23890_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        ocid = fnmatch.fnmatch(update_ei_response[1]['data']['ocid'], '*')
-
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert ocid == True
-
-    @pytestrail.case('24441')
-    def test_24441_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24441')
-    def test_24441_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        ocid = fnmatch.fnmatch(update_ei_response[1]['data']['ocid'], '*')
-
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert ocid == True
+    @pytestrail.case("23890")
+    def test_see_the_result_in_feed_point_23890_2(self, country, language, instance, cassandra_username,
+                                                  cassandra_password):
+        payload = copy.deepcopy(payload_ei_obligatory_data_model)
+        del payload["tender"]["items"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfully_update_ei())
+        expected_result = str(True)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
 
-    @pytestrail.case('24442')
-    def test_24442_1(self):
-        ei_create = copy.deepcopy(ei_obligatory)
-        ei_update = copy.deepcopy(ei_update_full)
+class TestCheckOnPossibilityUpdateEiWithObligatoryFieldsInPayloadWithTenderItems(object):
+    @pytestrail.case("24441")
+    def test_send_the_request_24441_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        payload = copy.deepcopy(payload_ei_obligatory_data_model)
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        update_ei_response = ei.update_ei()
+        actual_result = str(update_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        print(json.dumps(ei_update))
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24442')
-    def test_24442_2(self):
-        ei_create = copy.deepcopy(ei_obligatory)
-        ei_update = copy.deepcopy(ei_update_full)
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        ocid = fnmatch.fnmatch(update_ei_response[1]['data']['ocid'], '*')
-
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert ocid == True
-
-    @pytestrail.case('24443')
-    def test_24443_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        create_ei_response = bpe_create_ei(ei_create)
-        ei_update = copy.deepcopy(ei_update_full)
-        access_token = get_access_token_for_platform_one()
-        x_operation_id = get_x_operation_id(access_token)
-
-        time.sleep(2)
-        host = set_instance_for_request()
-        request_to_update_ei = requests.post(
-            url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
-            headers={
-                'Authorization': 'Bearer ' + access_token,
-                'X-OPERATION-ID': x_operation_id,
-                'X-TOKEN': str(uuid4()),
-                'Content-Type': 'application/json'},
-            json=ei_update)
-
-        assert request_to_update_ei.text == 'ok'
-        assert request_to_update_ei.status_code == 202
-
-    @pytestrail.case('24443')
-    def test_24443_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        create_ei_response = bpe_create_ei(ei_create)
-        ei_update = copy.deepcopy(ei_update_full)
-        access_token = get_access_token_for_platform_one()
-        x_operation_id = get_x_operation_id(access_token)
-
-        time.sleep(2)
-        host = set_instance_for_request()
-        requests.post(
-            url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
-            headers={
-                'Authorization': 'Bearer ' + access_token,
-                'X-OPERATION-ID': x_operation_id,
-                'X-TOKEN': str(uuid4()),
-                'Content-Type': 'application/json'},
-            json=ei_update)
-        time.sleep(1)
-        message_from_kafka = get_message_from_kafka(x_operation_id)
-
-        assert message_from_kafka['errors'][0]['code'] == '400.10.00.04'
-        assert message_from_kafka['errors'][0]['description'] == 'Invalid token.'
+    @pytestrail.case("24441")
+    def test_see_the_result_in_feed_point_24441_2(self, country, language, instance, cassandra_username,
+                                                  cassandra_password):
+        payload = copy.deepcopy(payload_ei_obligatory_data_model)
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfully_update_ei())
+        expected_result = str(True)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
 
+class TestCheckOnPossibilityUpdateEiWithFullDataInPayload(object):
+    @pytestrail.case("24442")
+    def test_send_the_request_24442_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_obligatory_data_model()
+        update_ei_response = ei.update_ei()
+        actual_result = str(update_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-    @pytestrail.case('24444')
-    def test_24444_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        create_ei_response = bpe_create_ei(ei_create)
-        ei_update = copy.deepcopy(ei_update_full)
+    @pytestrail.case("24442")
+    def test_see_the_result_in_feed_point_24442_2(self, country, language, instance, cassandra_username,
+                                                  cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_obligatory_data_model()
+        ei.update_ei()
+        ei.get_message_from_kafka()
+        actual_result = str(ei.check_on_that_message_is_successfully_update_ei())
+        expected_result = str(True)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
 
+class TestCheckOnImpossibilityUpdateEiIfTokenFromRequestNotEqualTokenFromDB(object):
+    @pytestrail.case("24443")
+    def test_send_the_request_24443_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        payload = copy.deepcopy(payload_ei_obligatory_data_model)
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password,
+                ei_token_update_ei=str(uuid4()))
+        ei.insert_ei_full_data_model()
+        update_ei_response = ei.update_ei()
+        expected_result = str(202)
+        actual_result = str(update_ei_response.status_code)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        access_token = get_access_token_for_platform_two()
-        x_operation_id = get_x_operation_id(access_token)
+    @pytestrail.case("24443")
+    def test_see_the_result_in_feed_point_24443_2(self, country, language, instance, cassandra_username,
+                                                  cassandra_password):
+        payload = copy.deepcopy(payload_ei_obligatory_data_model)
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password,
+                ei_token_update_ei=str(uuid4()))
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        time.sleep(1.8)
+        message_from_kafka = ei.get_message_from_kafka()
+        expected_result = str([{"code": "400.10.00.04", "description": "Invalid token."}])
+        actual_result = str(message_from_kafka["errors"])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        time.sleep(2)
-        host = set_instance_for_request()
-        request_to_update_ei = requests.post(
-            url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
-            headers={
-                'Authorization': 'Bearer ' + access_token,
-                'X-OPERATION-ID': x_operation_id,
-                'X-TOKEN': update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
-                'Content-Type': 'application/json'},
-            json=ei_update)
 
-        assert request_to_update_ei.text == 'ok'
-        assert request_to_update_ei.status_code == 202
+class TestCheckOnImpossibilityUpdateEiIfOwnerFromRequestNotEqualOwnerFromDB(object):
+    @pytestrail.case("24444")
+    def test_send_the_request_24444_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        payload = copy.deepcopy(payload_ei_obligatory_data_model)
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password, platform="platform_two")
+        ei.insert_ei_full_data_model()
+        update_ei_response = ei.update_ei()
+        expected_result = str(202)
+        actual_result = str(update_ei_response.status_code)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-    @pytestrail.case('24444')
-    def test_24444_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        create_ei_response = bpe_create_ei(ei_create)
-        ei_update = copy.deepcopy(ei_update_full)
+    @pytestrail.case("24444")
+    def test_see_the_result_in_feed_point_24444_2(self, country, language, instance, cassandra_username,
+                                                  cassandra_password):
+        payload = copy.deepcopy(payload_ei_obligatory_data_model)
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password, platform="platform_two")
+        insert_ei = ei.insert_ei_full_data_model()
+        ei.update_ei()
+        data_base = Cassandra(cp_id=insert_ei[2], task_id='BudgetUpdateEiTask',
+                              instance=instance, cassandra_username=cassandra_username,
+                              cassandra_password=cassandra_password)
+        time.sleep(2.3)
+        error_from_DB = data_base.execute_cql_from_orchestrator_operation_step()
+        expected_result = str([{"code": "400.10.00.03", "description": "Invalid owner."}])
+        actual_result = str(error_from_DB["errors"])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        access_token = get_access_token_for_platform_two()
-        x_operation_id = get_x_operation_id(access_token)
 
-        time.sleep(2)
-        host = set_instance_for_request()
-        requests.post(
-            url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
-            headers={
-                'Authorization': 'Bearer ' + access_token,
-                'X-OPERATION-ID': x_operation_id,
-                'X-TOKEN': create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
-                'Content-Type': 'application/json'},
-            json=ei_update)
-        time.sleep(1)
-
-        error_from_DB = execute_cql_from_orchestrator_operation_step(
-            create_ei_response[1]['data']['outcomes']['ei'][0]['id'], 'BudgetUpdateEiTask')
-
-        assert error_from_DB['errors'][0]['code'] == '400.10.00.03'
-        assert error_from_DB['errors'][0]['description'] == 'Invalid owner.'
-
-    @pytestrail.case('24445')
-    def test_24445_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['classification']['id'] = '50100000-6'
-        ei_create['tender']['items'][0]['classification']['id'] = '50100000-6'
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['classification']['id'] = '90900000-6'
-
-        ei_update['tender']['items'] = [{
+class TestCheckOnImpossibilityUpdateEiIfTenderClassificationIdNotEqualTenderItemsClassificationId(object):
+    @pytestrail.case("24445")
+    def test_send_the_request_24445_1(self, country, language, instance, cassandra_username, cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload['tender']['classification']['id'] = "90900000-6"
+        payload['tender']['items'] = [{
             "id": "1",
             "description": "item 1",
             "classification": {
@@ -238,11 +210,11 @@ class TestBpeCreateEI(object):
                 "id": "2",
                 "description": "item 2",
                 "classification": {
-                    "id": "50100000-6"
+                    "id": "45100000-8"
                 },
                 "additionalClassifications": [
                     {
-                        "id": "AA12-4"
+                        "id": "AA05-3"
                     }
                 ],
                 "deliveryAddress": {
@@ -274,22 +246,23 @@ class TestBpeCreateEI(object):
                 }
             }
         ]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                tender_classification_id="45100000-8", tender_item_classification_id="45100000-8",
+                planning_budget_id="45100000-8", cassandra_username=cassandra_username,
+                cassandra_password=cassandra_password)
+        ei.insert_ei_obligatory_data_model()
+        update_ei_response = ei.update_ei()
+        actual_result = str(update_ei_response.status_code)
+        expected_result = str(202)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24445')
-    def test_24445_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['classification']['id'] = '50100000-6'
-        ei_create['tender']['items'][0]['classification']['id'] = '50100000-6'
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['classification']['id'] = '90900000-6'
-
-        ei_update['tender']['items'] = [{
+    @pytestrail.case("24445")
+    def test_see_the_result_in_feed_point_24445_2(self, country, language, instance, cassandra_username,
+                                                  cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload['tender']['classification']['id'] = "90900000-6"
+        payload['tender']['items'] = [{
             "id": "1",
             "description": "item 1",
             "classification": {
@@ -332,11 +305,11 @@ class TestBpeCreateEI(object):
                 "id": "2",
                 "description": "item 2",
                 "classification": {
-                    "id": "50100000-6"
+                    "id": "45100000-8"
                 },
                 "additionalClassifications": [
                     {
-                        "id": "AA12-4"
+                        "id": "AA05-3"
                     }
                 ],
                 "deliveryAddress": {
@@ -358,7 +331,6 @@ class TestBpeCreateEI(object):
                             "description": "ОПИСАНИЕ2",
                             "scheme": "other"
                         }
-
                     }
                 },
                 "quantity": 1,
@@ -368,2012 +340,2604 @@ class TestBpeCreateEI(object):
                 }
             }
         ]
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[1]['errors'][0]['code'] == '400.10.20.12'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == f"Invalid CPV.Invalid CPV code in classification(s) " \
-                                     f"'{ei_update['tender']['items'][0]['classification']['id']}'"
-
-
-    @pytestrail.case('24446')
-    def test_24446_1(self):
-        ei_create = copy.deepcopy(ei_obligatory)
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['items'][0]['quantity'] = 0
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24446')
-    def test_24446_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_full)
-        del ei_update['tender']['items'][0]['additionalClassifications']
-        ei_update['tender']['items'][0]['quantity'] = 0
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[1]['errors'][0]['code'] == '400.10.20.09'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == "Invalid item quantity.Quantity of item '1' must be greater than zero"
-
-    @pytestrail.case('24447')
-    def test_24447_1(self):
-        ei_create = copy.deepcopy(ei_obligatory)
-        ei_create['tender']['classification']['id'] = '45100000-8'
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['classification']['id'] = '45100000-8'
-        ei_update['tender']['items'] = [{
-            "id": "1",
-            "description": "item 1",
-            "classification": {
-                "id": "45112350-3"
-            },
-            "deliveryAddress": {
-                "streetAddress": "хрещатик",
-                "postalCode": "02235",
-                "addressDetails": {
-                    "country": {
-                        "id": "MD",
-                        "description": "ОПИСАНИЕ",
-                        "scheme": "other"
-                    },
-                    "region": {
-                        "id": "1700000",
-                        "description": "ОПИСАНИЕ",
-                        "scheme": "CUATM"
-                    },
-                    "locality": {
-                        "id": "1701000",
-                        "description": "ОПИСАНИЕ2",
-                        "scheme": "other"
-                    }
-
-                }
-            },
-            "quantity": 1,
-            "unit": {
-                "id": "10",
-                "name": "name"
-            }
-        },
-            {
-                "id": "1",
-                "description": "item 2",
-                "classification": {
-                    "id": "45112360-6"
-                },
-
-                "deliveryAddress": {
-                    "streetAddress": "хрещатик",
-                    "postalCode": "02235",
-                    "addressDetails": {
-                        "country": {
-                            "id": "MD",
-                            "description": "ОПИСАНИЕ",
-                            "scheme": "other"
-                        },
-                        "region": {
-                            "id": "1700000",
-                            "description": "ОПИСАНИЕ",
-                            "scheme": "CUATM"
-                        },
-                        "locality": {
-                            "id": "1701000",
-                            "description": "ОПИСАНИЕ2",
-                            "scheme": "other"
-                        }
-
-                    }
-                },
-                "quantity": 1,
-                "unit": {
-                    "id": "10",
-                    "name": "name"
-                }
-            }
-        ]
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24447')
-    def test_24447_2(self):
-        ei_create = copy.deepcopy(ei_obligatory)
-        ei_create['tender']['classification']['id'] = '45100000-8'
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['classification']['id'] ='45100000-8'
-        ei_update['tender']['items'] = [{
-            "id": "1",
-            "description": "item 1",
-            "classification": {
-                "id": "45112350-3"
-            },
-            "deliveryAddress": {
-                "streetAddress": "хрещатик",
-                "postalCode": "02235",
-                "addressDetails": {
-                    "country": {
-                        "id": "MD",
-                        "description": "ОПИСАНИЕ",
-                        "scheme": "other"
-                    },
-                    "region": {
-                        "id": "1700000",
-                        "description": "ОПИСАНИЕ",
-                        "scheme": "CUATM"
-                    },
-                    "locality": {
-                        "id": "1701000",
-                        "description": "ОПИСАНИЕ2",
-                        "scheme": "other"
-                    }
-
-                }
-            },
-            "quantity": 1,
-            "unit": {
-                "id": "10",
-                "name": "name"
-            }
-        },
-            {
-                "id": "1",
-                "description": "item 2",
-                "classification": {
-                    "id": "45112360-6"
-                },
-
-                "deliveryAddress": {
-                    "streetAddress": "хрещатик",
-                    "postalCode": "02235",
-                    "addressDetails": {
-                        "country": {
-                            "id": "MD",
-                            "description": "ОПИСАНИЕ",
-                            "scheme": "other"
-                        },
-                        "region": {
-                            "id": "1700000",
-                            "description": "ОПИСАНИЕ",
-                            "scheme": "CUATM"
-                        },
-                        "locality": {
-                            "id": "1701000",
-                            "description": "ОПИСАНИЕ2",
-                            "scheme": "other"
-                        }
-
-                    }
-                },
-                "quantity": 1,
-                "unit": {
-                    "id": "10",
-                    "name": "name"
-                }
-            }
-        ]
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[1]['errors'][0]['code'] == '400.10.20.10'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == "Duplicated items found.Item '1' has a duplicate"
-
-    @pytestrail.case('24449')
-    def test_24449_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['classification']['scheme'] = 'CPV'
-        ei_create['tender']['classification']['id'] = '50100000-6'
-        ei_create['tender']['classification']['description'] = 'Timbre'
-        ei_create['planning']['budget']['period']['startDate'] = '2020-01-01T00:00:00Z'
-        ei_create['planning']['budget']['period']['endDate'] = '2020-12-31T00:00:00Z'
-        ei_create['buyer']['name'] = 'Directia Cultura a Primariei mun.Chisinau'
-        ei_create['buyer']['identifier']['id'] = '1007601010585'
-        ei_create['buyer']['identifier']['scheme'] = 'MD-IDNO'
-        ei_create['buyer']['identifier']['legalName'] = 'Directia Cultura'
-        ei_create['buyer']['identifier']['uri'] = 'www'
-        ei_create['buyer']['address']['streetAddress'] = 'str.Bucuresti 68'
-        ei_create['buyer']['address']['addressDetails']['country']['id'] = 'MD'
-        ei_create['buyer']['address']['addressDetails']['region']['id'] = '0101000'
-        ei_create['buyer']['address']['addressDetails']['locality']['scheme'] = 'CUATM'
-        ei_create['buyer']['address']['addressDetails']['locality']['id'] = '0101000'
-        ei_create['buyer']['address']['addressDetails']['locality']['description'] = 'mun.Chişinău'
-        ei_create['buyer']['contactPoint']['name'] = 'Dumitru Popa'
-        ei_create['buyer']['contactPoint']['email'] = 'directiacultшra@yahoo.com'
-        ei_create['buyer']['contactPoint']['telephone'] = '022242290'
-        ei_create['buyer']['contactPoint']['faxNumber'] = '123'
-        ei_create['buyer']['contactPoint']['url'] = 'www url'
-        ei_create['buyer']['address']['postalCode'] = '147'
-        del ei_create['tender']['items']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['classification']['scheme'] = 'ZVS'
-        ei_update['tender']['classification']['id'] = '45100000-8'
-        ei_update['tender']['classification']['description'] = 'Dada'
-        ei_update['planning']['budget']['period']['startDate'] = '2021-01-01T00:00:00Z '
-        ei_update['planning']['budget']['period']['endDate'] = '2021-12-31T00:00:00Z'
-        ei_update['buyer']['name'] = ' zama'
-        ei_update['buyer']['identifier']['id'] = '380632074071 '
-        ei_update['buyer']['identifier']['scheme'] = 'MD-IDNO'
-        ei_update['buyer']['identifier']['legalName'] = 'zao'
-        ei_update['buyer']['identifier']['uri'] = 'fop'
-        ei_update['buyer']['address']['streetAddress'] = 'Romashkova'
-        ei_update['buyer']['address']['addressDetails']['country']['id'] = 'MD'
-        ei_update['buyer']['address']['addressDetails']['region']['id'] = '1700000'
-        ei_update['buyer']['address']['addressDetails']['locality']['scheme'] = 'other'
-        ei_update['buyer']['address']['addressDetails']['locality']['id'] = '1701000'
-        ei_update['buyer']['address']['addressDetails']['locality']['description'] = 'mun.Chişinău789'
-        ei_update['buyer']['contactPoint']['name'] = 'Petro'
-        ei_update['buyer']['contactPoint']['email'] = 'petro@lpo '
-        ei_update['buyer']['contactPoint']['telephone'] = '0574256'
-        ei_update['buyer']['contactPoint']['faxNumber'] = '456'
-        ei_update['buyer']['contactPoint']['url'] = 'www url4444 '
-        ei_update['buyer']['address']['postalCode'] = '87'
-        del ei_update['tender']['items']
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24449')
-    def test_24449_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['classification']['scheme'] = 'CPV'
-        ei_create['tender']['classification']['id'] = '50100000-6'
-        ei_create['tender']['classification']['description'] = 'Timbre'
-        ei_create['planning']['budget']['period']['startDate'] = '2020-01-01T00:00:00Z'
-        ei_create['planning']['budget']['period']['endDate'] = '2020-12-31T00:00:00Z'
-        ei_create['buyer']['name'] = 'Directia Cultura a Primariei mun.Chisinau'
-        ei_create['buyer']['identifier']['id'] = '1007601010585'
-        ei_create['buyer']['identifier']['scheme'] = 'MD-IDNO'
-        ei_create['buyer']['identifier']['legalName'] = 'Directia Cultura'
-        ei_create['buyer']['identifier']['uri'] = 'www'
-        ei_create['buyer']['address']['streetAddress'] = 'str.Bucuresti 68'
-        ei_create['buyer']['address']['addressDetails']['country']['id'] = 'MD'
-        ei_create['buyer']['address']['addressDetails']['region']['id'] = '0101000'
-        ei_create['buyer']['address']['addressDetails']['locality']['scheme'] = 'CUATM'
-        ei_create['buyer']['address']['addressDetails']['locality']['id'] = '0101000'
-        ei_create['buyer']['address']['addressDetails']['locality']['description'] = 'mun.Chişinău'
-        ei_create['buyer']['contactPoint']['name'] = 'Dumitru Popa'
-        ei_create['buyer']['contactPoint']['email'] = 'directiacultшra@yahoo.com'
-        ei_create['buyer']['contactPoint']['telephone'] = '022242290'
-        ei_create['buyer']['contactPoint']['faxNumber'] = '123'
-        ei_create['buyer']['contactPoint']['url'] = 'www url'
-        ei_create['buyer']['address']['postalCode'] = '147'
-        del ei_create['tender']['items']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['classification']['scheme'] = 'ZVS'
-        ei_update['tender']['classification']['id'] = '45100000-8'
-        ei_update['tender']['classification']['description'] = 'Dada'
-        ei_update['planning']['budget']['period']['startDate'] = '2021-01-01T00:00:00Z '
-        ei_update['planning']['budget']['period']['endDate'] = '2021-12-31T00:00:00Z'
-        ei_update['buyer']['name'] = ' zama'
-        ei_update['buyer']['identifier']['id'] = '380632074071 '
-        ei_update['buyer']['identifier']['scheme'] = 'MD-IDNO'
-        ei_update['buyer']['identifier']['legalName'] = 'zao'
-        ei_update['buyer']['identifier']['uri'] = 'fop'
-        ei_update['buyer']['address']['streetAddress'] = 'Romashkova'
-        ei_update['buyer']['address']['addressDetails']['country']['id'] = 'MD'
-        ei_update['buyer']['address']['addressDetails']['region']['id'] = '1700000'
-        ei_update['buyer']['address']['addressDetails']['locality']['scheme'] = 'other'
-        ei_update['buyer']['address']['addressDetails']['locality']['id'] = '1701000'
-        ei_update['buyer']['address']['addressDetails']['locality']['description'] = 'mun.Chişinău789'
-        ei_update['buyer']['contactPoint']['name'] = 'Petro'
-        ei_update['buyer']['contactPoint']['email'] = 'petro@lpo '
-        ei_update['buyer']['contactPoint']['telephone'] = '0574256'
-        ei_update['buyer']['contactPoint']['faxNumber'] = '456'
-        ei_update['buyer']['contactPoint']['url'] = 'www url4444 '
-        ei_update['buyer']['address']['postalCode'] = '87'
-        del ei_update['tender']['items']
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        ocid = fnmatch.fnmatch(update_ei_response[1]['data']['ocid'], '*')
-
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert ocid == True
-
-    @pytestrail.case('24449')
-    def test_24449_3(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['classification']['scheme'] = 'CPV'
-        ei_create['tender']['classification']['id'] = '50100000-6'
-        ei_create['tender']['classification']['description'] = 'Timbre'
-        ei_create['planning']['budget']['period']['startDate'] = '2020-01-01T00:00:00Z'
-        ei_create['planning']['budget']['period']['endDate'] = '2020-12-31T00:00:00Z'
-        ei_create['buyer']['name'] = 'Directia Cultura a Primariei mun.Chisinau'
-        ei_create['buyer']['identifier']['id'] = '1007601010585'
-        ei_create['buyer']['identifier']['scheme'] = 'MD-IDNO'
-        ei_create['buyer']['identifier']['legalName'] = 'Directia Cultura'
-        ei_create['buyer']['identifier']['uri'] = 'www'
-        ei_create['buyer']['address']['streetAddress'] = 'str.Bucuresti 68'
-        ei_create['buyer']['address']['addressDetails']['country']['id'] = 'MD'
-        ei_create['buyer']['address']['addressDetails']['region']['id'] = '0101000'
-        ei_create['buyer']['address']['addressDetails']['locality']['scheme'] = 'CUATM'
-        ei_create['buyer']['address']['addressDetails']['locality']['id'] = '0101000'
-        ei_create['buyer']['address']['addressDetails']['locality']['description'] = 'mun.Chişinău'
-        ei_create['buyer']['contactPoint']['name'] = 'Dumitru Popa'
-        ei_create['buyer']['contactPoint']['email'] = 'directiacultшra@yahoo.com'
-        ei_create['buyer']['contactPoint']['telephone'] = '022242290'
-        ei_create['buyer']['contactPoint']['faxNumber'] = '123'
-        ei_create['buyer']['contactPoint']['url'] = 'www url'
-        ei_create['buyer']['address']['postalCode'] = '147'
-        del ei_create['tender']['items']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['classification']['scheme'] = 'ZVS'
-        ei_update['tender']['classification']['id'] = '45100000-8'
-        ei_update['tender']['classification']['description'] = 'Dada'
-        ei_update['planning']['budget']['period']['startDate'] = '2021-01-01T00:00:00Z '
-        ei_update['planning']['budget']['period']['endDate'] = '2021-12-31T00:00:00Z'
-        ei_update['buyer']['name'] = ' zama'
-        ei_update['buyer']['identifier']['id'] = '380632074071 '
-        ei_update['buyer']['identifier']['scheme'] = 'MD-IDNO'
-        ei_update['buyer']['identifier']['legalName'] = 'zao'
-        ei_update['buyer']['identifier']['uri'] = 'fop'
-        ei_update['buyer']['address']['streetAddress'] = 'Romashkova'
-        ei_update['buyer']['address']['addressDetails']['country']['id'] = 'MD'
-        ei_update['buyer']['address']['addressDetails']['region']['id'] = '1700000'
-        ei_update['buyer']['address']['addressDetails']['locality']['scheme'] = 'other'
-        ei_update['buyer']['address']['addressDetails']['locality']['id'] = '1701000'
-        ei_update['buyer']['address']['addressDetails']['locality']['description'] = 'mun.Chişinău789'
-        ei_update['buyer']['contactPoint']['name'] = 'Petro'
-        ei_update['buyer']['contactPoint']['email'] = 'petro@lpo '
-        ei_update['buyer']['contactPoint']['telephone'] = '0574256'
-        ei_update['buyer']['contactPoint']['faxNumber'] = '456'
-        ei_update['buyer']['contactPoint']['url'] = 'www url4444 '
-        ei_update['buyer']['address']['postalCode'] = '87'
-        del ei_update['tender']['items']
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        time.sleep(2)
-
-        url_update = update_ei_response[1]['data']['url']
-
-        publicPoint_update = requests.get(url=url_update).json()
-        assert update_ei_response[3]['releases'][0]['tender']['id'] == publicPoint_update['releases'][0]['tender']['id']
-        assert update_ei_response[3]['releases'][0]['tender']['status'] == publicPoint_update['releases'][0]['tender'][
-            'status']
-        assert update_ei_response[3]['releases'][0]['tender']['statusDetails'] == \
-               publicPoint_update['releases'][0]['tender'][
-                   'statusDetails']
-        assert update_ei_response[3]['releases'][0]['tender']['classification']['id'] == \
-               publicPoint_update['releases'][0]['tender']['classification']['id']
-        assert update_ei_response[3]['releases'][0]['tender']['classification']['scheme'] == \
-               publicPoint_update['releases'][0]['tender']['classification']['scheme']
-        assert update_ei_response[3]['releases'][0]['tender']['classification']['description'] == \
-               publicPoint_update['releases'][0]['tender']['classification']['description']
-        assert update_ei_response[3]['releases'][0]['tender']['mainProcurementCategory'] == \
-               publicPoint_update['releases'][0]['tender']['mainProcurementCategory']
-        assert update_ei_response[3]['releases'][0]['planning']['budget']['id'] == \
-               publicPoint_update['releases'][0]['planning']['budget']['id']
-        assert update_ei_response[3]['releases'][0]['planning']['budget']['period']['startDate'] == \
-               publicPoint_update['releases'][0]['planning']['budget']['period']['startDate']
-        assert update_ei_response[3]['releases'][0]['planning']['budget']['period']['endDate'] == \
-               publicPoint_update['releases'][0]['planning']['budget']['period']['endDate']
-        assert update_ei_response[3]['releases'][0]['buyer']['id'] == publicPoint_update['releases'][0]['buyer']['id']
-        assert update_ei_response[3]['releases'][0]['buyer']['name'] == publicPoint_update['releases'][0]['buyer'][
-            'name']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['id'] == \
-               publicPoint_update['releases'][0]['parties'][0]['id']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['name'] == \
-               publicPoint_update['releases'][0]['parties'][0][
-                   'name']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['identifier']['scheme'] == \
-               publicPoint_update['releases'][0]['parties'][0]['identifier']['scheme']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['identifier']['id'] == \
-               publicPoint_update['releases'][0]['parties'][0]['identifier']['id']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['identifier']['legalName'] == \
-               publicPoint_update['releases'][0]['parties'][0]['identifier']['legalName']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['identifier']['uri'] == \
-               publicPoint_update['releases'][0]['parties'][0]['identifier']['uri']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['streetAddress'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['streetAddress']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['country']['scheme'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['country']['scheme']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['country']['id']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['country'][
-                   'description'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['country']['description']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['country']['uri'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['country']['uri']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['region']['scheme'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['region']['scheme']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['region']['id']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['region'][
-                   'description'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['region']['description']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['region']['uri'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['region']['uri']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['locality'][
-                   'description'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['locality']['description']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['address']['addressDetails']['locality']['uri'] == \
-               publicPoint_update['releases'][0]['parties'][0]['address']['addressDetails']['locality']['uri']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['contactPoint']['name'] == \
-               publicPoint_update['releases'][0]['parties'][0]['contactPoint']['name']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['contactPoint']['email'] == \
-               publicPoint_update['releases'][0]['parties'][0]['contactPoint']['email']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['contactPoint']['telephone'] == \
-               publicPoint_update['releases'][0]['parties'][0]['contactPoint']['telephone']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['contactPoint']['faxNumber'] == \
-               publicPoint_update['releases'][0]['parties'][0]['contactPoint']['faxNumber']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['contactPoint']['url'] == \
-               publicPoint_update['releases'][0]['parties'][0]['contactPoint']['url']
-        assert update_ei_response[3]['releases'][0]['parties'][0]['roles'] == \
-               publicPoint_update['releases'][0]['parties'][0]['roles']
-
-    @pytestrail.case('24450')
-    def test_24450_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['description'] = 'kola'
-        ei_create['tender']['title'] = 'volk'
-        del ei_create['tender']['items']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['description'] = 'fada'
-        ei_update['tender']['title'] = 'zayac'
-        del ei_update['tender']['items']
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24450')
-    def test_24450_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['description'] = 'kola'
-        ei_create['tender']['title'] = 'volk'
-        del ei_create['tender']['items']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['description'] = 'fada'
-        ei_update['tender']['title'] = 'zayac'
-        del ei_update['tender']['items']
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        ocid = fnmatch.fnmatch(update_ei_response[1]['data']['ocid'], '*')
-
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert ocid == True
-
-    @pytestrail.case('24450')
-    def test_24450_3(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['description'] = 'kola'
-        ei_create['tender']['title'] = 'volk'
-        del ei_create['tender']['items']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['description'] = 'fada'
-        ei_update['tender']['title'] = 'zayac'
-        del ei_update['tender']['items']
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        time.sleep(2)
-
-        url_update = update_ei_response[1]['data']['url']
-
-        publicPoint_update = requests.get(url=url_update).json()
-
-        assert update_ei_response[3]['releases'][0]['tender']['description'] == ei_create['tender']['description']
-        assert publicPoint_update['releases'][0]['tender']['description'] == ei_update['tender']['description']
-        description_false = update_ei_response[3]['releases'][0]['tender']['description'] is \
-                            publicPoint_update['releases'][0]['tender']['description']
-        assert description_false == False
-
-        assert update_ei_response[3]['releases'][0]['tender']['title'] == ei_create['tender']['title']
-        assert publicPoint_update['releases'][0]['tender']['title'] == ei_update['tender']['title']
-        title_false = update_ei_response[3]['releases'][0]['tender']['title'] is \
-                      publicPoint_update['releases'][0]['tender']['title']
-        assert title_false == False
-
-    @pytestrail.case('24451')
-    def test_24451_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['planning']['rationale'] = 'gf'
-        del ei_create['tender']['items']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['planning']['rationale'] = 'fada'
-        del ei_update['tender']['items']
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24451')
-    def test_24451_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['planning']['rationale'] = 'gf'
-        del ei_create['tender']['items']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['planning']['rationale'] = 'fada'
-        del ei_update['tender']['items']
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        ocid = fnmatch.fnmatch(update_ei_response[1]['data']['ocid'], '*')
-
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert ocid == True
-
-    @pytestrail.case('24451')
-    def test_24451_3(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['planning']['rationale'] = 'gf'
-        del ei_create['tender']['items']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['planning']['rationale'] = 'fada'
-        del ei_update['tender']['items']
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        time.sleep(2)
-
-        url_update = update_ei_response[1]['data']['url']
-
-        publicPoint_update = requests.get(url=url_update).json()
-
-        assert update_ei_response[3]['releases'][0]['planning']['rationale'] == ei_create['planning']['rationale']
-        assert publicPoint_update['releases'][0]['planning']['rationale'] == ei_update['planning']['rationale']
-        title_false = update_ei_response[3]['releases'][0]['planning']['rationale'] is \
-                      publicPoint_update['releases'][0]['planning']['rationale']
-        assert title_false == False
-
-    @pytestrail.case('24452')
-    def test_24452_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['items'][0]['description'] = 'gaga'
-        ei_create['tender']['items'][0]['classification']['id'] = '45100000-8'
-        ei_create['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['items'][0]['description'] = 'popo'
-        ei_update['tender']['items'][0]['classification']['id'] = '45112350-3'
-        ei_update['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA04-0'
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24452')
-    def test_24452_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['items'][0]['description'] = 'gaga'
-        ei_create['tender']['items'][0]['classification']['id'] = '45100000-8'
-        ei_create['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['items'][0]['description'] = 'popo'
-        ei_update['tender']['items'][0]['classification']['id'] = '45112350-3'
-        ei_update['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA04-0'
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        ocid = fnmatch.fnmatch(update_ei_response[1]['data']['ocid'], '*')
-
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert ocid == True
-
-    @pytestrail.case('24452')
-    def test_24452_3(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['items'][0]['description'] = 'gaga'
-        ei_create['tender']['items'][0]['classification']['id'] = '45100000-8'
-        ei_create['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['items'][0]['description'] = 'popo'
-        ei_update['tender']['items'][0]['classification']['id'] = '45112350-3'
-        ei_update['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA04-0'
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        time.sleep(2)
-
-        url_update = update_ei_response[1]['data']['url']
-
-        publicPoint_update = requests.get(url=url_update).json()
-
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['description'] == \
-               ei_create['tender']['items'][0]['description']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['description'] == \
-               ei_update['tender']['items'][0]['description']
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['description'] != \
-               publicPoint_update['releases'][0]['tender']['items'][0]['description']
-
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['classification']['id'] == \
-               ei_create['tender']['items'][0]['classification']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['classification']['id'] == \
-               ei_update['tender']['items'][0]['classification']['id']
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['classification']['id'] != \
-               publicPoint_update['releases'][0]['tender']['items'][0]['classification']['id']
-
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['additionalClassifications'][0]['id'] == \
-               ei_create['tender']['items'][0]['additionalClassifications'][0]['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['additionalClassifications'][0]['id'] == \
-               ei_update['tender']['items'][0]['additionalClassifications'][0]['id']
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['additionalClassifications'][0]['id'] != \
-               publicPoint_update['releases'][0]['tender']['items'][0]['additionalClassifications'][0]['id']
-
-    @pytestrail.case('24453')
-    def test_24453_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Khreshchatyk'
-        ei_create['tender']['items'][0]['deliveryAddress']['postalCode'] = '01124'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['description'] = 'description_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.deutch'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['description'] = 'description_2'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'scheme'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'CUATM'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'ww.io.io '
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-            'description'] = 'description_test'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_16'
-        ei_create['tender']['items'][0]['quantity'] = 10
-        ei_create['tender']['items'][0]['unit']['id'] = '10'
-        ei_create['tender']['items'][0]['unit']['name'] = 'name'
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Vladimirskaya'
-        ei_update['tender']['items'][0]['deliveryAddress']['postalCode'] = '33344'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['description'] = 'Re_44'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1_1'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.poland'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '1700000'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-            'description'] = 'description_44_2'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'sheme_region_78'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'other'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = 'locality_1'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'www.vbn.ko'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-            'description'] = 'description_test_22'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_12'
-        ei_update['tender']['items'][0]['quantity'] = 256
-        ei_update['tender']['items'][0]['unit']['id'] = '120'
-        ei_update['tender']['items'][0]['unit']['name'] = 'name_2'
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24453')
-    def test_24453_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Khreshchatyk'
-        ei_create['tender']['items'][0]['deliveryAddress']['postalCode'] = '01124'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['description'] = 'description_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.deutch'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['description'] = 'description_2'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'scheme'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'CUATM'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'ww.io.io '
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-            'description'] = 'description_test'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_16'
-        ei_create['tender']['items'][0]['quantity'] = 10
-        ei_create['tender']['items'][0]['unit']['id'] = '10'
-        ei_create['tender']['items'][0]['unit']['name'] = 'name'
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Vladimirskaya'
-        ei_update['tender']['items'][0]['deliveryAddress']['postalCode'] = '33344'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['description'] = 'Re_44'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1_1'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.poland'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '1700000'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-            'description'] = 'description_44_2'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'sheme_region_78'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'other'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = 'locality_1'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'www.vbn.ko'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-            'description'] = 'description_test_22'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_12'
-        ei_update['tender']['items'][0]['quantity'] = 256
-        ei_update['tender']['items'][0]['unit']['id'] = '120'
-        ei_update['tender']['items'][0]['unit']['name'] = 'name_2'
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        ocid = fnmatch.fnmatch(update_ei_response[1]['data']['ocid'], '*')
-
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert ocid == True
-
-    @pytestrail.case('24453')
-    def test_24453_3(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Khreshchatyk'
-        ei_create['tender']['items'][0]['deliveryAddress']['postalCode'] = '01124'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['description'] = 'description_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.deutch'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['description'] = 'description_2'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'scheme'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'CUATM'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'ww.io.io '
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-            'description'] = 'description_test'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_16'
-        ei_create['tender']['items'][0]['quantity'] = 10
-        ei_create['tender']['items'][0]['unit']['id'] = '10'
-        ei_create['tender']['items'][0]['unit']['name'] = 'name'
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Vladimirskaya'
-        ei_update['tender']['items'][0]['deliveryAddress']['postalCode'] = '33344'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['description'] = 'Re_44'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1_1'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.poland'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '1700000'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-            'description'] = 'description_44_2'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'sheme_region_78'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'other'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = 'locality_1'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'www.vbn.ko'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-            'description'] = 'description_test_22'
-        ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_12'
-        ei_update['tender']['items'][0]['quantity'] = 256
-        ei_update['tender']['items'][0]['unit']['id'] = '120'
-        ei_update['tender']['items'][0]['unit']['name'] = 'name_2'
-
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        time.sleep(2)
-
-        url_update = update_ei_response[1]['data']['url']
-
-        publicPoint_update = requests.get(url=url_update).json()
-
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['streetAddress'] == \
-               ei_create['tender']['items'][0]['deliveryAddress']['streetAddress']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['streetAddress'] == \
-               ei_update['tender']['items'][0]['deliveryAddress']['streetAddress']
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['streetAddress'] != \
-               publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['streetAddress']
-
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['postalCode'] == \
-               ei_create['tender']['items'][0]['deliveryAddress']['postalCode']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['postalCode'] == \
-               ei_update['tender']['items'][0]['deliveryAddress']['postalCode']
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress'][
-                   'postalCode'] != publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress'][
-                   'postalCode']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'id'] == ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                   'id'] == ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id']
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'id'] == \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'id']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'description'] == 'Moldova, Republica'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                   'description'] == 'Moldova, Republica'
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'description'] == \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'description']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'scheme'] == 'iso-alpha2'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                   'scheme'] == 'iso-alpha2'
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'scheme'] == \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'scheme']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'uri'] == 'https://www.iso.org'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                   'uri'] == 'https://www.iso.org'
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'uri'] == \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'uri']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'id'] == ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                   'id'] == ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id']
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'id'] != \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'description'] == 'mun.Chişinău'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                   'description'] == 'Cahul'
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'description'] != \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'description']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'scheme'] == 'CUATM'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                   'scheme'] == 'CUATM'
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'scheme'] == \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'scheme']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'uri'] == 'http://statistica.md'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                   'uri'] == 'http://statistica.md'
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'uri'] == \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'uri']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'scheme'] == ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                   'scheme'] == ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                   'scheme']
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'scheme'] != \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'scheme']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'id'] == ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                   'id'] == ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id']
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'id'] != \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'id']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'uri'] == 'http://statistica.md'
-
-
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'description'] == 'mun.Chişinău'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                   'description'] == ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                   'description']
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'description'] != \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-                'description']
-
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'uri'] == 'http://statistica.md'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                   'uri'] == 'http://statistica.md'
-        assert \
-            update_ei_response[3]['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'uri'] == \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                'uri']
-
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['quantity'] == \
-               ei_create['tender']['items'][0]['quantity']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['quantity'] == ei_update['tender']['items'][0][
-            'quantity']
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['quantity'] != \
-               publicPoint_update['releases'][0]['tender']['items'][0]['quantity']
-
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['unit']['id'] == \
-               ei_create['tender']['items'][0]['unit']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['unit']['id'] == \
-               ei_update['tender']['items'][0]['unit']['id']
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['unit']['id'] != \
-               publicPoint_update['releases'][0]['tender']['items'][0]['unit']['id']
-
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['unit']['name'] == \
-               'Parsec'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['unit']['name'] == 'Milion decalitri'
-        assert update_ei_response[3]['releases'][0]['tender']['items'][0]['unit']['id'] != \
-               publicPoint_update['releases'][0]['tender']['items'][0]['unit']['id']
-
-    @pytestrail.case('24454')
-    def test_24454_1(self):
-
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['classification']['id'] = '45100000-8'
-        ei_create['tender']['items'][0]['id'] = '1'
-        ei_create['tender']['items'][0]['description'] = 'item_1'
-        ei_create['tender']['items'][0]['classification']['id'] = '45112350-3'
-        ei_create['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
-        ei_create['tender']['items'][0]['quantity'] = 10
-        ei_create['tender']['items'][0]['unit']['id'] = '10'
-        ei_create['tender']['items'][0]['unit']['name'] = 'name'
-        ei_create['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Khreshchatyk'
-        ei_create['tender']['items'][0]['deliveryAddress']['postalCode'] = '01124'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-            'description'] = 'description_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.deutch'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-            'description'] = 'description_2'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'scheme_2'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_16'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'CUATM'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'ww.io.io '
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-            'description'] = 'description_test'
-
-        create_ei_response = bpe_create_ei(ei_create)
-        url = create_ei_response[1]['data']['url'] + '/' + str(
-            create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
-        publicPoint = requests.get(url=url).json()
-        saved_item_id = publicPoint['releases'][00]['tender']['items'][0]['id']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['classification']['id'] = '45100000-8'
-        ei_update['tender']['items'] = [{
-            "id": saved_item_id,
-            "description": ei_create['tender']['items'][0]['description'],
-            "classification": {
-                "id": ei_create['tender']['items'][0]['classification']['id']
-            },
-            "additionalClassifications": [
-                {
-                    "id": ei_create['tender']['items'][0]['additionalClassifications'][0]['id']
-                }
-            ],
-            "deliveryAddress": {
-                "streetAddress": ei_create['tender']['items'][0]['deliveryAddress']['streetAddress'],
-                "postalCode": ei_create['tender']['items'][0]['deliveryAddress']['postalCode'],
-                "addressDetails": {
-                    "country": {
-                        "id": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'],
-                        "description": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                            'description'],
-                        "scheme": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                            'scheme'],
-                        "uri": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri']
-                    },
-                    "region": {
-                        "id": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'],
-                        "description": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                            'description'],
-                        "scheme": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                            'scheme'],
-                        "uri": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri']
-                    },
-                    "locality": {
-                        "id": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'],
-                        "description": "description_test",
-                        "scheme": 'CUATM',
-                        "uri": "ww.io.io"
-                    }
-
-                }
-            },
-            "quantity": 10,
-            "unit": {
-                "id": "10",
-                "name": "name"
-            }
-        },
-            {"id": "2",
-             "description": "item 2",
-             "classification": {
-                 "id": '45112360-6'
-             },
-             "additionalClassifications": [
-                 {
-                     "id": "AA04-0"
-                 }
-             ],
-             "deliveryAddress": {
-                 "streetAddress": "Voloshkina",
-                 "postalCode": "55555",
-                 "addressDetails": {
-                     "country": {
-                         "id": "MD",
-                         "description": "description_55",
-                         "scheme": "scheme_55",
-                         "uri": "www.55"
-                     },
-                     "region": {
-                         "id": "0101000",
-                         "description": "description_55",
-                         "scheme": "scheme_55",
-                         "uri": "www.regi_55"
-                     },
-                     "locality": {
-                         "id": "555555",
-                         "description": "description_test_55",
-                         "scheme": 'other',
-                         "uri": "ww.io.55"
-                     }
-
-                 }
-             },
-             "quantity": 20,
-             "unit": {
-                 "id": "120",
-                 "name": "name_2"
-             }
-             }
-        ]
-
-        access_token = get_access_token_for_platform_one()
-        x_operation_id = get_x_operation_id(access_token)
-        host = set_instance_for_request()
-        update_ei_response=requests.post(
-            url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
-            headers={
-                'Authorization': 'Bearer ' + access_token,
-                'X-OPERATION-ID': x_operation_id,
-                'X-TOKEN': create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
-                'Content-Type': 'application/json'},
-            json=ei_update)
-        time.sleep(1)
-        message_from_kafka = get_message_from_kafka(x_operation_id)
-
-        assert update_ei_response.text == 'ok'
-        assert update_ei_response.status_code == 202
-        assert message_from_kafka['X-OPERATION-ID'] == x_operation_id
-
-
-    @pytestrail.case('24454')
-    def test_24454_2(self):
-
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['classification']['id'] = '45100000-8'
-        ei_create['tender']['items'][0]['id'] = '1'
-        ei_create['tender']['items'][0]['description'] = 'item_1'
-        ei_create['tender']['items'][0]['classification']['id'] = '45112350-3'
-        ei_create['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
-        ei_create['tender']['items'][0]['quantity'] = 10
-        ei_create['tender']['items'][0]['unit']['id'] = '10'
-        ei_create['tender']['items'][0]['unit']['name'] = 'name'
-        ei_create['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Khreshchatyk'
-        ei_create['tender']['items'][0]['deliveryAddress']['postalCode'] = '01124'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-            'description'] = 'description_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.deutch'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-            'description'] = 'description_2'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'scheme_2'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_16'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'CUATM'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'ww.io.io '
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-            'description'] = 'description_test'
-
-        create_ei_response = bpe_create_ei(ei_create)
-        url = create_ei_response[1]['data']['url'] + '/' + str(
-            create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
-        publicPoint = requests.get(url=url).json()
-        saved_item_id = publicPoint['releases'][00]['tender']['items'][0]['id']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['classification']['id'] = '45100000-8'
-        ei_update['tender']['items'] = [{
-            "id": saved_item_id,
-            "description": ei_create['tender']['items'][0]['description'],
-            "classification": {
-                "id": ei_create['tender']['items'][0]['classification']['id']
-            },
-            "additionalClassifications": [
-                {
-                    "id": ei_create['tender']['items'][0]['additionalClassifications'][0]['id']
-                }
-            ],
-            "deliveryAddress": {
-                "streetAddress": ei_create['tender']['items'][0]['deliveryAddress']['streetAddress'],
-                "postalCode": ei_create['tender']['items'][0]['deliveryAddress']['postalCode'],
-                "addressDetails": {
-                    "country": {
-                        "id": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'],
-                        "description": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                            'description'],
-                        "scheme": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                            'scheme'],
-                        "uri": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri']
-                    },
-                    "region": {
-                        "id": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'],
-                        "description": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                            'description'],
-                        "scheme": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                            'scheme'],
-                        "uri": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri']
-                    },
-                    "locality": {
-                        "id": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'],
-                        "description": "description_test",
-                        "scheme": 'CUATM',
-                        "uri": "ww.io.io"
-                    }
-
-                }
-            },
-            "quantity": 10,
-            "unit": {
-                "id": "10",
-                "name": "name"
-            }
-        },
-            {"id": "2",
-             "description": "item 2",
-             "classification": {
-                 "id": '45112360-6'
-             },
-             "additionalClassifications": [
-                 {
-                     "id": "AA04-0"
-                 }
-             ],
-             "deliveryAddress": {
-                 "streetAddress": "Voloshkina",
-                 "postalCode": "55555",
-                 "addressDetails": {
-                     "country": {
-                         "id": "MD",
-                         "description": "description_55",
-                         "scheme": "scheme_55",
-                         "uri": "www.55"
-                     },
-                     "region": {
-                         "id": "0101000",
-                         "description": "description_55",
-                         "scheme": "scheme_55",
-                         "uri": "www.regi_55"
-                     },
-                     "locality": {
-                         "id": "555555",
-                         "description": "description_test_55",
-                         "scheme": 'other',
-                         "uri": "ww.io.55"
-                     }
-
-                 }
-             },
-             "quantity": 20,
-             "unit": {
-                 "id": "120",
-                 "name": "name_2"
-             }
-             }
-        ]
-
-        access_token = get_access_token_for_platform_one()
-        x_operation_id = get_x_operation_id(access_token)
-        host = set_instance_for_request()
-        requests.post(
-            url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
-            headers={
-                'Authorization': 'Bearer ' + access_token,
-                'X-OPERATION-ID': x_operation_id,
-                'X-TOKEN': create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
-                'Content-Type': 'application/json'},
-            json=ei_update)
-        time.sleep(1)
-        message_from_kafka = get_message_from_kafka(x_operation_id)
-
-        ocid = fnmatch.fnmatch(message_from_kafka['data']['ocid'], '*')
-
-        assert message_from_kafka['X-OPERATION-ID'] == x_operation_id
-        assert ocid == True
-
-    @pytestrail.case('24454')
-    def test_24454_3(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_create['tender']['classification']['id'] = '45100000-8'
-        ei_create['tender']['items'][0]['id'] = '1'
-        ei_create['tender']['items'][0]['description'] = 'item_1'
-        ei_create['tender']['items'][0]['classification']['id'] = '45112350-3'
-        ei_create['tender']['items'][0]['additionalClassifications'][0]['id'] = 'AA12-4'
-        ei_create['tender']['items'][0]['quantity'] = 10
-        ei_create['tender']['items'][0]['unit']['id'] = '10'
-        ei_create['tender']['items'][0]['unit']['name'] = 'name'
-        ei_create['tender']['items'][0]['deliveryAddress']['streetAddress'] = 'Khreshchatyk'
-        ei_create['tender']['items'][0]['deliveryAddress']['postalCode'] = '01124'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-            'description'] = 'description_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = 'scheme_1'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = 'www.deutch'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-            'description'] = 'description_2'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = 'scheme_2'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = 'www,regi_16'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = 'CUATM'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = '0101000'
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = 'ww.io.io '
-        ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
-            'description'] = 'description_test'
-
-        create_ei_response = bpe_create_ei(ei_create)
-        url = create_ei_response[1]['data']['url'] + '/' + str(
-            create_ei_response[1]['data']['outcomes']['ei'][0]['id'])
-        publicPoint = requests.get(url=url).json()
-        saved_item_id = publicPoint['releases'][00]['tender']['items'][0]['id']
-
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['classification']['id'] = '45100000-8'
-        ei_update['tender']['items'] = [{
-            "id": saved_item_id,
-            "description": ei_create['tender']['items'][0]['description'],
-            "classification": {
-                "id": ei_create['tender']['items'][0]['classification']['id']
-            },
-            "additionalClassifications": [
-                {
-                    "id": ei_create['tender']['items'][0]['additionalClassifications'][0]['id']
-                }
-            ],
-            "deliveryAddress": {
-                "streetAddress": ei_create['tender']['items'][0]['deliveryAddress']['streetAddress'],
-                "postalCode": ei_create['tender']['items'][0]['deliveryAddress']['postalCode'],
-                "addressDetails": {
-                    "country": {
-                        "id": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'],
-                        "description": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                            'description'],
-                        "scheme": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                            'scheme'],
-                        "uri": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri']
-                    },
-                    "region": {
-                        "id": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'],
-                        "description": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                            'description'],
-                        "scheme": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                            'scheme'],
-                        "uri": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri']
-                    },
-                    "locality": {
-                        "id": ei_create['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'],
-                        "description": "description_test",
-                        "scheme": 'CUATM',
-                        "uri": "ww.io.io"
-                    }
-
-                }
-            },
-            "quantity": 10,
-            "unit": {
-                "id": "10",
-                "name": "name"
-            }
-        },
-            {"id": "2",
-             "description": "item 2",
-             "classification": {
-                 "id": '45112360-6'
-             },
-             "additionalClassifications": [
-                 {
-                     "id": "AA04-0"
-                 }
-             ],
-             "deliveryAddress": {
-                 "streetAddress": "Voloshkina",
-                 "postalCode": "55555",
-                 "addressDetails": {
-                     "country": {
-                         "id": "MD",
-                         "description": "description_55",
-                         "scheme": "scheme_55",
-                         "uri": "www.55"
-                     },
-                     "region": {
-                         "id": "0101000",
-                         "description": "description_55",
-                         "scheme": "scheme_55",
-                         "uri": "www.regi_55"
-                     },
-                     "locality": {
-                         "id": "555555",
-                         "description": "description_test_55",
-                         "scheme": 'other',
-                         "uri": "ww.io.55"
-                     }
-
-                 }
-             },
-             "quantity": 20,
-             "unit": {
-                 "id": "120",
-                 "name": "name_2"
-             }
-             }
-        ]
-
-        access_token = get_access_token_for_platform_one()
-        x_operation_id = get_x_operation_id(access_token)
-        host = set_instance_for_request()
-        requests.post(
-            url=host + update_ei + create_ei_response[1]['data']['outcomes']['ei'][0]['id'],
-            headers={
-                'Authorization': 'Bearer ' + access_token,
-                'X-OPERATION-ID': x_operation_id,
-                'X-TOKEN': create_ei_response[1]['data']['outcomes']['ei'][0]['X-TOKEN'],
-                'Content-Type': 'application/json'},
-            json=ei_update)
-        time.sleep(1)
-        message_from_kafka = get_message_from_kafka(x_operation_id)
-
-        url_update = message_from_kafka['data']['url']
-
-        publicPoint_update = requests.get(url=url_update).json()
-
-
-
-
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['id'] == saved_item_id
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['description'] == \
-               ei_update['tender']['items'][0]['description']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['classification']['scheme'] == 'CPV'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['classification']['id'] == \
-               ei_update['tender']['items'][0]['classification']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['classification']['description'] == \
-               'Lucrări de valorificare a terenurilor virane'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['additionalClassifications'][0][
-                   'scheme'] == 'CPVS'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['additionalClassifications'][0]['id'] == \
-               ei_update['tender']['items'][0]['additionalClassifications'][0]['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['additionalClassifications'][0][
-                   'description'] == 'Oţel carbon'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['quantity'] == 10
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['unit']['name'] == 'Parsec'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['unit']['id'] == \
-               ei_update['tender']['items'][0]['unit']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['streetAddress'] == \
-               ei_update['tender']['items'][0]['deliveryAddress']['streetAddress']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['postalCode'] == \
-               ei_update['tender']['items'][0]['deliveryAddress']['postalCode']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                   'scheme'] == 'iso-alpha2'
-        assert \
-            publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-                'id'] == 'MD'
-        # assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails']['country'][
-        #            'description'] == 'Moldova, Republica'
-        # assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
-        #            'country']['uri'] == 'https://www.iso.org'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                   'region']['scheme'] == 'CUATM'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                   'region']['id'] == ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region'][
-                   'id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                   'region']['description'] == 'mun.Chişinău'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                   'region']['uri'] == 'http://statistica.md'
-
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                   'locality']['scheme'] == \
-               ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                   'locality']['id'] == \
-               ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                   'locality']['description'] == 'mun.Chişinău'
-        assert publicPoint_update['releases'][0]['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                   'locality']['uri'] == 'http://statistica.md'
-
-
-        is_uuid_item_id = is_valid_uuid(publicPoint_update['releases'][0]['tender']['items'][1]['id'])
-        assert is_uuid_item_id == True
-
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['description'] == \
-               ei_update['tender']['items'][1]['description']
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['classification']['scheme'] == 'CPV'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['classification']['id'] == \
-               ei_update['tender']['items'][1]['classification']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['classification']['description'] == \
-               'Lucrări de reabilitare a terenului'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['additionalClassifications'][0][
-                   'scheme'] == 'CPVS'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['additionalClassifications'][0]['id'] == \
-               ei_update['tender']['items'][1]['additionalClassifications'][0]['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['additionalClassifications'][0][
-                   'description'] == 'Cupru'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['quantity'] == 20
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['unit']['name'] == 'Milion decalitri'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['unit']['id'] == \
-               ei_update['tender']['items'][1]['unit']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['streetAddress'] == \
-               ei_update['tender']['items'][1]['deliveryAddress']['streetAddress']
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['postalCode'] == \
-               ei_update['tender']['items'][1]['deliveryAddress']['postalCode']
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails']['country'][
-                   'scheme'] == 'iso-alpha2'
-        assert \
-            publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails']['country'][
-                'id'] == 'MD'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails']['country'][
-                   'description'] == 'Moldova, Republica'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails'][
-                   'country']['uri'] == 'https://www.iso.org'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails'][
-                   'region']['scheme'] == 'CUATM'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails'][
-                   'region']['id'] == ei_update['tender']['items'][1]['deliveryAddress']['addressDetails']['region'][
-                   'id']
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails'][
-                   'region']['description'] == 'mun.Chişinău'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails'][
-                   'region']['uri'] == 'http://statistica.md'
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails'][
-                   'locality']['scheme'] == \
-               ei_update['tender']['items'][1]['deliveryAddress']['addressDetails']['locality']['scheme']
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails'][
-                   'locality']['id'] == \
-               ei_update['tender']['items'][1]['deliveryAddress']['addressDetails']['locality']['id']
-        assert publicPoint_update['releases'][0]['tender']['items'][1]['deliveryAddress']['addressDetails'][
-                   'locality']['description'] == \
-               ei_update['tender']['items'][1]['deliveryAddress']['addressDetails']['locality']['description']
-
-
-    @pytestrail.case('24455')
-    def test_24455_1(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['items'][0]['id'] = '656'
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-
-    @pytestrail.case('24455')
-    def test_24455_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['items'][0]['id'] = '656'
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        ocid = fnmatch.fnmatch(update_ei_response[1]['data']['ocid'], '*')
-
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert ocid == True
-
-    @pytestrail.case('24455')
-    def test_24455_3(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_full)
-        ei_update['tender']['items'][0]['id'] = '656'
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-        time.sleep(2)
-
-        url_update = update_ei_response[1]['data']['url']
-
-        publicPoint_update = requests.get(url=url_update).json()
-
-        def is_valid_uuid(uuid_to_test, version=4):
-            try:
-                uuid_obj = UUID(uuid_to_test, version=version)
-            except:
-                return False
-            return str(uuid_obj) == uuid_to_test
-
-        is_uuid_item_id = is_valid_uuid(publicPoint_update['releases'][0]['tender']['items'][0]['id'])
-        assert is_uuid_item_id == True
-
-    @pytestrail.case('24456')
-    def test_24456_2(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.00.00.00'
-        assert update_ei_response[1]['errors'][0]['description'] == 'Data processing exception.'
-
-    @pytestrail.case('24456')
-    def test_24456_3(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['title']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.10.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.budget.model.dto.ei.' \
-                                     'request.EiUpdate$TenderEiUpdate] value failed for JSON property title due to ' \
-                                     'missing (therefore NULL) value for creator parameter title which is a ' \
-                                     'non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through ' \
-                                     'reference chain: com.procurement.budget.model.dto.ei.request.' \
-                                     'EiUpdate[\"tender\"]->com.procurement.budget.model.dto.ei.request.' \
-                                     'EiUpdate$TenderEiUpdate[\"title\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_4(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['id']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item] value failed for JSON property id due to missing ' \
-                                     '(therefore NULL) value for creator parameter id which is a non-nullable type\n ' \
-                                     'at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm.' \
-                                     'model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"id\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_5(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['description']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item] value failed for JSON property description due to ' \
-                                     'missing (therefore NULL) value for creator parameter description which is a ' \
-                                     'non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through ' \
-                                     'reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.' \
-                                     'ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$' \
-                                     'Item[\"description\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_6(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['classification']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item] value failed for JSON property classification due to ' \
-                                     'missing (therefore NULL) value for creator parameter classification which is a ' \
-                                     'non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through ' \
-                                     'reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.' \
-                                     'ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$' \
-                                     'Item[\"classification\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_7(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['classification']['id']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$Classification] value failed for JSON property id due to ' \
-                                     'missing (therefore NULL) value for creator parameter id which is a non-' \
-                                     'nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference ' \
-                                     'chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.' \
-                                     'ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item' \
-                                     '[\"classification\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender' \
-                                     '$Item$Classification[\"id\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_8(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['additionalClassifications'][0]['id']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$AdditionalClassification] value failed for JSON property ' \
-                                     'id due to missing (therefore NULL) value for creator parameter id which is a ' \
-                                     'non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through ' \
-                                     'reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.' \
-                                     'ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item' \
-                                     '[\"additionalClassifications\"]->java.util.ArrayList[0]->com.procurement.mdm.' \
-                                     'model.dto.data.ei.EIRequest$Tender$Item$AdditionalClassification[\"id\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_9(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['deliveryAddress']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item] value failed for JSON property deliveryAddress due to ' \
-                                     'missing (therefore NULL) value for creator parameter deliveryAddress which is ' \
-                                     'a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through ' \
-                                     'reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.' \
-                                     'ArrayList[0]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item' \
-                                     '[\"deliveryAddress\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_10(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$DeliveryAddress] value failed for JSON property ' \
-                                     'addressDetails due to missing (therefore NULL) value for creator parameter ' \
-                                     'addressDetails which is a non-nullable type\n at [Source: UNKNOWN; line: -1, ' \
-                                     'column: -1] (through reference chain: com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender' \
-                                     '[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.' \
-                                     'ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_11(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$DeliveryAddress$AddressDetails] value failed for JSON ' \
-                                     'property country due to missing (therefore NULL) value for creator parameter ' \
-                                     'country which is a non-nullable type\n at [Source: UNKNOWN; line: -1, ' \
-                                     'column: -1] (through reference chain: com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender' \
-                                     '[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.' \
-                                     'ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com.procurement.' \
-                                     'mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails' \
-                                     '[\"country\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_12(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Country] value failed for ' \
-                                     'JSON property id due to missing (therefore NULL) value for creator parameter ' \
-                                     'id which is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] ' \
-                                     '(through reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest' \
-                                     '[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender' \
-                                     '[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.' \
-                                     'data.ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$' \
-                                     'AddressDetails[\"country\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$' \
-                                     'Tender$Item$DeliveryAddress$AddressDetails$Country[\"id\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_13(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$DeliveryAddress$AddressDetails] value failed for JSON ' \
-                                     'property region due to missing (therefore NULL) value for creator parameter ' \
-                                     'region which is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: ' \
-                                     '-1] (through reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest' \
-                                     '[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender' \
-                                     '[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.' \
-                                     'data.ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$' \
-                                     'AddressDetails[\"region\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_14(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Region] value failed for ' \
-                                     'JSON property id due to missing (therefore NULL) value for creator parameter ' \
-                                     'id which is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] ' \
-                                     '(through reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest' \
-                                     '[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender' \
-                                     '[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.' \
-                                     'data.ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$' \
-                                     'AddressDetails[\"region\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$' \
-                                     'Tender$Item$DeliveryAddress$AddressDetails$Region[\"id\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_15(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Locality] value failed ' \
-                                     'for JSON property id due to missing (therefore NULL) value for creator ' \
-                                     'parameter id which is a non-nullable type\n at [Source: UNKNOWN; line: -1, ' \
-                                     'column: -1] (through reference chain: com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender' \
-                                     '[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.' \
-                                     'ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com.procurement.' \
-                                     'mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$AddressDetails' \
-                                     '[\"locality\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$' \
-                                     'DeliveryAddress$AddressDetails$Locality[\"id\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_16(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Locality] value failed ' \
-                                     'for JSON property scheme due to missing (therefore NULL) value for creator ' \
-                                     'parameter scheme which is a non-nullable type\n at [Source: UNKNOWN; line: -1, ' \
-                                     'column: -1] (through reference chain: com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender' \
-                                     '[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement.mdm.model.dto.' \
-                                     'data.ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$' \
-                                     'AddressDetails[\"locality\"]->com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$DeliveryAddress$AddressDetails$Locality[\"scheme\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_17(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['quantity']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item] value failed for JSON property quantity due to missing ' \
-                                     '(therefore NULL) value for creator parameter quantity which is a non-nullable ' \
-                                     'type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: ' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement.' \
-                                     'mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"quantity\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_18(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['unit']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item] value failed for JSON property unit due to missing ' \
-                                     '(therefore NULL) value for creator parameter unit which is a non-nullable ' \
-                                     'type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: ' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement.' \
-                                     'mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"unit\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_19(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['items'][0]['unit']['id']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Item$Unit] value failed for JSON property id due to missing ' \
-                                     '(therefore NULL) value for creator parameter id which is a non-nullable ' \
-                                     'type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference chain: ' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement.' \
-                                     'mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->' \
-                                     'com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item[\"unit\"]->com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Unit[\"id\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_20(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['classification']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender] value failed for JSON property classification due to missing ' \
-                                     '(therefore NULL) value for creator parameter classification which is a non-' \
-                                     'nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference ' \
-                                     'chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"classification\"])'
-
-    @pytestrail.case('24456')
-    def test_24456_21(self):
-        ei_create = copy.deepcopy(ei_full)
-        ei_update = copy.deepcopy(ei_update_obligatory_fields_with_obligatory_fields_in_tender_items)
-        del ei_update['tender']['classification']['id']
-        update_ei_response = bpe_update_ei(ei_update, ei_create)
-
-        assert update_ei_response[0].text == 'ok'
-        assert update_ei_response[0].status_code == 202
-        assert update_ei_response[1]['X-OPERATION-ID'] == update_ei_response[2]
-        assert update_ei_response[1]['errors'][0]['code'] == '400.20.00'
-        assert update_ei_response[1]['errors'][0][
-                   'description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException: ' \
-                                     'Instantiation of [simple type, class com.procurement.mdm.model.dto.data.ei.' \
-                                     'EIRequest$Tender$Classification] value failed for JSON property id due to ' \
-                                     'missing (therefore NULL) value for creator parameter id which is a non-' \
-                                     'nullable type\n at [Source: UNKNOWN; line: -1, column: -1] (through reference ' \
-                                     'chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"classification\"]->com.' \
-                                     'procurement.mdm.model.dto.data.ei.EIRequest$Tender$Classification[\"id\"])'
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                tender_classification_id="45100000-8", tender_item_classification_id="45100000-8",
+                planning_budget_id="45100000-8", cassandra_username=cassandra_username,
+                cassandra_password=cassandra_password)
+        ei.insert_ei_obligatory_data_model()
+        ei.update_ei()
+        time.sleep(1.8)
+        message_from_kafka = ei.get_message_from_kafka()
+        expected_result = str(
+            [{"code": "400.10.00.05",
+              "description": "Invalid CPV.Invalid CPV code in classification(s) '19700000-3'"}])
+        actual_result = str(message_from_kafka["errors"])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
+        @pytestrail.case("24456")
+        def test_delete_tender_object_from_the_payload_24456_1(self, country, language, instance, cassandra_username,
+                                                               cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{'code': '400.00.00.00', 'description': 'Data processing exception.'}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_title_field_from_the_payload_24456_2(self, country, language, instance,
+                                                                    cassandra_username,
+                                                                    cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["title"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.10.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "budget.model.dto.ei.request.EiUpdate$TenderEiUpdate] value failed "
+                                                   "for JSON property title due to missing (therefore NULL) value for "
+                                                   "creator parameter title which is a non-nullable type\n at "
+                                                   "[Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                   "chain: com.procurement.budget.model.dto.ei.request.EiUpdate"
+                                                   "[\"tender\"]->com.procurement.budget.model.dto.ei.request."
+                                                   "EiUpdate$TenderEiUpdate[\"title\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_id_field_from_the_payload_24456_3(self, country, language, instance,
+                                                                       cassandra_username, cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["id"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                                   "JSON property id due to missing (therefore NULL) value for creator "
+                                                   "parameter id which is a non-nullable type\n at [Source: UNKNOWN; "
+                                                   "line: -1, column: -1] (through reference chain: com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util."
+                                                   "ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item[\"id\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_description_field_from_the_payload_24456_4(self, country, language, instance,
+                                                                                cassandra_username, cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["description"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                                   "JSON property description due to missing (therefore NULL) value "
+                                                   "for creator parameter description which is a non-nullable type\n "
+                                                   "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                   "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]"
+                                                   "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]"
+                                                   "->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data."
+                                                   "ei.EIRequest$Tender$Item[\"description\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_classification_field_from_the_payload_24456_5(self, country, language, instance,
+                                                                                   cassandra_username,
+                                                                                   cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["classification"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                                   "JSON property classification due to missing (therefore NULL) "
+                                                   "value for creator parameter classification which is a non-nullable "
+                                                   "type\n at [Source: UNKNOWN; line: -1, column: -1] (through "
+                                                   "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                                   "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
+                                                   "Tender[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm."
+                                                   "model.dto.data.ei.EIRequest$Tender$Item[\"classification\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_classification_id_field_from_the_payload_24456_6(self, country, language, instance,
+                                                                                      cassandra_username,
+                                                                                      cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["classification"]["id"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$Classification] value "
+                                                   "failed for JSON property id due to missing (therefore NULL) value "
+                                                   "for creator parameter id which is a non-nullable type\n at "
+                                                   "[Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                   "chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                                   "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                                   "$Tender[\"items\"]->java.util.ArrayList[0]->com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item[\"classification\"]"
+                                                   "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                                   "$Classification[\"id\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_additional_classifications_id_field_from_the_payload_24456_7(self, country,
+                                                                                                  language, instance,
+                                                                                                  cassandra_username,
+                                                                                                  cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$Additional"
+                                                   "Classification] value failed for JSON property id due to "
+                                                   "missing (therefore NULL) value for creator parameter id which is "
+                                                   "a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                                   "(through reference chain: com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                                   "[\"additionalClassifications\"]->java.util.ArrayList[0]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Additional"
+                                                   "Classification[\"id\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_delivery_address_field_from_the_payload_24456_8(self, country, language, instance,
+                                                                                     cassandra_username,
+                                                                                     cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["deliveryAddress"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                                   "JSON property deliveryAddress due to missing (therefore NULL) "
+                                                   "value for creator parameter deliveryAddress which is a non-"
+                                                   "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                                   "(through reference chain: com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                                   "[\"deliveryAddress\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_delivery_address_address_details_field_24456_9(self, country, language, instance,
+                                                                                    cassandra_username,
+                                                                                    cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress] value "
+                                                   "failed for JSON property addressDetails due to missing (therefore "
+                                                   "NULL) value for creator parameter addressDetails which is a non-"
+                                                   "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                                   "(through reference chain: com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_delivery_address_address_details_country_field_24456_10(self, country, language,
+                                                                                             instance,
+                                                                                             cassandra_username,
+                                                                                             cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                                   "AddressDetails] value failed for JSON property country due to "
+                                                   "missing (therefore NULL) value for creator parameter country "
+                                                   "which is a non-nullable type\n at [Source: UNKNOWN; line: -1, "
+                                                   "column: -1] (through reference chain: com.procurement.mdm.model."
+                                                   "dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm.model."
+                                                   "dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]"
+                                                   "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->"
+                                                   "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                                   "$DeliveryAddress$AddressDetails[\"country\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_delivery_address_address_details_country_id_field_24456_11(self, country, language,
+                                                                                                instance,
+                                                                                                cassandra_username,
+                                                                                                cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                                   "AddressDetails$Country] value failed for JSON property id due "
+                                                   "to missing (therefore NULL) value for creator parameter id which "
+                                                   "is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: "
+                                                   "-1] (through reference chain: com.procurement.mdm.model.dto.data."
+                                                   "ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data."
+                                                   "ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]"
+                                                   "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$"
+                                                   "Item$DeliveryAddress$AddressDetails[\"country\"]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
+                                                   "DeliveryAddress$AddressDetails$Country[\"id\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_delivery_address_address_details_region_field_24456_12(self, country, language,
+                                                                                            instance,
+                                                                                            cassandra_username,
+                                                                                            cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                                   "AddressDetails] value failed for JSON property region due to "
+                                                   "missing (therefore NULL) value for creator parameter region "
+                                                   "which is a non-nullable type\n at [Source: UNKNOWN; line: -1, "
+                                                   "column: -1] (through reference chain: com.procurement.mdm."
+                                                   "model.dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm."
+                                                   "model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util."
+                                                   "ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress"
+                                                   "[\"addressDetails\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item$DeliveryAddress$AddressDetails"
+                                                   "[\"region\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_delivery_address_address_details_region_id_field_24456_13(self, country, language,
+                                                                                               instance,
+                                                                                               cassandra_username,
+                                                                                               cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                                   "AddressDetails$Region] value failed for JSON property id due "
+                                                   "to missing (therefore NULL) value for creator parameter id which "
+                                                   "is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: "
+                                                   "-1] (through reference chain: com.procurement.mdm.model.dto.data."
+                                                   "ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->"
+                                                   "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
+                                                   "DeliveryAddress$AddressDetails[\"region\"]->com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                                   "AddressDetails$Region[\"id\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_delivery_address_address_details_locality_id_field_24456_14(self, country,
+                                                                                                 language, instance,
+                                                                                                 cassandra_username,
+                                                                                                 cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
+                                                   "Details$Locality] value failed for JSON property id due to missing "
+                                                   "(therefore NULL) value for creator parameter id which is a non-"
+                                                   "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                                   "(through reference chain: com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Delivery"
+                                                   "Address$AddressDetails[\"locality\"]->com.procurement.mdm.model."
+                                                   "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
+                                                   "Details$Locality[\"id\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_delivery_address_address_details_locality_id_field_24456_15(self, country,
+                                                                                                 language, instance,
+                                                                                                 cassandra_username,
+                                                                                                 cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
+                                                   "Details$Locality] value failed for JSON property scheme due to "
+                                                   "missing (therefore NULL) value for creator parameter scheme which "
+                                                   "is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: "
+                                                   "-1] (through reference chain: com.procurement.mdm.model.dto.data."
+                                                   "ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Delivery"
+                                                   "Address$AddressDetails[\"locality\"]->com.procurement.mdm.model."
+                                                   "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
+                                                   "Details$Locality[\"scheme\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_quantity_field_from_the_payload_24456_16(self, country, language,
+                                                                              instance, cassandra_username,
+                                                                              cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["quantity"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                                   "JSON property quantity due to missing (therefore NULL) value "
+                                                   "for creator parameter quantity which is a non-nullable type\n "
+                                                   "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                   "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]"
+                                                   "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]"
+                                                   "->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item[\"quantity\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_unit_field_from_the_payload_24456_17(self, country, language,
+                                                                          instance, cassandra_username,
+                                                                          cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["unit"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                                   "JSON property unit due to missing (therefore NULL) value for "
+                                                   "creator parameter unit which is a non-nullable type\n at [Source: "
+                                                   "UNKNOWN; line: -1, column: -1] (through reference chain: com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->"
+                                                   "java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item[\"unit\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_items_unit_id_field_from_the_payload_24456_18(self, country, language,
+                                                                             instance, cassandra_username,
+                                                                             cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["items"][0]["unit"]["id"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$Unit] value failed "
+                                                   "for JSON property id due to missing (therefore NULL) value for "
+                                                   "creator parameter id which is a non-nullable type\n at [Source: "
+                                                   "UNKNOWN; line: -1, column: -1] (through reference chain: com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com."
+                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->"
+                                                   "java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender$Item[\"unit\"]->com.procurement.mdm.model.dto."
+                                                   "data.ei.EIRequest$Tender$Item$Unit[\"id\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_classification_field_from_the_payload_24456_19(self, country, language,
+                                                                              instance, cassandra_username,
+                                                                              cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["classification"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender] value failed for JSON "
+                                                   "property classification due to missing (therefore NULL) value "
+                                                   "for creator parameter classification which is a non-nullable "
+                                                   "type\n at [Source: UNKNOWN; line: -1, column: -1] (through "
+                                                   "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                                   "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
+                                                   "Tender[\"classification\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("24456")
+        def test_delete_tender_classification_id_field_from_the_payload_24456_20(self, country, language,
+                                                                                 instance, cassandra_username,
+                                                                                 cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            del payload["tender"]["classification"]["id"]
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00",
+                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                   "Exception: Instantiation of [simple type, class com.procurement."
+                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Classification] value "
+                                                   "failed for JSON property id due to missing (therefore NULL) "
+                                                   "value for creator parameter id which is a non-nullable "
+                                                   "type\n at [Source: UNKNOWN; line: -1, column: -1] (through "
+                                                   "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                                   "EIRequest$Tender[\"classification\"]->com.procurement.mdm."
+                                                   "model.dto.data.ei.EIRequest$Tender$Classification[\"id\"])"}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+    class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
+        @pytestrail.case("25300")
+        def test_delete_tender_title_field_from_the_payload_25300_1(self, country, language,
+                                                                    instance, cassandra_username,
+                                                                    cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            payload["tender"]["title"] = ""
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.10.20.11",
+                                    "description": "Incorrect an attribute value.The attribute 'tender.title' is "
+                                                   "empty or blank."}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("25300")
+        def test_delete_tender_description_field_from_the_payload_25300_2(self, country, language,
+                                                                          instance, cassandra_username,
+                                                                          cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            payload["tender"]["description"] = ""
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.10.20.11",
+                                    "description": "Incorrect an attribute value.The attribute 'tender.description' "
+                                                   "is empty or blank."}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("25300")
+        def test_delete_planning_rationale_field_from_the_payload_25300_3(self, country, language,
+                                                                          instance, cassandra_username,
+                                                                          cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            payload["planning"]["rationale"] = ""
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.10.20.11",
+                                    "description": "Incorrect an attribute value.The attribute 'planning.rationale' "
+                                                   "is empty or blank."}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("25300")
+        def test_delete_tender_items_delivery_address_street_address_field_from_the_payload_25300_4(self, country,
+                                                                                                    language, instance,
+                                                                                                    cassandra_username,
+                                                                                                    cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = ""
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.10.20.11",
+                                    "description": "Incorrect an attribute value.The attribute 'tender.items.delivery"
+                                                   "Address.streetAddress' is empty or blank."}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("25300")
+        def test_delete_tender_items_address_details_locality_scheme_field_from_the_payload_25300_5(self, country,
+                                                                                                    language, instance,
+                                                                                                    cassandra_username,
+                                                                                                    cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = ""
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.10.20.11",
+                                    "description": "Incorrect an attribute value.The attribute 'deliveryAddress."
+                                                   "addressDetails.locality.scheme' is empty or blank."}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("25300")
+        def test_delete_tender_items_address_details_locality_id_field_from_the_payload_25300_6(self, country,
+                                                                                                language, instance,
+                                                                                                cassandra_username,
+                                                                                                cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = ""
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.20.00.14", "description": "Locality not found. "}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("25300")
+        def test_delete_tender_items_address_details_locality_description_field_25300_7(self, country,
+                                                                                        language, instance,
+                                                                                        cassandra_username,
+                                                                                        cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "other"
+            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["description"] = ""
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.10.20.11",
+                                    "description": "Incorrect an attribute value.The attribute 'deliveryAddress."
+                                                   "addressDetails.locality.description' is empty or blank."}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+
+        @pytestrail.case("25300")
+        def test_delete_tender_items_description_field_from_the_payload_25300_7(self, country, language, instance,
+                                                                                cassandra_username, cassandra_password):
+            payload = copy.deepcopy(payload_ei_full_data_model)
+            payload["tender"]["items"][0]["description"] = ""
+            ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+            ei.insert_ei_full_data_model()
+            ei.update_ei()
+            message_from_kafka = ei.get_message_from_kafka()
+            actual_result = str(message_from_kafka["errors"])
+            expected_result = str([{"code": "400.10.20.11",
+                                    "description": "Incorrect an attribute value.The attribute 'tender.items."
+                                                   "description' is empty or blank."}])
+            assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                             actual_result=actual_result)
+#
+#
+# class TestCheckOnImpossibilityUpdateEiIfTenderItemsQuantityIsLessOrEqualZero(object):
+#     @pytestrail.case("24446")
+#     def test_send_the_request_24446_1(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"][0]["quantity"] = 0
+#         ei = EI(payload=payload, lang=language, country=country)
+#         ei.insert_ei_full_data_model()
+#         update_ei_response = ei.update_ei()
+#         expected_result = str(202)
+#         actual_result = str(update_ei_response.status_code)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#     @pytestrail.case("24446")
+#     def test_see_the_result_in_feed_point_24446_2(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"][0]["quantity"] = 0
+#         ei = EI(payload=payload, lang=language, country=country)
+#         insert_ei = ei.insert_ei_full_data_model()
+#         ei.update_ei()
+#         error_from_DB = execute_cql_from_orchestrator_operation_step(insert_ei[2], 'BudgetUpdateEiTask')
+#         expected_result = str([{"code": "400.10.20.09",
+#                                 "description": "Invalid item quantity.Quantity of item '1' must be greater
+#                                 than zero"}])
+#         actual_result = str(error_from_DB["errors"])
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#
+# class TestCheckOnImpossibilityUpdateEiIfTenderItemsIdIsNotUniqueInTenderItemsArray(object):
+#     @pytestrail.case("24447")
+#     def test_send_the_request_24447_1(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload['tender']['items'] = [{
+#             "id": "1",
+#             "description": "item 1",
+#             "classification": {
+#                 "id": "45100000-8"
+#             },
+#             "additionalClassifications": [
+#                 {
+#                     "id": "AA12-4"
+#                 }
+#             ],
+#             "deliveryAddress": {
+#                 "streetAddress": "хрещатик",
+#                 "postalCode": "02235",
+#                 "addressDetails": {
+#                     "country": {
+#                         "id": "MD",
+#                         "description": "ОПИСАНИЕ",
+#                         "scheme": "other"
+#                     },
+#                     "region": {
+#                         "id": "1700000",
+#                         "description": "ОПИСАНИЕ",
+#                         "scheme": "CUATM"
+#                     },
+#                     "locality": {
+#                         "id": "1701000",
+#                         "description": "ОПИСАНИЕ2",
+#                         "scheme": "other"
+#                     }
+#
+#                 }
+#             },
+#             "quantity": 1,
+#             "unit": {
+#                 "id": "10",
+#                 "name": "name"
+#             }
+#         },
+#             {
+#                 "id": "1",
+#                 "description": "item 2",
+#                 "classification": {
+#                     "id": "45100000-8"
+#                 },
+#                 "additionalClassifications": [
+#                     {
+#                         "id": "AA05-3"
+#                     }
+#                 ],
+#                 "deliveryAddress": {
+#                     "streetAddress": "хрещатик",
+#                     "postalCode": "02235",
+#                     "addressDetails": {
+#                         "country": {
+#                             "id": "MD",
+#                             "description": "ОПИСАНИЕ",
+#                             "scheme": "other"
+#                         },
+#                         "region": {
+#                             "id": "1700000",
+#                             "description": "ОПИСАНИЕ",
+#                             "scheme": "CUATM"
+#                         },
+#                         "locality": {
+#                             "id": "1701000",
+#                             "description": "ОПИСАНИЕ2",
+#                             "scheme": "other"
+#                         }
+#                     }
+#                 },
+#                 "quantity": 1,
+#                 "unit": {
+#                     "id": "10",
+#                     "name": "name"
+#                 }
+#             }
+#         ]
+#         ei = EI(payload=payload, lang=language, country=country, tender_classification_id="45100000-8",
+#                 tender_item_classification_id="45100000-8", planning_budget_id="45100000-8")
+#         ei.insert_ei_obligatory_data_model()
+#         update_ei_response = ei.update_ei()
+#         expected_result = str(202)
+#         actual_result = str(update_ei_response.status_code)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#     @pytestrail.case("24447")
+#     def test_see_the_result_in_feed_point_24447_2(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload['tender']['items'] = [{
+#             "id": "1",
+#             "description": "item 1",
+#             "classification": {
+#                 "id": "45100000-8"
+#             },
+#             "additionalClassifications": [
+#                 {
+#                     "id": "AA12-4"
+#                 }
+#             ],
+#             "deliveryAddress": {
+#                 "streetAddress": "хрещатик",
+#                 "postalCode": "02235",
+#                 "addressDetails": {
+#                     "country": {
+#                         "id": "MD",
+#                         "description": "ОПИСАНИЕ",
+#                         "scheme": "other"
+#                     },
+#                     "region": {
+#                         "id": "1700000",
+#                         "description": "ОПИСАНИЕ",
+#                         "scheme": "CUATM"
+#                     },
+#                     "locality": {
+#                         "id": "1701000",
+#                         "description": "ОПИСАНИЕ2",
+#                         "scheme": "other"
+#                     }
+#
+#                 }
+#             },
+#             "quantity": 1,
+#             "unit": {
+#                 "id": "10",
+#                 "name": "name"
+#             }
+#         },
+#             {
+#                 "id": "1",
+#                 "description": "item 2",
+#                 "classification": {
+#                     "id": "45100000-8"
+#                 },
+#                 "additionalClassifications": [
+#                     {
+#                         "id": "AA05-3"
+#                     }
+#                 ],
+#                 "deliveryAddress": {
+#                     "streetAddress": "хрещатик",
+#                     "postalCode": "02235",
+#                     "addressDetails": {
+#                         "country": {
+#                             "id": "MD",
+#                             "description": "ОПИСАНИЕ",
+#                             "scheme": "other"
+#                         },
+#                         "region": {
+#                             "id": "1700000",
+#                             "description": "ОПИСАНИЕ",
+#                             "scheme": "CUATM"
+#                         },
+#                         "locality": {
+#                             "id": "1701000",
+#                             "description": "ОПИСАНИЕ2",
+#                             "scheme": "other"
+#                         }
+#                     }
+#                 },
+#                 "quantity": 1,
+#                 "unit": {
+#                     "id": "10",
+#                     "name": "name"
+#                 }
+#             }
+#         ]
+#         ei = EI(payload=payload, lang=language, country=country, tender_classification_id="45100000-8",
+#                 tender_item_classification_id="45100000-8", planning_budget_id="45100000-8")
+#         insert_ei = ei.insert_ei_obligatory_data_model()
+#         ei.update_ei()
+#         error_from_DB = execute_cql_from_orchestrator_operation_step(insert_ei[2], 'BudgetUpdateEiTask')
+#         expected_result = str(
+#             [{"code": "400.10.20.10", "description": "Duplicated items found.Item '1' has a duplicate"}])
+#         actual_result = str(error_from_DB["errors"])
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#
+# class TestCheckOnImpossibilityToUpdateSomeAttributesInEiRelease(object):
+#     @pytestrail.case("24449")
+#     def test_send_the_request_24449_1(self, country, language):
+#         period = get_new_period()
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["classification"]["scheme"] = "ZVS"
+#         payload["tender"]["classification"]["id"] = "45100000-8"
+#         payload["tender"]["classification"]["description"] = "Dada"
+#         payload["planning"]["budget"]["period"]["startDate"] = period[5]
+#         payload["planning"]["budget"]["period"]["endDate"] = period[6]
+#         payload["buyer"]["name"] = "zama"
+#         payload["buyer"]["identifier"]["id"] = "380632074071"
+#         payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+#         payload["buyer"]["identifier"]["legalName"] = "zao"
+#         payload["buyer"]["identifier"]["uri"] = "fop"
+#         payload["buyer"]["address"]["streetAddress"] = "Romashkova"
+#         payload["buyer"]["address"]["postalCode"] = "87"
+#         payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+#         payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "1700000"
+#         payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
+#         payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+#         payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "mun.Chişinău789"
+#         payload["buyer"]["contactPoint"]["name"] = "Petro"
+#         payload["buyer"]["contactPoint"]["email"] = "petro@lpo"
+#         payload["buyer"]["contactPoint"]["telephone"] = "0574256"
+#         payload["buyer"]["contactPoint"]["faxNumber"] = "456"
+#         payload["buyer"]["contactPoint"]["url"] = "www url4444"
+#         del payload["tender"]["items"]
+#         ei = EI(payload=payload, lang=language, country=country, tender_classification_id="50100000-6",
+#                 tender_item_classification_id="50100000-6", planning_budget_id="50100000-6",
+#                 tender_classification_scheme="CPV", tender_classification_description="Timbre",
+#                 planning_budget_period_start_date=get_period()[0], planning_budget_period_end_date=get_period()[1],
+#                 buyer_name="Directia Cultura a Primariei mun.Chisinau", buyer_identifier_id="1007601010585",
+#                 buyer_identifier_scheme="MD-IDNO", buyer_identifier_legal_name="Directia Cultura",
+#                 buyer_identifier_uri="www", buyer_address_street_address="str.Bucuresti 68",
+#                 buyer_address_address_details_country_id="MD", buyer_address_address_details_region_id="0101000",
+#                 buyer_address_address_details_locality_id="0101000", buyer_contact_point_name="Dumitru Popa",
+#                 buyer_address_address_details_locality_scheme="CUATM", buyer_contact_point_telephone="022242290",
+#                 buyer_contact_point_email="directiacultшra@yahoo.com", buyer_contact_point_fax_number="123",
+#                 buyer_address_address_details_locality_description="mun.Chişinău", buyer_contact_point_url="www url",
+#                 buyer_address_postal_code="147")
+#         insert = ei.insert_ei_full_data_model_without_item()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         update_ei_response = ei.update_ei()
+#         expected_result = str(202)
+#         actual_result = str(update_ei_response.status_code)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#     @pytestrail.case("24449")
+#     def test_see_the_result_in_feed_point_24449_2(self, country, language):
+#         period = get_new_period()
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["classification"]["scheme"] = "ZVS"
+#         payload["tender"]["classification"]["id"] = "45100000-8"
+#         payload["tender"]["classification"]["description"] = "Dada"
+#         payload["planning"]["budget"]["period"]["startDate"] = period[5]
+#         payload["planning"]["budget"]["period"]["endDate"] = period[6]
+#         payload["buyer"]["name"] = "zama"
+#         payload["buyer"]["identifier"]["id"] = "380632074071"
+#         payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+#         payload["buyer"]["identifier"]["legalName"] = "zao"
+#         payload["buyer"]["identifier"]["uri"] = "fop"
+#         payload["buyer"]["address"]["streetAddress"] = "Romashkova"
+#         payload["buyer"]["address"]["postalCode"] = "87"
+#         payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+#         payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "1700000"
+#         payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
+#         payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+#         payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "mun.Chişinău789"
+#         payload["buyer"]["contactPoint"]["name"] = "Petro"
+#         payload["buyer"]["contactPoint"]["email"] = "petro@lpo"
+#         payload["buyer"]["contactPoint"]["telephone"] = "0574256"
+#         payload["buyer"]["contactPoint"]["faxNumber"] = "456"
+#         payload["buyer"]["contactPoint"]["url"] = "www url4444"
+#         del payload["tender"]["items"]
+#         ei = EI(payload=payload, lang=language, country=country, tender_classification_id="50100000-6",
+#                 tender_item_classification_id="50100000-6", planning_budget_id="50100000-6",
+#                 tender_classification_scheme="CPV", tender_classification_description="Timbre",
+#                 planning_budget_period_start_date=get_period()[0], planning_budget_period_end_date=get_period()[1],
+#                 buyer_name="Directia Cultura a Primariei mun.Chisinau", buyer_identifier_id="1007601010585",
+#                 buyer_identifier_scheme="MD-IDNO", buyer_identifier_legal_name="Directia Cultura",
+#                 buyer_identifier_uri="www", buyer_address_street_address="str.Bucuresti 68",
+#                 buyer_address_address_details_country_id="MD", buyer_address_address_details_region_id="0101000",
+#                 buyer_address_address_details_locality_id="0101000", buyer_contact_point_name="Dumitru Popa",
+#                 buyer_address_address_details_locality_scheme="CUATM", buyer_contact_point_telephone="022242290",
+#                 buyer_contact_point_email="directiacultшra@yahoo.com", buyer_contact_point_fax_number="123",
+#                 buyer_address_address_details_locality_description="mun.Chişinău", buyer_contact_point_url="www url",
+#                 buyer_address_postal_code="147")
+#         insert = ei.insert_ei_full_data_model_without_item()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         ei.get_message_from_kafka()
+#         actual_result = str(ei.check_on_that_message_is_successfull_update_ei())
+#         expected_result = str(True)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+#
+#     @pytestrail.case("24449")
+#     def test_compare_data_of_EI_release_before_updating_and_after_updating_24449_3(self, country, language):
+#         period = get_new_period()
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["classification"]["scheme"] = "ZVS"
+#         payload["tender"]["classification"]["id"] = "45100000-8"
+#         payload["tender"]["classification"]["description"] = "Dada"
+#         payload["planning"]["budget"]["period"]["startDate"] = period[5]
+#         payload["planning"]["budget"]["period"]["endDate"] = period[6]
+#         payload["buyer"]["name"] = "zama"
+#         payload["buyer"]["identifier"]["id"] = "380632074071"
+#         payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+#         payload["buyer"]["identifier"]["legalName"] = "zao"
+#         payload["buyer"]["identifier"]["uri"] = "fop"
+#         payload["buyer"]["address"]["streetAddress"] = "Romashkova"
+#         payload["buyer"]["address"]["postalCode"] = "87"
+#         payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+#         payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "1700000"
+#         payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
+#         payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+#         payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "mun.Chişinău789"
+#         payload["buyer"]["contactPoint"]["name"] = "Petro"
+#         payload["buyer"]["contactPoint"]["email"] = "petro@lpo"
+#         payload["buyer"]["contactPoint"]["telephone"] = "0574256"
+#         payload["buyer"]["contactPoint"]["faxNumber"] = "456"
+#         payload["buyer"]["contactPoint"]["url"] = "www url4444"
+#         del payload["tender"]["items"]
+#         ei = EI(payload=payload, lang=language, country=country, tender_classification_id="50100000-6",
+#                 tender_item_classification_id="50100000-6", planning_budget_id="50100000-6",
+#                 tender_classification_scheme="CPV", tender_classification_description="Timbre",
+#                 planning_budget_period_start_date=get_period()[0], planning_budget_period_end_date=get_period()[1],
+#                 buyer_name="Directia Cultura a Primariei mun.Chisinau", buyer_identifier_id="1007601010585",
+#                 buyer_identifier_scheme="MD-IDNO", buyer_identifier_legal_name="Directia Cultura",
+#                 buyer_identifier_uri="www", buyer_address_street_address="str.Bucuresti 68",
+#                 buyer_address_address_details_country_id="MD", buyer_address_address_details_region_id="0101000",
+#                 buyer_address_address_details_locality_id="0101000", buyer_contact_point_name="Dumitru Popa",
+#                 buyer_address_address_details_locality_scheme="CUATM", buyer_contact_point_telephone="022242290",
+#                 buyer_contact_point_email="directiacultшra@yahoo.com", buyer_contact_point_fax_number="123",
+#                 buyer_address_address_details_locality_description="mun.Chişinău", buyer_contact_point_url="www url",
+#                 buyer_address_postal_code="147")
+#         insert = ei.insert_ei_full_data_model_without_item()
+#         ei_release_before_updating = requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         message_from_kafka = ei.get_message_from_kafka()
+#         ei_release_after_updating = requests.get(url=message_from_kafka["data"]["url"]).json()
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["tender"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["tender"]["status"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["status"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["tender"]["statusDetails"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["statusDetails"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["tender"]["classification"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["classification"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["tender"]["classification"]["scheme"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["classification"]["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["tender"]["classification"]["description"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["classification"]["description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["tender"]["mainProcurementCategory"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["mainProcurementCategory"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["planning"]["budget"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["planning"]["budget"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["planning"]["budget"]["period"]["startDate"],
+#             actual_result=ei_release_after_updating["releases"][0]["planning"]["budget"]["period"]["startDate"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["planning"]["budget"]["period"]["endDate"],
+#             actual_result=ei_release_after_updating["releases"][0]["planning"]["budget"]["period"]["endDate"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["buyer"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["buyer"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["buyer"]["name"],
+#             actual_result=ei_release_after_updating["releases"][0]["buyer"]["name"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["parties"][0]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["parties"][0]["name"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["name"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["parties"][0]["identifier"]["scheme"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["identifier"]["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["parties"][0]["identifier"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["identifier"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["parties"][0]["identifier"]["legalName"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["identifier"]["legalName"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["parties"][0]["identifier"]["uri"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["identifier"]["uri"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=ei_release_before_updating["releases"][0]["parties"][0]["address"]["streetAddress"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["address"]["streetAddress"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+#                 "scheme"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+#                 "scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+#                 "id"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+#                 "id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+#                 "description"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+#                 "description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+#                 "uri"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["country"][
+#                 "uri"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
+#                 "scheme"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
+#                 "scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
+#                 "id"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"][
+#             "region"][
+#                 "id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
+#                 "description"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"][
+#             "region"][
+#                 "description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["region"][
+#                 "uri"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"][
+#             "region"][
+#                 "uri"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
+#             "scheme"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
+#                 "scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["id"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
+#                 "id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
+#                 "description"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
+#                 "description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"]["uri"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"][
+#                 "uri"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["contactPoint"]["name"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["contactPoint"]["name"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["contactPoint"]["email"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["contactPoint"]["email"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["contactPoint"]["telephone"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["contactPoint"]["telephone"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["contactPoint"]["faxNumber"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["contactPoint"]["faxNumber"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["contactPoint"]["url"],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["contactPoint"]["url"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=
+#             ei_release_before_updating["releases"][0]["parties"][0]["roles"][0],
+#             actual_result=ei_release_after_updating["releases"][0]["parties"][0]["roles"][0])
+#
+#
+# class TestCheckOnPossibilityUpdateTenderTitleTenderDescriptionAttributesInEiRelease(object):
+#     @pytestrail.case("24450")
+#     def test_send_the_request_24450_1(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["description"] = "fada"
+#         payload["tender"]["title"] = "zayac"
+#         ei = EI(payload=payload, lang=language, country=country, tender_title="volk", tender_description="kola")
+#         insert = ei.insert_ei_full_data_model_without_item()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         update_ei_response = ei.update_ei()
+#         expected_result = str(202)
+#         actual_result = str(update_ei_response.status_code)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#     @pytestrail.case("24450")
+#     def test_see_the_result_in_feed_point_24450_2(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["description"] = "fada"
+#         payload["tender"]["title"] = "zayac"
+#         ei = EI(payload=payload, lang=language, country=country, tender_title="volk", tender_description="kola")
+#         insert = ei.insert_ei_full_data_model_without_item()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         ei.get_message_from_kafka()
+#         actual_result = str(ei.check_on_that_message_is_successfull_update_ei())
+#         expected_result = str(True)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+#
+#     @pytestrail.case("24450")
+#     def test_compare_data_of_EI_release_before_updating_and_after_updating_24450_3(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["description"] = "fada"
+#         payload["tender"]["title"] = "zayac"
+#         ei = EI(payload=payload, lang=language, country=country, tender_title="volk", tender_description="kola")
+#         insert = ei.insert_ei_full_data_model_without_item()
+#         ei_release_before_updating = requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         message_from_kafka = ei.get_message_from_kafka()
+#         ei_release_after_updating = requests.get(url=message_from_kafka["data"]["url"]).json()
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="volk",
+#             actual_result=ei_release_before_updating["releases"][0]["tender"]["title"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="kola",
+#             actual_result=ei_release_before_updating["releases"][0]["tender"]["description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]["title"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["title"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]["description"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["description"])
+#
+#
+# class TestCheckOnPossibilityUpdatePlanningRationaleInEiRelease(object):
+#     @pytestrail.case("24451")
+#     def test_send_the_request_24451_1(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["planning"]["rationale"] = "fada"
+#         ei = EI(payload=payload, lang=language, country=country, planning_rationale="gf")
+#         insert = ei.insert_ei_full_data_model_without_item()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         update_ei_response = ei.update_ei()
+#         expected_result = str(202)
+#         actual_result = str(update_ei_response.status_code)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#     @pytestrail.case("24451")
+#     def test_see_the_result_in_feed_point_24451_2(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["planning"]["rationale"] = "fada"
+#         ei = EI(payload=payload, lang=language, country=country, planning_rationale="gf")
+#         insert = ei.insert_ei_full_data_model_without_item()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         ei.get_message_from_kafka()
+#         actual_result = str(ei.check_on_that_message_is_successfull_update_ei())
+#         expected_result = str(True)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+#
+#     @pytestrail.case("24451")
+#     def test_compare_data_of_EI_release_before_updating_and_after_updating_24451_3(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["planning"]["rationale"] = "fada"
+#         ei = EI(payload=payload, lang=language, country=country, planning_rationale="gf")
+#         insert = ei.insert_ei_full_data_model_without_item()
+#         ei_release_before_updating = requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         message_from_kafka = ei.get_message_from_kafka()
+#         ei_release_after_updating = requests.get(url=message_from_kafka["data"]["url"]).json()
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="gf",
+#             actual_result=ei_release_before_updating["releases"][0]["planning"]["rationale"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["planning"]["rationale"],
+#             actual_result=ei_release_after_updating["releases"][0]["planning"]["rationale"])
+#
+#
+# class TestCheckOnPossibilityUpdateTenderItemsDescriptionInEiRelease(object):
+#     @pytestrail.case("24452")
+#     def test_send_the_request_24452_1(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"][0]["description"] = "popo"
+#         payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
+#         payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA04-0"
+#         ei = EI(payload=payload, lang=language, country=country, tender_item_classification_id="45100000-8",
+#                 tender_items_additional_classifications_id="AA12-4", tender_items_description="gaga")
+#         insert = ei.insert_ei_full_data_model()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         update_ei_response = ei.update_ei()
+#         expected_result = str(202)
+#         actual_result = str(update_ei_response.status_code)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#     @pytestrail.case("24452")
+#     def test_see_the_result_in_feed_point_24452_2(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"][0]["description"] = "popo"
+#         payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
+#         payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA04-0"
+#         ei = EI(payload=payload, lang=language, country=country, tender_item_classification_id="45100000-8",
+#                 tender_items_additional_classifications_id="AA12-4", tender_items_description="gaga")
+#         insert = ei.insert_ei_full_data_model()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         ei.get_message_from_kafka()
+#         actual_result = str(ei.check_on_that_message_is_successfull_update_ei())
+#         expected_result = str(True)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+#
+#     @pytestrail.case("24452")
+#     def test_compare_data_of_EI_release_before_updating_and_after_updating_24452_3(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"][0]["description"] = "popo"
+#         payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
+#         payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA04-0"
+#         ei = EI(payload=payload, lang=language, country=country, tender_item_classification_id="45100000-8",
+#                 tender_items_additional_classifications_id="AA12-4", tender_items_description="gaga")
+#         insert = ei.insert_ei_full_data_model()
+#         ei_release_before_updating = requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         message_from_kafka = ei.get_message_from_kafka()
+#         ei_release_after_updating = requests.get(url=message_from_kafka["data"]["url"]).json()
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="gaga",
+#             actual_result=ei_release_before_updating["releases"][0]["tender"]["items"][0]["description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="45100000-8",
+#             actual_result=ei_release_before_updating["releases"][0]["tender"]["items"][0]["classification"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="AA12-4",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]["items"][0]["description"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["items"][0]["description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]["items"][0]["classification"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]["items"][0]["classification"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]["items"][0]["additionalClassifications"][0]["id"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]["items"][0]["additionalClassifications"][0]["id"])
+#
+#
+# class TestCheckOnPossibilityUpdateTenderItemsDeliveryAddressInEiRelease(object):
+#     @pytestrail.case("24453")
+#     def test_send_the_request_24453_1(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload['tender']['items'][0]['deliveryAddress']['streetAddress'] = "Vladimirskaya"
+#         payload['tender']['items'][0]['deliveryAddress']['postalCode'] = "33344"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['description'] = "Re_44"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = "scheme_1_1"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = "www.poland"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = "1700000"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['description'] = "
+#         description_44_2"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = "sheme_region_78"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = "www,regi_12"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = "other"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = "locality_1"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = "www.vbn.ko"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+#             'description'] = "description_test_22"
+#         payload['tender']['items'][0]['quantity'] = 256
+#         payload['tender']['items'][0]['unit']['id'] = '120'
+#         payload['tender']['items'][0]['unit']['name'] = 'name_2'
+#         ei = EI(payload=payload, lang=language, country=country, tender_items_delivery_street="Khreshchatyk",
+#                 tender_items_delivery_postal="01124", tender_items_delivery_details_country_id="MD",
+#                 tender_items_delivery_details_region_id="0101000", tender_items_delivery_details_locality_id="
+#                 0101000",
+#                 tender_items_delivery_details_locality_scheme="CUATM", tender_items_quantity=10,
+#                 tender_items_unit_id="10", tender_items_unit_name="name")
+#         insert = ei.insert_ei_full_data_model()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         update_ei_response = ei.update_ei()
+#         expected_result = str(202)
+#         actual_result = str(update_ei_response.status_code)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#     @pytestrail.case("24453")
+#     def test_see_the_result_in_feed_point_24453_2(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload['tender']['items'][0]['deliveryAddress']['streetAddress'] = "Vladimirskaya"
+#         payload['tender']['items'][0]['deliveryAddress']['postalCode'] = "33344"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['description'] = "Re_44"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = "scheme_1_1"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = "www.poland"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = "1700000"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['description'] = "
+#         description_44_2"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = "sheme_region_78"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = "www,regi_12"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = "other"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = "locality_1"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = "www.vbn.ko"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+#             'description'] = "description_test_22"
+#         payload['tender']['items'][0]['quantity'] = 256
+#         payload['tender']['items'][0]['unit']['id'] = '120'
+#         payload['tender']['items'][0]['unit']['name'] = 'name_2'
+#         ei = EI(payload=payload, lang=language, country=country, tender_items_delivery_street="Khreshchatyk",
+#                 tender_items_delivery_postal="01124", tender_items_delivery_details_country_id="MD",
+#                 tender_items_delivery_details_region_id="0101000", tender_items_delivery_details_locality_id="
+#                 0101000",
+#                 tender_items_delivery_details_locality_scheme="CUATM", tender_items_quantity=10,
+#                 tender_items_unit_id="10", tender_items_unit_name="name")
+#         insert = ei.insert_ei_full_data_model()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         ei.get_message_from_kafka()
+#         actual_result = str(ei.check_on_that_message_is_successfull_update_ei())
+#         expected_result = str(True)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+#
+#     @pytestrail.case("24453")
+#     def test_compare_data_of_EI_release_before_updating_and_after_updating_24453_3(self, country, language):
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload['tender']['items'][0]['deliveryAddress']['streetAddress'] = "Vladimirskaya"
+#         payload['tender']['items'][0]['deliveryAddress']['postalCode'] = "33344"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = 'MD'
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['description'] = "Re_44"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = "scheme_1_1"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['uri'] = "www.poland"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = "1700000"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['description'] = "
+#         description_44_2"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = "sheme_region_78"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['uri'] = "www,regi_12"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = "other"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = "locality_1"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['uri'] = "www.vbn.ko"
+#         payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality'][
+#             'description'] = "description_test_22"
+#         payload['tender']['items'][0]['quantity'] = 256.0
+#         payload['tender']['items'][0]['unit']['id'] = '120'
+#         payload['tender']['items'][0]['unit']['name'] = 'name_2'
+#         ei = EI(payload=payload, lang=language, country=country, tender_items_delivery_street="Khreshchatyk",
+#                 tender_items_delivery_postal="01124", tender_items_delivery_details_country_id="MD",
+#                 tender_items_delivery_details_region_id="0101000", tender_items_delivery_details_locality_id="
+#                 0101000",
+#                 tender_items_delivery_details_locality_scheme="CUATM", tender_items_quantity=10,
+#                 tender_items_unit_id="10", tender_items_unit_name="Parsec")
+#         insert = ei.insert_ei_full_data_model()
+#         ei_release_before_updating = requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         message_from_kafka = ei.get_message_from_kafka()
+#         ei_release_after_updating = requests.get(url=message_from_kafka["data"]["url"]).json()
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload['tender']['items'][0]['deliveryAddress']['streetAddress'],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress'][
+#                 'streetAddress'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Khreshchatyk",
+#             actual_result=ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress'][
+#                 'streetAddress'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload['tender']['items'][0]['deliveryAddress']['postalCode'],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress'][
+#                 'postalCode'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="01124",
+#             actual_result=ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress'][
+#                 'postalCode'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'country']['id'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="MD",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'country']['id'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Moldova, Republica",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'country']['description'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Moldova, Republica",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'country']['description'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="iso-alpha2",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'country']['scheme'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="iso-alpha2",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'country']['scheme'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="https://www.iso.org",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'country']['uri'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="https://www.iso.org",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'country']['uri'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'region']['id'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="0101000",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'region']['id'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Cahul",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'region']['description'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="mun.Chişinău",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'region']['description'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="CUATM",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'region']['scheme'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="CUATM",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'region']['scheme'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="http://statistica.md",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'region']['uri'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="http://statistica.md",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'region']['uri'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'locality']['id'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="0101000",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'locality']['id'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'locality']['description'],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'locality']['description'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="mun.Chişinău",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'locality']['description'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'locality']['scheme'],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'locality']['scheme'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="CUATM",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'locality']['scheme'])
+#
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="http://statistica.md",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['deliveryAddress']['addressDetails'][
+#                 'locality']['uri'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=str(payload["tender"]['items'][0]["quantity"]),
+#             actual_result=
+#             str(ei_release_after_updating["releases"][0]["tender"]['items'][0]['quantity']))
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=str(10),
+#             actual_result=
+#             str(ei_release_before_updating["releases"][0]["tender"]['items'][0]['quantity']))
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]["unit"]["id"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['unit']["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="10",
+#             actual_result=
+#             str(ei_release_before_updating["releases"][0]["tender"]['items'][0]['unit']["id"]))
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Milion decalitri",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['unit']["name"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Parsec",
+#             actual_result=
+#             ei_release_before_updating["releases"][0]["tender"]['items'][0]['unit']["name"])
+#
+#
+# class TestCheckOnThatSystemAddsNewItemObjectInEiRelease(object):
+#     @pytestrail.case("24454")
+#     def test_send_the_request_24454_1(self, country, language):
+#         tender_items_id = "6a565c47-ff11-4e2d-8ea1-3f34c5d751f9"
+#         tender_items_description = " item_1"
+#         tender_classification_id = "45100000-8"
+#         tender_item_classification_id = tender_classification_id
+#         tender_items_additional_classifications_id = "AA12-4"
+#         tender_items_delivery_street = "Khreshchatyk"
+#         tender_items_delivery_postal = "01124"
+#         tender_items_delivery_details_country_id = "MD"
+#         tender_items_delivery_details_region_id = "0101000"
+#         tender_items_delivery_details_locality_id = "0101000"
+#         tender_items_delivery_details_locality_scheme = "CUATM"
+#         tender_items_quantity = 10
+#         tender_items_unit_id = "10"
+#         tender_items_unit_name = "Parsec"
+#
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"] = [{
+#             "id": tender_items_id,
+#             "description": tender_items_description,
+#             "classification": {
+#                 "id": tender_item_classification_id
+#             },
+#             "additionalClassifications": [
+#                 {
+#                     "id": tender_items_additional_classifications_id
+#                 }
+#             ],
+#             "deliveryAddress": {
+#                 "streetAddress": tender_items_delivery_street,
+#                 "postalCode": tender_items_delivery_postal,
+#                 "addressDetails": {
+#                     "country": {
+#                         "id": tender_items_delivery_details_country_id,
+#                         "description": "description_1",
+#                         "scheme": "scheme_1",
+#                         "uri": "www.deutch"
+#                     },
+#                     "region": {
+#                         "id": tender_items_delivery_details_region_id,
+#                         "description": "description_2",
+#                         "scheme": "scheme_2",
+#                         "uri": "www,regi_16"
+#                     },
+#                     "locality": {
+#                         "id": tender_items_delivery_details_locality_id,
+#                         "description": "description_test",
+#                         "scheme": tender_items_delivery_details_locality_scheme,
+#                         "uri": "ww.io.io"
+#                     }
+#
+#                 }
+#             },
+#             "quantity": tender_items_quantity,
+#             "unit": {
+#                 "id": tender_items_unit_id,
+#                 "name": tender_items_unit_name
+#             }
+#         },
+#             {"id": "2",
+#              "description": "item 2",
+#              "classification": {
+#                  "id": '45112360-6'
+#              },
+#              "additionalClassifications": [
+#                  {
+#                      "id": "AA04-0"
+#                  }
+#              ],
+#              "deliveryAddress": {
+#                  "streetAddress": "Voloshkina",
+#                  "postalCode": "55555",
+#                  "addressDetails": {
+#                      "country": {
+#                          "id": "MD",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.55"
+#                      },
+#                      "region": {
+#                          "id": "1700000",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.regi_55"
+#                      },
+#                      "locality": {
+#                          "id": "555555",
+#                          "description": "description_test_55",
+#                          "scheme": 'other',
+#                          "uri": "ww.io.55"
+#                      }
+#
+#                  }
+#              },
+#              "quantity": 20,
+#              "unit": {
+#                  "id": "120",
+#                  "name": "name_2"
+#              }
+#              }
+#         ]
+#         ei = EI(payload=payload, lang=language, country=country,
+#                 tender_items_id=tender_items_id, tender_items_description=tender_items_description,
+#                 tender_item_classification_id=tender_item_classification_id,
+#                 tender_classification_id=tender_classification_id,
+#                 tender_items_additional_classifications_id=tender_items_additional_classifications_id,
+#                 tender_items_delivery_street=tender_items_delivery_street,
+#                 tender_items_delivery_postal=tender_items_delivery_postal,
+#                 tender_items_delivery_details_country_id=tender_items_delivery_details_country_id,
+#                 tender_items_delivery_details_region_id=tender_items_delivery_details_region_id,
+#                 tender_items_delivery_details_locality_id=tender_items_delivery_details_locality_id,
+#                 tender_items_delivery_details_locality_scheme=tender_items_delivery_details_locality_scheme,
+#                 tender_items_quantity=tender_items_quantity, tender_items_unit_id=tender_items_unit_id,
+#                 tender_items_unit_name=tender_items_unit_name)
+#         insert = ei.insert_ei_full_data_model()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         update_ei_response = ei.update_ei()
+#         expected_result = str(202)
+#         actual_result = str(update_ei_response.status_code)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#     @pytestrail.case("24454")
+#     def test_see_the_result_in_feed_point_24454_2(self, country, language):
+#         tender_items_id = "6a565c47-ff11-4e2d-8ea1-3f34c5d751f9"
+#         tender_items_description = " item_1"
+#         tender_classification_id = "45100000-8"
+#         tender_item_classification_id = tender_classification_id
+#         tender_items_additional_classifications_id = "AA12-4"
+#         tender_items_delivery_street = "Khreshchatyk"
+#         tender_items_delivery_postal = "01124"
+#         tender_items_delivery_details_country_id = "MD"
+#         tender_items_delivery_details_region_id = "0101000"
+#         tender_items_delivery_details_locality_id = "0101000"
+#         tender_items_delivery_details_locality_scheme = "CUATM"
+#         tender_items_quantity = 10
+#         tender_items_unit_id = "10"
+#         tender_items_unit_name = "Parsec"
+#
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"] = [{
+#             "id": tender_items_id,
+#             "description": tender_items_description,
+#             "classification": {
+#                 "id": tender_item_classification_id
+#             },
+#             "additionalClassifications": [
+#                 {
+#                     "id": tender_items_additional_classifications_id
+#                 }
+#             ],
+#             "deliveryAddress": {
+#                 "streetAddress": tender_items_delivery_street,
+#                 "postalCode": tender_items_delivery_postal,
+#                 "addressDetails": {
+#                     "country": {
+#                         "id": tender_items_delivery_details_country_id,
+#                         "description": "description_1",
+#                         "scheme": "scheme_1",
+#                         "uri": "www.deutch"
+#                     },
+#                     "region": {
+#                         "id": tender_items_delivery_details_region_id,
+#                         "description": "description_2",
+#                         "scheme": "scheme_2",
+#                         "uri": "www,regi_16"
+#                     },
+#                     "locality": {
+#                         "id": tender_items_delivery_details_locality_id,
+#                         "description": "description_test",
+#                         "scheme": tender_items_delivery_details_locality_scheme,
+#                         "uri": "ww.io.io"
+#                     }
+#
+#                 }
+#             },
+#             "quantity": tender_items_quantity,
+#             "unit": {
+#                 "id": tender_items_unit_id,
+#                 "name": tender_items_unit_name
+#             }
+#         },
+#             {"id": "2",
+#              "description": "item 2",
+#              "classification": {
+#                  "id": '45112360-6'
+#              },
+#              "additionalClassifications": [
+#                  {
+#                      "id": "AA04-0"
+#                  }
+#              ],
+#              "deliveryAddress": {
+#                  "streetAddress": "Voloshkina",
+#                  "postalCode": "55555",
+#                  "addressDetails": {
+#                      "country": {
+#                          "id": "MD",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.55"
+#                      },
+#                      "region": {
+#                          "id": "1700000",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.regi_55"
+#                      },
+#                      "locality": {
+#                          "id": "555555",
+#                          "description": "description_test_55",
+#                          "scheme": 'other',
+#                          "uri": "ww.io.55"
+#                      }
+#
+#                  }
+#              },
+#              "quantity": 20,
+#              "unit": {
+#                  "id": "120",
+#                  "name": "name_2"
+#              }
+#              }
+#         ]
+#         ei = EI(payload=payload, lang=language, country=country,
+#                 tender_items_id=tender_items_id, tender_items_description=tender_items_description,
+#                 tender_item_classification_id=tender_item_classification_id,
+#                 tender_classification_id=tender_classification_id,
+#                 tender_items_additional_classifications_id=tender_items_additional_classifications_id,
+#                 tender_items_delivery_street=tender_items_delivery_street,
+#                 tender_items_delivery_postal=tender_items_delivery_postal,
+#                 tender_items_delivery_details_country_id=tender_items_delivery_details_country_id,
+#                 tender_items_delivery_details_region_id=tender_items_delivery_details_region_id,
+#                 tender_items_delivery_details_locality_id=tender_items_delivery_details_locality_id,
+#                 tender_items_delivery_details_locality_scheme=tender_items_delivery_details_locality_scheme,
+#                 tender_items_quantity=tender_items_quantity, tender_items_unit_id=tender_items_unit_id,
+#                 tender_items_unit_name=tender_items_unit_name)
+#         insert = ei.insert_ei_full_data_model()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         ei.get_message_from_kafka()
+#         actual_result = str(ei.check_on_that_message_is_successfull_update_ei())
+#         expected_result = str(True)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+#
+#     @pytestrail.case("24454")
+#     def test_compare_data_of_EI_release_before_updating_and_after_updating_24454_3(self, country, language):
+#         tender_items_id = "6a565c47-ff11-4e2d-8ea1-3f34c5d751f9"
+#         tender_items_description = " item_1"
+#         tender_classification_id = "45100000-8"
+#         tender_item_classification_id = tender_classification_id
+#         tender_items_additional_classifications_id = "AA12-4"
+#         tender_items_delivery_street = "Khreshchatyk"
+#         tender_items_delivery_postal = "01124"
+#         tender_items_delivery_details_country_id = "MD"
+#         tender_items_delivery_details_region_id = "0101000"
+#         tender_items_delivery_details_locality_id = "0101000"
+#         tender_items_delivery_details_locality_scheme = "CUATM"
+#         tender_items_quantity = 10
+#         tender_items_unit_id = "10"
+#         tender_items_unit_name = "Parsec"
+#
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"] = [{
+#             "id": tender_items_id,
+#             "description": tender_items_description,
+#             "classification": {
+#                 "id": tender_item_classification_id
+#             },
+#             "additionalClassifications": [
+#                 {
+#                     "id": tender_items_additional_classifications_id
+#                 }
+#             ],
+#             "deliveryAddress": {
+#                 "streetAddress": tender_items_delivery_street,
+#                 "postalCode": tender_items_delivery_postal,
+#                 "addressDetails": {
+#                     "country": {
+#                         "id": tender_items_delivery_details_country_id,
+#                         "description": "description_1",
+#                         "scheme": "scheme_1",
+#                         "uri": "www.deutch"
+#                     },
+#                     "region": {
+#                         "id": tender_items_delivery_details_region_id,
+#                         "description": "description_2",
+#                         "scheme": "scheme_2",
+#                         "uri": "www,regi_16"
+#                     },
+#                     "locality": {
+#                         "id": tender_items_delivery_details_locality_id,
+#                         "description": "description_test",
+#                         "scheme": tender_items_delivery_details_locality_scheme,
+#                         "uri": "ww.io.io"
+#                     }
+#
+#                 }
+#             },
+#             "quantity": tender_items_quantity,
+#             "unit": {
+#                 "id": tender_items_unit_id,
+#                 "name": tender_items_unit_name
+#             }
+#         },
+#             {"id": "2",
+#              "description": "item 2",
+#              "classification": {
+#                  "id": '45112360-6'
+#              },
+#              "additionalClassifications": [
+#                  {
+#                      "id": "AA04-0"
+#                  }
+#              ],
+#              "deliveryAddress": {
+#                  "streetAddress": "Voloshkina",
+#                  "postalCode": "55555",
+#                  "addressDetails": {
+#                      "country": {
+#                          "id": "MD",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.55"
+#                      },
+#                      "region": {
+#                          "id": "1700000",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.regi_55"
+#                      },
+#                      "locality": {
+#                          "id": "555555",
+#                          "description": "description_test_55",
+#                          "scheme": 'other',
+#                          "uri": "ww.io.55"
+#                      }
+#
+#                  }
+#              },
+#              "quantity": 20,
+#              "unit": {
+#                  "id": "120",
+#                  "name": "name_2"
+#              }
+#              }
+#         ]
+#         ei = EI(payload=payload, lang=language, country=country,
+#                 tender_items_id=tender_items_id, tender_items_description=tender_items_description,
+#                 tender_item_classification_id=tender_item_classification_id,
+#                 tender_classification_id=tender_classification_id,
+#                 tender_items_additional_classifications_id=tender_items_additional_classifications_id,
+#                 tender_items_delivery_street=tender_items_delivery_street,
+#                 tender_items_delivery_postal=tender_items_delivery_postal,
+#                 tender_items_delivery_details_country_id=tender_items_delivery_details_country_id,
+#                 tender_items_delivery_details_region_id=tender_items_delivery_details_region_id,
+#                 tender_items_delivery_details_locality_id=tender_items_delivery_details_locality_id,
+#                 tender_items_delivery_details_locality_scheme=tender_items_delivery_details_locality_scheme,
+#                 tender_items_quantity=tender_items_quantity, tender_items_unit_id=tender_items_unit_id,
+#                 tender_items_unit_name=tender_items_unit_name)
+#         ei.insert_ei_full_data_model()
+#         ei.update_ei()
+#         message_from_kafka = ei.get_message_from_kafka()
+#         ei_release_after_updating = requests.get(url=message_from_kafka["data"]["url"]).json()
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=str(True),
+#             actual_result=str(is_valid_uuid(ei_release_after_updating["releases"][0]["tender"]['items'][0]['id'], 4)))
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]['description'],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]['description'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="CPV",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]['classification']["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]["items"][0]["classification"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]['classification']["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Lucrări de pregătire a şantierului",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]['classification'][
+#                 "description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="CPVS",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['additionalClassifications'][0]["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]['additionalClassifications'][0]["id"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['additionalClassifications'][0]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Oţel carbon",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][0]['additionalClassifications'][0][
+#                 "description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]["quantity"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["quantity"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]["unit"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["unit"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Parsec",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["unit"]["name"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]["deliveryAddress"]["streetAddress"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "streetAddress"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]["deliveryAddress"]["postalCode"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "postalCode"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]["deliveryAddress"]["addressDetails"]["country"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["country"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="iso-alpha2",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["country"]["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Moldova, Republica",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["country"]["description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="https://www.iso.org",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["country"]["uri"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="CUATM",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["region"]["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]["deliveryAddress"]["addressDetails"]["region"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["region"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="mun.Chişinău",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["region"]["description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="http://statistica.md",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["region"]["uri"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="CUATM",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["locality"]["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][0]["deliveryAddress"]["addressDetails"]["locality"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["locality"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="mun.Chişinău",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["locality"]["description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="http://statistica.md",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][0]["deliveryAddress"][
+#                 "addressDetails"]["locality"]["uri"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=str(True),
+#             actual_result=str(is_valid_uuid(ei_release_after_updating["releases"][0]["tender"]['items'][1]['id'], 4)))
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]['description'],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]['description'])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="CPV",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]['classification']["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]["items"][1]["classification"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]['classification']["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Lucrări de reabilitare a terenului",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]['classification'][
+#                 "description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="CPVS",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][1]['additionalClassifications'][0]["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]['additionalClassifications'][0]["id"],
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][1]['additionalClassifications'][0]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Cupru",
+#             actual_result=
+#             ei_release_after_updating["releases"][0]["tender"]['items'][1]['additionalClassifications'][0][
+#                 "description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]["quantity"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["quantity"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]["unit"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["unit"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Milion decalitri",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["unit"]["name"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]["deliveryAddress"]["streetAddress"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "streetAddress"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]["deliveryAddress"]["postalCode"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "postalCode"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]["deliveryAddress"]["addressDetails"]["country"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["country"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="iso-alpha2",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["country"]["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Moldova, Republica",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["country"]["description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="https://www.iso.org",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["country"]["uri"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="CUATM",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["region"]["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]["deliveryAddress"]["addressDetails"]["region"]["id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["region"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="Cahul",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["region"]["description"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result="http://statistica.md",
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["region"]["uri"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["locality"]["scheme"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["locality"]["scheme"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]["deliveryAddress"]["addressDetails"]["locality"][
+#                 "id"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["locality"]["id"])
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=payload["tender"]['items'][1]["deliveryAddress"]["addressDetails"]["locality"][
+#                 "description"],
+#             actual_result=ei_release_after_updating["releases"][0]["tender"]['items'][1]["deliveryAddress"][
+#                 "addressDetails"]["locality"]["description"])
+#
+#
+# class TestCheckOnThatSystemReleasesTenderItemsIdIsUuid4(object):
+#     @pytestrail.case("24455")
+#     def test_send_the_request_24455_1(self, country, language):
+#         tender_items_id = "6a565c47-ff11-4e2d-8ea1-3f34c5d751f9"
+#         tender_items_description = " item_1"
+#         tender_classification_id = "45100000-8"
+#         tender_item_classification_id = tender_classification_id
+#         tender_items_additional_classifications_id = "AA12-4"
+#         tender_items_delivery_street = "Khreshchatyk"
+#         tender_items_delivery_postal = "01124"
+#         tender_items_delivery_details_country_id = "MD"
+#         tender_items_delivery_details_region_id = "0101000"
+#         tender_items_delivery_details_locality_id = "0101000"
+#         tender_items_delivery_details_locality_scheme = "CUATM"
+#         tender_items_quantity = 10
+#         tender_items_unit_id = "10"
+#         tender_items_unit_name = "Parsec"
+#
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"] = [{
+#             "id": tender_items_id,
+#             "description": tender_items_description,
+#             "classification": {
+#                 "id": tender_item_classification_id
+#             },
+#             "additionalClassifications": [
+#                 {
+#                     "id": tender_items_additional_classifications_id
+#                 }
+#             ],
+#             "deliveryAddress": {
+#                 "streetAddress": tender_items_delivery_street,
+#                 "postalCode": tender_items_delivery_postal,
+#                 "addressDetails": {
+#                     "country": {
+#                         "id": tender_items_delivery_details_country_id,
+#                         "description": "description_1",
+#                         "scheme": "scheme_1",
+#                         "uri": "www.deutch"
+#                     },
+#                     "region": {
+#                         "id": tender_items_delivery_details_region_id,
+#                         "description": "description_2",
+#                         "scheme": "scheme_2",
+#                         "uri": "www,regi_16"
+#                     },
+#                     "locality": {
+#                         "id": tender_items_delivery_details_locality_id,
+#                         "description": "description_test",
+#                         "scheme": tender_items_delivery_details_locality_scheme,
+#                         "uri": "ww.io.io"
+#                     }
+#
+#                 }
+#             },
+#             "quantity": tender_items_quantity,
+#             "unit": {
+#                 "id": tender_items_unit_id,
+#                 "name": tender_items_unit_name
+#             }
+#         },
+#             {"id": "2",
+#              "description": "item 2",
+#              "classification": {
+#                  "id": '45112360-6'
+#              },
+#              "additionalClassifications": [
+#                  {
+#                      "id": "AA04-0"
+#                  }
+#              ],
+#              "deliveryAddress": {
+#                  "streetAddress": "Voloshkina",
+#                  "postalCode": "55555",
+#                  "addressDetails": {
+#                      "country": {
+#                          "id": "MD",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.55"
+#                      },
+#                      "region": {
+#                          "id": "1700000",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.regi_55"
+#                      },
+#                      "locality": {
+#                          "id": "555555",
+#                          "description": "description_test_55",
+#                          "scheme": 'other',
+#                          "uri": "ww.io.55"
+#                      }
+#
+#                  }
+#              },
+#              "quantity": 20,
+#              "unit": {
+#                  "id": "120",
+#                  "name": "name_2"
+#              }
+#              }
+#         ]
+#         ei = EI(payload=payload, lang=language, country=country,
+#                 tender_items_id=tender_items_id, tender_items_description=tender_items_description,
+#                 tender_item_classification_id=tender_item_classification_id,
+#                 tender_classification_id=tender_classification_id,
+#                 tender_items_additional_classifications_id=tender_items_additional_classifications_id,
+#                 tender_items_delivery_street=tender_items_delivery_street,
+#                 tender_items_delivery_postal=tender_items_delivery_postal,
+#                 tender_items_delivery_details_country_id=tender_items_delivery_details_country_id,
+#                 tender_items_delivery_details_region_id=tender_items_delivery_details_region_id,
+#                 tender_items_delivery_details_locality_id=tender_items_delivery_details_locality_id,
+#                 tender_items_delivery_details_locality_scheme=tender_items_delivery_details_locality_scheme,
+#                 tender_items_quantity=tender_items_quantity, tender_items_unit_id=tender_items_unit_id,
+#                 tender_items_unit_name=tender_items_unit_name)
+#         insert = ei.insert_ei_full_data_model()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         update_ei_response = ei.update_ei()
+#         expected_result = str(202)
+#         actual_result = str(update_ei_response.status_code)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
+#
+#     @pytestrail.case("24455")
+#     def test_see_the_result_in_feed_point_24455_2(self, country, language):
+#         tender_items_id = "6a565c47-ff11-4e2d-8ea1-3f34c5d751f9"
+#         tender_items_description = " item_1"
+#         tender_classification_id = "45100000-8"
+#         tender_item_classification_id = tender_classification_id
+#         tender_items_additional_classifications_id = "AA12-4"
+#         tender_items_delivery_street = "Khreshchatyk"
+#         tender_items_delivery_postal = "01124"
+#         tender_items_delivery_details_country_id = "MD"
+#         tender_items_delivery_details_region_id = "0101000"
+#         tender_items_delivery_details_locality_id = "0101000"
+#         tender_items_delivery_details_locality_scheme = "CUATM"
+#         tender_items_quantity = 10
+#         tender_items_unit_id = "10"
+#         tender_items_unit_name = "Parsec"
+#
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"] = [{
+#             "id": tender_items_id,
+#             "description": tender_items_description,
+#             "classification": {
+#                 "id": tender_item_classification_id
+#             },
+#             "additionalClassifications": [
+#                 {
+#                     "id": tender_items_additional_classifications_id
+#                 }
+#             ],
+#             "deliveryAddress": {
+#                 "streetAddress": tender_items_delivery_street,
+#                 "postalCode": tender_items_delivery_postal,
+#                 "addressDetails": {
+#                     "country": {
+#                         "id": tender_items_delivery_details_country_id,
+#                         "description": "description_1",
+#                         "scheme": "scheme_1",
+#                         "uri": "www.deutch"
+#                     },
+#                     "region": {
+#                         "id": tender_items_delivery_details_region_id,
+#                         "description": "description_2",
+#                         "scheme": "scheme_2",
+#                         "uri": "www,regi_16"
+#                     },
+#                     "locality": {
+#                         "id": tender_items_delivery_details_locality_id,
+#                         "description": "description_test",
+#                         "scheme": tender_items_delivery_details_locality_scheme,
+#                         "uri": "ww.io.io"
+#                     }
+#
+#                 }
+#             },
+#             "quantity": tender_items_quantity,
+#             "unit": {
+#                 "id": tender_items_unit_id,
+#                 "name": tender_items_unit_name
+#             }
+#         },
+#             {"id": "2",
+#              "description": "item 2",
+#              "classification": {
+#                  "id": '45112360-6'
+#              },
+#              "additionalClassifications": [
+#                  {
+#                      "id": "AA04-0"
+#                  }
+#              ],
+#              "deliveryAddress": {
+#                  "streetAddress": "Voloshkina",
+#                  "postalCode": "55555",
+#                  "addressDetails": {
+#                      "country": {
+#                          "id": "MD",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.55"
+#                      },
+#                      "region": {
+#                          "id": "1700000",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.regi_55"
+#                      },
+#                      "locality": {
+#                          "id": "555555",
+#                          "description": "description_test_55",
+#                          "scheme": 'other',
+#                          "uri": "ww.io.55"
+#                      }
+#
+#                  }
+#              },
+#              "quantity": 20,
+#              "unit": {
+#                  "id": "120",
+#                  "name": "name_2"
+#              }
+#              }
+#         ]
+#         ei = EI(payload=payload, lang=language, country=country,
+#                 tender_items_id=tender_items_id, tender_items_description=tender_items_description,
+#                 tender_item_classification_id=tender_item_classification_id,
+#                 tender_classification_id=tender_classification_id,
+#                 tender_items_additional_classifications_id=tender_items_additional_classifications_id,
+#                 tender_items_delivery_street=tender_items_delivery_street,
+#                 tender_items_delivery_postal=tender_items_delivery_postal,
+#                 tender_items_delivery_details_country_id=tender_items_delivery_details_country_id,
+#                 tender_items_delivery_details_region_id=tender_items_delivery_details_region_id,
+#                 tender_items_delivery_details_locality_id=tender_items_delivery_details_locality_id,
+#                 tender_items_delivery_details_locality_scheme=tender_items_delivery_details_locality_scheme,
+#                 tender_items_quantity=tender_items_quantity, tender_items_unit_id=tender_items_unit_id,
+#                 tender_items_unit_name=tender_items_unit_name)
+#         insert = ei.insert_ei_full_data_model()
+#         requests.get(url=insert[0] + "/" + insert[2]).json()
+#         ei.update_ei()
+#         ei.get_message_from_kafka()
+#         actual_result = str(ei.check_on_that_message_is_successfull_update_ei())
+#         expected_result = str(True)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
+#
+#     @pytestrail.case("24455")
+#     def test_CheckOnThatReleasesTenderItemsIdIsUuid4_24455_3(self, country, language):
+#         tender_items_id = "6a565c47-ff11-4e2d-8ea1-3f34c5d751f9"
+#         tender_items_description = " item_1"
+#         tender_classification_id = "45100000-8"
+#         tender_item_classification_id = tender_classification_id
+#         tender_items_additional_classifications_id = "AA12-4"
+#         tender_items_delivery_street = "Khreshchatyk"
+#         tender_items_delivery_postal = "01124"
+#         tender_items_delivery_details_country_id = "MD"
+#         tender_items_delivery_details_region_id = "0101000"
+#         tender_items_delivery_details_locality_id = "0101000"
+#         tender_items_delivery_details_locality_scheme = "CUATM"
+#         tender_items_quantity = 10
+#         tender_items_unit_id = "10"
+#         tender_items_unit_name = "Parsec"
+#
+#         payload = copy.deepcopy(payload_ei_full_data_model)
+#         payload["tender"]["items"] = [{
+#             "id": tender_items_id,
+#             "description": tender_items_description,
+#             "classification": {
+#                 "id": tender_item_classification_id
+#             },
+#             "additionalClassifications": [
+#                 {
+#                     "id": tender_items_additional_classifications_id
+#                 }
+#             ],
+#             "deliveryAddress": {
+#                 "streetAddress": tender_items_delivery_street,
+#                 "postalCode": tender_items_delivery_postal,
+#                 "addressDetails": {
+#                     "country": {
+#                         "id": tender_items_delivery_details_country_id,
+#                         "description": "description_1",
+#                         "scheme": "scheme_1",
+#                         "uri": "www.deutch"
+#                     },
+#                     "region": {
+#                         "id": tender_items_delivery_details_region_id,
+#                         "description": "description_2",
+#                         "scheme": "scheme_2",
+#                         "uri": "www,regi_16"
+#                     },
+#                     "locality": {
+#                         "id": tender_items_delivery_details_locality_id,
+#                         "description": "description_test",
+#                         "scheme": tender_items_delivery_details_locality_scheme,
+#                         "uri": "ww.io.io"
+#                     }
+#
+#                 }
+#             },
+#             "quantity": tender_items_quantity,
+#             "unit": {
+#                 "id": tender_items_unit_id,
+#                 "name": tender_items_unit_name
+#             }
+#         },
+#             {"id": "2",
+#              "description": "item 2",
+#              "classification": {
+#                  "id": '45112360-6'
+#              },
+#              "additionalClassifications": [
+#                  {
+#                      "id": "AA04-0"
+#                  }
+#              ],
+#              "deliveryAddress": {
+#                  "streetAddress": "Voloshkina",
+#                  "postalCode": "55555",
+#                  "addressDetails": {
+#                      "country": {
+#                          "id": "MD",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.55"
+#                      },
+#                      "region": {
+#                          "id": "1700000",
+#                          "description": "description_55",
+#                          "scheme": "scheme_55",
+#                          "uri": "www.regi_55"
+#                      },
+#                      "locality": {
+#                          "id": "555555",
+#                          "description": "description_test_55",
+#                          "scheme": 'other',
+#                          "uri": "ww.io.55"
+#                      }
+#
+#                  }
+#              },
+#              "quantity": 20,
+#              "unit": {
+#                  "id": "120",
+#                  "name": "name_2"
+#              }
+#              }
+#         ]
+#         ei = EI(payload=payload, lang=language, country=country,
+#                 tender_items_id=tender_items_id, tender_items_description=tender_items_description,
+#                 tender_item_classification_id=tender_item_classification_id,
+#                 tender_classification_id=tender_classification_id,
+#                 tender_items_additional_classifications_id=tender_items_additional_classifications_id,
+#                 tender_items_delivery_street=tender_items_delivery_street,
+#                 tender_items_delivery_postal=tender_items_delivery_postal,
+#                 tender_items_delivery_details_country_id=tender_items_delivery_details_country_id,
+#                 tender_items_delivery_details_region_id=tender_items_delivery_details_region_id,
+#                 tender_items_delivery_details_locality_id=tender_items_delivery_details_locality_id,
+#                 tender_items_delivery_details_locality_scheme=tender_items_delivery_details_locality_scheme,
+#                 tender_items_quantity=tender_items_quantity, tender_items_unit_id=tender_items_unit_id,
+#                 tender_items_unit_name=tender_items_unit_name)
+#         ei.insert_ei_full_data_model()
+#         ei.update_ei()
+#         message_from_kafka = ei.get_message_from_kafka()
+#         ei_release_after_updating = requests.get(url=message_from_kafka["data"]["url"]).json()
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=str(True),
+#             actual_result=str(is_valid_uuid(ei_release_after_updating["releases"][0]["tender"]['items'][0]['id'], 4)))
+#         assert compare_actual_result_and_expected_result(
+#             expected_result=str(True),
+#             actual_result=str(is_valid_uuid(ei_release_after_updating["releases"][0]["tender"]['items'][1]['id'], 4)))
+#
+#
+
+#

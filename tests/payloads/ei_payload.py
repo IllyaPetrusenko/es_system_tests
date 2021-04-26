@@ -16,7 +16,7 @@ cpv_goods = ("03100000-2", "39100000-3", "48600000-4",)
 cpv_works = ("45100000-8", "45200000-9", "45100000-8",)
 cpv_services = ("76100000-4", "76200000-5", "90900000-6",)
 locality_scheme = ("CUATM", "other",)
-ei_update_full = {
+payload_ei_full_data_model = {
     "tender": {
         "title": "EI_FULL_WORKS",
         "description": "description of finansical sourse",
@@ -50,14 +50,12 @@ ei_update_full = {
                         "region": {
                             "id": "1700000",
                             "description": "ОПИСАНИЕ",
-                            "scheme": "CUATM",
-                            "uri": "www,regi_16"
+                            "scheme": "CUATM"
                         },
                         "locality": {
                             "id": "1701000",
-                            "description": "ОПИСАНИЕ2",
-                            "scheme": f'{random.choice(locality_scheme)}',
-                            "uri": "ww.io.io"
+                            "description": "ОПИСАНИЕ33pizza",
+                            "scheme": f'{random.choice(locality_scheme)}'
                         }
 
                     }
@@ -136,24 +134,19 @@ ei_update_full = {
     }
 }
 
-ei_update_obligatory_fields_with_obligatory_fields_in_tender_items = {
+payload_ei_obligatory_data_model = {
     "tender": {
         "title": "EI_FULL_WORKS",
         "classification": {
-            "id": "45112350-3"
+            "id": "45100000-8"
         },
         "items": [
             {
-                "id": "2",
-                "description": "item 2",
+                "id": "1",
+                "description": "item 1",
                 "classification": {
-                    "id": "45112350-3"
+                    "id": "45100000-8"
                 },
-                "additionalClassifications": [
-                    {
-                        "id": "AA04-0"
-                    }
-                ],
                 "deliveryAddress": {
                     "addressDetails": {
                         "country": {
@@ -161,31 +154,39 @@ ei_update_obligatory_fields_with_obligatory_fields_in_tender_items = {
                         },
                         "region": {
                             "id": "1700000"
-                        },
-                        "locality": {
-                            "id": "555555",
-                            "description": "description_test_55",
-                            "scheme": "other"
                         }
                     }
                 },
-                "quantity": 20,
+                "quantity": 1,
                 "unit": {
-                    "id": "120"
+                    "id": "10"
                 }
             }
         ]
     },
+    "planning": {
+        "budget": {
+            "period": {
+                "startDate": period[0],
+                "endDate": period[1]
+            }
+        }
+    },
     "buyer": {
+        "name": "LLC Petrusenko",
+        "identifier": {
+            "id": "380632074071",
+            "scheme": "MD-IDNO",
+            "legalName": "LLC Petrusenko"
+        },
         "address": {
-            "streetAddress": "Romashkova",
+            "streetAddress": "Zakrevskogo",
             "addressDetails": {
                 "country": {
                     "id": "MD"
                 },
                 "region": {
                     "id": "1700000"
-
                 },
                 "locality": {
                     "scheme": "CUATM",
@@ -194,12 +195,6 @@ ei_update_obligatory_fields_with_obligatory_fields_in_tender_items = {
                 }
             }
         },
-        "additionalIdentifiers": [
-            {
-                "id": "string",
-                "scheme": "MD-IDNO"
-            }
-        ],
         "contactPoint": {
             "name": "Petrusenko Svitlana",
             "email": "svetik@gmail.com",
