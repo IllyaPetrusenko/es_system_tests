@@ -1,434 +1,655 @@
-# import copy
-# import datetime
-# import fnmatch
-# import json
-# import time
-# import requests
-# from pytest_testrail.plugin import pytestrail
+import copy
+import time
+from uuid import uuid4
+
+import requests
+from pytest_testrail.plugin import pytestrail
+from tests.essences.fs import FS
+from tests.payloads.fs_payload import payload_fs_full_data_model_treasury_money, \
+    payload_fs_obligatory_data_model_treasury_money
+from useful_functions import compare_actual_result_and_expected_result, prepared_cp_id, get_human_date_in_utc_format
+
+
+class TestCreateTreasuryMoneyFsOnFullDataModel(object):
+    @pytestrail.case("24601")
+    def test_send_the_request_24601_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        fs = FS(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        create_fs_response = fs.create_fs(cp_id)
+        expected_result = str(202)
+        actual_result = str(create_fs_response.status_code)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("24601")
+    def test_see_the_result_in_feed_point_point_24601_2(self, country, language, instance, cassandra_username,
+                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        fs = FS(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        fs.get_message_from_kafka()
+        actual_result = str(fs.check_on_that_message_is_successfully_create_fs())
+        expected_result = str(True)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("24601")
+    def test_check_all_sent_information_is_published_24601_3(self, country, language, instance, cassandra_username,
+                                                             cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        fs = FS(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        url_create = message_from_kafka['data']['url'] + '/' + message_from_kafka['data']['outcomes']['fs'][0]['id']
+        publicPoint_create = requests.get(url=url_create).json()
+        assert publicPoint_create['releases'][0]['planning']['budget']['id'] == \
+               payload['planning']['budget']['id']
+        assert publicPoint_create['releases'][0]['planning']['budget']['description'] == \
+               payload['planning']['budget']['description']
+        assert publicPoint_create['releases'][0]['planning']['budget']['period']['startDate'] == \
+               payload['planning']['budget']['period']['startDate']
+        assert publicPoint_create['releases'][0]['planning']['budget']['period']['endDate'] == \
+               payload['planning']['budget']['period']['endDate']
+        assert publicPoint_create['releases'][0]['planning']['budget']['amount']['amount'] == \
+               payload['planning']['budget']['amount']['amount']
+        assert publicPoint_create['releases'][0]['planning']['budget']['amount']['currency'] == \
+               payload['planning']['budget']['amount']['currency']
+        assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['projectIdentifier'] == \
+               payload['planning']['budget']['europeanUnionFunding']['projectIdentifier']
+        assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['projectName'] == \
+               payload['planning']['budget']['europeanUnionFunding']['projectName']
+        assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['uri'] == \
+               payload['planning']['budget']['europeanUnionFunding']['uri']
+        assert publicPoint_create['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] == \
+               payload['planning']['budget']['isEuropeanUnionFunded']
+        assert publicPoint_create['releases'][0]['planning']['budget']['project'] == \
+               payload['planning']['budget']['project']
+        assert publicPoint_create['releases'][0]['planning']['budget']['projectID'] == \
+               payload['planning']['budget']['projectID']
+        assert publicPoint_create['releases'][0]['planning']['budget']['uri'] == \
+               payload['planning']['budget']['uri']
+        assert publicPoint_create['releases'][0]['planning']['rationale'] == \
+               payload['planning']['rationale']
+        assert publicPoint_create['releases'][0]['parties'][0]['id'] == \
+               payload['tender']['procuringEntity']['identifier']['scheme'] + '-' + \
+               payload['tender']['procuringEntity']['identifier']['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['name'] == \
+               payload['tender']['procuringEntity']['name']
+        assert publicPoint_create['releases'][0]['parties'][0]['identifier']['scheme'] == \
+               payload['tender']['procuringEntity']['identifier']['scheme']
+        assert publicPoint_create['releases'][0]['parties'][0]['identifier']['id'] == \
+               payload['tender']['procuringEntity']['identifier']['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['identifier']['legalName'] == \
+               payload['tender']['procuringEntity']['identifier']['legalName']
+        assert publicPoint_create['releases'][0]['parties'][0]['identifier']['uri'] == \
+               payload['tender']['procuringEntity']['identifier']['uri']
+        assert publicPoint_create['releases'][0]['parties'][0]['address']['streetAddress'] == \
+               payload['tender']['procuringEntity']['address']['streetAddress']
+        assert publicPoint_create['releases'][0]['parties'][0]['address']['postalCode'] == \
+               payload['tender']['procuringEntity']['address']['postalCode']
+        assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'] == \
+               payload['tender']['procuringEntity']['address']['addressDetails']['country']['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
+               payload['tender']['procuringEntity']['address']['addressDetails']['region']['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
+               payload['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme']
+        assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
+               payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['scheme'] == \
+               payload['tender']['procuringEntity']['additionalIdentifiers'][0]['scheme']
+        assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['id'] == \
+               payload['tender']['procuringEntity']['additionalIdentifiers'][0]['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['legalName'] == \
+               payload['tender']['procuringEntity']['additionalIdentifiers'][0]['legalName']
+        assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['uri'] == \
+               payload['tender']['procuringEntity']['additionalIdentifiers'][0]['uri']
+        assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['name'] == \
+               payload['tender']['procuringEntity']['contactPoint']['name']
+        assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['email'] == \
+               payload['tender']['procuringEntity']['contactPoint']['email']
+        assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['telephone'] == \
+               payload['tender']['procuringEntity']['contactPoint']['telephone']
+        assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['faxNumber'] == \
+               payload['tender']['procuringEntity']['contactPoint']['faxNumber']
+        assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['url'] == \
+               payload['tender']['procuringEntity']['contactPoint']['url']
+
+
+class TestCreateTreasuryMoneyFsWithObligatoryAttributesOnly(object):
+    @pytestrail.case("24602")
+    def test_send_the_request_24602_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+        fs = FS(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        create_fs_response = fs.create_fs(cp_id)
+        expected_result = str(202)
+        actual_result = str(create_fs_response.status_code)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("24602")
+    def test_see_the_result_in_feed_point_point_24602_2(self, country, language, instance, cassandra_username,
+                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+        fs = FS(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        fs.get_message_from_kafka()
+        actual_result = str(fs.check_on_that_message_is_successfully_create_fs())
+        expected_result = str(True)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case('24602')
+    def test_check_all_sent_information_is_published_24602_3(self, country, language, instance, cassandra_username,
+                                                             cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        fs = FS(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        url_create = message_from_kafka['data']['url'] + '/' + message_from_kafka['data']['outcomes']['fs'][0]['id']
+        publicPoint_create = requests.get(url=url_create).json()
+        assert publicPoint_create['releases'][0]['planning']['budget']['period']['startDate'] == \
+               payload['planning']['budget']['period']['startDate']
+        assert publicPoint_create['releases'][0]['planning']['budget']['period']['endDate'] == \
+               payload['planning']['budget']['period']['endDate']
+        assert publicPoint_create['releases'][0]['planning']['budget']['amount']['amount'] == \
+               payload['planning']['budget']['amount']['amount']
+        assert publicPoint_create['releases'][0]['planning']['budget']['amount']['currency'] == \
+               payload['planning']['budget']['amount']['currency']
+        assert publicPoint_create['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] == \
+               payload['planning']['budget']['isEuropeanUnionFunded']
+        assert publicPoint_create['releases'][0]['parties'][0]['id'] == \
+               payload['tender']['procuringEntity']['identifier']['scheme'] + '-' + \
+               payload['tender']['procuringEntity']['identifier']['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['name'] == \
+               payload['tender']['procuringEntity']['name']
+        assert publicPoint_create['releases'][0]['parties'][0]['identifier']['scheme'] == \
+               payload['tender']['procuringEntity']['identifier']['scheme']
+        assert publicPoint_create['releases'][0]['parties'][0]['identifier']['id'] == \
+               payload['tender']['procuringEntity']['identifier']['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['identifier']['legalName'] == \
+               payload['tender']['procuringEntity']['identifier']['legalName']
+        assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'] == \
+               payload['tender']['procuringEntity']['address']['addressDetails']['country']['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
+               payload['tender']['procuringEntity']['address']['addressDetails']['region']['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails'][
+                   'locality']['scheme'] == \
+               payload['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme']
+        assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
+               payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id']
+        assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['name'] == \
+               payload['tender']['procuringEntity']['contactPoint']['name']
+        assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['email'] == \
+               payload['tender']['procuringEntity']['contactPoint']['email']
+        assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['telephone'] == \
+               payload['tender']['procuringEntity']['contactPoint']['telephone']
+
+
+class TestCreateOwnMoneyFsWithAllTheAttributes(object):
+    @pytestrail.case("24603")
+    def test_send_the_request_24603_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+        fs = FS(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        create_fs_response = fs.create_fs(cp_id)
+        expected_result = str(202)
+        actual_result = str(create_fs_response.status_code)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("24603")
+    def test_see_the_result_in_feed_point_point_24603_2(self, country, language, instance, cassandra_username,
+                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+        fs = FS(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        fs.get_message_from_kafka()
+        actual_result = str(fs.check_on_that_message_is_successfully_create_fs())
+        expected_result = str(True)
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case('24603')
+    def test_check_all_sent_information_is_published_24603_3(self, country, language, instance, cassandra_username,
+                                                             cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+        fs = FS(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        url_create = message_from_kafka['data']['url'] + '/' + message_from_kafka['data']['outcomes']['fs'][0]['id']
+        fs_release = requests.get(url=url_create).json()
+        ei_release_timestamp = int(fs_release["releases"][0]["id"][32:45])
+        convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
+        keys_list = list()
+        for i in fs_release.keys():
+            if i == "uri":
+                keys_list.append(i)
+            if i == "version":
+                keys_list.append(i)
+            if i == "extensions":
+                keys_list.append(i)
+            if i == "publisher":
+                keys_list.append(i)
+            if i == "license":
+                keys_list.append(i)
+            if i == "publicationPolicy":
+                keys_list.append(i)
+            if i == "publishedDate":
+                keys_list.append(i)
+            if i == "releases":
+                keys_list.append(i)
+        for i in fs_release["publisher"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_release["releases"][0].keys():
+            if i == "ocid":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "date":
+                keys_list.append(i)
+            if i == "tag":
+                keys_list.append(i)
+            if i == "initiationType":
+                keys_list.append(i)
+            if i == "tender":
+                keys_list.append(i)
+            if i == "parties":
+                keys_list.append(i)
+            if i == "planning":
+                keys_list.append(i)
+            if i == "relatedProcesses":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["tender"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "status":
+                keys_list.append(i)
+            if i == "statusDetails":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["parties"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["parties"][0]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["planning"].keys():
+            if i == "budget":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["planning"]["budget"].keys():
+            if i == "period":
+                keys_list.append(i)
+            if i == "amount":
+                keys_list.append(i)
+            if i == "isEuropeanUnionFunded":
+                keys_list.append(i)
+            if i == "verified":
+                keys_list.append(i)
+            if i == "sourceEntity":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["planning"]["budget"]["period"].keys():
+            if i == "startDate":
+                keys_list.append(i)
+            if i == "endDate":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["planning"]["budget"]["amount"].keys():
+            if i == "amount":
+                keys_list.append(i)
+            if i == "currency":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["planning"]["budget"]["sourceEntity"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+        for i in fs_release["releases"][0]["relatedProcesses"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "relationship":
+                keys_list.append(i)
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[0])
+        assert compare_actual_result_and_expected_result(expected_result="version", actual_result=keys_list[1])
+        assert compare_actual_result_and_expected_result(expected_result="extensions", actual_result=keys_list[2])
+        assert compare_actual_result_and_expected_result(expected_result="publisher", actual_result=keys_list[3])
+        assert compare_actual_result_and_expected_result(expected_result="license", actual_result=keys_list[4])
+        assert compare_actual_result_and_expected_result(expected_result="publicationPolicy",
+                                                         actual_result=keys_list[5])
+        assert compare_actual_result_and_expected_result(expected_result="publishedDate",
+                                                         actual_result=keys_list[6])
+        assert compare_actual_result_and_expected_result(expected_result="releases", actual_result=keys_list[7])
+        assert compare_actual_result_and_expected_result(expected_result="name", actual_result=keys_list[8])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[9])
+        assert compare_actual_result_and_expected_result(expected_result="ocid", actual_result=keys_list[10])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[11])
+        assert compare_actual_result_and_expected_result(expected_result="date", actual_result=keys_list[12])
+        assert compare_actual_result_and_expected_result(expected_result="tag", actual_result=keys_list[13])
+        assert compare_actual_result_and_expected_result(expected_result="initiationType", actual_result=keys_list[14])
+        assert compare_actual_result_and_expected_result(expected_result="tender", actual_result=keys_list[15])
+        assert compare_actual_result_and_expected_result(expected_result="parties", actual_result=keys_list[16])
+        assert compare_actual_result_and_expected_result(expected_result="planning", actual_result=keys_list[17])
+        assert compare_actual_result_and_expected_result(expected_result="relatedProcesses",
+                                                         actual_result=keys_list[18])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[19])
+        assert compare_actual_result_and_expected_result(expected_result="status", actual_result=keys_list[20])
+        assert compare_actual_result_and_expected_result(expected_result="statusDetails", actual_result=keys_list[21])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[22])
+        assert compare_actual_result_and_expected_result(expected_result="name", actual_result=keys_list[23])
+        assert compare_actual_result_and_expected_result(expected_result="identifier", actual_result=keys_list[24])
+        assert compare_actual_result_and_expected_result(expected_result="address", actual_result=keys_list[25])
+        assert compare_actual_result_and_expected_result(expected_result="contactPoint", actual_result=keys_list[26])
+        assert compare_actual_result_and_expected_result(expected_result="roles", actual_result=keys_list[27])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[28])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[29])
+        assert compare_actual_result_and_expected_result(expected_result="legalName", actual_result=keys_list[30])
+        assert compare_actual_result_and_expected_result(expected_result="streetAddress", actual_result=keys_list[31])
+        assert compare_actual_result_and_expected_result(expected_result="addressDetails", actual_result=keys_list[32])
+        assert compare_actual_result_and_expected_result(expected_result="country", actual_result=keys_list[33])
+        assert compare_actual_result_and_expected_result(expected_result="region", actual_result=keys_list[34])
+        assert compare_actual_result_and_expected_result(expected_result="locality", actual_result=keys_list[35])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[36])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[37])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[38])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[39])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[40])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[41])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[42])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[43])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[44])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[45])
+        assert compare_actual_result_and_expected_result(expected_result="description", actual_result=keys_list[46])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[47])
+        assert compare_actual_result_and_expected_result(expected_result="name", actual_result=keys_list[48])
+        assert compare_actual_result_and_expected_result(expected_result="email", actual_result=keys_list[49])
+        assert compare_actual_result_and_expected_result(expected_result="telephone", actual_result=keys_list[50])
+        assert compare_actual_result_and_expected_result(expected_result="budget", actual_result=keys_list[51])
+        assert compare_actual_result_and_expected_result(expected_result="period", actual_result=keys_list[52])
+        assert compare_actual_result_and_expected_result(expected_result="amount", actual_result=keys_list[53])
+        assert compare_actual_result_and_expected_result(expected_result="isEuropeanUnionFunded",
+                                                         actual_result=keys_list[54])
+        assert compare_actual_result_and_expected_result(expected_result="verified", actual_result=keys_list[55])
+        assert compare_actual_result_and_expected_result(expected_result="sourceEntity", actual_result=keys_list[56])
+        assert compare_actual_result_and_expected_result(expected_result="startDate", actual_result=keys_list[57])
+        assert compare_actual_result_and_expected_result(expected_result="endDate", actual_result=keys_list[58])
+        assert compare_actual_result_and_expected_result(expected_result="amount", actual_result=keys_list[59])
+        assert compare_actual_result_and_expected_result(expected_result="currency", actual_result=keys_list[60])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[61])
+        assert compare_actual_result_and_expected_result(expected_result="name", actual_result=keys_list[62])
+        assert compare_actual_result_and_expected_result(expected_result="id", actual_result=keys_list[63])
+        assert compare_actual_result_and_expected_result(expected_result="relationship", actual_result=keys_list[64])
+        assert compare_actual_result_and_expected_result(expected_result="scheme", actual_result=keys_list[65])
+        assert compare_actual_result_and_expected_result(expected_result="identifier", actual_result=keys_list[66])
+        assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[67])
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=f"http://dev.public.eprocurement.systems/budgets/{message_from_kafka['data']['ocid']}/"
+                            f"{message_from_kafka['data']['outcomes']['fs'][0]['id']}",
+            actual_result=fs_release["uri"])
+        assert compare_actual_result_and_expected_result(expected_result="666", actual_result=fs_release["version"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/"
+                            "extension.json", actual_result=fs_release["extensions"][0])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
+                            "extension.js222", actual_result=fs_release["extensions"][1])
+        assert compare_actual_result_and_expected_result(
+            expected_result=instance.upper() + "-ENV", actual_result=fs_release["publisher"]["name"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="https://www.ustudio.com", actual_result=fs_release["publisher"]["uri"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://opendefinition.org/licenses/222", actual_result=fs_release["license"])
+        assert compare_actual_result_and_expected_result(
+            expected_result="http://opendefinition.org/licenses/222", actual_result=fs_release["publicationPolicy"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"], actual_result=fs_release["publishedDate"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka['data']['outcomes']['fs'][0]['id'],
+            actual_result=fs_release["releases"][0]["ocid"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka['data']['outcomes']['fs'][0]['id'],
+            actual_result=fs_release["releases"][0]["id"][0:45])
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"], actual_result=convert_timestamp_to_date[0])
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"],
+            actual_result=fs_release["releases"][0]["date"])
+
+# class TestCreateOwnMoneyFsWithObligatoryFieldsOnly(object):
+#     @pytestrail.case("24604")
+#     def test_send_the_request_24604_1(self, country, language, instance, cassandra_username, cassandra_password):
+#         cp_id = prepared_cp_id()
+#         ei_token = str(uuid4())
+#         buyer_identifier_id = "987654321"
+#         buyer_identifier_scheme = "MD-IDNO"
+#         buyer_name = "LLC Petrusenko"
+#         payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+#         fs = FS(payload=payload, lang=language, country=country, instance=instance,
+#                 cassandra_username=cassandra_username, cassandra_password=cassandra_password,
+#                 buyer_identifier_id=buyer_identifier_id, buyer_identifier_scheme=buyer_identifier_scheme,
+#                 buyer_name=buyer_name)
+#         fs.insert_ei_obligatory_data_model(cp_id, ei_token)
+#         create_fs_response = fs.create_fs(cp_id)
+#         expected_result = str(202)
+#         actual_result = str(create_fs_response.status_code)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
 #
-# from tests.presets import set_instance_for_request
-# from useful_functions import prepared_cpid, is_valid_uuid
-# from config import create_fs, host
-# from tests.Cassandra_session import get_date_execute_cql_from_orchestrator_operation_step_by_oper_id
-# from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
-# from tests.bpe_create_ei.payloads import ei_obligatory
-# from tests.bpe_create_fs.create_fs import bpe_create_fs
-# from tests.bpe_create_fs.payloads import fs_create_full_treasury_money, fs_create_obligatory_treasury_money, \
-#     fs_create_full_own_money, fs_create_obligatory_own_money
-# from tests.kafka_messages import get_message_from_kafka
+#     @pytestrail.case("24604")
+#     def test_see_the_result_in_feed_point_point_24604_2(self, country, language, instance, cassandra_username,
+#                                                         cassandra_password):
+#         cp_id = prepared_cp_id()
+#         ei_token = str(uuid4())
+#         buyer_identifier_id = "987654321"
+#         buyer_identifier_scheme = "MD-IDNO"
+#         buyer_name = "LLC Petrusenko"
+#         payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+#         fs = FS(payload=payload, lang=language, country=country, instance=instance,
+#                 cassandra_username=cassandra_username, cassandra_password=cassandra_password,
+#                 buyer_identifier_id=buyer_identifier_id, buyer_identifier_scheme=buyer_identifier_scheme,
+#                 buyer_name=buyer_name)
+#         fs.insert_ei_full_data_model(cp_id, ei_token)
+#         fs.create_fs(cp_id)
+#         fs.get_message_from_kafka()
+#         actual_result = str(fs.check_on_that_message_is_successfully_create_fs())
+#         expected_result = str(True)
+#         assert compare_actual_result_and_expected_result(expected_result=expected_result,
+#                                                          actual_result=actual_result)
 #
-# # class TestBpeCreateEI(object):
-# #     @pytestrail.case('24601')
-# #     def test_24601_1(self):
-# #         ei_create = copy.deepcopy(ei_obligatory)
-# #         fs_create = copy.deepcopy(fs_create_full_treasury_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         assert create_fs_response[0].text == 'ok'
-# #         assert create_fs_response[0].status_code == 202
-# #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
-# #
-# #     @pytestrail.case('24601')
-# #     def test_24601_2(self):
-# #         ei_create = copy.deepcopy(ei_obligatory)
-# #         fs_create = copy.deepcopy(fs_create_full_treasury_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         ocid = fnmatch.fnmatch(create_fs_response[1]['data']['ocid'], '*')
-# #
-# #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
-# #         assert ocid == True
-# #
-# #     @pytestrail.case('24601')
-# #     def test_24601_3(self):
-# #         ei_create = copy.deepcopy(ei_obligatory)
-# #         fs_create = copy.deepcopy(fs_create_full_treasury_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         time.sleep(2)
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
-# #             'id']
-# #         publicPoint_create = requests.get(url=url_update).json()
-# #
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['id'] == fs_create['planning']['budget']['id']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['description'] == \
-# #                fs_create['planning']['budget']['description']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['period']['startDate'] == \
-# #                fs_create['planning']['budget']['period']['startDate']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['period']['endDate'] == \
-# #                fs_create['planning']['budget']['period']['endDate']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['amount']['amount'] == \
-# #                fs_create['planning']['budget']['amount']['amount']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['amount']['currency'] == \
-# #                fs_create['planning']['budget']['amount']['currency']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['projectIdentifier'] == \
-# #                fs_create['planning']['budget']['europeanUnionFunding']['projectIdentifier']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['projectName'] == \
-# #                fs_create['planning']['budget']['europeanUnionFunding']['projectName']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['uri'] == \
-# #                fs_create['planning']['budget']['europeanUnionFunding']['uri']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] == \
-# #                fs_create['planning']['budget']['isEuropeanUnionFunded']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['project'] == fs_create['planning']['budget'][
-# #             'project']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['projectID'] == fs_create['planning']['budget'][
-# #             'projectID']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['uri'] == fs_create['planning']['budget']['uri']
-# #         assert publicPoint_create['releases'][0]['planning']['rationale'] == fs_create['planning']['rationale']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['id'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['scheme'] + '-' + \
-# #                fs_create['tender']['procuringEntity']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['name'] == fs_create['tender']['procuringEntity']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['scheme'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['id'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['legalName'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['legalName']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['uri'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['uri']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['streetAddress'] == \
-# #                fs_create['tender']['procuringEntity']['address']['streetAddress']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['postalCode'] == \
-# #                fs_create['tender']['procuringEntity']['address']['postalCode']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['country']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['scheme'] == \
-# #                fs_create['tender']['procuringEntity']['additionalIdentifiers'][0]['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['id'] == \
-# #                fs_create['tender']['procuringEntity']['additionalIdentifiers'][0]['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['legalName'] == \
-# #                fs_create['tender']['procuringEntity']['additionalIdentifiers'][0]['legalName']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['uri'] == \
-# #                fs_create['tender']['procuringEntity']['additionalIdentifiers'][0]['uri']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['name'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['email'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['email']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['telephone'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['telephone']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['faxNumber'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['faxNumber']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['url'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['url']
-# #
-# #     @pytestrail.case('24602')
-# #     def test_24602_1(self):
-# #         ei_create = copy.deepcopy(ei_full)
-# #         fs_create = copy.deepcopy(fs_create_obligatory_treasury_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         assert create_fs_response[0].text == 'ok'
-# #         assert create_fs_response[0].status_code == 202
-# #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
-# #
-# #     @pytestrail.case('24602')
-# #     def test_24602_2(self):
-# #         ei_create = copy.deepcopy(ei_full)
-# #         fs_create = copy.deepcopy(fs_create_obligatory_treasury_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         ocid = fnmatch.fnmatch(create_fs_response[1]['data']['ocid'], '*')
-# #
-# #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
-# #         assert ocid == True
-# #
-# #     @pytestrail.case('24602')
-# #     def test_24602_3(self):
-# #         ei_create = copy.deepcopy(ei_full)
-# #         fs_create = copy.deepcopy(fs_create_obligatory_treasury_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         time.sleep(2)
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
-# #             'id']
-# #         publicPoint_create = requests.get(url=url_update).json()
-# #
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['period']['startDate'] == \
-# #                fs_create['planning']['budget']['period']['startDate']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['period']['endDate'] == \
-# #                fs_create['planning']['budget']['period']['endDate']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['amount']['amount'] == \
-# #                fs_create['planning']['budget']['amount']['amount']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['amount']['currency'] == \
-# #                fs_create['planning']['budget']['amount']['currency']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] == \
-# #                fs_create['planning']['budget']['isEuropeanUnionFunded']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['id'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['scheme'] + '-' + \
-# #                fs_create['tender']['procuringEntity']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['name'] == fs_create['tender']['procuringEntity']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['scheme'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['id'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['legalName'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['legalName']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['country']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['name'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['email'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['email']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['telephone'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['telephone']
-# #
-# #     @pytestrail.case('24603')
-# #     def test_24603_1(self):
-# #         ei_create = copy.deepcopy(ei_obligatory)
-# #         fs_create = copy.deepcopy(fs_create_full_own_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #         print(json.dumps(fs_create))
-# #         assert create_fs_response[0].text == 'ok'
-# #         assert create_fs_response[0].status_code == 202
-# #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
-# #
-# #     @pytestrail.case('24603')
-# #     def test_24603_2(self):
-# #         ei_create = copy.deepcopy(ei_obligatory)
-# #         fs_create = copy.deepcopy(fs_create_full_own_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         ocid = fnmatch.fnmatch(create_fs_response[1]['data']['ocid'], '*')
-# #
-# #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
-# #         assert ocid == True
-# #
-# #     @pytestrail.case('24603')
-# #     def test_24603_3(self):
-# #         ei_create = copy.deepcopy(ei_obligatory)
-# #         fs_create = copy.deepcopy(fs_create_full_own_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         time.sleep(2)
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
-# #             'id']
-# #         publicPoint_create = requests.get(url=url_update).json()
-# #
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['id'] == fs_create['planning']['budget']['id']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['description'] == \
-# #                fs_create['planning']['budget']['description']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['period']['startDate'] == \
-# #                fs_create['planning']['budget']['period']['startDate']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['period']['endDate'] == \
-# #                fs_create['planning']['budget']['period']['endDate']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['amount']['amount'] == \
-# #                fs_create['planning']['budget']['amount']['amount']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['amount']['currency'] == \
-# #                fs_create['planning']['budget']['amount']['currency']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] == \
-# #                fs_create['planning']['budget']['isEuropeanUnionFunded']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['sourceEntity']['id'] == \
-# #                fs_create['buyer']['identifier']['scheme'] + '-' + fs_create['buyer']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['sourceEntity']['name'] == fs_create['buyer'][
-# #             'name']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['project'] == fs_create['planning']['budget'][
-# #             'project']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['projectID'] == fs_create['planning']['budget'][
-# #             'projectID']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['uri'] == fs_create['planning']['budget']['uri']
-# #         assert publicPoint_create['releases'][0]['planning']['rationale'] == fs_create['planning']['rationale']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['projectIdentifier'] == \
-# #                fs_create['planning']['budget']['europeanUnionFunding']['projectIdentifier']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['projectName'] == \
-# #                fs_create['planning']['budget']['europeanUnionFunding']['projectName']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['uri'] == \
-# #                fs_create['planning']['budget']['europeanUnionFunding']['uri']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['id'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['scheme'] + '-' + \
-# #                fs_create['tender']['procuringEntity']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['name'] == fs_create['tender']['procuringEntity']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['identifier']['scheme'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['identifier']['id'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['identifier']['legalName'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['legalName']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['identifier']['uri'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['uri']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['streetAddress'] == \
-# #                fs_create['tender']['procuringEntity']['address']['streetAddress']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['postalCode'] == \
-# #                fs_create['tender']['procuringEntity']['address']['postalCode']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['country']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['country']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['region']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['locality']['scheme'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['locality']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['additionalIdentifiers'][0]['scheme'] == \
-# #                fs_create['tender']['procuringEntity']['additionalIdentifiers'][0]['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['additionalIdentifiers'][0]['id'] == \
-# #                fs_create['tender']['procuringEntity']['additionalIdentifiers'][0]['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['additionalIdentifiers'][0]['legalName'] == \
-# #                fs_create['tender']['procuringEntity']['additionalIdentifiers'][0]['legalName']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['additionalIdentifiers'][0]['uri'] == \
-# #                fs_create['tender']['procuringEntity']['additionalIdentifiers'][0]['uri']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['contactPoint']['name'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['contactPoint']['email'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['email']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['contactPoint']['telephone'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['telephone']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['contactPoint']['faxNumber'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['faxNumber']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['contactPoint']['url'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['url']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['id'] == \
-# #                fs_create['buyer']['identifier']['scheme'] + '-' + \
-# #                fs_create['buyer']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['name'] == fs_create['buyer']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['scheme'] == \
-# #                fs_create['buyer']['identifier']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['id'] == \
-# #                fs_create['buyer']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['legalName'] == \
-# #                fs_create['buyer']['identifier']['legalName']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['uri'] == \
-# #                fs_create['buyer']['identifier']['uri']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['streetAddress'] == \
-# #                fs_create['buyer']['address']['streetAddress']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['postalCode'] == \
-# #                fs_create['buyer']['address']['postalCode']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'] == \
-# #                fs_create['buyer']['address']['addressDetails']['country']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
-# #                fs_create['buyer']['address']['addressDetails']['region']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
-# #                fs_create['buyer']['address']['addressDetails']['locality']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
-# #                fs_create['buyer']['address']['addressDetails']['locality']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['scheme'] == \
-# #                fs_create['buyer']['additionalIdentifiers'][0]['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['id'] == \
-# #                fs_create['buyer']['additionalIdentifiers'][0]['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['legalName'] == \
-# #                fs_create['buyer']['additionalIdentifiers'][0]['legalName']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['additionalIdentifiers'][0]['uri'] == \
-# #                fs_create['buyer']['additionalIdentifiers'][0]['uri']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['name'] == \
-# #                fs_create['buyer']['contactPoint']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['email'] == \
-# #                fs_create['buyer']['contactPoint']['email']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['telephone'] == \
-# #                fs_create['buyer']['contactPoint']['telephone']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['faxNumber'] == \
-# #                fs_create['buyer']['contactPoint']['faxNumber']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['url'] == \
-# #                fs_create['buyer']['contactPoint']['url']
-# #
-# #     @pytestrail.case('24604')
-# #     def test_24604_1(self):
-# #         ei_create = copy.deepcopy(ei_full)
-# #         fs_create = copy.deepcopy(fs_create_obligatory_own_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         assert create_fs_response[0].text == 'ok'
-# #         assert create_fs_response[0].status_code == 202
-# #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
-# #
-# #     @pytestrail.case('24604')
-# #     def test_24604_2(self):
-# #         ei_create = copy.deepcopy(ei_full)
-# #         fs_create = copy.deepcopy(fs_create_obligatory_own_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         ocid = fnmatch.fnmatch(create_fs_response[1]['data']['ocid'], '*')
-# #
-# #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
-# #         assert ocid == True
-# #
-# #     @pytestrail.case('24604')
-# #     def test_24604_3(self):
-# #         ei_create = copy.deepcopy(ei_full)
-# #         fs_create = copy.deepcopy(fs_create_obligatory_own_money)
-# #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #
-# #         time.sleep(2)
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
-# #             'id']
-# #         publicPoint_create = requests.get(url=url_update).json()
-# #
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['period']['startDate'] == \
-# #                fs_create['planning']['budget']['period']['startDate']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['period']['endDate'] == \
-# #                fs_create['planning']['budget']['period']['endDate']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['amount']['amount'] == \
-# #                fs_create['planning']['budget']['amount']['amount']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['amount']['currency'] == \
-# #                fs_create['planning']['budget']['amount']['currency']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] == \
-# #                fs_create['planning']['budget']['isEuropeanUnionFunded']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['sourceEntity']['id'] == \
-# #                fs_create['buyer']['identifier']['scheme'] + '-' + fs_create['buyer']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['sourceEntity']['name'] == fs_create['buyer'][
-# #             'name']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['id'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['scheme'] + '-' + \
-# #                fs_create['tender']['procuringEntity']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['name'] == fs_create['tender']['procuringEntity']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['identifier']['scheme'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['identifier']['id'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['identifier']['legalName'] == \
-# #                fs_create['tender']['procuringEntity']['identifier']['legalName']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['streetAddress'] == \
-# #                fs_create['tender']['procuringEntity']['address']['streetAddress']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['country']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['country']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['region']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['locality']['scheme'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['locality']['id'] == \
-# #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['contactPoint']['name'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['contactPoint']['email'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['email']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['contactPoint']['telephone'] == \
-# #                fs_create['tender']['procuringEntity']['contactPoint']['telephone']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['id'] == \
-# #                fs_create['buyer']['identifier']['scheme'] + '-' + \
-# #                fs_create['buyer']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['name'] == fs_create['buyer']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['scheme'] == \
-# #                fs_create['buyer']['identifier']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['id'] == \
-# #                fs_create['buyer']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['legalName'] == \
-# #                fs_create['buyer']['identifier']['legalName']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['streetAddress'] == \
-# #                fs_create['buyer']['address']['streetAddress']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'] == \
-# #                fs_create['buyer']['address']['addressDetails']['country']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
-# #                fs_create['buyer']['address']['addressDetails']['region']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
-# #                fs_create['buyer']['address']['addressDetails']['locality']['scheme']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
-# #                fs_create['buyer']['address']['addressDetails']['locality']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['name'] == \
-# #                fs_create['buyer']['contactPoint']['name']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['email'] == \
-# #                fs_create['buyer']['contactPoint']['email']
-# #         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['telephone'] == \
-# #                fs_create['buyer']['contactPoint']['telephone']
+#     @pytestrail.case('24604')
+#     def test_check_all_sent_information_is_published_24604_3(self, country, language, instance, cassandra_username,
+#                                                              cassandra_password):
+#         cp_id = prepared_cp_id()
+#         ei_token = str(uuid4())
+#         buyer_identifier_id = "987654321"
+#         buyer_identifier_scheme = "MD-IDNO"
+#         buyer_name = "LLC Petrusenko"
+#         payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+#         fs = FS(payload=payload, lang=language, country=country, instance=instance,
+#                 cassandra_username=cassandra_username, cassandra_password=cassandra_password,
+#                 buyer_identifier_id=buyer_identifier_id, buyer_identifier_scheme=buyer_identifier_scheme,
+#                 buyer_name=buyer_name)
+#         fs.insert_ei_full_data_model(cp_id, ei_token)
+#         fs.create_fs(cp_id)
+#         message_from_kafka = fs.get_message_from_kafka()
+#         time.sleep(2)
+#         url_create = message_from_kafka['data']['url'] + '/' + message_from_kafka['data']['outcomes']['fs'][0]['id']
+#         publicPoint_create = requests.get(url=url_create).json()
+#         assert publicPoint_create['releases'][0]['planning']['budget']['period']['startDate'] == \
+#                payload['planning']['budget']['period']['startDate']
+#         assert publicPoint_create['releases'][0]['planning']['budget']['period']['endDate'] == \
+#                payload['planning']['budget']['period']['endDate']
+#         assert publicPoint_create['releases'][0]['planning']['budget']['amount']['amount'] == \
+#                payload['planning']['budget']['amount']['amount']
+#         assert publicPoint_create['releases'][0]['planning']['budget']['amount']['currency'] == \
+#                payload['planning']['budget']['amount']['currency']
+#         assert publicPoint_create['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] == \
+#                payload['planning']['budget']['isEuropeanUnionFunded']
+#         assert publicPoint_create['releases'][0]['planning']['budget']['sourceEntity']['id'] == \
+#                buyer_identifier_scheme + '-' + buyer_identifier_id
+#         assert publicPoint_create['releases'][0]['planning']['budget']['sourceEntity']['name'] == buyer_name
+#         assert publicPoint_create['releases'][0]['parties'][0]['id'] == \
+#                payload['tender']['procuringEntity']['identifier']['scheme'] + '-' + \
+#                payload['tender']['procuringEntity']['identifier']['id']
+#         assert publicPoint_create['releases'][0]['parties'][0]['name'] == \
+#                payload['tender']['procuringEntity']['name']
+#         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['scheme'] == \
+#                payload['tender']['procuringEntity']['identifier']['scheme']
+#         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['id'] == \
+#                payload['tender']['procuringEntity']['identifier']['id']
+#         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['legalName'] == \
+#                payload['tender']['procuringEntity']['identifier']['legalName']
+#         assert publicPoint_create['releases'][0]['parties'][0]['address']['streetAddress'] == \
+#                payload['tender']['procuringEntity']['address']['streetAddress']
+#         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'] == \
+#                payload['tender']['procuringEntity']['address']['addressDetails']['country']['id']
+#         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
+#                payload['tender']['procuringEntity']['address']['addressDetails']['region']['id']
+#         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
+#                payload['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme']
+#         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
+#                payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id']
+#         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['name'] == \
+#                payload['tender']['procuringEntity']['contactPoint']['name']
+#         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['email'] == \
+#                payload['tender']['procuringEntity']['contactPoint']['email']
+#         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['telephone'] == \
+#                payload['tender']['procuringEntity']['contactPoint']['telephone']
+#         assert publicPoint_create['releases'][0]['parties'][0]['id'] == \
+#                payload['tender']['procuringEntity']['identifier']['scheme'] + '-' + \
+#                payload['tender']['procuringEntity']['identifier']['id']
+#         assert publicPoint_create['releases'][0]['parties'][0]['name'] == payload['tender']['procuringEntity']['name']
+#         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['scheme'] == \
+#                payload['tender']['procuringEntity']['identifier']['scheme']
+#         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['id'] == \
+#                payload['tender']['procuringEntity']['identifier']['id']
+#         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['legalName'] == \
+#                payload['tender']['procuringEntity']['identifier']['legalName']
+#         assert publicPoint_create['releases'][0]['parties'][0]['address']['streetAddress'] == \
+#                payload['tender']['procuringEntity']['address']['streetAddress']
+#         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'] == \
+#                payload['tender']['procuringEntity']['address']['addressDetails']['country']['id']
+#         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'] == \
+#                payload['tender']['procuringEntity']['address']['addressDetails']['region']['id']
+#         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
+#                payload['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme']
+#         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
+#                payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id']
+#         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['name'] == \
+#                payload['tender']['procuringEntity']['contactPoint']['name']
+#         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['email'] == \
+#                payload['tender']['procuringEntity']['contactPoint']['email']
+#         assert publicPoint_create['releases'][0]['parties'][0]['contactPoint']['telephone'] == \
+#                payload['tender']['procuringEntity']['contactPoint']['telephone']
+
+
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_1(self):
@@ -462,11 +683,14 @@
 # #                                                                     'KotlinParameterException: Instantiation of ' \
 # #                                                                     '[simple type, class com.procurement.budget.' \
 # #                                                                     'model.dto.fs.request.TenderFsCreate] value ' \
-# #                                                                     'failed for JSON property procuringEntity due ' \
-# #                                                                     'to missing (therefore NULL) value for creator ' \
+# #                                                                     'failed for JSON property procuringEntity
+# due ' \
+# #                                                                     'to missing (therefore NULL) value for
+# creator ' \
 # #                                                                     'parameter procuringEntity which is a non-' \
 # #                                                                     'nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
+# #                                                                     '-1, column: -1] (through reference
+# chain: com.' \
 # #                                                                     'procurement.budget.model.dto.fs.request.Fs' \
 # #                                                                     'Create[\"tender\"]->com.procurement.budget.' \
 # #                                                                     'model.dto.fs.request.TenderFsCreate' \
@@ -489,9 +713,12 @@
 # #                                                                     'KotlinParameterException: Instantiation of ' \
 # #                                                                     '[simple type, class com.procurement.budget.' \
 # #                                                                     'model.dto.fs.OrganizationReferenceFs] value ' \
-# #                                                                     'failed for JSON property name due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'name which is a non-nullable type\n at [Source:' \
+# #                                                                     'failed for JSON property name due to
+# missing ' \
+# #                                                                     '(therefore NULL) value for creator
+# parameter ' \
+# #                                                                     'name which is a non-nullable type\n
+# at [Source:' \
 # #                                                                     ' UNKNOWN; line: -1, column: -1] (through ' \
 # #                                                                     'reference chain: com.procurement.budget.' \
 # #                                                                     'model.dto.fs.request.FsCreate[\"tender\"]->' \
@@ -519,13 +746,17 @@
 # #                                                                     'model.dto.fs.OrganizationReferenceFs] value ' \
 # #                                                                     'failed for JSON property identifier due to ' \
 # #                                                                     'missing (therefore NULL) value for creator ' \
-# #                                                                     'parameter identifier which is a non-nullable ' \
-# #                                                                     'type\n at [Source: UNKNOWN; line: -1, column:' \
-# #                                                                     ' -1] (through reference chain: com.procurement.' \
+# #                                                                     'parameter identifier which is a non-
+# nullable ' \
+# #                                                                     'type\n at [Source: UNKNOWN; line: -1,
+# column:' \
+# #                                                                     ' -1] (through reference chain: com.
+# procurement.' \
 # #                                                                     'budget.model.dto.fs.request.FsCreate' \
 # #                                                                     '[\"tender\"]->com.procurement.budget.model.' \
 # #                                                                     'dto.fs.request.TenderFsCreate[\"procuring' \
-# #                                                                     'Entity\"]->com.procurement.budget.model.dto.fs.' \
+# #                                                                     'Entity\"]->com.procurement.budget.model.
+# dto.fs.' \
 # #                                                                     'OrganizationReferenceFs[\"identifier\"])'
 # #
 # #     @pytestrail.case('24605')
@@ -543,13 +774,17 @@
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
 # #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
 # #                                                                     'KotlinParameterException: Instantiation of [' \
-# #                                                                     'simple type, class com.procurement.mdm.model.' \
+# #                                                                     'simple type, class com.procurement.mdm.
+# model.' \
 # #                                                                     'dto.data.Identifier] value failed for JSON ' \
 # #                                                                     'property id due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter id which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: -1, ' \
+# #                                                                     'value for creator parameter id which is
+# a non-' \
+# #                                                                     'nullable type\n at [Source: UNKNOWN;
+# line: -1, ' \
 # #                                                                     'column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"tender\"]->' \
+# #                                                                     'procurement.mdm.model.dto.data.FS[\"
+# tender\"]->' \
 # #                                                                     'com.procurement.mdm.model.dto.data.TenderFS' \
 # #                                                                     '[\"procuringEntity\"]->com.procurement.mdm.' \
 # #                                                                     'model.dto.data.OrganizationReference' \
@@ -571,17 +806,25 @@
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
 # #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
 # #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
+# #                                                                     '[simple type, class com.procurement.mdm
+# .model.' \
 # #                                                                     'dto.data.Identifier] value failed for JSON ' \
-# #                                                                     'property scheme due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter scheme which is a ' \
-# #                                                                     'non-nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"tender\"]' \
-# #                                                                     '->com.procurement.mdm.model.dto.data.TenderFS' \
+# #                                                                     'property scheme due to missing (therefore
+# NULL) ' \
+# #                                                                     'value for creator parameter scheme which
+# is a ' \
+# #                                                                     'non-nullable type\n at [Source: UNKNOWN;
+# line: ' \
+# #                                                                     '-1, column: -1] (through reference chain:
+# com.' \
+# #                                                                     'procurement.mdm.model.dto.data.FS[\
+# "tender\"]' \
+# #                                                                     '->com.procurement.mdm.model.dto.data.
+# TenderFS' \
 # #                                                                     '[\"procuringEntity\"]->com.procurement.mdm.' \
 # #                                                                     'model.dto.data.OrganizationReference' \
-# #                                                                     '[\"identifier\"]->com.procurement.mdm.model.dto.' \
+# #                                                                     '[\"identifier\"]->com.procurement.mdm.
+# model.dto.' \
 # #                                                                     'data.Identifier[\"scheme\"])'
 # #
 # #     @pytestrail.case('24605')
@@ -602,12 +845,14 @@
 # #                                                                     '[simple type, class com.procurement.budget.' \
 # #                                                                     'model.dto.ocds.Identifier] value failed for ' \
 # #                                                                     'JSON property legalName due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
+# #                                                                     '(therefore NULL) value for creator
+# parameter ' \
 # #                                                                     'legalName which is a non-nullable type\n at ' \
 # #                                                                     '[Source: UNKNOWN; line: -1, column: -1] ' \
 # #                                                                     '(through reference chain: com.procurement.' \
 # #                                                                     'budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"tender\"]->com.procurement.budget.model.dto.' \
+# #                                                                     '[\"tender\"]->com.procurement.budget.
+# model.dto.' \
 # #                                                                     'fs.request.TenderFsCreate[\"procuring' \
 # #                                                                     'Entity\"]->com.procurement.budget.model.dto.' \
 # #                                                                     'fs.OrganizationReferenceFs[\"identifier\"]->' \
@@ -631,13 +876,16 @@
 # #                                                                     'KotlinParameterException: Instantiation of ' \
 # #                                                                     '[simple type, class com.procurement.budget.' \
 # #                                                                     'model.dto.fs.OrganizationReferenceFs] value ' \
-# #                                                                     'failed for JSON property address due to missing' \
-# #                                                                     ' (therefore NULL) value for creator parameter ' \
+# #                                                                     'failed for JSON property address due
+# to missing' \
+# #                                                                     ' (therefore NULL) value for creator
+# parameter ' \
 # #                                                                     'address which is a non-nullable type\n at ' \
 # #                                                                     '[Source: UNKNOWN; line: -1, column: -1] ' \
 # #                                                                     '(through reference chain: com.procurement.' \
 # #                                                                     'budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"tender\"]->com.procurement.budget.model.dto.' \
+# #                                                                     '[\"tender\"]->com.procurement.budget
+# .model.dto.' \
 # #                                                                     'fs.request.TenderFsCreate[\"procuring' \
 # #                                                                     'Entity\"]->com.procurement.budget.model.dto.' \
 # #                                                                     'fs.OrganizationReferenceFs[\"address\"])'
@@ -657,16 +905,22 @@
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
 # #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
 # #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
+# #                                                                     '[simple type, class com.procurement.mdm.
+# model.' \
 # #                                                                     'dto.data.Address] value failed for JSON ' \
 # #                                                                     'property streetAddress due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'streetAddress which is a non-nullable type\n ' \
+# #                                                                     '(therefore NULL) value for creator
+# parameter ' \
+# #                                                                     'streetAddress which is a non-nullable
+# type\n ' \
 # #                                                                     'at [Source: UNKNOWN; line: -1, column: -1] ' \
-# #                                                                     '(through reference chain: com.procurement.mdm.' \
-# #                                                                     'model.dto.data.FS[\"tender\"]->com.procurement.' \
+# #                                                                     '(through reference chain: com.procurement
+# .mdm.' \
+# #                                                                     'model.dto.data.FS[\"tender\"]->com.
+# procurement.' \
 # #                                                                     'mdm.model.dto.data.TenderFS[\"procuring' \
-# #                                                                     'Entity\"]->com.procurement.mdm.model.dto.data.' \
+# #                                                                     'Entity\"]->com.procurement.mdm.model.
+# dto.data.' \
 # #                                                                     'OrganizationReference[\"address\"]->com.' \
 # #                                                                     'procurement.mdm.model.dto.data.Address' \
 # #                                                                     '[\"streetAddress\"])'
@@ -684,21 +938,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.Address] value failed for JSON ' \
-# #                                                                     'property addressDetails due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'addressDetails which is a non-nullable type\n ' \
-# #                                                                     'at [Source: UNKNOWN; line: -1, column: -1] ' \
-# #                                                                     '(through reference chain: com.procurement.mdm.' \
-# #                                                                     'model.dto.data.FS[\"tender\"]->com.procurement.' \
-# #                                                                     'mdm.model.dto.data.TenderFS[\"procuring' \
-# #                                                                     'Entity\"]->com.procurement.mdm.model.dto.data.' \
-# #                                                                     'OrganizationReference[\"address\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.Address' \
-# #                                                                     '[\"addressDetails\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_11(self):
@@ -713,22 +953,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.AddressDetails] value failed for JSON ' \
-# #                                                                     'property country due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter country which ' \
-# #                                                                     'is a non-nullable type\n at [Source: UNKNOWN; ' \
-# #                                                                     'line: -1, column: -1] (through reference chain: ' \
-# #                                                                     'com.procurement.mdm.model.dto.data.FS' \
-# #                                                                     '[\"tender\"]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.TenderFS[\"procuringEntity\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.Organization' \
-# #                                                                     'Reference[\"address\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.Address[\"addressDetails\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.Address' \
-# #                                                                     'Details[\"country\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_12(self):
@@ -745,12 +970,15 @@
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
 # #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
 # #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
+# #                                                                     '[simple type, class com.procurement.mdm.
+# model.' \
 # #                                                                     'dto.data.CountryDetails] value failed for ' \
 # #                                                                     'JSON property id due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter id which is ' \
+# #                                                                     'NULL) value for creator parameter id which
+# is ' \
 # #                                                                     'a non-nullable type\n at [Source: UNKNOWN; ' \
-# #                                                                     'line: -1, column: -1] (through reference chain: ' \
+# #                                                                     'line: -1, column: -1] (through reference
+# chain: ' \
 # #                                                                     'com.procurement.mdm.model.dto.data.FS' \
 # #                                                                     '[\"tender\"]->com.procurement.mdm.model.dto.' \
 # #                                                                     'data.TenderFS[\"procuringEntity\"]->com.' \
@@ -776,17 +1004,24 @@
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
 # #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
 # #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.AddressDetails] value failed for JSON ' \
-# #                                                                     'property region due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter region which is a non' \
-# #                                                                     '-nullable type\n at [Source: UNKNOWN; line: -1, ' \
+# #                                                                     '[simple type, class com.procurement.mdm.
+# model.' \
+# #                                                                     'dto.data.AddressDetails] value failed
+# for JSON ' \
+# #                                                                     'property region due to missing (therefore
+# NULL) ' \
+# #                                                                     'value for creator parameter region which
+# is a non' \
+# #                                                                     '-nullable type\n at [Source: UNKNOWN;
+# line: -1, ' \
 # #                                                                     'column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"tender\"]->' \
+# #                                                                     'procurement.mdm.model.dto.data.FS[
+# \"tender\"]->' \
 # #                                                                     'com.procurement.mdm.model.dto.data.TenderFS' \
 # #                                                                     '[\"procuringEntity\"]->com.procurement.mdm.' \
 # #                                                                     'model.dto.data.OrganizationReference' \
-# #                                                                     '[\"address\"]->com.procurement.mdm.model.dto.' \
+# #                                                                     '[\"address\"]->com.procurement.mdm.
+# model.dto.' \
 # #                                                                     'data.Address[\"addressDetails\"]->com.' \
 # #                                                                     'procurement.mdm.model.dto.data.Address' \
 # #                                                                     'Details[\"region\"])'
@@ -806,19 +1041,26 @@
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
 # #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
 # #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.RegionDetails] value failed for JSON ' \
+# #                                                                     '[simple type, class com.procurement.
+# mdm.model.' \
+# #                                                                     'dto.data.RegionDetails] value failed
+# for JSON ' \
 # #                                                                     'property id due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter id which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: -1, ' \
+# #                                                                     'value for creator parameter id which
+# is a non-' \
+# #                                                                     'nullable type\n at [Source: UNKNOWN;
+# line: -1, ' \
 # #                                                                     'column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"tender\"]->' \
+# #                                                                     'procurement.mdm.model.dto.data.FS
+# [\"tender\"]->' \
 # #                                                                     'com.procurement.mdm.model.dto.data.TenderFS' \
 # #                                                                     '[\"procuringEntity\"]->com.procurement.mdm.' \
 # #                                                                     'model.dto.data.OrganizationReference' \
-# #                                                                     '[\"address\"]->com.procurement.mdm.model.dto.' \
+# #                                                                     '[\"address\"]->com.procurement.mdm.
+# model.dto.' \
 # #                                                                     'data.Address[\"addressDetails\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.AddressDetails' \
+# #                                                                     'procurement.mdm.model.dto.data.
+# AddressDetails' \
 # #                                                                     '[\"region\"]->com.procurement.mdm.model.dto.' \
 # #                                                                     'data.RegionDetails[\"id\"])'
 # #
@@ -837,14 +1079,18 @@
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
 # #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
 # #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.AddressDetails] value failed for JSON ' \
+# #                                                                     '[simple type, class com.procurement.
+# mdm.model.' \
+# #                                                                     'dto.data.AddressDetails] value failed
+# for JSON ' \
 # #                                                                     'property locality due to missing (therefore ' \
 # #                                                                     'NULL) value for creator parameter locality ' \
 # #                                                                     'which is a non-nullable type\n at [Source: ' \
 # #                                                                     'UNKNOWN; line: -1, column: -1] (through ' \
-# #                                                                     'reference chain: com.procurement.mdm.model.dto.' \
-# #                                                                     'data.FS[\"tender\"]->com.procurement.mdm.model.' \
+# #                                                                     'reference chain: com.procurement.mdm.
+# model.dto.' \
+# #                                                                     'data.FS[\"tender\"]->com.procurement.
+# mdm.model.' \
 # #                                                                     'dto.data.TenderFS[\"procuringEntity\"]->com.' \
 # #                                                                     'procurement.mdm.model.dto.data.Organization' \
 # #                                                                     'Reference[\"address\"]->com.procurement.mdm.' \
@@ -867,20 +1113,28 @@
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
 # #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
 # #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.LocalityDetails] value failed for JSON ' \
+# #                                                                     '[simple type, class com.procurement.
+# mdm.model.' \
+# #                                                                     'dto.data.LocalityDetails] value failed
+# for JSON ' \
 # #                                                                     'property id due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter id which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: -1, ' \
+# #                                                                     'value for creator parameter id which
+# is a non-' \
+# #                                                                     'nullable type\n at [Source: UNKNOWN;
+# line: -1, ' \
 # #                                                                     'column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"tender\"]->' \
+# #                                                                     'procurement.mdm.model.dto.data.FS[\
+# "tender\"]->' \
 # #                                                                     'com.procurement.mdm.model.dto.data.TenderFS' \
 # #                                                                     '[\"procuringEntity\"]->com.procurement.mdm.' \
 # #                                                                     'model.dto.data.OrganizationReference' \
-# #                                                                     '[\"address\"]->com.procurement.mdm.model.dto.' \
+# #                                                                     '[\"address\"]->com.procurement.mdm.
+# model.dto.' \
 # #                                                                     'data.Address[\"addressDetails\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.AddressDetails' \
-# #                                                                     '[\"locality\"]->com.procurement.mdm.model.dto.' \
+# #                                                                     'procurement.mdm.model.dto.data.
+# AddressDetails' \
+# #                                                                     '[\"locality\"]->com.procurement.mdm.
+# model.dto.' \
 # #                                                                     'data.LocalityDetails[\"id\"])'
 # #
 # #     @pytestrail.case('24605')
@@ -898,12 +1152,17 @@
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
 # #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
 # #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
+# #                                                                     '[simple type, class com.procurement.mdm.
+# model.' \
 # #                                                                     'dto.data.LocalityDetails] value failed for ' \
-# #                                                                     'JSON property scheme due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter scheme which ' \
-# #                                                                     'is a non-nullable type\n at [Source: UNKNOWN; ' \
-# #                                                                     'line: -1, column: -1] (through reference chain: ' \
+# #                                                                     'JSON property scheme due to missing
+# (therefore ' \
+# #                                                                     'NULL) value for creator parameter
+# scheme which ' \
+# #                                                                     'is a non-nullable type\n at [Source:
+# UNKNOWN; ' \
+# #                                                                     'line: -1, column: -1] (through
+# reference chain: ' \
 # #                                                                     'com.procurement.mdm.model.dto.data.FS' \
 # #                                                                     '[\"tender\"]->com.procurement.mdm.model.dto.' \
 # #                                                                     'data.TenderFS[\"procuringEntity\"]->com.' \
@@ -929,21 +1188,29 @@
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
 # #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
 # #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
+# #                                                                     '[simple type, class com.procurement.
+# mdm.model.' \
 # #                                                                     'dto.data.LocalityDetails] value failed for ' \
 # #                                                                     'JSON property description due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'description which is a non-nullable type\n at ' \
-# #                                                                     '[Source: UNKNOWN; line: -1, column: -1] (through' \
+# #                                                                     '(therefore NULL) value for creator
+# parameter ' \
+# #                                                                     'description which is a non-nullable
+# type\n at ' \
+# #                                                                     '[Source: UNKNOWN; line: -1, column: -1]
+# (through' \
 # #                                                                     ' reference chain: com.procurement.mdm.model.' \
-# #                                                                     'dto.data.FS[\"tender\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.TenderFS[\"procuringEntity\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Organization' \
+# #                                                                     'dto.data.FS[\"tender\"]->com.procurement.
+# mdm.' \
+# #                                                                     'model.dto.data.TenderFS[\"procuring
+# Entity\"]->' \
+# #                                                                     'com.procurement.mdm.model.dto.data.
+# Organization' \
 # #                                                                     'Reference[\"address\"]->com.procurement.mdm.' \
 # #                                                                     'model.dto.data.Address[\"addressDetails\"]->' \
 # #                                                                     'com.procurement.mdm.model.dto.data.Address' \
 # #                                                                     'Details[\"locality\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.LocalityDetails[\"description\"])'
+# #                                                                     'model.dto.data.LocalityDetails[\"
+# description\"])'
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_19(self):
@@ -962,15 +1229,20 @@
 # #                                                                     'KotlinParameterException: Instantiation of ' \
 # #                                                                     '[simple type, class com.procurement.budget.' \
 # #                                                                     'model.dto.fs.OrganizationReferenceFs] value ' \
-# #                                                                     'failed for JSON property contactPoint due to ' \
+# #                                                                     'failed for JSON property contactPoint
+# due to ' \
 # #                                                                     'missing (therefore NULL) value for creator ' \
-# #                                                                     'parameter contactPoint which is a non-nullable ' \
-# #                                                                     'type\n at [Source: UNKNOWN; line: -1, column: ' \
-# #                                                                     '-1] (through reference chain: com.procurement.' \
+# #                                                                     'parameter contactPoint which is a
+# non-nullable ' \
+# #                                                                     'type\n at [Source: UNKNOWN; line: -1,
+# column: ' \
+# #                                                                     '-1] (through reference chain: com.
+# procurement.' \
 # #                                                                     'budget.model.dto.fs.request.FsCreate' \
 # #                                                                     '[\"tender\"]->com.procurement.budget.model.' \
 # #                                                                     'dto.fs.request.TenderFsCreate' \
-# #                                                                     '[\"procuringEntity\"]->com.procurement.budget.' \
+# #                                                                     '[\"procuringEntity\"]->com.procurement.
+# budget.' \
 # #                                                                     'model.dto.fs.OrganizationReferenceFs' \
 # #                                                                     '[\"contactPoint\"])'
 # #
@@ -987,20 +1259,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.ContactPoint] value failed for JSON ' \
-# #                                                                     'property name due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter name which is a ' \
-# #                                                                     'non-nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"tender\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.TenderFS' \
-# #                                                                     '[\"procuringEntity\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.OrganizationReference' \
-# #                                                                     '[\"contactPoint\"]->com.procurement.mdm.model.' \
-# #                                                                     'dto.data.ContactPoint[\"name\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_21(self):
@@ -1015,20 +1274,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.ContactPoint] value failed for JSON ' \
-# #                                                                     'property email due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter email which is a ' \
-# #                                                                     'non-nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"tender\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.TenderFS' \
-# #                                                                     '[\"procuringEntity\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.OrganizationReference' \
-# #                                                                     '[\"contactPoint\"]->com.procurement.mdm.model.' \
-# #                                                                     'dto.data.ContactPoint[\"email\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_22(self):
@@ -1043,21 +1289,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.ContactPoint] value failed for JSON ' \
-# #                                                                     'property telephone due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter telephone ' \
-# #                                                                     'which is a non-nullable type\n at [Source: ' \
-# #                                                                     'UNKNOWN; line: -1, column: -1] (through ' \
-# #                                                                     'reference chain: com.procurement.mdm.model.' \
-# #                                                                     'dto.data.FS[\"tender\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.TenderFS[\"procuringEntity\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.' \
-# #                                                                     'OrganizationReference[\"contactPoint\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.ContactPoint' \
-# #                                                                     '[\"telephone\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_23(self):
@@ -1072,18 +1304,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.fs.OrganizationReferenceFs] value ' \
-# #                                                                     'failed for JSON property name due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'name which is a non-nullable type\n at [Source:' \
-# #                                                                     ' UNKNOWN; line: -1, column: -1] (through ' \
-# #                                                                     'reference chain: com.procurement.budget.model.' \
-# #                                                                     'dto.fs.request.FsCreate[\"buyer\"]->com.' \
-# #                                                                     'procurement.budget.model.dto.fs.Organization' \
-# #                                                                     'ReferenceFs[\"name\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_24(self):
@@ -1098,19 +1319,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.fs.OrganizationReferenceFs] value ' \
-# #                                                                     'failed for JSON property identifier due to ' \
-# #                                                                     'missing (therefore NULL) value for creator ' \
-# #                                                                     'parameter identifier which is a non-nullable ' \
-# #                                                                     'type\n at [Source: UNKNOWN; line: -1, column:' \
-# #                                                                     ' -1] (through reference chain: com.' \
-# #                                                                     'procurement.budget.model.dto.fs.request.' \
-# #                                                                     'FsCreate[\"buyer\"]->com.procurement.' \
-# #                                                                     'budget.model.dto.fs.OrganizationReference' \
-# #                                                                     'Fs[\"identifier\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_25(self):
@@ -1125,19 +1334,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.Identifier] value failed for JSON ' \
-# #                                                                     'property id due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter id which is a ' \
-# #                                                                     'non-nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: ' \
-# #                                                                     'com.procurement.mdm.model.dto.data.FS' \
-# #                                                                     '[\"buyer\"]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.OrganizationReference[\"identifier\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Identifier' \
-# #                                                                     '[\"id\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_26(self):
@@ -1152,18 +1349,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.Identifier] value failed for JSON ' \
-# #                                                                     'property scheme due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter scheme which is a ' \
-# #                                                                     'non-nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"buyer\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Organization' \
-# #                                                                     'Reference[\"identifier\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.Identifier[\"scheme\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_27(self):
@@ -1178,20 +1364,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.ocds.Identifier] value failed for ' \
-# #                                                                     'JSON property legalName due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'legalName which is a non-nullable ' \
-# #                                                                     'type\n at [Source: UNKNOWN; line: -1, ' \
-# #                                                                     'column: -1] (through reference chain: ' \
-# #                                                                     'com.procurement.budget.model.dto.fs.request.' \
-# #                                                                     'FsCreate[\"buyer\"]->com.procurement.budget.' \
-# #                                                                     'model.dto.fs.OrganizationReferenceFs' \
-# #                                                                     '[\"identifier\"]->com.procurement.budget.' \
-# #                                                                     'model.dto.ocds.Identifier[\"legalName\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_28(self):
@@ -1206,18 +1379,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.fs.OrganizationReferenceFs] value ' \
-# #                                                                     'failed for JSON property address due to ' \
-# #                                                                     'missing (therefore NULL) value for creator ' \
-# #                                                                     'parameter address which is a non-nullable ' \
-# #                                                                     'type\n at [Source: UNKNOWN; line: -1, column: ' \
-# #                                                                     '-1] (through reference chain: com.procurement.' \
-# #                                                                     'budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"buyer\"]->com.procurement.budget.model.' \
-# #                                                                     'dto.fs.OrganizationReferenceFs[\"address\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_29(self):
@@ -1232,19 +1394,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.Address] value failed for JSON ' \
-# #                                                                     'property streetAddress due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'streetAddress which is a non-nullable type\n ' \
-# #                                                                     'at [Source: UNKNOWN; line: -1, column: -1] ' \
-# #                                                                     '(through reference chain: com.procurement.mdm.' \
-# #                                                                     'model.dto.data.FS[\"buyer\"]->com.procurement.' \
-# #                                                                     'mdm.model.dto.data.OrganizationReference' \
-# #                                                                     '[\"address\"]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.Address[\"streetAddress\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_30(self):
@@ -1259,19 +1409,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.Address] value failed for JSON ' \
-# #                                                                     'property streetAddress due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'streetAddress which is a non-nullable type\n ' \
-# #                                                                     'at [Source: UNKNOWN; line: -1, column: -1] ' \
-# #                                                                     '(through reference chain: com.procurement.mdm.' \
-# #                                                                     'model.dto.data.FS[\"buyer\"]->com.procurement.' \
-# #                                                                     'mdm.model.dto.data.OrganizationReference' \
-# #                                                                     '[\"address\"]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.Address[\"streetAddress\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == ''
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_31(self):
@@ -1286,22 +1424,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.' \
-# #                                                                     'MissingKotlinParameterException: Instantiation ' \
-# #                                                                     'of [simple type, class com.procurement.mdm.' \
-# #                                                                     'model.dto.data.AddressDetails] value failed ' \
-# #                                                                     'for JSON property country due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'country which is a non-nullable type\n at ' \
-# #                                                                     '[Source: UNKNOWN; line: -1, column: -1] ' \
-# #                                                                     '(through reference chain: com.procurement.mdm.' \
-# #                                                                     'model.dto.data.FS[\"buyer\"]->com.procurement.' \
-# #                                                                     'mdm.model.dto.data.OrganizationReference' \
-# #                                                                     '[\"address\"]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.Address[\"addressDetails\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.Address' \
-# #                                                                     'Details[\"country\"])'
-# #
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #     @pytestrail.case('24605')
 # #     def test_24605_32(self):
 # #         ei_create = copy.deepcopy(ei_full)
@@ -1315,21 +1438,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.CountryDetails] value failed for JSON ' \
-# #                                                                     'property id due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter id which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"buyer\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Organization' \
-# #                                                                     'Reference[\"address\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.Address[\"addressDetails\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Address' \
-# #                                                                     'Details[\"country\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.CountryDetails[\"id\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_33(self):
@@ -1344,20 +1453,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.AddressDetails] value failed for JSON ' \
-# #                                                                     'property region due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter region which ' \
-# #                                                                     'is a non-nullable type\n at [Source: UNKNOWN; ' \
-# #                                                                     'line: -1, column: -1] (through reference chain: ' \
-# #                                                                     'com.procurement.mdm.model.dto.data.FS[\"buyer\"]' \
-# #                                                                     '->com.procurement.mdm.model.dto.data.' \
-# #                                                                     'OrganizationReference[\"address\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.Address' \
-# #                                                                     '[\"addressDetails\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.AddressDetails[\"region\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_34(self):
@@ -1372,21 +1468,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.RegionDetails] value failed for JSON ' \
-# #                                                                     'property id due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter id which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: -1, ' \
-# #                                                                     'column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"buyer\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Organization' \
-# #                                                                     'Reference[\"address\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.Address[\"addressDetails\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Address' \
-# #                                                                     'Details[\"region\"]->com.procurement.mdm.model.' \
-# #                                                                     'dto.data.RegionDetails[\"id\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_35(self):
@@ -1401,20 +1483,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlin' \
-# #                                                                     'ParameterException: Instantiation of [simple ' \
-# #                                                                     'type, class com.procurement.mdm.model.dto.data.' \
-# #                                                                     'AddressDetails] value failed for JSON property ' \
-# #                                                                     'locality due to missing (therefore NULL) value ' \
-# #                                                                     'for creator parameter locality which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: -1, ' \
-# #                                                                     'column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"buyer\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Organization' \
-# #                                                                     'Reference[\"address\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.Address[\"addressDetails\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.AddressDetails' \
-# #                                                                     '[\"locality\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_36(self):
@@ -1429,21 +1498,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.LocalityDetails] value failed for JSON ' \
-# #                                                                     'property scheme due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter scheme which is a ' \
-# #                                                                     'non-nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"buyer\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Organization' \
-# #                                                                     'Reference[\"address\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.Address[\"addressDetails\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Address' \
-# #                                                                     'Details[\"locality\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.LocalityDetails[\"scheme\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_37(self):
@@ -1458,22 +1513,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.LocalityDetails] value failed for ' \
-# #                                                                     'JSON property id due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter id which is ' \
-# #                                                                     'a non-nullable type\n at [Source: UNKNOWN; ' \
-# #                                                                     'line: -1, column: -1] (through reference chain: ' \
-# #                                                                     'com.procurement.mdm.model.dto.data.FS' \
-# #                                                                     '[\"buyer\"]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.OrganizationReference[\"address\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Address' \
-# #                                                                     '[\"addressDetails\"]->com.procurement.mdm.model.' \
-# #                                                                     'dto.data.AddressDetails[\"locality\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.LocalityDetails' \
-# #                                                                     '[\"id\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_38(self):
@@ -1488,23 +1528,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.LocalityDetails] value failed for ' \
-# #                                                                     'JSON property description due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'description which is a non-nullable type\n ' \
-# #                                                                     'at [Source: UNKNOWN; line: -1, column: -1] ' \
-# #                                                                     '(through reference chain: com.procurement.mdm.' \
-# #                                                                     'model.dto.data.FS[\"buyer\"]->com.procurement.' \
-# #                                                                     'mdm.model.dto.data.OrganizationReference' \
-# #                                                                     '[\"address\"]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.Address[\"addressDetails\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.Address' \
-# #                                                                     'Details[\"locality\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.LocalityDetails[\"description\"])'
-# #
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #     @pytestrail.case('24605')
 # #     def test_24605_39(self):
 # #         ei_create = copy.deepcopy(ei_full)
@@ -1518,18 +1542,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.fs.OrganizationReferenceFs] value ' \
-# #                                                                     'failed for JSON property contactPoint due to ' \
-# #                                                                     'missing (therefore NULL) value for creator ' \
-# #                                                                     'parameter contactPoint which is a non-nullable ' \
-# #                                                                     'type\n at [Source: UNKNOWN; line: -1, column: ' \
-# #                                                                     '-1] (through reference chain: com.procurement.' \
-# #                                                                     'budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"buyer\"]->com.procurement.budget.model.' \
-# #                                                                     'dto.fs.OrganizationReferenceFs[\"contactPoint\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_40(self):
@@ -1544,19 +1557,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.ContactPoint] value failed for JSON ' \
-# #                                                                     'property name due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter name which is a ' \
-# #                                                                     'non-nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"buyer\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Organization' \
-# #                                                                     'Reference[\"contactPoint\"]->com.procurement.' \
-# #                                                                     'mdm.model.dto.data.ContactPoint[\"name\"])'
-# #
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #     @pytestrail.case('24605')
 # #     def test_24605_41(self):
 # #         ei_create = copy.deepcopy(ei_full)
@@ -1570,18 +1571,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.ContactPoint] value failed for JSON ' \
-# #                                                                     'property email due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter email which is a ' \
-# #                                                                     'non-nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"buyer\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Organization' \
-# #                                                                     'Reference[\"contactPoint\"]->com.procurement.' \
-# #                                                                     'mdm.model.dto.data.ContactPoint[\"email\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_42(self):
@@ -1596,19 +1586,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.ContactPoint] value failed for JSON ' \
-# #                                                                     'property telephone due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter telephone ' \
-# #                                                                     'which is a non-nullable type\n at [Source: ' \
-# #                                                                     'UNKNOWN; line: -1, column: -1] (through ' \
-# #                                                                     'reference chain: com.procurement.mdm.model.dto.' \
-# #                                                                     'data.FS[\"buyer\"]->com.procurement.mdm.model.' \
-# #                                                                     'dto.data.OrganizationReference' \
-# #                                                                     '[\"contactPoint\"]->com.procurement.mdm.model.' \
-# #                                                                     'dto.data.ContactPoint[\"telephone\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_43(self):
@@ -1653,21 +1631,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.fs.request.BudgetFsCreate] value ' \
-# #                                                                     'failed for JSON property period due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'period which is a non-nullable type\n at ' \
-# #                                                                     '[Source: UNKNOWN; line: -1, column: -1] ' \
-# #                                                                     '(through reference chain: com.procurement.' \
-# #                                                                     'budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"planning\"]->com.procurement.budget.model.' \
-# #                                                                     'dto.fs.request.PlanningFsCreate[\"budget\"]->' \
-# #                                                                     'com.procurement.budget.model.dto.fs.request.' \
-# #                                                                     'BudgetFsCreate[\"period\"])'
-# #
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #     @pytestrail.case('24605')
 # #     def test_24605_46(self):
 # #         ei_create = copy.deepcopy(ei_full)
@@ -1681,21 +1645,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.ocds.Period] value failed for JSON ' \
-# #                                                                     'property startDate due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter startDate ' \
-# #                                                                     'which is a non-nullable type\n at [Source: ' \
-# #                                                                     'UNKNOWN; line: -1, column: -1] (through ' \
-# #                                                                     'reference chain: com.procurement.budget.' \
-# #                                                                     'model.dto.fs.request.FsCreate[\"planning\"]->' \
-# #                                                                     'com.procurement.budget.model.dto.fs.request.' \
-# #                                                                     'PlanningFsCreate[\"budget\"]->com.procurement.' \
-# #                                                                     'budget.model.dto.fs.request.BudgetFsCreate' \
-# #                                                                     '[\"period\"]->com.procurement.budget.model.dto.' \
-# #                                                                     'ocds.Period[\"startDate\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_47(self):
@@ -1710,22 +1660,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.ocds.Period] value failed for ' \
-# #                                                                     'JSON property endDate due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'endDate which is a non-nullable type\n at ' \
-# #                                                                     '[Source: UNKNOWN; line: -1, column: -1] ' \
-# #                                                                     '(through reference chain: com.procurement.' \
-# #                                                                     'budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"planning\"]->com.procurement.budget.' \
-# #                                                                     'model.dto.fs.request.PlanningFsCreate' \
-# #                                                                     '[\"budget\"]->com.procurement.budget.model.' \
-# #                                                                     'dto.fs.request.BudgetFsCreate[\"period\"]->' \
-# #                                                                     'com.procurement.budget.model.dto.ocds.' \
-# #                                                                     'Period[\"endDate\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_48(self):
@@ -1755,20 +1690,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.ocds.Value] value failed for JSON ' \
-# #                                                                     'property amount due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter amount which is a ' \
-# #                                                                     'non-nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"planning\"]->com.procurement.budget.model.' \
-# #                                                                     'dto.fs.request.PlanningFsCreate[\"budget\"]->' \
-# #                                                                     'com.procurement.budget.model.dto.fs.request.' \
-# #                                                                     'BudgetFsCreate[\"amount\"]->com.procurement.' \
-# #                                                                     'budget.model.dto.ocds.Value[\"amount\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_50(self):
@@ -1783,20 +1705,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.ValueFS] value failed for JSON ' \
-# #                                                                     'property currency due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter currency ' \
-# #                                                                     'which is a non-nullable type\n at [Source: ' \
-# #                                                                     'UNKNOWN; line: -1, column: -1] (through ' \
-# #                                                                     'reference chain: com.procurement.mdm.model.dto.' \
-# #                                                                     'data.FS[\"planning\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.PlanningFS[\"budget\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.BudgetFS' \
-# #                                                                     '[\"amount\"]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.ValueFS[\"currency\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_51(self):
@@ -1811,21 +1720,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.fs.request.BudgetFsCreate] value ' \
-# #                                                                     'failed for JSON property isEuropeanUnionFunded ' \
-# #                                                                     'due to missing (therefore NULL) value for ' \
-# #                                                                     'creator parameter isEuropeanUnionFunded ' \
-# #                                                                     'which is a non-nullable type\n at [Source: ' \
-# #                                                                     'UNKNOWN; line: -1, column: -1] (through ' \
-# #                                                                     'reference chain: com.procurement.budget.model.' \
-# #                                                                     'dto.fs.request.FsCreate[\"planning\"]->com.' \
-# #                                                                     'procurement.budget.model.dto.fs.request.' \
-# #                                                                     'PlanningFsCreate[\"budget\"]->com.procurement.' \
-# #                                                                     'budget.model.dto.fs.request.BudgetFsCreate' \
-# #                                                                     '[\"isEuropeanUnionFunded\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_52(self):
@@ -1857,22 +1752,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.ocds.EuropeanUnionFunding] value ' \
-# #                                                                     'failed for JSON property projectName due to ' \
-# #                                                                     'missing (therefore NULL) value for creator ' \
-# #                                                                     'parameter projectName which is a non-nullable ' \
-# #                                                                     'type\n at [Source: UNKNOWN; line: -1, column: ' \
-# #                                                                     '-1] (through reference chain: com.procurement.' \
-# #                                                                     'budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"planning\"]->com.procurement.budget.model.' \
-# #                                                                     'dto.fs.request.PlanningFsCreate[\"budget\"]->' \
-# #                                                                     'com.procurement.budget.model.dto.fs.request.' \
-# #                                                                     'BudgetFsCreate[\"europeanUnionFunding\"]->com.' \
-# #                                                                     'procurement.budget.model.dto.ocds.European' \
-# #                                                                     'UnionFunding[\"projectName\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_54(self):
@@ -1888,22 +1768,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.ocds.EuropeanUnionFunding] value ' \
-# #                                                                     'failed for JSON property projectIdentifier due ' \
-# #                                                                     'to missing (therefore NULL) value for creator ' \
-# #                                                                     'parameter projectIdentifier which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.budget.model.dto.fs.request.' \
-# #                                                                     'FsCreate[\"planning\"]->com.procurement.budget.' \
-# #                                                                     'model.dto.fs.request.PlanningFsCreate' \
-# #                                                                     '[\"budget\"]->com.procurement.budget.model.' \
-# #                                                                     'dto.fs.request.BudgetFsCreate[\"europeanUnion' \
-# #                                                                     'Funding\"]->com.procurement.budget.model.dto.' \
-# #                                                                     'ocds.EuropeanUnionFunding[\"projectIdentifier\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_55(self):
@@ -1918,21 +1783,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.Identifier] value failed for JSON ' \
-# #                                                                     'property id due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter id which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: ' \
-# #                                                                     'com.procurement.mdm.model.dto.data.' \
-# #                                                                     'FS[\"tender\"]->com.procurement.mdm.model.' \
-# #                                                                     'dto.data.TenderFS[\"procuringEntity\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.Organization' \
-# #                                                                     'Reference[\"additionalIdentifiers\"]->java.util.' \
-# #                                                                     'ArrayList[0]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.Identifier[\"id\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_56(self):
@@ -1947,21 +1798,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.Identifier] value failed for JSON ' \
-# #                                                                     'property scheme due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter scheme which is a ' \
-# #                                                                     'non-nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.FS[\"tender\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.TenderFS' \
-# #                                                                     '[\"procuringEntity\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.OrganizationReference' \
-# #                                                                     '[\"additionalIdentifiers\"]->java.util.' \
-# #                                                                     'ArrayList[0]->com.procurement.mdm.model.' \
-# #                                                                     'dto.data.Identifier[\"scheme\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_57(self):
@@ -1976,23 +1813,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.' \
-# #                                                                     'MissingKotlinParameterException: Instantiation ' \
-# #                                                                     'of [simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.ocds.Identifier] value failed for ' \
-# #                                                                     'JSON property legalName due to missing ' \
-# #                                                                     '(therefore NULL) value for creator parameter ' \
-# #                                                                     'legalName which is a non-nullable type\n at ' \
-# #                                                                     '[Source: UNKNOWN; line: -1, column: -1] ' \
-# #                                                                     '(through reference chain: com.procurement.' \
-# #                                                                     'budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"tender\"]->com.procurement.budget.model.' \
-# #                                                                     'dto.fs.request.TenderFsCreate' \
-# #                                                                     '[\"procuringEntity\"]->com.procurement.budget.' \
-# #                                                                     'model.dto.fs.OrganizationReferenceFs' \
-# #                                                                     '[\"additionalIdentifiers\"]->java.util.' \
-# #                                                                     'ArrayList[0]->com.procurement.budget.model.' \
-# #                                                                     'dto.ocds.Identifier[\"legalName\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_58(self):
@@ -2007,21 +1828,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.Identifier] value failed for JSON ' \
-# #                                                                     'property id due to missing (therefore NULL) ' \
-# #                                                                     'value for creator parameter id which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: ' \
-# #                                                                     'com.procurement.mdm.model.dto.data.FS' \
-# #                                                                     '[\"buyer\"]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.OrganizationReference[\"additional' \
-# #                                                                     'Identifiers\"]->java.util.ArrayList[0]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.Identifier' \
-# #                                                                     '[\"id\"])'
-# #
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #     @pytestrail.case('24605')
 # #     def test_24605_59(self):
 # #         ei_create = copy.deepcopy(ei_full)
@@ -2035,20 +1842,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.Identifier] value failed for JSON ' \
-# #                                                                     'property scheme due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter scheme ' \
-# #                                                                     'which is a non-nullable type\n at [Source: ' \
-# #                                                                     'UNKNOWN; line: -1, column: -1] (through ' \
-# #                                                                     'reference chain: com.procurement.mdm.model.' \
-# #                                                                     'dto.data.FS[\"buyer\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.OrganizationReference' \
-# #                                                                     '[\"additionalIdentifiers\"]->java.util.ArrayList' \
-# #                                                                     '[0]->com.procurement.mdm.model.dto.data.' \
-# #                                                                     'Identifier[\"scheme\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24605')
 # #     def test_24605_60(self):
@@ -2063,20 +1857,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.MissingKotlin' \
-# #                                                                     'ParameterException: Instantiation of [simple ' \
-# #                                                                     'type, class com.procurement.budget.model.dto.' \
-# #                                                                     'ocds.Identifier] value failed for JSON property ' \
-# #                                                                     'legalName due to missing (therefore NULL) value ' \
-# #                                                                     'for creator parameter legalName which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: -1, ' \
-# #                                                                     'column: -1] (through reference chain: com.' \
-# #                                                                     'procurement.budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"buyer\"]->com.procurement.budget.model.dto.' \
-# #                                                                     'fs.OrganizationReferenceFs[\"additional' \
-# #                                                                     'Identifiers\"]->java.util.ArrayList[0]->com.' \
-# #                                                                     'procurement.budget.model.dto.ocds.Identifier' \
-# #                                                                     '[\"legalName\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24606')
 # #     def test_24606_1(self):
@@ -2091,11 +1872,13 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['
+# fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
-# #         assert publicPoint_create['releases'][0]['parties'][1]['name'] == fs_create['tender']['procuringEntity']['name']
+# #         assert publicPoint_create['releases'][0]['parties'][1]['name'] == fs_create['tender']['
+# procuringEntity']['name']
 # #
 # #     @pytestrail.case('24606')
 # #     def test_24606_2(self):
@@ -2110,7 +1893,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2130,7 +1914,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2150,7 +1935,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2170,7 +1956,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2190,7 +1977,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2211,7 +1999,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2231,11 +2020,13 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['locality']['scheme'] == \
+# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['
+# locality']['scheme'] == \
 # #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme']
 # #
 # #     @pytestrail.case('24606')
@@ -2252,12 +2043,14 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
 # #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['locality'][
-# #                    'description'] == fs_create['tender']['procuringEntity']['address']['addressDetails']['locality'][
+# #                    'description'] == fs_create['tender']['procuringEntity']['address']['
+# addressDetails']['locality'][
 # #                    'description']
 # #
 # #     @pytestrail.case('24606')
@@ -2273,7 +2066,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data'][
+# 'outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2293,7 +2087,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2313,7 +2108,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2333,7 +2129,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2353,7 +2150,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2373,7 +2171,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2393,7 +2192,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2413,7 +2213,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2434,7 +2235,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2454,7 +2256,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2473,11 +2276,13 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
-# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['id'] == fs_create['buyer']['identifier'][
+# #         assert publicPoint_create['releases'][0]['parties'][0]['identifier']['id'] == fs_create['
+# buyer']['identifier'][
 # #             'id']
 # #
 # #     @pytestrail.case('24606')
@@ -2493,7 +2298,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2513,7 +2319,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2533,7 +2340,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2553,7 +2361,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2573,11 +2382,13 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
-# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['scheme'] == \
+# #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['
+# scheme'] == \
 # #                fs_create['buyer']['address']['addressDetails']['locality']['scheme']
 # #
 # #     @pytestrail.case('24606')
@@ -2594,7 +2405,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2615,7 +2427,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2636,7 +2449,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2656,7 +2470,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2676,7 +2491,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2696,7 +2512,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2716,7 +2533,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2736,7 +2554,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2756,7 +2575,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2776,7 +2596,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2796,7 +2617,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2816,7 +2638,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2836,7 +2659,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2856,7 +2680,8 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -2877,11 +2702,13 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['projectName'] == \
+# #         assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['
+# projectName'] == \
 # #                fs_create['planning']['budget']['europeanUnionFunding']['projectName']
 # #
 # #     @pytestrail.case('24606')
@@ -2898,11 +2725,13 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['projectIdentifier'] == \
+# #         assert publicPoint_create['releases'][0]['planning']['budget']['europeanUnionFunding']['
+# projectIdentifier'] == \
 # #                fs_create['planning']['budget']['europeanUnionFunding']['projectIdentifier']
 # #
 # #     @pytestrail.case('24606')
@@ -2918,11 +2747,13 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['project'] == fs_create['planning']['budget'][
+# #         assert publicPoint_create['releases'][0]['planning']['budget']['project'] == fs_create['
+# planning']['budget'][
 # #             'project']
 # #
 # #     @pytestrail.case('24606')
@@ -2938,11 +2769,13 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['projectID'] == fs_create['planning']['budget'][
+# #         assert publicPoint_create['releases'][0]['planning']['budget']['projectID'] == fs_create['
+# planning']['budget'][
 # #             'projectID']
 # #
 # #     @pytestrail.case('24606')
@@ -2958,11 +2791,13 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert ocid == True
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
-# #         assert publicPoint_create['releases'][0]['planning']['budget']['uri'] == fs_create['planning']['budget'][
+# #         assert publicPoint_create['releases'][0]['planning']['budget']['uri'] == fs_create['
+# planning']['budget'][
 # #             'uri']
 # #
 # #     @pytestrail.case('24607')
@@ -3174,7 +3009,8 @@
 # #         ei_create = copy.deepcopy(ei_full)
 # #         fs_create = copy.deepcopy(fs_create_obligatory_own_money)
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
-# #         url_create_fs = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create_fs = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #
 # #         publicPoint_update = requests.get(url=url_create_fs).json()
@@ -3270,11 +3106,13 @@
 # #         time.sleep(2)
 # #
 # #         message_from_kafka = get_message_from_kafka(x_operation_id)
-# #         url_create_ei = message_from_kafka['data']['url'] + '/' + message_from_kafka['data']['outcomes']['fs'][0]['id'][
+# #         url_create_ei = message_from_kafka['data']['url'] + '/' + message_from_kafka['data']['outcomes']['
+# fs'][0]['id'][
 # #                                                                   0:28]
 # #
 # #         publicPoint_create_ei = requests.get(url=url_create_ei).json()
-# #         sum_of_fs = fs_create_1['planning']['budget']['amount']['amount'] + fs_create_2['planning']['budget']['amount'][
+# #         sum_of_fs = fs_create_1['planning']['budget']['amount']['amount'] + fs_create_2['planning']['
+# budget']['amount'][
 # #             'amount']
 # #
 # #         assert publicPoint_create_ei['releases'][0]['planning']['budget']['amount']['amount'] == sum_of_fs
@@ -3308,7 +3146,8 @@
 # #         fs_create = copy.deepcopy(fs_create_full_own_money)
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
-# #         url_create_fs = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create_fs = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_update = requests.get(url=url_create_fs).json()
 # #
@@ -3343,7 +3182,8 @@
 # #         fs_create = copy.deepcopy(fs_create_full_treasury_money)
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
-# #         url_create_fs = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create_fs = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data'][
+# 'outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_update = requests.get(url=url_create_fs).json()
 # #
@@ -3377,7 +3217,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data'][
+# 'outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -3411,7 +3252,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data'][
+# 'outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -3445,7 +3287,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -3479,7 +3322,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #
@@ -3513,7 +3357,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_update = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_update).json()
 # #         print(url_update)
@@ -3611,7 +3456,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -3619,7 +3465,8 @@
 # #         assert publicPoint_create['releases'][0]['parties'][1]['id'] == \
 # #                fs_create['tender']['procuringEntity']['identifier']['scheme'] + '-' + \
 # #                fs_create['tender']['procuringEntity']['identifier']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['name'] == fs_create['tender']['procuringEntity']['name']
+# #         assert publicPoint_create['releases'][0]['parties'][1]['name'] == fs_create['tender']['
+# procuringEntity']['name']
 # #         assert publicPoint_create['releases'][0]['parties'][1]['identifier']['scheme'] == \
 # #                fs_create['tender']['procuringEntity']['identifier']['scheme']
 # #         assert publicPoint_create['releases'][0]['parties'][1]['identifier']['id'] == \
@@ -3636,7 +3483,8 @@
 # #                fs_create['tender']['procuringEntity']['address']['addressDetails']['country']['id']
 # #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['region']['id'] == \
 # #                fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['id']
-# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['locality']['scheme'] == \
+# #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['locality']['
+# scheme'] == \
 # #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme']
 # #         assert publicPoint_create['releases'][0]['parties'][1]['address']['addressDetails']['locality']['id'] == \
 # #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['id']
@@ -3695,7 +3543,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -3741,7 +3590,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -3784,7 +3634,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -3827,7 +3678,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -3873,7 +3725,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -3921,7 +3774,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #         print(url_create)
@@ -4068,15 +3922,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.databind.JsonMapping' \
-# #                                                                     'Exception: (was com.procurement.mdm.exception.' \
-# #                                                                     'InErrorException) (through reference chain: com.' \
-# #                                                                     'procurement.mdm.model.dto.data.' \
-# #                                                                     'FS[\"planning\"]->com.procurement.mdm.model.' \
-# #                                                                     'dto.data.PlanningFS[\"budget\"]->com.' \
-# #                                                                     'procurement.mdm.model.dto.data.BudgetFS' \
-# #                                                                     '[\"amount\"]->com.procurement.mdm.model.dto.' \
-# #                                                                     'data.ValueFS[\"currency\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] == '
 # #
 # #     @pytestrail.case('24634')
 # #     def test_24634_1(self):
@@ -4148,17 +3994,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.databind.exc.Mismatched' \
-# #                                                                     'InputException: Cannot deserialize instance ' \
-# #                                                                     'of `java.math.BigDecimal` out of VALUE_FALSE ' \
-# #                                                                     'token\n at [Source: UNKNOWN; line: -1, column:' \
-# #                                                                     ' -1] (through reference chain: com.procurement.' \
-# #                                                                     'budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"planning\"]->com.procurement.budget.model.' \
-# #                                                                     'dto.fs.request.PlanningFsCreate[\"budget\"]->' \
-# #                                                                     'com.procurement.budget.model.dto.fs.request.' \
-# #                                                                     'BudgetFsCreate[\"amount\"]->com.procurement.' \
-# #                                                                     'budget.model.dto.ocds.Value[\"amount\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24638')
 # #     def test_24638_1(self):
@@ -4339,22 +4175,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.ocds.EuropeanUnionFunding] value ' \
-# #                                                                     'failed for JSON property projectName due to ' \
-# #                                                                     'missing (therefore NULL) value for creator ' \
-# #                                                                     'parameter projectName which is a non-nullable ' \
-# #                                                                     'type\n at [Source: UNKNOWN; line: -1, column: ' \
-# #                                                                     '-1] (through reference chain: com.procurement.' \
-# #                                                                     'budget.model.dto.fs.request.FsCreate' \
-# #                                                                     '[\"planning\"]->com.procurement.budget.model.' \
-# #                                                                     'dto.fs.request.PlanningFsCreate[\"budget\"]' \
-# #                                                                     '->com.procurement.budget.model.dto.fs.request.' \
-# #                                                                     'BudgetFsCreate[\"europeanUnionFunding\"]->com.' \
-# #                                                                     'procurement.budget.model.dto.ocds.EuropeanUnion' \
-# #                                                                     'Funding[\"projectName\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24647')
 # #     def test_24647(self):
@@ -4371,23 +4192,7 @@
 # #         assert create_fs_response[0].status_code == 202
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.10.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.budget.' \
-# #                                                                     'model.dto.ocds.EuropeanUnionFunding] value ' \
-# #                                                                     'failed for JSON property projectIdentifier due ' \
-# #                                                                     'to missing (therefore NULL) value for creator ' \
-# #                                                                     'parameter projectIdentifier which is a non-' \
-# #                                                                     'nullable type\n at [Source: UNKNOWN; line: ' \
-# #                                                                     '-1, column: -1] (through reference chain: ' \
-# #                                                                     'com.procurement.budget.model.dto.fs.request.' \
-# #                                                                     'FsCreate[\"planning\"]->com.procurement.budget.' \
-# #                                                                     'model.dto.fs.request.PlanningFsCreate' \
-# #                                                                     '[\"budget\"]->com.procurement.budget.model.dto.' \
-# #                                                                     'fs.request.BudgetFsCreate[\"europeanUnion' \
-# #                                                                     'Funding\"]->com.procurement.budget.model.dto.' \
-# #                                                                     'ocds.EuropeanUnionFunding[\"projectIdentifier\"])'
-# #
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #     @pytestrail.case('24648')
 # #     def test_24648_1(self):
 # #         ei_create = copy.deepcopy(ei_full)
@@ -4496,7 +4301,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -4535,12 +4341,14 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data'][
+# 'outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
 # #         date_from_database = get_date_execute_cql_from_orchestrator_operation_step_by_oper_id(create_fs_response[2],
-# #                                                                                               'NoticeCreateReleaseTask')
+# #                                                                                               'NoticeCreateRel
+# easeTask')
 # #         date_in_format = date_from_database.strftime('%Y-%m-%dT%H:%M:%SZ')
 # #
 # #         assert publicPoint_create['releases'][0]['date'] == date_in_format
@@ -4568,7 +4376,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #
 # #         time.sleep(2)
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -4671,11 +4480,13 @@
 # #         time.sleep(2)
 # #
 # #         message_from_kafka = get_message_from_kafka(x_operation_id)
-# #         url_create_ei = message_from_kafka['data']['url'] + '/' + message_from_kafka['data']['outcomes']['fs'][0]['id'][
+# #         url_create_ei = message_from_kafka['data']['url'] + '/' + message_from_kafka['data']['outcomes'][
+# 'fs'][0]['id'][
 # #                                                                   0:28]
 # #
 # #         publicPoint_create_ei = requests.get(url=url_create_ei).json()
-# #         sum_of_fs = fs_create_1['planning']['budget']['amount']['amount'] + fs_create_2['planning']['budget']['amount'][
+# #         sum_of_fs = fs_create_1['planning']['budget']['amount']['amount'] + fs_create_2['planning']['
+# budget']['amount'][
 # #             'amount']
 # #
 # #         assert publicPoint_create_ei['releases'][0]['planning']['budget']['amount']['amount'] == sum_of_fs
@@ -4779,7 +4590,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #         country_scheme = fnmatch.fnmatch(publicPoint_create['releases'][0]['parties'][0]
@@ -4787,7 +4599,8 @@
 # #         country_id = fnmatch.fnmatch(
 # #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'], '*')
 # #         country_description = fnmatch.fnmatch(
-# #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['description'], '*')
+# #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['
+# description'], '*')
 # #         country_uri = fnmatch.fnmatch(
 # #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['uri'], '*')
 # #
@@ -4805,7 +4618,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -4853,7 +4667,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #         country_scheme = fnmatch.fnmatch(publicPoint_create['releases'][0]['parties'][0]
@@ -4861,7 +4676,8 @@
 # #         country_id = fnmatch.fnmatch(
 # #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['id'], '*')
 # #         country_description = fnmatch.fnmatch(
-# #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['description'], '*')
+# #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country'][
+# 'description'], '*')
 # #         country_uri = fnmatch.fnmatch(
 # #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['country']['uri'], '*')
 # #
@@ -4880,7 +4696,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -4970,7 +4787,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5054,7 +4872,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5138,7 +4957,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5209,7 +5029,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5218,7 +5039,8 @@
 # #         check_region_id = fnmatch.fnmatch(
 # #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['id'], '*')
 # #         check_region_description = fnmatch.fnmatch(
-# #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['description'], '*')
+# #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region'][
+# 'description'], '*')
 # #         check_region_uri = fnmatch.fnmatch(
 # #             publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['region']['uri'], '*')
 # #
@@ -5236,7 +5058,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5290,7 +5113,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5338,7 +5162,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5350,7 +5175,8 @@
 # #         ei_create = copy.deepcopy(ei_full)
 # #         fs_create = copy.deepcopy(fs_create_full_treasury_money)
 # #         fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['id'] = '3400000'
-# #         fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['description'] = 'prosto_descri'
+# #         fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['description'] = '
+# prosto_descri'
 # #
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
@@ -5364,7 +5190,8 @@
 # #         ei_create = copy.deepcopy(ei_full)
 # #         fs_create = copy.deepcopy(fs_create_full_treasury_money)
 # #         fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['id'] = '3400000'
-# #         fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['description'] = 'prosto_descri'
+# #         fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['description'] = '
+# prosto_descri'
 # #
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
@@ -5381,12 +5208,14 @@
 # #         ei_create = copy.deepcopy(ei_full)
 # #         fs_create = copy.deepcopy(fs_create_full_treasury_money)
 # #         fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['id'] = '3400000'
-# #         fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['description'] = 'prosto_descri'
+# #         fs_create['tender']['procuringEntity']['address']['addressDetails']['region']['description'] = '
+# prosto_descri'
 # #
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5498,7 +5327,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5528,7 +5358,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5569,23 +5400,7 @@
 # #
 # #         assert create_fs_response[1]['X-OPERATION-ID'] == create_fs_response[2]
 # #         assert create_fs_response[1]['errors'][0]['code'] == '400.20.00'
-# #         assert create_fs_response[1]['errors'][0]['description'] == 'com.fasterxml.jackson.module.kotlin.Missing' \
-# #                                                                     'KotlinParameterException: Instantiation of ' \
-# #                                                                     '[simple type, class com.procurement.mdm.model.' \
-# #                                                                     'dto.data.LocalityDetails] value failed for JSON ' \
-# #                                                                     'property description due to missing (therefore ' \
-# #                                                                     'NULL) value for creator parameter description ' \
-# #                                                                     'which is a non-nullable type\n at [Source: ' \
-# #                                                                     'UNKNOWN; line: -1, column: -1] (through ' \
-# #                                                                     'reference chain: com.procurement.mdm.model.' \
-# #                                                                     'dto.data.FS[\"tender\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.TenderFS[\"procuringEntity\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Organization' \
-# #                                                                     'Reference[\"address\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.Address[\"addressDetails\"]->' \
-# #                                                                     'com.procurement.mdm.model.dto.data.Address' \
-# #                                                                     'Details[\"locality\"]->com.procurement.mdm.' \
-# #                                                                     'model.dto.data.LocalityDetails[\"description\"])'
+# #         assert create_fs_response[1]['errors'][0]['description'] ==
 # #
 # #     @pytestrail.case('24671')
 # #     def test_24671_1(self):
@@ -5631,7 +5446,8 @@
 # #         create_fs_response = bpe_create_fs(ei_create, fs_create)
 # #         time.sleep(2)
 # #
-# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['outcomes']['fs'][0][
+# #         url_create = create_fs_response[1]['data']['url'] + '/' + create_fs_response[1]['data']['
+# outcomes']['fs'][0][
 # #             'id']
 # #         publicPoint_create = requests.get(url=url_create).json()
 # #
@@ -5641,7 +5457,8 @@
 # #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality']['id'] == \
 # #                fs_create['tender']['procuringEntity']['address']['addressDetails']['locality']['id']
 # #         assert publicPoint_create['releases'][0]['parties'][0]['address']['addressDetails']['locality'][
-# #                    'description'] == fs_create['tender']['procuringEntity']['address']['addressDetails']['locality'][
+# #                    'description'] == fs_create['tender']['procuringEntity']['address']['
+# addressDetails']['locality'][
 # #                    'description']
 #
 #
