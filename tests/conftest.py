@@ -40,31 +40,36 @@ def pytest_addoption(parser):
 @pytest.fixture(scope="session")
 def country(request):
     """Handler for --additional_value parameter"""
-
-    return request.config.getoption("--country")
+    country = request.config.getoption("--country")
+    return country
 
 
 @pytest.fixture(scope="session")
 def language(request):
     """Handler for --additional_value parameter"""
+    language = request.config.getoption("--language")
+    return language
 
-    return request.config.getoption("--language")
+
 @pytest.fixture(scope="session")
 def instance(request):
     """Handler for --additional_value parameter"""
-    return request.config.getoption("--instance")
+    instance = request.config.getoption("--instance")
+    return instance
 
 
 @pytest.fixture(scope="session")
 def cassandra_username(request):
     """Handler for --additional_value parameter"""
-    return request.config.getoption("--cassandra_username")
+    cassandra_username = request.config.getoption("--cassandra_username")
+    return cassandra_username
 
 
 @pytest.fixture(scope="session")
 def cassandra_password(request):
     """Handler for --additional_value parameter"""
-    return request.config.getoption("--cassandra_password")
+    cassandra_password = request.config.getoption("--cassandra_password")
+    return cassandra_password
 # =============================================================================================================
 
 @pytest.fixture(scope="session")
