@@ -68,7 +68,6 @@ def cassandra_password(request):
     return request.config.getoption("--cassandra_password")
 
 
-# =============================================================================================================
 
 @pytest.fixture(scope="session")
 def pmd(request):
@@ -82,3 +81,4 @@ def tag(request):
     """Handler for --additional_value parameter"""
 
     return request.config.getoption("--tag")
+# # =============================================================================================================
