@@ -1,5 +1,9 @@
 import pytest
-
+import sys
+from os.path import dirname as d
+from os.path import abspath
+root_dir = d(d(abspath(__file__)))
+sys.path.append(root_dir)
 
 def pytest_addoption(parser):
     parser.addoption("--pmd", action="store", type=str)
