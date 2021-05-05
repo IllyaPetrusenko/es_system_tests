@@ -1,25 +1,25 @@
 import copy
 import time
 from uuid import uuid4
-
 from pytest_testrail.plugin import pytestrail
-
 from tests.Cassandra_session import Cassandra
 from tests.essences.ei import EI
 from tests.payloads.ei_payload import payload_ei_obligatory_data_model, payload_ei_full_data_model
-from useful_functions import compare_actual_result_and_expected_result
+from useful_functions import compare_actual_result_and_expected_result, prepared_cp_id
 
 
 class TestCheckOnPossibilityUpdateEiWithObligatoryFieldsInPayloadWithoutTenderItems(object):
     @pytestrail.case("23890")
     def test_send_the_request_23890_1(self, country, language, instance, cassandra_username,
                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
         del payload["tender"]["items"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        update_ei_response = ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        update_ei_response = ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         actual_result = str(update_ei_response.status_code)
         expected_result = str(202)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
@@ -27,12 +27,14 @@ class TestCheckOnPossibilityUpdateEiWithObligatoryFieldsInPayloadWithoutTenderIt
     @pytestrail.case("23890")
     def test_see_the_result_in_feed_point_23890_2(self, country, language, instance, cassandra_username,
                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
         del payload["tender"]["items"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfully_update_ei())
         expected_result = str(True)
@@ -43,11 +45,13 @@ class TestCheckOnPossibilityUpdateEiWithObligatoryFieldsInPayloadWithTenderItems
     @pytestrail.case("24441")
     def test_send_the_request_24441_1(self, country, language, instance, cassandra_username,
                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        update_ei_response = ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        update_ei_response = ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         actual_result = str(update_ei_response.status_code)
         expected_result = str(202)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
@@ -56,11 +60,13 @@ class TestCheckOnPossibilityUpdateEiWithObligatoryFieldsInPayloadWithTenderItems
     @pytestrail.case("24441")
     def test_see_the_result_in_feed_point_24441_2(self, country, language, instance, cassandra_username,
                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfully_update_ei())
         expected_result = str(True)
@@ -72,11 +78,13 @@ class TestCheckOnPossibilityUpdateEiWithFullDataInPayload(object):
     @pytestrail.case("24442")
     def test_send_the_request_24442_1(self, country, language, instance, cassandra_username,
                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_obligatory_data_model()
-        update_ei_response = ei.update_ei()
+        ei.insert_ei_obligatory_data_model(cp_id=cp_id, ei_token=ei_token)
+        update_ei_response = ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         actual_result = str(update_ei_response.status_code)
         expected_result = str(202)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
@@ -85,11 +93,13 @@ class TestCheckOnPossibilityUpdateEiWithFullDataInPayload(object):
     @pytestrail.case("24442")
     def test_see_the_result_in_feed_point_24442_2(self, country, language, instance, cassandra_username,
                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_obligatory_data_model()
-        ei.update_ei()
+        ei.insert_ei_obligatory_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         ei.get_message_from_kafka()
         actual_result = str(ei.check_on_that_message_is_successfully_update_ei())
         expected_result = str(True)
@@ -101,12 +111,14 @@ class TestCheckOnImpossibilityUpdateEiIfTokenFromRequestNotEqualTokenFromDB(obje
     @pytestrail.case("24443")
     def test_send_the_request_24443_1(self, country, language, instance, cassandra_username,
                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password,
-                ei_token_update_ei=str(uuid4()))
-        ei.insert_ei_full_data_model()
-        update_ei_response = ei.update_ei()
+                )
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        update_ei_response = ei.update_ei(cp_id=cp_id, ei_token=str(uuid4()))
         expected_result = str(202)
         actual_result = str(update_ei_response.status_code)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
@@ -115,12 +127,14 @@ class TestCheckOnImpossibilityUpdateEiIfTokenFromRequestNotEqualTokenFromDB(obje
     @pytestrail.case("24443")
     def test_see_the_result_in_feed_point_24443_2(self, country, language, instance, cassandra_username,
                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                cassandra_username=cassandra_username, cassandra_password=cassandra_password,
-                ei_token_update_ei=str(uuid4()))
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password
+                )
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=str(uuid4()))
         time.sleep(1.8)
         message_from_kafka = ei.get_message_from_kafka()
         expected_result = str([{"code": "400.10.00.04", "description": "Invalid token."}])
@@ -133,11 +147,26 @@ class TestCheckOnImpossibilityUpdateEiIfOwnerFromRequestNotEqualOwnerFromDB(obje
     @pytestrail.case("24444")
     def test_send_the_request_24444_1(self, country, language, instance, cassandra_username,
                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
-        ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                cassandra_username=cassandra_username, cassandra_password=cassandra_password, platform="platform_two")
-        ei.insert_ei_full_data_model()
-        update_ei_response = ei.update_ei()
+        ei = EI(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password,
+            platform="platform_two"
+        )
+        ei.insert_ei_full_data_model(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        update_ei_response = ei.update_ei(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
         expected_result = str(202)
         actual_result = str(update_ei_response.status_code)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
@@ -146,28 +175,48 @@ class TestCheckOnImpossibilityUpdateEiIfOwnerFromRequestNotEqualOwnerFromDB(obje
     @pytestrail.case("24444")
     def test_see_the_result_in_feed_point_24444_2(self, country, language, instance, cassandra_username,
                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_obligatory_data_model)
-        ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                cassandra_username=cassandra_username, cassandra_password=cassandra_password, platform="platform_two")
-        insert_ei = ei.insert_ei_full_data_model()
-        ei.update_ei()
-        data_base = Cassandra(
-            cp_id=insert_ei[2],
+        ei = EI(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password,
+            platform="platform_two"
+        )
+        ei.insert_ei_full_data_model(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        ei.update_ei(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        database = Cassandra(
+            cp_id=cp_id,
             instance=instance,
             cassandra_username=cassandra_username,
             cassandra_password=cassandra_password
         )
-        time.sleep(2.3)
-        error_from_DB = data_base.execute_cql_from_orchestrator_operation_step(task_id='BudgetUpdateEiTask')
-        expected_result = str([{"code": "400.10.00.03", "description": "Invalid owner."}])
-        actual_result = str(error_from_DB["errors"])
-        assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                         actual_result=actual_result)
+
+        ei_budget_update_ei_task = database.execute_cql_from_orchestrator_operation_step(
+            task_id='BudgetUpdateEiTask'
+        )
+        print(ei_budget_update_ei_task)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{'code': '400.10.00.03', 'description': 'Invalid owner.'}]),
+            actual_result=str(ei_budget_update_ei_task["errors"])
+        )
 
 
 class TestCheckOnImpossibilityUpdateEiIfTenderClassificationIdNotEqualTenderItemsClassificationId(object):
     @pytestrail.case("24445")
     def test_send_the_request_24445_1(self, country, language, instance, cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload['tender']['classification']['id'] = "90900000-6"
         payload['tender']['items'] = [{
@@ -253,8 +302,8 @@ class TestCheckOnImpossibilityUpdateEiIfTenderClassificationIdNotEqualTenderItem
                 tender_classification_id="45100000-8", tender_item_classification_id="45100000-8",
                 planning_budget_id="45100000-8", cassandra_username=cassandra_username,
                 cassandra_password=cassandra_password)
-        ei.insert_ei_obligatory_data_model()
-        update_ei_response = ei.update_ei()
+        ei.insert_ei_obligatory_data_model(cp_id=cp_id, ei_token=ei_token)
+        update_ei_response = ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         actual_result = str(update_ei_response.status_code)
         expected_result = str(202)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
@@ -263,6 +312,8 @@ class TestCheckOnImpossibilityUpdateEiIfTenderClassificationIdNotEqualTenderItem
     @pytestrail.case("24445")
     def test_see_the_result_in_feed_point_24445_2(self, country, language, instance, cassandra_username,
                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload['tender']['classification']['id'] = "90900000-6"
         payload['tender']['items'] = [{
@@ -347,8 +398,8 @@ class TestCheckOnImpossibilityUpdateEiIfTenderClassificationIdNotEqualTenderItem
                 tender_classification_id="45100000-8", tender_item_classification_id="45100000-8",
                 planning_budget_id="45100000-8", cassandra_username=cassandra_username,
                 cassandra_password=cassandra_password)
-        ei.insert_ei_obligatory_data_model()
-        ei.update_ei()
+        ei.insert_ei_obligatory_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         time.sleep(1.8)
         message_from_kafka = ei.get_message_from_kafka()
         expected_result = str(
@@ -363,12 +414,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     @pytestrail.case("24456")
     def test_delete_tender_object_from_the_payload_24456_1(self, country, language, instance, cassandra_username,
                                                            cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{'code': '400.00.00.00', 'description': 'Data processing exception.'}])
@@ -379,12 +432,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     def test_delete_tender_title_field_from_the_payload_24456_2(self, country, language, instance,
                                                                 cassandra_username,
                                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["title"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.10.00",
@@ -403,12 +458,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     @pytestrail.case("24456")
     def test_delete_tender_items_id_field_from_the_payload_24456_3(self, country, language, instance,
                                                                    cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["id"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -428,12 +485,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     @pytestrail.case("24456")
     def test_delete_tender_items_description_field_from_the_payload_24456_4(self, country, language, instance,
                                                                             cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["description"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -454,12 +513,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     def test_delete_tender_items_classification_field_from_the_payload_24456_5(self, country, language, instance,
                                                                                cassandra_username,
                                                                                cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["classification"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -480,12 +541,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     def test_delete_tender_items_classification_id_field_from_the_payload_24456_6(self, country, language, instance,
                                                                                   cassandra_username,
                                                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["classification"]["id"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -509,12 +572,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
                                                                                               language, instance,
                                                                                               cassandra_username,
                                                                                               cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -538,12 +603,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     def test_delete_tender_items_delivery_address_field_from_the_payload_24456_8(self, country, language, instance,
                                                                                  cassandra_username,
                                                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -565,12 +632,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     def test_delete_tender_items_delivery_address_address_details_field_24456_9(self, country, language, instance,
                                                                                 cassandra_username,
                                                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -594,12 +663,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
                                                                                          instance,
                                                                                          cassandra_username,
                                                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -625,12 +696,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
                                                                                             instance,
                                                                                             cassandra_username,
                                                                                             cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -658,12 +731,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
                                                                                         instance,
                                                                                         cassandra_username,
                                                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -690,12 +765,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
                                                                                            instance,
                                                                                            cassandra_username,
                                                                                            cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -723,12 +800,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
                                                                                              language, instance,
                                                                                              cassandra_username,
                                                                                              cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -756,12 +835,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
                                                                                              language, instance,
                                                                                              cassandra_username,
                                                                                              cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -788,12 +869,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     def test_delete_tender_items_quantity_field_from_the_payload_24456_16(self, country, language,
                                                                           instance, cassandra_username,
                                                                           cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["quantity"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -814,12 +897,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     def test_delete_tender_items_unit_field_from_the_payload_24456_17(self, country, language,
                                                                       instance, cassandra_username,
                                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["unit"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -840,12 +925,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     def test_delete_tender_items_unit_id_field_from_the_payload_24456_18(self, country, language,
                                                                          instance, cassandra_username,
                                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["items"][0]["unit"]["id"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -867,12 +954,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     def test_delete_tender_classification_field_from_the_payload_24456_19(self, country, language,
                                                                           instance, cassandra_username,
                                                                           cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["classification"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -892,12 +981,14 @@ class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
     def test_delete_tender_classification_id_field_from_the_payload_24456_20(self, country, language,
                                                                              instance, cassandra_username,
                                                                              cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         del payload["tender"]["classification"]["id"]
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00",
@@ -920,12 +1011,14 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
     def test_delete_tender_title_field_from_the_payload_25300_1(self, country, language,
                                                                 instance, cassandra_username,
                                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["title"] = ""
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.10.20.11",
@@ -938,12 +1031,14 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
     def test_delete_tender_description_field_from_the_payload_25300_2(self, country, language,
                                                                       instance, cassandra_username,
                                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["description"] = ""
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.10.20.11",
@@ -956,12 +1051,14 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
     def test_delete_planning_rationale_field_from_the_payload_25300_3(self, country, language,
                                                                       instance, cassandra_username,
                                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["planning"]["rationale"] = ""
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.10.20.11",
@@ -975,12 +1072,14 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
                                                                                                 language, instance,
                                                                                                 cassandra_username,
                                                                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = ""
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.10.20.11",
@@ -994,12 +1093,14 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
                                                                                                 language, instance,
                                                                                                 cassandra_username,
                                                                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = ""
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.10.20.11",
@@ -1013,12 +1114,14 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
                                                                                             language, instance,
                                                                                             cassandra_username,
                                                                                             cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = ""
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.20.00.14", "description": "Locality not found. "}])
@@ -1030,13 +1133,15 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
                                                                                     language, instance,
                                                                                     cassandra_username,
                                                                                     cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "other"
         payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["description"] = ""
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.10.20.11",
@@ -1048,12 +1153,14 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
     @pytestrail.case("25300")
     def test_delete_tender_items_description_field_from_the_payload_25300_7(self, country, language, instance,
                                                                             cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
         payload = copy.deepcopy(payload_ei_full_data_model)
         payload["tender"]["items"][0]["description"] = ""
         ei = EI(payload=payload, lang=language, country=country, instance=instance,
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-        ei.insert_ei_full_data_model()
-        ei.update_ei()
+        ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
+        ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
         expected_result = str([{"code": "400.10.20.11",

@@ -8,7 +8,7 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 from tests.kafka_messages import get_message_from_kafka
-from useful_functions import is_it_uuid, get_period, get_access_token_for_platform_two, prepared_cp_id
+from useful_functions import is_it_uuid, get_period, get_access_token_for_platform_two
 
 
 class FS:
