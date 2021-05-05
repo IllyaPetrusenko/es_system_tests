@@ -2869,8 +2869,8 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
                 actual_result=ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0][
                     "description"])
             assert compare_actual_result_and_expected_result(
-                expected_result=payload["tender"]["items"][0]["quantity"],
-                actual_result=ei_release["releases"][0]["tender"]["items"][0]["quantity"])
+                expected_result=str(payload["tender"]["items"][0]["quantity"]),
+                actual_result=str(ei_release["releases"][0]["tender"]["items"][0]["quantity"]))
             assert compare_actual_result_and_expected_result(
                 expected_result="Parsec", actual_result=ei_release["releases"][0]["tender"]["items"][0]["unit"]["name"])
             assert compare_actual_result_and_expected_result(
@@ -3193,8 +3193,8 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
             actual_result=ei_release["releases"][0]["tender"]["items"][0]["additionalClassifications"][0][
                 "description"])
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["tender"]["items"][0]["quantity"],
-            actual_result=ei_release["releases"][0]["tender"]["items"][0]["quantity"])
+            expected_result=str(payload["tender"]["items"][0]["quantity"]),
+            actual_result=str(ei_release["releases"][0]["tender"]["items"][0]["quantity"]))
         assert compare_actual_result_and_expected_result(
             expected_result="Parsec", actual_result=ei_release["releases"][0]["tender"]["items"][0]["unit"]["name"])
         assert compare_actual_result_and_expected_result(
