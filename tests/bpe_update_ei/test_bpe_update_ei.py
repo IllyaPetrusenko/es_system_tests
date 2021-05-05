@@ -151,11 +151,14 @@ class TestCheckOnImpossibilityUpdateEiIfOwnerFromRequestNotEqualOwnerFromDB(obje
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password, platform="platform_two")
         insert_ei = ei.insert_ei_full_data_model()
         ei.update_ei()
-        data_base = Cassandra(cp_id=insert_ei[2], task_id='BudgetUpdateEiTask',
-                              instance=instance, cassandra_username=cassandra_username,
-                              cassandra_password=cassandra_password)
+        data_base = Cassandra(
+            cp_id=insert_ei[2],
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
         time.sleep(2.3)
-        error_from_DB = data_base.execute_cql_from_orchestrator_operation_step()
+        error_from_DB = data_base.execute_cql_from_orchestrator_operation_step(task_id='BudgetUpdateEiTask')
         expected_result = str([{"code": "400.10.00.03", "description": "Invalid owner."}])
         actual_result = str(error_from_DB["errors"])
         assert compare_actual_result_and_expected_result(expected_result=expected_result,

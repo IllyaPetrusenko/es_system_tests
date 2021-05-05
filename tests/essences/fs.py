@@ -109,6 +109,10 @@ class FS:
             elif platform == "platform_two":
                 self.access_token = get_access_token_for_platform_two(self.host_of_request)
                 self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+            else:
+                self.access_token = get_access_token_for_platform_one(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+                self.access_token = platform
         elif instance == "sandbox":
             self.cassandra_cluster = "10.0.10.106"
             self.host_of_request = "http://10.0.10.116:8900/api/v1"
@@ -119,6 +123,10 @@ class FS:
             elif platform == "platform_two":
                 self.access_token = get_access_token_for_platform_two(self.host_of_request)
                 self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+            else:
+                self.access_token = get_access_token_for_platform_two(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+                self.access_token = platform
 
     @allure.step('Create FS')
     def create_fs(self, cp_id):
@@ -126,6 +134,19 @@ class FS:
             url=self.host_of_request + "/do/fs/" + cp_id,
             headers={
                 'Authorization': 'Bearer ' + self.access_token,
+                'X-OPERATION-ID': self.x_operation_id,
+                'Content-Type': 'application/json'},
+            json=self.payload)
+        allure.attach(self.host_of_request + "/do/fs/" + cp_id, 'URL')
+        allure.attach(json.dumps(self.payload), 'Prepared payload')
+        return fs
+
+    @allure.step('Create FS with fake authorization token')
+    def create_fs_with_fake_authorization_token(self, cp_id):
+        fs = requests.post(
+            url=self.host_of_request + "/do/fs/" + cp_id,
+            headers={
+                'Authorization': self.access_token,
                 'X-OPERATION-ID': self.x_operation_id,
                 'Content-Type': 'application/json'},
             json=self.payload)

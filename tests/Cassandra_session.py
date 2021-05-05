@@ -15,26 +15,11 @@ from cassandra.cluster import Cluster
 #     return json_data
 #
 #
-# def execute_cql_from_orchestrator_operation_step_by_oper_id(operation_id, task_id):
-#     auth_provider = PlainTextAuthProvider(username=username, password=password)
-#     cluster = Cluster([host], auth_provider=auth_provider)
-#     session = cluster.connect('ocds')
-#
-#     rows_1 = session.execute(f"SELECT * FROM orchestrator_operation WHERE operation_id = '{operation_id}';").one()
-#     process_id = rows_1.process_id
-#     rows_2 = session.execute(
-#         f"SELECT * FROM orchestrator_operation_step WHERE process_id = '{process_id}' AND task_id='{task_id}';").one()
-#     request_data = json.loads(rows_2.request_data)
-#     response_data = json.loads(rows_2.response_data)
-#     step_date = rows_2.step_date.strftime("%Y-%m-%dT%H:%M:%SZ")
-#     context = json.loads(rows_2.context)
-#
-#     return request_data, response_data, step_date, context
+
 
 class Cassandra:
-    def __init__(self, cp_id, task_id, instance, cassandra_username, cassandra_password):
+    def __init__(self, cp_id, instance, cassandra_username, cassandra_password):
         self.cp_id = cp_id
-        self.task_id = task_id
         self.instance = instance
         self.cassandra_username = cassandra_username
         self.cassandra_password = cassandra_password
@@ -43,15 +28,31 @@ class Cassandra:
         elif instance == "sandbox":
             self.cassandra_cluster = "10.0.10.106"
 
-    def execute_cql_from_orchestrator_operation_step(self):
+    def execute_cql_from_orchestrator_operation_step(self, task_id):
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
         rows = session.execute(
             f"SELECT * FROM orchestrator_operation_step WHERE "
-            f"cp_id = '{self.cp_id}' AND task_id='{self.task_id}'ALLOW FILTERING;").one()
+            f"cp_id = '{self.cp_id}' AND task_id='{task_id}'ALLOW FILTERING;").one()
         response_data = json.loads(rows.response_data)
         return response_data
+
+    def execute_cql_from_orchestrator_operation_step_by_oper_id(self, operation_id, task_id):
+        auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
+        cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
+        session = cluster.connect('ocds')
+
+        rows_1 = session.execute(f"SELECT * FROM orchestrator_operation WHERE operation_id = '{operation_id}';").one()
+        process_id = rows_1.process_id
+        rows_2 = session.execute(
+            f"SELECT * FROM orchestrator_operation_step WHERE process_id = '{process_id}' AND task_id='{task_id}';").one()
+        request_data = json.loads(rows_2.request_data)
+        response_data = json.loads(rows_2.response_data)
+        step_date = rows_2.step_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+        context = json.loads(rows_2.context)
+
+        return request_data, response_data, step_date, context
 
 # def get_date_execute_cql_from_orchestrator_operation_step_by_oper_id(operation_id, task_id):
 #     auth_provider = PlainTextAuthProvider(username=username, password=password)
