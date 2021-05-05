@@ -5712,7 +5712,16 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
         message_from_kafka = fs.get_message_from_kafka()
         time.sleep(2)
         assert compare_actual_result_and_expected_result(
-            expected_result=str(),
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "mdm.model.dto.data.Address] value failed for JSON property "
+                                                 "streetAddress due to missing (therefore NULL) value for creator "
+                                                 "parameter streetAddress which is a non-nullable type\n at "
+                                                 "[Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference[\"address\"]"
+                                                 "->com.procurement.mdm.model.dto.data.Address[\"streetAddress\"])"}]),
             actual_result=str(message_from_kafka["errors"])
         )
 
@@ -9229,7 +9238,9 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
             actual_result=str(create_fs_response.status_code)
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=str(),
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'tender."
+                                                 "procuringEntity.contactPoint.telephone' is empty or blank."}]),
             actual_result=str(message_from_kafka['errors'])
         )
 
@@ -9967,7 +9978,9 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
             actual_result=str(create_fs_response.status_code)
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=str(),
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'planning.rationale' "
+                                                 "is empty or blank."}]),
             actual_result=str(message_from_kafka['errors'])
         )
 
@@ -10287,7 +10300,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
         assert compare_actual_result_and_expected_result(
             expected_result=str([{"code": "400.10.20.11",
                                   "description": "Incorrect an attribute value.The attribute 'planning.budget."
-                                                 "europeanUnionFunding.projectIdentifier' is empty or blank."}]),
+                                                 "europeanUnionFunding.uri' is empty or blank."}]),
             actual_result=str(message_from_kafka['errors'])
         )
 

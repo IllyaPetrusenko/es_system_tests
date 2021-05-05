@@ -11,7 +11,7 @@ payload_fs_full_data_model_treasury_money = {
                 "endDate": period[1]
             },
             "amount": {
-                "amount": 8000,
+                "amount": 8000.0,
                 "currency": "EUR"
             },
             "isEuropeanUnionFunded": True,
@@ -80,7 +80,7 @@ payload_fs_obligatory_data_model_treasury_money = {
                 "endDate": period[1]
             },
             "amount": {
-                "amount": 2000,
+                "amount": 2000.0,
                 "currency": "EUR"
             },
             "isEuropeanUnionFunded": False
@@ -129,7 +129,7 @@ payload_fs_full_data_model_own_money = {
                 "endDate": period[1]
             },
             "amount": {
-                "amount": 2000,
+                "amount": 2000.0,
                 "currency": "EUR"
             },
             "isEuropeanUnionFunded": True,
@@ -238,7 +238,7 @@ payload_fs_obligatory_data_model_own_money = {
                 "endDate": period[1]
             },
             "amount": {
-                "amount": 4000,
+                "amount": 4000.0,
                 "currency": "EUR"
             },
             "isEuropeanUnionFunded": False
