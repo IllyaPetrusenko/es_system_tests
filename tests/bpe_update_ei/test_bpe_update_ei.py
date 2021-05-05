@@ -358,707 +358,709 @@ class TestCheckOnImpossibilityUpdateEiIfTenderClassificationIdNotEqualTenderItem
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
-    class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
-        @pytestrail.case("24456")
-        def test_delete_tender_object_from_the_payload_24456_1(self, country, language, instance, cassandra_username,
-                                                               cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{'code': '400.00.00.00', 'description': 'Data processing exception.'}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_title_field_from_the_payload_24456_2(self, country, language, instance,
-                                                                    cassandra_username,
-                                                                    cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["title"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.10.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "budget.model.dto.ei.request.EiUpdate$TenderEiUpdate] value failed "
-                                                   "for JSON property title due to missing (therefore NULL) value for "
-                                                   "creator parameter title which is a non-nullable type\n at "
-                                                   "[Source: UNKNOWN; line: -1, column: -1] (through reference "
-                                                   "chain: com.procurement.budget.model.dto.ei.request.EiUpdate"
-                                                   "[\"tender\"]->com.procurement.budget.model.dto.ei.request."
-                                                   "EiUpdate$TenderEiUpdate[\"title\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+class TestCheckOnImpossibilityUpdateEiWithoutObligatoryFieldsInPayload(object):
+    @pytestrail.case("24456")
+    def test_delete_tender_object_from_the_payload_24456_1(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{'code': '400.00.00.00', 'description': 'Data processing exception.'}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_id_field_from_the_payload_24456_3(self, country, language, instance,
-                                                                       cassandra_username, cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["id"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
-                                                   "JSON property id due to missing (therefore NULL) value for creator "
-                                                   "parameter id which is a non-nullable type\n at [Source: UNKNOWN; "
-                                                   "line: -1, column: -1] (through reference chain: com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util."
-                                                   "ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item[\"id\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_title_field_from_the_payload_24456_2(self, country, language, instance,
+                                                                cassandra_username,
+                                                                cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["title"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "budget.model.dto.ei.request.EiUpdate$TenderEiUpdate] value failed "
+                                               "for JSON property title due to missing (therefore NULL) value for "
+                                               "creator parameter title which is a non-nullable type\n at "
+                                               "[Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                               "chain: com.procurement.budget.model.dto.ei.request.EiUpdate"
+                                               "[\"tender\"]->com.procurement.budget.model.dto.ei.request."
+                                               "EiUpdate$TenderEiUpdate[\"title\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_description_field_from_the_payload_24456_4(self, country, language, instance,
-                                                                                cassandra_username, cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["description"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
-                                                   "JSON property description due to missing (therefore NULL) value "
-                                                   "for creator parameter description which is a non-nullable type\n "
-                                                   "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
-                                                   "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]"
-                                                   "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]"
-                                                   "->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data."
-                                                   "ei.EIRequest$Tender$Item[\"description\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_id_field_from_the_payload_24456_3(self, country, language, instance,
+                                                                   cassandra_username, cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["id"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                               "JSON property id due to missing (therefore NULL) value for creator "
+                                               "parameter id which is a non-nullable type\n at [Source: UNKNOWN; "
+                                               "line: -1, column: -1] (through reference chain: com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest[\"tender\"]->com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util."
+                                               "ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_classification_field_from_the_payload_24456_5(self, country, language, instance,
-                                                                                   cassandra_username,
-                                                                                   cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["classification"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
-                                                   "JSON property classification due to missing (therefore NULL) "
-                                                   "value for creator parameter classification which is a non-nullable "
-                                                   "type\n at [Source: UNKNOWN; line: -1, column: -1] (through "
-                                                   "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
-                                                   "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
-                                                   "Tender[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm."
-                                                   "model.dto.data.ei.EIRequest$Tender$Item[\"classification\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_description_field_from_the_payload_24456_4(self, country, language, instance,
+                                                                            cassandra_username, cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["description"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                               "JSON property description due to missing (therefore NULL) value "
+                                               "for creator parameter description which is a non-nullable type\n "
+                                               "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]"
+                                               "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]"
+                                               "->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest$Tender$Item[\"description\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_classification_id_field_from_the_payload_24456_6(self, country, language, instance,
-                                                                                      cassandra_username,
-                                                                                      cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["classification"]["id"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$Classification] value "
-                                                   "failed for JSON property id due to missing (therefore NULL) value "
-                                                   "for creator parameter id which is a non-nullable type\n at "
-                                                   "[Source: UNKNOWN; line: -1, column: -1] (through reference "
-                                                   "chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
-                                                   "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest"
-                                                   "$Tender[\"items\"]->java.util.ArrayList[0]->com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item[\"classification\"]"
-                                                   "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
-                                                   "$Classification[\"id\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_classification_field_from_the_payload_24456_5(self, country, language, instance,
+                                                                               cassandra_username,
+                                                                               cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["classification"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                               "JSON property classification due to missing (therefore NULL) "
+                                               "value for creator parameter classification which is a non-nullable "
+                                               "type\n at [Source: UNKNOWN; line: -1, column: -1] (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
+                                               "Tender[\"items\"]->java.util.ArrayList[0]->com.procurement.mdm."
+                                               "model.dto.data.ei.EIRequest$Tender$Item[\"classification\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_additional_classifications_id_field_from_the_payload_24456_7(self, country,
-                                                                                                  language, instance,
-                                                                                                  cassandra_username,
-                                                                                                  cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$Additional"
-                                                   "Classification] value failed for JSON property id due to "
-                                                   "missing (therefore NULL) value for creator parameter id which is "
-                                                   "a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
-                                                   "(through reference chain: com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
-                                                   "[\"additionalClassifications\"]->java.util.ArrayList[0]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Additional"
-                                                   "Classification[\"id\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_classification_id_field_from_the_payload_24456_6(self, country, language, instance,
+                                                                                  cassandra_username,
+                                                                                  cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$Classification] value "
+                                               "failed for JSON property id due to missing (therefore NULL) value "
+                                               "for creator parameter id which is a non-nullable type\n at "
+                                               "[Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "$Tender[\"items\"]->java.util.ArrayList[0]->com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item[\"classification\"]"
+                                               "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "$Classification[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_delivery_address_field_from_the_payload_24456_8(self, country, language, instance,
-                                                                                     cassandra_username,
-                                                                                     cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["deliveryAddress"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
-                                                   "JSON property deliveryAddress due to missing (therefore NULL) "
-                                                   "value for creator parameter deliveryAddress which is a non-"
-                                                   "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
-                                                   "(through reference chain: com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
-                                                   "[\"deliveryAddress\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_additional_classifications_id_field_from_the_payload_24456_7(self, country,
+                                                                                              language, instance,
+                                                                                              cassandra_username,
+                                                                                              cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["additionalClassifications"][0]["id"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$Additional"
+                                               "Classification] value failed for JSON property id due to "
+                                               "missing (therefore NULL) value for creator parameter id which is "
+                                               "a non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                               "(through reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"additionalClassifications\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Additional"
+                                               "Classification[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_delivery_address_address_details_field_24456_9(self, country, language, instance,
-                                                                                    cassandra_username,
-                                                                                    cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress] value "
-                                                   "failed for JSON property addressDetails due to missing (therefore "
-                                                   "NULL) value for creator parameter addressDetails which is a non-"
-                                                   "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
-                                                   "(through reference chain: com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
-                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_delivery_address_field_from_the_payload_24456_8(self, country, language, instance,
+                                                                                 cassandra_username,
+                                                                                 cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["deliveryAddress"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                               "JSON property deliveryAddress due to missing (therefore NULL) "
+                                               "value for creator parameter deliveryAddress which is a non-"
+                                               "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                               "(through reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"deliveryAddress\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_delivery_address_address_details_country_field_24456_10(self, country, language,
-                                                                                             instance,
-                                                                                             cassandra_username,
-                                                                                             cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
-                                                   "AddressDetails] value failed for JSON property country due to "
-                                                   "missing (therefore NULL) value for creator parameter country "
-                                                   "which is a non-nullable type\n at [Source: UNKNOWN; line: -1, "
-                                                   "column: -1] (through reference chain: com.procurement.mdm.model."
-                                                   "dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm.model."
-                                                   "dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]"
-                                                   "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
-                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->"
-                                                   "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
-                                                   "$DeliveryAddress$AddressDetails[\"country\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_delivery_address_address_details_field_24456_9(self, country, language, instance,
+                                                                                cassandra_username,
+                                                                                cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress] value "
+                                               "failed for JSON property addressDetails due to missing (therefore "
+                                               "NULL) value for creator parameter addressDetails which is a non-"
+                                               "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                               "(through reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_delivery_address_address_details_country_id_field_24456_11(self, country, language,
-                                                                                                instance,
-                                                                                                cassandra_username,
-                                                                                                cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
-                                                   "AddressDetails$Country] value failed for JSON property id due "
-                                                   "to missing (therefore NULL) value for creator parameter id which "
-                                                   "is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: "
-                                                   "-1] (through reference chain: com.procurement.mdm.model.dto.data."
-                                                   "ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
-                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data."
-                                                   "ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]"
-                                                   "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$"
-                                                   "Item$DeliveryAddress$AddressDetails[\"country\"]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
-                                                   "DeliveryAddress$AddressDetails$Country[\"id\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_delivery_address_address_details_country_field_24456_10(self, country, language,
+                                                                                         instance,
+                                                                                         cassandra_username,
+                                                                                         cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                               "AddressDetails] value failed for JSON property country due to "
+                                               "missing (therefore NULL) value for creator parameter country "
+                                               "which is a non-nullable type\n at [Source: UNKNOWN; line: -1, "
+                                               "column: -1] (through reference chain: com.procurement.mdm.model."
+                                               "dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm.model."
+                                               "dto.data.ei.EIRequest$Tender[\"items\"]->java.util.ArrayList[0]"
+                                               "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->"
+                                               "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "$DeliveryAddress$AddressDetails[\"country\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_delivery_address_address_details_region_field_24456_12(self, country, language,
+    @pytestrail.case("24456")
+    def test_delete_tender_items_delivery_address_address_details_country_id_field_24456_11(self, country, language,
                                                                                             instance,
                                                                                             cassandra_username,
                                                                                             cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
-                                                   "AddressDetails] value failed for JSON property region due to "
-                                                   "missing (therefore NULL) value for creator parameter region "
-                                                   "which is a non-nullable type\n at [Source: UNKNOWN; line: -1, "
-                                                   "column: -1] (through reference chain: com.procurement.mdm."
-                                                   "model.dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm."
-                                                   "model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util."
-                                                   "ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress"
-                                                   "[\"addressDetails\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item$DeliveryAddress$AddressDetails"
-                                                   "[\"region\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["country"]["id"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                               "AddressDetails$Country] value failed for JSON property id due "
+                                               "to missing (therefore NULL) value for creator parameter id which "
+                                               "is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: "
+                                               "-1] (through reference chain: com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]"
+                                               "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$"
+                                               "Item$DeliveryAddress$AddressDetails[\"country\"]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
+                                               "DeliveryAddress$AddressDetails$Country[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_delivery_address_address_details_region_id_field_24456_13(self, country, language,
-                                                                                               instance,
-                                                                                               cassandra_username,
-                                                                                               cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
-                                                   "AddressDetails$Region] value failed for JSON property id due "
-                                                   "to missing (therefore NULL) value for creator parameter id which "
-                                                   "is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: "
-                                                   "-1] (through reference chain: com.procurement.mdm.model.dto.data."
-                                                   "ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
-                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->"
-                                                   "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
-                                                   "DeliveryAddress$AddressDetails[\"region\"]->com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
-                                                   "AddressDetails$Region[\"id\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_delivery_address_address_details_region_field_24456_12(self, country, language,
+                                                                                        instance,
+                                                                                        cassandra_username,
+                                                                                        cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                               "AddressDetails] value failed for JSON property region due to "
+                                               "missing (therefore NULL) value for creator parameter region "
+                                               "which is a non-nullable type\n at [Source: UNKNOWN; line: -1, "
+                                               "column: -1] (through reference chain: com.procurement.mdm."
+                                               "model.dto.data.ei.EIRequest[\"tender\"]->com.procurement.mdm."
+                                               "model.dto.data.ei.EIRequest$Tender[\"items\"]->java.util."
+                                               "ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item[\"deliveryAddress\"]->com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress"
+                                               "[\"addressDetails\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item$DeliveryAddress$AddressDetails"
+                                               "[\"region\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_delivery_address_address_details_locality_id_field_24456_14(self, country,
-                                                                                                 language, instance,
-                                                                                                 cassandra_username,
-                                                                                                 cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
-                                                   "Details$Locality] value failed for JSON property id due to missing "
-                                                   "(therefore NULL) value for creator parameter id which is a non-"
-                                                   "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
-                                                   "(through reference chain: com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
-                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Delivery"
-                                                   "Address$AddressDetails[\"locality\"]->com.procurement.mdm.model."
-                                                   "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
-                                                   "Details$Locality[\"id\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_delivery_address_address_details_region_id_field_24456_13(self, country, language,
+                                                                                           instance,
+                                                                                           cassandra_username,
+                                                                                           cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["region"]["id"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                               "AddressDetails$Region] value failed for JSON property id due "
+                                               "to missing (therefore NULL) value for creator parameter id which "
+                                               "is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: "
+                                               "-1] (through reference chain: com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->"
+                                               "com.procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$"
+                                               "DeliveryAddress$AddressDetails[\"region\"]->com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$"
+                                               "AddressDetails$Region[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_delivery_address_address_details_locality_id_field_24456_15(self, country,
-                                                                                                 language, instance,
-                                                                                                 cassandra_username,
-                                                                                                 cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
-                                                   "Details$Locality] value failed for JSON property scheme due to "
-                                                   "missing (therefore NULL) value for creator parameter scheme which "
-                                                   "is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: "
-                                                   "-1] (through reference chain: com.procurement.mdm.model.dto.data."
-                                                   "ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
-                                                   "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Delivery"
-                                                   "Address$AddressDetails[\"locality\"]->com.procurement.mdm.model."
-                                                   "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
-                                                   "Details$Locality[\"scheme\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_delivery_address_address_details_locality_id_field_24456_14(self, country,
+                                                                                             language, instance,
+                                                                                             cassandra_username,
+                                                                                             cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
+                                               "Details$Locality] value failed for JSON property id due to missing "
+                                               "(therefore NULL) value for creator parameter id which is a non-"
+                                               "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                               "(through reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Delivery"
+                                               "Address$AddressDetails[\"locality\"]->com.procurement.mdm.model."
+                                               "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
+                                               "Details$Locality[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_quantity_field_from_the_payload_24456_16(self, country, language,
-                                                                              instance, cassandra_username,
-                                                                              cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["quantity"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
-                                                   "JSON property quantity due to missing (therefore NULL) value "
-                                                   "for creator parameter quantity which is a non-nullable type\n "
-                                                   "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
-                                                   "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]"
-                                                   "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]"
-                                                   "->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item[\"quantity\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("24456")
+    def test_delete_tender_items_delivery_address_address_details_locality_id_field_24456_15(self, country,
+                                                                                             language, instance,
+                                                                                             cassandra_username,
+                                                                                             cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
+                                               "Details$Locality] value failed for JSON property scheme due to "
+                                               "missing (therefore NULL) value for creator parameter scheme which "
+                                               "is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: "
+                                               "-1] (through reference chain: com.procurement.mdm.model.dto.data."
+                                               "ei.EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"items\"]->java.util.ArrayList[0]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item"
+                                               "[\"deliveryAddress\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item$DeliveryAddress[\"addressDetails\"]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender$Item$Delivery"
+                                               "Address$AddressDetails[\"locality\"]->com.procurement.mdm.model."
+                                               "dto.data.ei.EIRequest$Tender$Item$DeliveryAddress$Address"
+                                               "Details$Locality[\"scheme\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_unit_field_from_the_payload_24456_17(self, country, language,
+    @pytestrail.case("24456")
+    def test_delete_tender_items_quantity_field_from_the_payload_24456_16(self, country, language,
                                                                           instance, cassandra_username,
                                                                           cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["unit"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
-                                                   "JSON property unit due to missing (therefore NULL) value for "
-                                                   "creator parameter unit which is a non-nullable type\n at [Source: "
-                                                   "UNKNOWN; line: -1, column: -1] (through reference chain: com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->"
-                                                   "java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item[\"unit\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["quantity"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                               "JSON property quantity due to missing (therefore NULL) value "
+                                               "for creator parameter quantity which is a non-nullable type\n "
+                                               "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                               "chain: com.procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]"
+                                               "->com.procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]"
+                                               "->java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item[\"quantity\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_items_unit_id_field_from_the_payload_24456_18(self, country, language,
+    @pytestrail.case("24456")
+    def test_delete_tender_items_unit_field_from_the_payload_24456_17(self, country, language,
+                                                                      instance, cassandra_username,
+                                                                      cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["unit"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item] value failed for "
+                                               "JSON property unit due to missing (therefore NULL) value for "
+                                               "creator parameter unit which is a non-nullable type\n at [Source: "
+                                               "UNKNOWN; line: -1, column: -1] (through reference chain: com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->"
+                                               "java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item[\"unit\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("24456")
+    def test_delete_tender_items_unit_id_field_from_the_payload_24456_18(self, country, language,
+                                                                         instance, cassandra_username,
+                                                                         cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["items"][0]["unit"]["id"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Item$Unit] value failed "
+                                               "for JSON property id due to missing (therefore NULL) value for "
+                                               "creator parameter id which is a non-nullable type\n at [Source: "
+                                               "UNKNOWN; line: -1, column: -1] (through reference chain: com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com."
+                                               "procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->"
+                                               "java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender$Item[\"unit\"]->com.procurement.mdm.model.dto."
+                                               "data.ei.EIRequest$Tender$Item$Unit[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("24456")
+    def test_delete_tender_classification_field_from_the_payload_24456_19(self, country, language,
+                                                                          instance, cassandra_username,
+                                                                          cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["classification"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender] value failed for JSON "
+                                               "property classification due to missing (therefore NULL) value "
+                                               "for creator parameter classification which is a non-nullable "
+                                               "type\n at [Source: UNKNOWN; line: -1, column: -1] (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
+                                               "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
+                                               "Tender[\"classification\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("24456")
+    def test_delete_tender_classification_id_field_from_the_payload_24456_20(self, country, language,
                                                                              instance, cassandra_username,
                                                                              cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["items"][0]["unit"]["id"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Item$Unit] value failed "
-                                                   "for JSON property id due to missing (therefore NULL) value for "
-                                                   "creator parameter id which is a non-nullable type\n at [Source: "
-                                                   "UNKNOWN; line: -1, column: -1] (through reference chain: com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest[\"tender\"]->com."
-                                                   "procurement.mdm.model.dto.data.ei.EIRequest$Tender[\"items\"]->"
-                                                   "java.util.ArrayList[0]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender$Item[\"unit\"]->com.procurement.mdm.model.dto."
-                                                   "data.ei.EIRequest$Tender$Item$Unit[\"id\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        del payload["tender"]["classification"]["id"]
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00",
+                                "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                               "Exception: Instantiation of [simple type, class com.procurement."
+                                               "mdm.model.dto.data.ei.EIRequest$Tender$Classification] value "
+                                               "failed for JSON property id due to missing (therefore NULL) "
+                                               "value for creator parameter id which is a non-nullable "
+                                               "type\n at [Source: UNKNOWN; line: -1, column: -1] (through "
+                                               "reference chain: com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
+                                               "EIRequest$Tender[\"classification\"]->com.procurement.mdm."
+                                               "model.dto.data.ei.EIRequest$Tender$Classification[\"id\"])"}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_classification_field_from_the_payload_24456_19(self, country, language,
-                                                                              instance, cassandra_username,
-                                                                              cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["classification"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender] value failed for JSON "
-                                                   "property classification due to missing (therefore NULL) value "
-                                                   "for creator parameter classification which is a non-nullable "
-                                                   "type\n at [Source: UNKNOWN; line: -1, column: -1] (through "
-                                                   "reference chain: com.procurement.mdm.model.dto.data.ei.EIRequest"
-                                                   "[\"tender\"]->com.procurement.mdm.model.dto.data.ei.EIRequest$"
-                                                   "Tender[\"classification\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
 
-        @pytestrail.case("24456")
-        def test_delete_tender_classification_id_field_from_the_payload_24456_20(self, country, language,
-                                                                                 instance, cassandra_username,
-                                                                                 cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            del payload["tender"]["classification"]["id"]
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00",
-                                    "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
-                                                   "Exception: Instantiation of [simple type, class com.procurement."
-                                                   "mdm.model.dto.data.ei.EIRequest$Tender$Classification] value "
-                                                   "failed for JSON property id due to missing (therefore NULL) "
-                                                   "value for creator parameter id which is a non-nullable "
-                                                   "type\n at [Source: UNKNOWN; line: -1, column: -1] (through "
-                                                   "reference chain: com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest[\"tender\"]->com.procurement.mdm.model.dto.data.ei."
-                                                   "EIRequest$Tender[\"classification\"]->com.procurement.mdm."
-                                                   "model.dto.data.ei.EIRequest$Tender$Classification[\"id\"])"}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
+    @pytestrail.case("25300")
+    def test_delete_tender_title_field_from_the_payload_25300_1(self, country, language,
+                                                                instance, cassandra_username,
+                                                                cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["title"] = ""
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'tender.title' is "
+                                               "empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-    class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
-        @pytestrail.case("25300")
-        def test_delete_tender_title_field_from_the_payload_25300_1(self, country, language,
-                                                                    instance, cassandra_username,
-                                                                    cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            payload["tender"]["title"] = ""
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.10.20.11",
-                                    "description": "Incorrect an attribute value.The attribute 'tender.title' is "
-                                                   "empty or blank."}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("25300")
+    def test_delete_tender_description_field_from_the_payload_25300_2(self, country, language,
+                                                                      instance, cassandra_username,
+                                                                      cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["description"] = ""
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'tender.description' "
+                                               "is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("25300")
-        def test_delete_tender_description_field_from_the_payload_25300_2(self, country, language,
-                                                                          instance, cassandra_username,
-                                                                          cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            payload["tender"]["description"] = ""
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.10.20.11",
-                                    "description": "Incorrect an attribute value.The attribute 'tender.description' "
-                                                   "is empty or blank."}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("25300")
+    def test_delete_planning_rationale_field_from_the_payload_25300_3(self, country, language,
+                                                                      instance, cassandra_username,
+                                                                      cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["planning"]["rationale"] = ""
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'planning.rationale' "
+                                               "is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("25300")
-        def test_delete_planning_rationale_field_from_the_payload_25300_3(self, country, language,
-                                                                          instance, cassandra_username,
-                                                                          cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            payload["planning"]["rationale"] = ""
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.10.20.11",
-                                    "description": "Incorrect an attribute value.The attribute 'planning.rationale' "
-                                                   "is empty or blank."}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
-
-        @pytestrail.case("25300")
-        def test_delete_tender_items_delivery_address_street_address_field_from_the_payload_25300_4(self, country,
-                                                                                                    language, instance,
-                                                                                                    cassandra_username,
-                                                                                                    cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = ""
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.10.20.11",
-                                    "description": "Incorrect an attribute value.The attribute 'tender.items.delivery"
-                                                   "Address.streetAddress' is empty or blank."}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
-
-        @pytestrail.case("25300")
-        def test_delete_tender_items_address_details_locality_scheme_field_from_the_payload_25300_5(self, country,
-                                                                                                    language, instance,
-                                                                                                    cassandra_username,
-                                                                                                    cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = ""
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.10.20.11",
-                                    "description": "Incorrect an attribute value.The attribute 'deliveryAddress."
-                                                   "addressDetails.locality.scheme' is empty or blank."}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
-
-        @pytestrail.case("25300")
-        def test_delete_tender_items_address_details_locality_id_field_from_the_payload_25300_6(self, country,
+    @pytestrail.case("25300")
+    def test_delete_tender_items_delivery_address_street_address_field_from_the_payload_25300_4(self, country,
                                                                                                 language, instance,
                                                                                                 cassandra_username,
                                                                                                 cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = ""
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.20.00.14", "description": "Locality not found. "}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = ""
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'tender.items.delivery"
+                                               "Address.streetAddress' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("25300")
-        def test_delete_tender_items_address_details_locality_description_field_25300_7(self, country,
-                                                                                        language, instance,
-                                                                                        cassandra_username,
-                                                                                        cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "other"
-            payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["description"] = ""
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.10.20.11",
-                                    "description": "Incorrect an attribute value.The attribute 'deliveryAddress."
-                                                   "addressDetails.locality.description' is empty or blank."}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("25300")
+    def test_delete_tender_items_address_details_locality_scheme_field_from_the_payload_25300_5(self, country,
+                                                                                                language, instance,
+                                                                                                cassandra_username,
+                                                                                                cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = ""
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'deliveryAddress."
+                                               "addressDetails.locality.scheme' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 
-        @pytestrail.case("25300")
-        def test_delete_tender_items_description_field_from_the_payload_25300_7(self, country, language, instance,
-                                                                                cassandra_username, cassandra_password):
-            payload = copy.deepcopy(payload_ei_full_data_model)
-            payload["tender"]["items"][0]["description"] = ""
-            ei = EI(payload=payload, lang=language, country=country, instance=instance,
-                    cassandra_username=cassandra_username, cassandra_password=cassandra_password)
-            ei.insert_ei_full_data_model()
-            ei.update_ei()
-            message_from_kafka = ei.get_message_from_kafka()
-            actual_result = str(message_from_kafka["errors"])
-            expected_result = str([{"code": "400.10.20.11",
-                                    "description": "Incorrect an attribute value.The attribute 'tender.items."
-                                                   "description' is empty or blank."}])
-            assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                             actual_result=actual_result)
+    @pytestrail.case("25300")
+    def test_delete_tender_items_address_details_locality_id_field_from_the_payload_25300_6(self, country,
+                                                                                            language, instance,
+                                                                                            cassandra_username,
+                                                                                            cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["id"] = ""
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.20.00.14", "description": "Locality not found. "}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("25300")
+    def test_delete_tender_items_address_details_locality_description_field_25300_7(self, country,
+                                                                                    language, instance,
+                                                                                    cassandra_username,
+                                                                                    cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] = "other"
+        payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["description"] = ""
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'deliveryAddress."
+                                               "addressDetails.locality.description' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
+
+    @pytestrail.case("25300")
+    def test_delete_tender_items_description_field_from_the_payload_25300_7(self, country, language, instance,
+                                                                            cassandra_username, cassandra_password):
+        payload = copy.deepcopy(payload_ei_full_data_model)
+        payload["tender"]["items"][0]["description"] = ""
+        ei = EI(payload=payload, lang=language, country=country, instance=instance,
+                cassandra_username=cassandra_username, cassandra_password=cassandra_password)
+        ei.insert_ei_full_data_model()
+        ei.update_ei()
+        message_from_kafka = ei.get_message_from_kafka()
+        actual_result = str(message_from_kafka["errors"])
+        expected_result = str([{"code": "400.10.20.11",
+                                "description": "Incorrect an attribute value.The attribute 'tender.items."
+                                               "description' is empty or blank."}])
+        assert compare_actual_result_and_expected_result(expected_result=expected_result,
+                                                         actual_result=actual_result)
 #
 #
 # class TestCheckOnImpossibilityUpdateEiIfTenderItemsQuantityIsLessOrEqualZero(object):

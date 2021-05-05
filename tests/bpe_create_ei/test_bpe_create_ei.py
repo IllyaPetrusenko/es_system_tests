@@ -3141,7 +3141,7 @@ class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
         payload["tender"]["items"][0]["description"] = "item_1"
         payload["tender"]["items"][0]["classification"]["id"] = "45112350-3"
         payload["tender"]["items"][0]["additionalClassifications"][0]["id"] = "AA12-4"
-        payload["tender"]["items"][0]["quantity"] = 10
+        payload["tender"]["items"][0]["quantity"] = 10.0
         payload["tender"]["items"][0]["unit"]["id"] = "10"
         payload["tender"]["items"][0]["unit"]["name"] = "name"
         payload["tender"]["items"][0]["deliveryAddress"]["streetAddress"] = "Khreshchatyk"

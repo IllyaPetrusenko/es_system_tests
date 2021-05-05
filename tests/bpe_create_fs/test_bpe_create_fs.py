@@ -871,8 +871,8 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
             actual_result=fs_release["releases"][0]["planning"]["budget"]["period"]["endDate"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["amount"]["amount"],
-            actual_result=fs_release["releases"][0]["planning"]["budget"]["amount"]["amount"]
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_release["releases"][0]["planning"]["budget"]["amount"]["amount"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=payload["planning"]["budget"]["amount"]["currency"],
@@ -2892,8 +2892,8 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
             actual_result=fs_release["releases"][0]["planning"]["budget"]["period"]["endDate"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["amount"]["amount"],
-            actual_result=fs_release["releases"][0]["planning"]["budget"]["amount"]["amount"]
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_release["releases"][0]["planning"]["budget"]["amount"]["amount"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=payload["planning"]["budget"]["amount"]["currency"],
@@ -4160,8 +4160,8 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
             actual_result=fs_release["releases"][0]["planning"]["budget"]["period"]["endDate"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["amount"]["amount"],
-            actual_result=fs_release["releases"][0]["planning"]["budget"]["amount"]["amount"]
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_release["releases"][0]["planning"]["budget"]["amount"]["amount"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=payload["planning"]["budget"]["amount"]["currency"],
@@ -7250,8 +7250,8 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
             actual_result=fs_release["releases"][0]["planning"]["budget"]["period"]["endDate"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["amount"]["amount"],
-            actual_result=fs_release["releases"][0]["planning"]["budget"]["amount"]["amount"]
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_release["releases"][0]["planning"]["budget"]["amount"]["amount"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=payload["planning"]["budget"]["amount"]["currency"],
@@ -10273,6 +10273,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                  "europeanUnionFunding.projectIdentifier' is empty or blank."}]),
             actual_result=str(message_from_kafka['errors'])
         )
+
     @pytestrail.case('27557')
     def test_planning_budget_european_union_funding_uri_is_empty_str_27557_55(self, country, language,
                                                                               instance, cassandra_username,
@@ -10393,6 +10394,1761 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                  "is empty or blank."}]),
             actual_result=str(message_from_kafka['errors'])
         )
+
+
+class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_name_address_as_bool_27558_1(self, country, language, instance, cassandra_username,
+                                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["name"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"name\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_identifier_id_address_as_bool_27558_2(self, country, language, instance,
+                                                                           cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "(was com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]"
+                                                 "->com.procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"identifier\"]->com.procurement.mdm.model.dto.data.Identifier"
+                                                 "[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_identifier_scheme_address_as_bool_27558_3(self, country, language, instance,
+                                                                               cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS"
+                                                 "[\"tender\"]->com.procurement.mdm.model.dto.data.TenderFS"
+                                                 "[\"procuringEntity\"]->com.procurement.mdm.model.dto.data."
+                                                 "OrganizationReference[\"identifier\"]->com.procurement.mdm.model."
+                                                 "dto.data.Identifier[\"scheme\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_identifier_legal_name_address_as_bool_27558_4(self, country, language, instance,
+                                                                                   cassandra_username,
+                                                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"identifier\"]->com.procurement.mdm.model.dto.data.Identifier"
+                                                 "[\"legalName\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_identifier_uri_address_as_bool_27558_5(self, country, language, instance,
+                                                                            cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"identifier\"]->com.procurement.mdm.model.dto.data.Identifier"
+                                                 "[\"uri\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_address_street_address_as_bool_27558_6(self, country, language, instance,
+                                                                            cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference[\"address\"]->"
+                                                 "com.procurement.mdm.model.dto.data.Address[\"streetAddress\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_address_postal_code_as_bool_27558_7(self, country, language, instance,
+                                                                         cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "(was com.procurement.mdm.exception.InErrorException) "
+                                                 "(through reference chain: com.procurement.mdm.model.dto.data."
+                                                 "FS[\"tender\"]->com.procurement.mdm.model.dto.data.TenderFS"
+                                                 "[\"procuringEntity\"]->com.procurement.mdm.model.dto.data."
+                                                 "OrganizationReference[\"address\"]->com.procurement.mdm.model."
+                                                 "dto.data.Address[\"postalCode\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_address_address_detail_country_id_as_bool_27558_8(self, country, language,
+                                                                                       instance,
+                                                                                       cassandra_username,
+                                                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                                 "[\"addressDetails\"]->com.procurement.mdm.model.dto.data."
+                                                 "AddressDetails[\"country\"]->com.procurement.mdm.model.dto."
+                                                 "data.CountryDetails[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_address_address_detail_region_id_as_bool_27558_9(self, country, language, instance,
+                                                                                      cassandra_username,
+                                                                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference[\"address\"]->"
+                                                 "com.procurement.mdm.model.dto.data.Address[\"addressDetails\"]->"
+                                                 "com.procurement.mdm.model.dto.data.AddressDetails[\"region\"]->"
+                                                 "com.procurement.mdm.model.dto.data.RegionDetails[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_address_address_detail_locality_id_as_bool_27558_10(self, country, language,
+                                                                                         instance,
+                                                                                         cassandra_username,
+                                                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                                 "[\"addressDetails\"]->com.procurement.mdm.model.dto.data.Address"
+                                                 "Details[\"locality\"]->com.procurement.mdm.model.dto.data.Locality"
+                                                 "Details[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_address_address_detail_locality_scheme_as_bool_27558_11(self, country, language,
+                                                                                             instance,
+                                                                                             cassandra_username,
+                                                                                             cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference[\"address\"]"
+                                                 "->com.procurement.mdm.model.dto.data.Address[\"addressDetails\"]"
+                                                 "->com.procurement.mdm.model.dto.data.AddressDetails[\"locality\"]"
+                                                 "->com.procurement.mdm.model.dto.data.LocalityDetails[\"scheme\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_address_address_detail_locality_description_as_bool_27558_12(self, country,
+                                                                                                  language,
+                                                                                                  instance,
+                                                                                                  cassandra_username,
+                                                                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                                 "[\"addressDetails\"]->com.procurement.mdm.model.dto.data."
+                                                 "AddressDetails[\"locality\"]->com.procurement.mdm.model.dto."
+                                                 "data.LocalityDetails[\"description\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_additional_identifiers_id_as_bool27558_13(self, country, language,
+                                                                               instance, cassandra_username,
+                                                                               cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"additionalIdentifiers\"]->java.util.ArrayList[0]->com."
+                                                 "procurement.mdm.model.dto.data.Identifier[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_additional_identifiers_scheme_as_bool_27558_14(self, country, language,
+                                                                                    instance, cassandra_username,
+                                                                                    cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"additionalIdentifiers\"]->java.util.ArrayList[0]->com."
+                                                 "procurement.mdm.model.dto.data.Identifier[\"scheme\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_additional_identifiers_legal_name_as_bool_27558_15(self, country, language,
+                                                                                        instance, cassandra_username,
+                                                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["legalName"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference[\"additional"
+                                                 "Identifiers\"]->java.util.ArrayList[0]->com.procurement.mdm.model."
+                                                 "dto.data.Identifier[\"legalName\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_additional_identifiers_uri_as_bool_27558_16(self, country, language,
+                                                                                 instance, cassandra_username,
+                                                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"additionalIdentifiers\"]->java.util.ArrayList[0]->com."
+                                                 "procurement.mdm.model.dto.data.Identifier[\"uri\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_contact_point_name_as_bool_27558_17(self, country, language,
+                                                                         instance, cassandra_username,
+                                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"contactPoint\"]->com.procurement.mdm.model.dto.data."
+                                                 "ContactPoint[\"name\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_contact_point_email_as_bool_27558_18(self, country, language,
+                                                                          instance, cassandra_username,
+                                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"contactPoint\"]->com.procurement.mdm.model.dto.data."
+                                                 "ContactPoint[\"email\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_contact_point_telephone_as_bool_27558_19(self, country, language,
+                                                                              instance, cassandra_username,
+                                                                              cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"contactPoint\"]->com.procurement.mdm.model.dto.data."
+                                                 "ContactPoint[\"telephone\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_contact_point_fax_number_as_bool_27558_20(self, country, language,
+                                                                               instance, cassandra_username,
+                                                                               cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->"
+                                                 "com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"contactPoint\"]->com.procurement.mdm.model.dto.data."
+                                                 "ContactPoint[\"faxNumber\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_tender_procuring_entity_contact_point_url_as_bool_27558_21(self, country, language,
+                                                                        instance, cassandra_username,
+                                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"tender\"]->com."
+                                                 "procurement.mdm.model.dto.data.TenderFS[\"procuringEntity\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"contactPoint\"]->com.procurement.mdm.model.dto.data.Contact"
+                                                 "Point[\"url\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_name_as_bool_27558_22(self, country, language,
+                                         instance, cassandra_username,
+                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["name"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference[\"name\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_identifier_id_as_bool_27558_23(self, country, language,
+                                                  instance, cassandra_username,
+                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS"
+                                                 "[\"buyer\"]->com.procurement.mdm.model.dto.data.Organization"
+                                                 "Reference[\"identifier\"]->com.procurement.mdm.model.dto.data."
+                                                 "Identifier[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_identifier_scheme_as_bool_27558_24(self, country, language,
+                                                      instance, cassandra_username,
+                                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"identifier\"]->com.procurement.mdm.model.dto.data."
+                                                 "Identifier[\"scheme\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_identifier_legal_name_as_bool_27558_25(self, country, language,
+                                                          instance, cassandra_username,
+                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["legalName"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"identifier\"]->com.procurement.mdm.model.dto.data."
+                                                 "Identifier[\"legalName\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_identifier_uri_as_bool_27558_26(self, country, language,
+                                                   instance, cassandra_username,
+                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS"
+                                                 "[\"buyer\"]->com.procurement.mdm.model.dto.data.Organization"
+                                                 "Reference[\"identifier\"]->com.procurement.mdm.model.dto.data."
+                                                 "Identifier[\"uri\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_address_street_address_as_bool_27558_27(self, country, language,
+                                                           instance, cassandra_username,
+                                                           cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["streetAddress"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference[\"address\"]"
+                                                 "->com.procurement.mdm.model.dto.data.Address[\"streetAddress\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_address_postal_code_as_bool_27558_28(self, country, language,
+                                                        instance, cassandra_username,
+                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["postalCode"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference[\"address\"]"
+                                                 "->com.procurement.mdm.model.dto.data.Address[\"postalCode\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_address_address_details_country_id_as_bool_27558_29(self, country, language,
+                                                                       instance, cassandra_username,
+                                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "(was com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                                 "[\"postalCode\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_address_address_details_region_id_as_bool_27558_30(self, country, language,
+                                                                      instance, cassandra_username,
+                                                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS"
+                                                 "[\"buyer\"]->com.procurement.mdm.model.dto.data.Organization"
+                                                 "Reference[\"address\"]->com.procurement.mdm.model.dto.data."
+                                                 "Address[\"addressDetails\"]->com.procurement.mdm.model.dto."
+                                                 "data.AddressDetails[\"region\"]->com.procurement.mdm.model."
+                                                 "dto.data.RegionDetails[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_address_address_details_locality_id_as_bool_27558_31(self, country, language,
+                                                                        instance, cassandra_username,
+                                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference[\"address\"]"
+                                                 "->com.procurement.mdm.model.dto.data.Address[\"addressDetails\"]"
+                                                 "->com.procurement.mdm.model.dto.data.AddressDetails[\"locality\"]"
+                                                 "->com.procurement.mdm.model.dto.data.LocalityDetails[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_address_address_details_locality_scheme_as_bool_27558_32(self, country, language,
+                                                                            instance, cassandra_username,
+                                                                            cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                                 "[\"addressDetails\"]->com.procurement.mdm.model.dto.data."
+                                                 "AddressDetails[\"locality\"]->com.procurement.mdm.model.dto."
+                                                 "data.LocalityDetails[\"scheme\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_address_address_details_locality_description_as_bool_27558_33(self, country, language,
+                                                                                 instance, cassandra_username,
+                                                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
+                                                 "[\"addressDetails\"]->com.procurement.mdm.model.dto.data."
+                                                 "AddressDetails[\"locality\"]->com.procurement.mdm.model.dto."
+                                                 "data.LocalityDetails[\"description\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_additional_identifiers_id_as_bool_27558_34(self, country, language, instance, cassandra_username,
+                                                              cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "(was com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"additionalIdentifiers\"]->java.util.ArrayList[0]->com."
+                                                 "procurement.mdm.model.dto.data.Identifier[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_additional_identifiers_scheme_as_bool_27558_35(self, country, language, instance, cassandra_username,
+                                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"additionalIdentifiers\"]->java.util.ArrayList[0]->com."
+                                                 "procurement.mdm.model.dto.data.Identifier[\"scheme\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_additional_identifiers_legal_name_as_bool_27558_36(self, country, language, instance,
+                                                                      cassandra_username,
+                                                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"additionalIdentifiers\"]->java.util.ArrayList[0]->com."
+                                                 "procurement.mdm.model.dto.data.Identifier[\"legalName\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_additional_identifiers_uri_as_bool_27558_37(self, country, language, instance,
+                                                               cassandra_username,
+                                                               cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"additionalIdentifiers\"]->java.util.ArrayList[0]->com."
+                                                 "procurement.mdm.model.dto.data.Identifier[\"uri\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_contact_point_name_as_bool_27558_38(self, country, language, instance,
+                                                       cassandra_username,
+                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["name"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"contactPoint\"]->com.procurement.mdm.model.dto.data."
+                                                 "ContactPoint[\"name\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_contact_point_email_as_bool_27558_39(self, country, language, instance,
+                                                        cassandra_username,
+                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["email"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]->com."
+                                                 "procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"contactPoint\"]->com.procurement.mdm.model.dto.data."
+                                                 "ContactPoint[\"email\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_contact_point_telephone_as_bool_27558_40(self, country, language, instance,
+                                                            cassandra_username,
+                                                            cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["telephone"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "(was com.procurement.mdm.exception.InErrorException) "
+                                                 "(through reference chain: com.procurement.mdm.model.dto.data."
+                                                 "FS[\"buyer\"]->com.procurement.mdm.model.dto.data.Organization"
+                                                 "Reference[\"contactPoint\"]->com.procurement.mdm.model.dto.data."
+                                                 "ContactPoint[\"telephone\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_contact_point_fax_number_as_bool_27558_41(self, country, language, instance,
+                                                             cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["faxNumber"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "(was com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"contactPoint\"]->com.procurement.mdm.model.dto.data.Contact"
+                                                 "Point[\"faxNumber\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_buyer_contact_point_url_as_bool_27558_42(self, country, language, instance,
+                                                      cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["url"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was "
+                                                 "com.procurement.mdm.exception.InErrorException) (through "
+                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
+                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
+                                                 "[\"contactPoint\"]->com.procurement.mdm.model.dto.data.Contact"
+                                                 "Point[\"url\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_rationale_as_bool_27558_43(self, country, language, instance,
+                                                 cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["rationale"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: rationale "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsCreate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsCreate[\"rationale\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_id_as_bool_27558_44(self, country, language, instance,
+                                                 cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: id "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsCreate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsCreate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsCreate[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_description_as_bool_27558_45(self, country, language, instance,
+                                                          cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["description"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: description "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsCreate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsCreate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsCreate[\"description\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_period_start_date_as_bool_27558_46(self, country, language, instance,
+                                                                cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: Text 'true' "
+                                                 "could not be parsed at index 0 (through reference chain: com."
+                                                 "procurement.budget.model.dto.fs.request.FsCreate[\"planning\"]->"
+                                                 "com.procurement.budget.model.dto.fs.request.PlanningFsCreate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "BudgetFsCreate[\"period\"]->com.procurement.budget.model.dto."
+                                                 "ocds.Period[\"startDate\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_period_end_date_as_bool_27558_47(self, country, language, instance,
+                                                              cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["period"]["endDate"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: Text 'true' "
+                                                 "could not be parsed at index 0 (through reference chain: com."
+                                                 "procurement.budget.model.dto.fs.request.FsCreate[\"planning\"]->"
+                                                 "com.procurement.budget.model.dto.fs.request.PlanningFsCreate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request.Budget"
+                                                 "FsCreate[\"period\"]->com.procurement.budget.model.dto.ocds."
+                                                 "Period[\"endDate\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_amount_amount_as_bool_27558_48(self, country, language, instance,
+                                                            cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["amount"]["amount"] = "2000.0"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: amount "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsCreate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsCreate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsCreate[\"amount\"]->com."
+                                                 "procurement.budget.model.dto.ocds.Value[\"amount\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_amount_currency_as_bool_27558_49(self, country, language, instance,
+                                                              cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["amount"]["currency"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.20.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: (was com."
+                                                 "procurement.mdm.exception.InErrorException) (through reference "
+                                                 "chain: com.procurement.mdm.model.dto.data.FS[\"planning\"]->com."
+                                                 "procurement.mdm.model.dto.data.PlanningFS[\"budget\"]->com."
+                                                 "procurement.mdm.model.dto.data.BudgetFS[\"amount\"]->com."
+                                                 "procurement.mdm.model.dto.data.ValueFS[\"currency\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_is_european_union_funded_as_bool_27558_50(self, country, language, instance,
+                                                                       cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = str(True)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "isEuropeanUnionFunded (through reference chain: com.procurement."
+                                                 "budget.model.dto.fs.request.FsCreate[\"planning\"]->com."
+                                                 "procurement.budget.model.dto.fs.request.PlanningFsCreate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request.Budget"
+                                                 "FsCreate[\"isEuropeanUnionFunded\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_european_union_funding_project_name_as_bool_27558_51(self, country, language, instance,
+                                                                                  cassandra_username,
+                                                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: projectName "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsCreate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsCreate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsCreate[\"europeanUnion"
+                                                 "Funding\"]->com.procurement.budget.model.dto.ocds.EuropeanUnion"
+                                                 "Funding[\"projectName\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_european_union_funding_project_name_as_bool_27558_52(self, country, language, instance,
+                                                                                  cassandra_username,
+                                                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "projectIdentifier (through reference chain: com.procurement."
+                                                 "budget.model.dto.fs.request.FsCreate[\"planning\"]->com."
+                                                 "procurement.budget.model.dto.fs.request.PlanningFsCreate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "BudgetFsCreate[\"europeanUnionFunding\"]->com.procurement."
+                                                 "budget.model.dto.ocds.EuropeanUnionFunding"
+                                                 "[\"projectIdentifier\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_european_union_funding_uri_as_bool_27558_53(self, country, language, instance,
+                                                                         cassandra_username,
+                                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: uri "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsCreate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsCreate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsCreate[\"europeanUnion"
+                                                 "Funding\"]->com.procurement.budget.model.dto.ocds.European"
+                                                 "UnionFunding[\"uri\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_project_as_bool_27558_54(self, country, language, instance,
+                                                      cassandra_username,
+                                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["project"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: project "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsCreate[\"planning\"]->com.procurement.budget.model.dto."
+                                                 "fs.request.PlanningFsCreate[\"budget\"]->com.procurement.budget."
+                                                 "model.dto.fs.request.BudgetFsCreate[\"project\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_project_id_as_bool_27558_55(self, country, language, instance,
+                                                         cassandra_username,
+                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["projectID"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: projectID "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsCreate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsCreate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsCreate[\"projectID\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27558')
+    def test_planning_budget_uri_as_bool_27558_56(self, country, language, instance,
+                                                  cassandra_username,
+                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_full_data_model(cp_id, ei_token)
+        fs.create_fs(cp_id)
+        message_from_kafka = fs.get_message_from_kafka()
+        time.sleep(2)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: uri "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsCreate[\"planning\"]->com.procurement.budget.model.dto."
+                                                 "fs.request.PlanningFsCreate[\"budget\"]->com.procurement.budget."
+                                                 "model.dto.fs.request.BudgetFsCreate[\"uri\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
     # =========================
     # class TestCreateTreasuryMoneyFsOnFullDataModel(object):
     #     @pytestrail.case("24601")
