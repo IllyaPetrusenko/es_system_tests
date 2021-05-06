@@ -1126,11 +1126,12 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
         actual_result = str(message_from_kafka["errors"])
         expected_result = None
         if payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] == "CUATM":
+            expected_result = str([{'code': '400.20.00.14', 'description': 'Locality not found. '}])
+
+        elif payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] == "other":
             expected_result = str([{'code': '400.10.20.11',
                                     'description': "Incorrect an attribute value.The attribute 'deliveryAddress."
                                                    "addressDetails.locality.id' is empty or blank."}])
-        elif payload["tender"]["items"][0]["deliveryAddress"]["addressDetails"]["locality"]["scheme"] == "other":
-            expected_result = str([{'code': '400.20.00.14', 'description': 'Locality not found. '}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
