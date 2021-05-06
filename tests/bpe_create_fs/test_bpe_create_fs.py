@@ -2900,8 +2900,8 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
             actual_result=fs_release["releases"][0]["planning"]["budget"]["amount"]["currency"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["isEuropeanUnionFunded"],
-            actual_result=fs_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"]
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=str(buyer_in_payload),
@@ -4181,8 +4181,8 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
             actual_result=fs_release["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["isEuropeanUnionFunded"],
-            actual_result=fs_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"]
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=str(buyer_in_payload),
@@ -7258,8 +7258,8 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
             actual_result=fs_release["releases"][0]["planning"]["budget"]["amount"]["currency"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["isEuropeanUnionFunded"],
-            actual_result=fs_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"]
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=str(buyer_in_payload),
@@ -11308,13 +11308,14 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
         message_from_kafka = fs.get_message_from_kafka()
         time.sleep(2)
         assert compare_actual_result_and_expected_result(
-            expected_result=str([{"code": "400.20.00",
-                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
-                                                 "(was com.procurement.mdm.exception.InErrorException) (through "
-                                                 "reference chain: com.procurement.mdm.model.dto.data.FS[\"buyer\"]"
-                                                 "->com.procurement.mdm.model.dto.data.OrganizationReference"
-                                                 "[\"address\"]->com.procurement.mdm.model.dto.data.Address"
-                                                 "[\"postalCode\"])"}]),
+            expected_result=str([{'code': '400.20.00',
+                                  'description': 'com.fasterxml.jackson.databind.JsonMappingException: (was com.'
+                                                 'procurement.mdm.exception.InErrorException) (through reference '
+                                                 'chain: com.procurement.mdm.model.dto.data.FS["buyer"]->com.'
+                                                 'procurement.mdm.model.dto.data.OrganizationReference["address"]->'
+                                                 'com.procurement.mdm.model.dto.data.Address["addressDetails"]->com.'
+                                                 'procurement.mdm.model.dto.data.AddressDetails["country"]->com.'
+                                                 'procurement.mdm.model.dto.data.CountryDetails["id"])'}]),
             actual_result=str(message_from_kafka["errors"])
         )
 
