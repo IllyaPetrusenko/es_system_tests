@@ -1151,7 +1151,7 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
                                                "addressDetails.locality.description' is empty or blank."}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
-        
+
 
     @pytestrail.case("25300")
     def test_delete_tender_items_description_field_from_the_payload_25300_8(self, country, language, instance,
