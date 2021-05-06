@@ -1124,7 +1124,9 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
         ei.update_ei(cp_id=cp_id, ei_token=ei_token)
         message_from_kafka = ei.get_message_from_kafka()
         actual_result = str(message_from_kafka["errors"])
-        expected_result = str([{"code": "400.20.00.14", "description": "Locality not found. "}])
+        expected_result = str([{'code': '400.10.20.11',
+                                'description': "Incorrect an attribute value.The attribute 'deliveryAddress."
+                                               "addressDetails.locality.id' is empty or blank."}])
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
@@ -1151,7 +1153,7 @@ class TestCheckTheFieldsWithEmptyStringsAreNotPublishedInThePublicPoint(object):
                                                          actual_result=actual_result)
 
     @pytestrail.case("25300")
-    def test_delete_tender_items_description_field_from_the_payload_25300_7(self, country, language, instance,
+    def test_delete_tender_items_description_field_from_the_payload_25300_8(self, country, language, instance,
                                                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
