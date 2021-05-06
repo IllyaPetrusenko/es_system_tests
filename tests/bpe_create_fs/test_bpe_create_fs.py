@@ -892,8 +892,8 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
         )
 
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["isEuropeanUnionFunded"],
-            actual_result=fs_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"]
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=str(buyer_in_payload),
