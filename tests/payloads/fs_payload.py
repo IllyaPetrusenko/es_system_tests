@@ -85,37 +85,6 @@ payload_fs_obligatory_data_model_treasury_money = {
             },
             "isEuropeanUnionFunded": False
         }
-    },
-    "tender": {
-        "procuringEntity": {
-            "name": "Procuring Entity Name",
-            "identifier": {
-                "id": "123456789000",
-                "scheme": "MD-IDNO",
-                "legalName": "Legal Name"
-            },
-            "address": {
-                "streetAddress": "street",
-                "addressDetails": {
-                    "country": {
-                        "id": "MD"
-                    },
-                    "region": {
-                        "id": "3400000"
-                    },
-                    "locality": {
-                        "scheme": "CUATM",
-                        "id": "3401000",
-                        "description": ""
-                    }
-                }
-            },
-            "contactPoint": {
-                "name": "contact person",
-                "email": "string@mail.ccc",
-                "telephone": "98-79-87"
-            }
-        }
     }
 }
 

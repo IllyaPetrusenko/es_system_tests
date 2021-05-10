@@ -46,7 +46,8 @@ class Cassandra:
         rows_1 = session.execute(f"SELECT * FROM orchestrator_operation WHERE operation_id = '{operation_id}';").one()
         process_id = rows_1.process_id
         rows_2 = session.execute(
-            f"SELECT * FROM orchestrator_operation_step WHERE process_id = '{process_id}' AND task_id='{task_id}';").one()
+            f"SELECT * FROM orchestrator_operation_step WHERE process_id = '{process_id}' AND "
+            f"task_id='{task_id}';").one()
         request_data = json.loads(rows_2.request_data)
         response_data = json.loads(rows_2.response_data)
         step_date = rows_2.step_date.strftime("%Y-%m-%dT%H:%M:%SZ")

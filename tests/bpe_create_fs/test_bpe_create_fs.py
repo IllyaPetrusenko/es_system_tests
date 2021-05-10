@@ -7366,8 +7366,6 @@ class TestCheckTheCorrectSettingOfTheReleaseDateValueInTheFsRelease(object):
             operation_id=message_from_kafka["X-OPERATION-ID"],
             task_id="NoticeCreateReleaseTask",
         )[3]["startDate"]
-        print(start_date)
-        print("==========")
 
     @pytestrail.case('27552')
     def test_compare_context_start_date_from_database_and_release_date_from_fs_release_27552_4(self, country,

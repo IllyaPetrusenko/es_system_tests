@@ -20,11 +20,8 @@ payload_ei_full_data_model = {
     "tender": {
         "title": "EI_FULL_WORKS",
         "description": "description of finansical sourse",
-        "mainProcurementCategory": "",
         "classification": {
-            "id": "45100000-8",
-            "scheme": "CPV",
-            "description": "classification.description"
+            "id": "45100000-8"
         },
         "items": [
             {
@@ -43,14 +40,12 @@ payload_ei_full_data_model = {
                     "postalCode": "02235",
                     "addressDetails": {
                         "country": {
-                            "id": "MD",
-                            "description": "ОПИСАНИЕ",
-                            "scheme": "other"
+                            "id": "MD"
+
                         },
                         "region": {
-                            "id": "1700000",
-                            "description": "ОПИСАНИЕ",
-                            "scheme": "CUATM"
+                            "id": "1700000"
+
                         },
                         "locality": {
                             "id": "1701000",
@@ -62,8 +57,8 @@ payload_ei_full_data_model = {
                 },
                 "quantity": 1,
                 "unit": {
-                    "id": "10",
-                    "name": "name"
+                    "id": "10"
+
                 }
             }
         ]
@@ -91,22 +86,15 @@ payload_ei_full_data_model = {
             "postalCode": "02217",
             "addressDetails": {
                 "country": {
-                    "id": "MD",
-                    "scheme": "",
-                    "description": "",
-                    "uri": ""
+                    "id": "MD"
                 },
                 "region": {
-                    "id": "1700000",
-                    "scheme": "",
-                    "description": "",
-                    "uri": ""
+                    "id": "1700000"
                 },
                 "locality": {
                     "scheme": "CUATM",
                     "id": "1701000",
-                    "description": "description",
-                    "uri": ""
+                    "description": "description"
                 }
             }
         },
