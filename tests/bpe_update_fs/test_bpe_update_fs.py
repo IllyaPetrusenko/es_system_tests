@@ -504,8 +504,10 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryObl
                                                          actual_result=fs_update["uri"])
         assert compare_actual_result_and_expected_result(expected_result=fs_create["version"],
                                                          actual_result=fs_update["version"])
-        assert compare_actual_result_and_expected_result(expected_result=fs_create["extensions"],
-                                                         actual_result=fs_update["extensions"])
+        assert compare_actual_result_and_expected_result(expected_result=fs_create["extensions"][0],
+                                                         actual_result=fs_update["extensions"][0])
+        assert compare_actual_result_and_expected_result(expected_result=fs_create["extensions"][1],
+                                                         actual_result=fs_update["extensions"][1])
         assert compare_actual_result_and_expected_result(expected_result=fs_create["publisher"]["name"],
                                                          actual_result=fs_update["publisher"]["name"])
         assert compare_actual_result_and_expected_result(expected_result=fs_create["publisher"]["uri"],
