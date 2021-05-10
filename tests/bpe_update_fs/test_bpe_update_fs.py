@@ -613,8 +613,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryObl
             expected_result=payload["planning"]["budget"]["period"]["endDate"],
             actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["endDate"])
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["amount"]["amount"],
-            actual_result=fs_update["releases"][0]["planning"]["budget"]["amount"]["amount"])
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["amount"]["amount"]))
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["planning"]["budget"]["amount"]["currency"],
             actual_result=fs_update["releases"][0]["planning"]["budget"]["amount"]["currency"])
