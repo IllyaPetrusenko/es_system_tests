@@ -619,8 +619,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryObl
             expected_result=fs_create["releases"][0]["planning"]["budget"]["amount"]["currency"],
             actual_result=fs_update["releases"][0]["planning"]["budget"]["amount"]["currency"])
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["isEuropeanUnionFunded"],
-            actual_result=fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"]))
         assert compare_actual_result_and_expected_result(
             expected_result=payload["planning"]["budget"]["europeanUnionFunding"]["projectName"],
             actual_result=fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["projectName"])
@@ -631,8 +631,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryObl
             expected_result=payload["planning"]["budget"]["europeanUnionFunding"]["uri"],
             actual_result=fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["uri"])
         assert compare_actual_result_and_expected_result(
-            expected_result=fs_create["releases"][0]["planning"]["budget"]["verified"],
-            actual_result=fs_update["releases"][0]["planning"]["budget"]["verified"])
+            expected_result=str(fs_create["releases"][0]["planning"]["budget"]["verified"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["verified"]))
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["id"],
             actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["id"])
