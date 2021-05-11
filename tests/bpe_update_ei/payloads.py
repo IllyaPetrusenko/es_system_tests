@@ -184,8 +184,8 @@ ei_update_obligatory_fields_with_obligatory_fields_in_tender_items = {
                     "id": "MD"
                 },
                 "region": {
-                    "id": "1700000",
-                    "scheme": ""
+                    "id": "1700000"
+
                 },
                 "locality": {
                     "scheme": "CUATM",

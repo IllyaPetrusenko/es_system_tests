@@ -1,17 +1,18 @@
-import allure, json
+import allure
 import requests
-from config import host, platform_1
+import json
 
 
 @allure.step('Get access token')
-def get_access_token_for_platform_one():
+def get_access_token_for_platform_one(host):
+    platform_one = 'Basic dXNlcjpwYXNzd29yZA=='
     access_token = requests.get(
         url=host + '/auth/signin',
         headers={
-            'Authorization': platform_1
+            'Authorization': platform_one
         }).json()
     allure.attach(host + '/auth/signin', 'HOST')
-    allure.attach(platform_1, 'Platform credentials for authorization')
+    allure.attach(platform_one, 'Platform credentials for authorization')
     allure.attach(json.dumps(access_token), 'Response from auth service')
     access_token = access_token['data']['tokens']['access']
     allure.attach(str(access_token), 'Access token')
@@ -19,7 +20,7 @@ def get_access_token_for_platform_one():
 
 
 @allure.step('Get X-OPERATION-ID')
-def get_x_operation_id(platform_token):
+def get_x_operation_id(host, platform_token):
     x_operation_id = requests.post(
         url=host + '/operations',
         headers={
@@ -31,4 +32,3 @@ def get_x_operation_id(platform_token):
     x_operation_id = x_operation_id['data']['operationId']
     allure.attach(str(x_operation_id), 'X-OPERATION-ID')
     return x_operation_id
-

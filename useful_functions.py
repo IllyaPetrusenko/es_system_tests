@@ -1,18 +1,17 @@
 import fnmatch
+import json
 import random
 import datetime
 import time
 from uuid import UUID
-
 import allure
 import requests
-from config import host
 
 
 def is_valid_uuid(uuid_to_test, version=4):
     try:
         uuid_obj = UUID(uuid_to_test, version=version)
-    except:
+    except ValueError:
         return False
     return str(uuid_obj) == uuid_to_test
 
@@ -20,37 +19,44 @@ def is_valid_uuid(uuid_to_test, version=4):
 def is_it_uuid(uuid_to_test, version):
     try:
         uuid_obj = UUID(uuid_to_test, version=version)
-    except:
+    except ValueError:
         return False
     return str(uuid_obj) == uuid_to_test
 
 
-def get_access_token_for_platform_two():
+@allure.step('Get access token')
+def get_access_token_for_platform_two(host):
+    platform_two = 'Basic YXV0b21hdGlvbl91c2VyOnBhc3N3b3Jk'
     access_token = requests.get(
         url=host + '/auth/signin',
         headers={
-            'Authorization': 'Basic YXV0b21hdGlvbl91c2VyOnBhc3N3b3Jk'
-        }).json()['data']['tokens']['access']
+            'Authorization': platform_two
+        }).json()
+    allure.attach(host + '/auth/signin', 'HOST')
+    allure.attach(platform_two, 'Platform credentials for authorization')
+    allure.attach(json.dumps(access_token), 'Response from auth service')
+    access_token = access_token['data']['tokens']['access']
+    allure.attach(str(access_token), 'Access token')
     return access_token
 
 
-def prepared_cpid():
+def prepared_cp_id():
     cp_id = "ocds-t1s2t3-MD-" + str(int(time.time()) * 1000 + random.randint(1, 100))
     return cp_id
 
 
-def prepared_test_cpid():
+def prepared_test_cp_id():
     cp_id = "test-t1s2t3-MD-" + str(int(time.time()) * 1000 + random.randint(1, 100))
     return cp_id
 
 
-def prepared_fs_ocid(prepared_cpid):
-    oc_id = f"{prepared_cpid}-FS-" + str(int(time.time()) * 1000 + random.randint(1, 100))
+def prepared_fs_oc_id(prepared_cp_id):
+    oc_id = f"{prepared_cp_id}-FS-" + str(int(time.time()) * 1000 + random.randint(1, 100))
     return oc_id
 
 
-def prepared_pn_ocid(prepared_cpid):
-    oc_id = f"{prepared_cpid}-PN-" + str(int(time.time()) * 1000 + random.randint(1, 100))
+def prepared_pn_oc_id(prepared_cp_id):
+    oc_id = f"{prepared_cp_id}-PN-" + str(int(time.time()) * 1000 + random.randint(1, 100))
     return oc_id
 
 
@@ -93,7 +99,9 @@ def get_new_period():
     yesterday = yesterday_start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     tomorrow = tomorrow_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     today = date.strftime("%Y-%m-%dT%H:%M:%SZ")
-    return start_date, end_date, yesterday, tomorrow, today
+    start_date_plus_one_year = (duration_start_date + datetime.timedelta(days=365)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_date_plus_one_year = (duration_end_date + datetime.timedelta(days=365)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return start_date, end_date, yesterday, tomorrow, today, start_date_plus_one_year, end_date_plus_one_year
 
 
 def get_contract_period():
@@ -109,8 +117,8 @@ def get_contract_period():
     return start_date, end_date, tender_period_start_date, last_date
 
 
-def get_human_date_in_utc_format(timestamp):
-    date = datetime.datetime.utcfromtimestamp(timestamp // 1000)
+def get_human_date_in_utc_format(time_stamp):
+    date = datetime.datetime.utcfromtimestamp(time_stamp // 1000)
     yesterday = (date - datetime.timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
     tomorrow = (date + datetime.timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
     human_date = date.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -118,23 +126,27 @@ def get_human_date_in_utc_format(timestamp):
 
 
 def get_timestamp_from_human_date(human_date):
-    timestamp = int(time.mktime(datetime.datetime.strptime(human_date, "%Y-%m-%dT%H:%M:%SZ").timetuple())) * 1000
+    time_stamp = int(time.mktime(datetime.datetime.strptime(human_date, "%Y-%m-%dT%H:%M:%SZ").timetuple())) * 1000
 
-    return timestamp
+    return time_stamp
 
 
 # This function removes attributes with the * value from a dictionary:
+# ====================================================================
 def get_clear_dict(d, v):
     li = list()
     for key, value in d.items():
         a = (key, value == v)
-        if a[1] == True:
+        if a[1] is True:
             li.append(a[0])
             continue
-    for l in li:
-        if l in d:
-            del d[l]
+    for i in li:
+        if i in d:
+            del d[i]
     return d
+
+
+# ====================================================================
 
 
 def get_new_classification_id(classification_1, classification_2):
@@ -149,43 +161,43 @@ def get_new_classification_id(classification_1, classification_2):
     s_9 = fnmatch.fnmatch(classification_1[8], classification_2[8])
     s_10 = fnmatch.fnmatch(classification_1[9], classification_2[9])
     new = list()
-    if s_1 == True:
+    if s_1 is True:
         new.append(classification_1[0])
     else:
         new.append("0")
-    if s_2 == True:
+    if s_2 is True:
         new.append(classification_1[1])
     else:
         new.append("0")
-    if s_3 == True:
+    if s_3 is True:
         new.append(classification_1[2])
     else:
         new.append("0")
-    if s_4 == True:
+    if s_4 is True:
         new.append(classification_1[3])
     else:
         new.append("0")
-    if s_5 == True:
+    if s_5 is True:
         new.append(classification_1[4])
     else:
         new.append("0")
-    if s_6 == True:
+    if s_6 is True:
         new.append(classification_1[5])
     else:
         new.append("0")
-    if s_7 == True:
+    if s_7 is True:
         new.append(classification_1[6])
     else:
         new.append("0")
-    if s_8 == True:
+    if s_8 is True:
         new.append(classification_1[7])
     else:
         new.append("0")
-    if s_9 == True:
+    if s_9 is True:
         new.append(classification_1[8])
     else:
         new.append("0")
-    if s_10 == True:
+    if s_10 is True:
         new.append(classification_1[9])
     else:
         new.append("0")
@@ -214,3 +226,22 @@ def compare_actual_result_and_expected_result(expected_result, actual_result):
         return True
     else:
         return False
+
+# @allure.step('REQUEST_OF_UPDATE_EI')
+# def request_update_ei(access_token, x_operation_id, cpid, ei_token, payload):
+#     environment_host = set_instance_for_request()
+#     update_ei_response = requests.post(
+#         url=environment_host + update_ei + cpid,
+#         headers={
+#             'Authorization': 'Bearer ' + access_token,
+#             'X-OPERATION-ID': x_operation_id,
+#             'X-TOKEN': ei_token,
+#             'Content-Type': 'application/json'},
+#         json=payload)
+#     allure.attach(environment_host + update_ei + cpid, 'URL')
+#     allure.attach(access_token, 'ACCESS_TOKEN')
+#     allure.attach(x_operation_id, 'X-OPERATION-ID')
+#     allure.attach(cpid, 'CPID')
+#     allure.attach(ei_token, 'X-TOKEN')
+#     allure.attach(str(payload), 'PAYLOAD')
+#     return update_ei_response

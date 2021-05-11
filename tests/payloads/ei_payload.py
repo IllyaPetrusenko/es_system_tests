@@ -16,7 +16,7 @@ cpv_goods = ("03100000-2", "39100000-3", "48600000-4",)
 cpv_works = ("45100000-8", "45200000-9", "45100000-8",)
 cpv_services = ("76100000-4", "76200000-5", "90900000-6",)
 locality_scheme = ("CUATM", "other",)
-payload_ei_full_data_model= {
+payload_ei_full_data_model = {
     "tender": {
         "title": "EI_FULL_WORKS",
         "description": "description of finansical sourse",
@@ -134,14 +134,11 @@ payload_ei_full_data_model= {
     }
 }
 
-ei_obligatory = {
+payload_ei_obligatory_data_model = {
     "tender": {
         "title": "EI_FULL_WORKS",
-
-        "mainProcurementCategory": "",
         "classification": {
             "id": "45100000-8"
-
         },
         "items": [
             {
@@ -150,38 +147,30 @@ ei_obligatory = {
                 "classification": {
                     "id": "45100000-8"
                 },
-
                 "deliveryAddress": {
-
                     "addressDetails": {
                         "country": {
                             "id": "MD"
-
                         },
                         "region": {
                             "id": "1700000"
-
                         }
-
                     }
                 },
                 "quantity": 1,
                 "unit": {
                     "id": "10"
-
                 }
             }
         ]
     },
     "planning": {
         "budget": {
-
             "period": {
                 "startDate": period[0],
                 "endDate": period[1]
             }
         }
-
     },
     "buyer": {
         "name": "LLC Petrusenko",
@@ -189,35 +178,27 @@ ei_obligatory = {
             "id": "380632074071",
             "scheme": "MD-IDNO",
             "legalName": "LLC Petrusenko"
-
         },
         "address": {
             "streetAddress": "Zakrevskogo",
-
             "addressDetails": {
                 "country": {
                     "id": "MD"
-
                 },
                 "region": {
                     "id": "1700000"
-
                 },
                 "locality": {
                     "scheme": "CUATM",
                     "id": "1701000",
                     "description": "description"
-
                 }
             }
         },
-
         "contactPoint": {
             "name": "Petrusenko Svitlana",
             "email": "svetik@gmail.com",
             "telephone": "888999666"
-
         }
-
     }
 }
