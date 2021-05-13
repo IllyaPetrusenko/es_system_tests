@@ -9,9 +9,9 @@ from tests.Cassandra_session import Cassandra
 from tests.essences.fs import FS
 
 from tests.iMDM_service.get_information import MdmService
-from tests.payloads.fs_payload import payload_fs_full_data_model_treasury_money, \
-    payload_fs_obligatory_data_model_treasury_money, payload_fs_full_data_model_own_money, \
-    payload_fs_obligatory_data_model_own_money
+from tests.payloads.fs_payload import create_fs_payload_fs_full_data_model_treasury_money, \
+    create_fs_payload_fs_full_data_model_own_money, create_fs_payload_fs_obligatory_data_model_own_money, \
+    create_fs_payload_fs_obligatory_data_model_treasury_money
 from useful_functions import compare_actual_result_and_expected_result, prepared_cp_id, get_human_date_in_utc_format, \
     is_it_uuid
 
@@ -22,7 +22,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -43,7 +43,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -66,7 +66,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
                                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -952,7 +952,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]
         fs = FS(
             payload=payload,
@@ -977,7 +977,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                           cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]
         fs = FS(
             payload=payload,
@@ -1012,7 +1012,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["name"]
         fs = FS(
             payload=payload,
@@ -1048,7 +1048,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["identifier"]
         fs = FS(
             payload=payload,
@@ -1087,7 +1087,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["identifier"]["scheme"]
         fs = FS(
             payload=payload,
@@ -1127,7 +1127,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["identifier"]["id"]
         fs = FS(
             payload=payload,
@@ -1166,7 +1166,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                           cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["identifier"]["legalName"]
         fs = FS(
             payload=payload,
@@ -1206,7 +1206,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["scheme"]
         fs = FS(
             payload=payload,
@@ -1242,7 +1242,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"]
         fs = FS(
             payload=payload,
@@ -1279,7 +1279,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["legalName"]
         fs = FS(
             payload=payload,
@@ -1317,7 +1317,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                             cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["address"]["streetAddress"]
         fs = FS(
             payload=payload,
@@ -1354,7 +1354,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]
         fs = FS(
             payload=payload,
@@ -1391,7 +1391,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                      cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
         fs = FS(
             payload=payload,
@@ -1429,7 +1429,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"]
         fs = FS(
             payload=payload,
@@ -1468,7 +1468,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                     cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]
         fs = FS(
             payload=payload,
@@ -1506,7 +1506,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"]
         fs = FS(
             payload=payload,
@@ -1544,7 +1544,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]
         fs = FS(
             payload=payload,
@@ -1582,7 +1582,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
         fs = FS(
             payload=payload,
@@ -1621,7 +1621,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"]
         fs = FS(
             payload=payload,
@@ -1661,7 +1661,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"]
         fs = FS(
             payload=payload,
@@ -1700,7 +1700,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["contactPoint"]
         fs = FS(
             payload=payload,
@@ -1737,7 +1737,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["contactPoint"]["name"]
         fs = FS(
             payload=payload,
@@ -1773,7 +1773,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["contactPoint"]["email"]
         fs = FS(
             payload=payload,
@@ -1809,7 +1809,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["tender"]["procuringEntity"]["contactPoint"]["telephone"]
         fs = FS(
             payload=payload,
@@ -1842,7 +1842,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
     def test_delete_planning_27547_25(self, country, language, instance, cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]
         fs = FS(
             payload=payload,
@@ -1865,7 +1865,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
     def test_delete_planning_budget_27547_26(self, country, language, instance, cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]["budget"]
         fs = FS(
             payload=payload,
@@ -1889,7 +1889,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                     cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]["budget"]["period"]
         fs = FS(
             payload=payload,
@@ -1923,7 +1923,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]["budget"]["period"]["startDate"]
         fs = FS(
             payload=payload,
@@ -1958,7 +1958,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]["budget"]["period"]["endDate"]
         fs = FS(
             payload=payload,
@@ -1993,7 +1993,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                     cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]["budget"]["amount"]
         fs = FS(
             payload=payload,
@@ -2017,7 +2017,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                            cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]["budget"]["amount"]["amount"]
         fs = FS(
             payload=payload,
@@ -2052,7 +2052,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]["budget"]["amount"]["currency"]
         fs = FS(
             payload=payload,
@@ -2087,7 +2087,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]["budget"]["isEuropeanUnionFunded"]
         fs = FS(
             payload=payload,
@@ -2123,7 +2123,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                  cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]["budget"]["europeanUnionFunding"]["projectName"]
         fs = FS(
             payload=payload,
@@ -2161,7 +2161,7 @@ class TestCheckOnImpossibilityOfCreatingFsFullDataModelTreasuryMoneyOfPayloadIfO
                                                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
         del payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"]
         fs = FS(
             payload=payload,
@@ -2199,7 +2199,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_obligatory_data_model_treasury_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -2220,7 +2220,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_obligatory_data_model_treasury_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -2243,7 +2243,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
                                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_obligatory_data_model_treasury_money)
+        payload = copy.deepcopy(create_fs_payload_fs_obligatory_data_model_treasury_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -2943,7 +2943,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -2964,7 +2964,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -2988,7 +2988,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
                                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["country"]["id"] = \
             payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"]
         payload["buyer"]["address"]["addressDetails"]["region"]["id"] = \
@@ -4241,7 +4241,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]
         fs = FS(
             payload=payload,
@@ -4266,7 +4266,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                           cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]
         fs = FS(
             payload=payload,
@@ -4301,7 +4301,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["name"]
         fs = FS(
             payload=payload,
@@ -4337,7 +4337,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["identifier"]
         fs = FS(
             payload=payload,
@@ -4377,7 +4377,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["identifier"]["scheme"]
         fs = FS(
             payload=payload,
@@ -4417,7 +4417,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["identifier"]["id"]
         fs = FS(
             payload=payload,
@@ -4457,7 +4457,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                           cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["identifier"]["legalName"]
         fs = FS(
             payload=payload,
@@ -4499,7 +4499,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["scheme"]
         fs = FS(
             payload=payload,
@@ -4535,7 +4535,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"]
         fs = FS(
             payload=payload,
@@ -4572,7 +4572,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["legalName"]
         fs = FS(
             payload=payload,
@@ -4610,7 +4610,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                             cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["address"]["streetAddress"]
         fs = FS(
             payload=payload,
@@ -4647,7 +4647,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]
         fs = FS(
             payload=payload,
@@ -4684,7 +4684,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                      cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
         fs = FS(
             payload=payload,
@@ -4722,7 +4722,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"]
         fs = FS(
             payload=payload,
@@ -4761,7 +4761,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                     cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]
         fs = FS(
             payload=payload,
@@ -4799,7 +4799,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"]
         fs = FS(
             payload=payload,
@@ -4837,7 +4837,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]
         fs = FS(
             payload=payload,
@@ -4876,7 +4876,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
         fs = FS(
             payload=payload,
@@ -4916,7 +4916,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"]
         fs = FS(
             payload=payload,
@@ -4956,7 +4956,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"]
         fs = FS(
             payload=payload,
@@ -4995,7 +4995,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["contactPoint"]
         fs = FS(
             payload=payload,
@@ -5032,7 +5032,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["contactPoint"]["name"]
         fs = FS(
             payload=payload,
@@ -5068,7 +5068,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["contactPoint"]["email"]
         fs = FS(
             payload=payload,
@@ -5104,7 +5104,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["tender"]["procuringEntity"]["contactPoint"]["telephone"]
         fs = FS(
             payload=payload,
@@ -5138,7 +5138,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]
         fs = FS(
             payload=payload,
@@ -5162,7 +5162,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]["budget"]
         fs = FS(
             payload=payload,
@@ -5186,7 +5186,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                     cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]["budget"]["period"]
         fs = FS(
             payload=payload,
@@ -5221,7 +5221,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]["budget"]["period"]["startDate"]
         fs = FS(
             payload=payload,
@@ -5257,7 +5257,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]["budget"]["period"]["endDate"]
         fs = FS(
             payload=payload,
@@ -5292,7 +5292,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                     cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]["budget"]["amount"]
         fs = FS(
             payload=payload,
@@ -5317,7 +5317,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                            cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]["budget"]["amount"]["amount"]
         fs = FS(
             payload=payload,
@@ -5353,7 +5353,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]["budget"]["amount"]["currency"]
         fs = FS(
             payload=payload,
@@ -5388,7 +5388,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]["budget"]["isEuropeanUnionFunded"]
         fs = FS(
             payload=payload,
@@ -5425,7 +5425,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                  cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]["budget"]["europeanUnionFunding"]["projectName"]
         fs = FS(
             payload=payload,
@@ -5463,7 +5463,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"]
         fs = FS(
             payload=payload,
@@ -5498,7 +5498,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
     def test_delete_buyer_name_27550_36(self, country, language, instance, cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["name"]
         fs = FS(
             payload=payload,
@@ -5531,7 +5531,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["identifier"]
         fs = FS(
             payload=payload,
@@ -5564,7 +5564,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                  cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["identifier"]["id"]
         fs = FS(
             payload=payload,
@@ -5597,7 +5597,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                      cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["identifier"]["scheme"]
         fs = FS(
             payload=payload,
@@ -5630,7 +5630,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["identifier"]["legalName"]
         fs = FS(
             payload=payload,
@@ -5664,7 +5664,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                            cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]
         fs = FS(
             payload=payload,
@@ -5697,7 +5697,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                           cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]["streetAddress"]
         fs = FS(
             payload=payload,
@@ -5730,7 +5730,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                            cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]["addressDetails"]
         fs = FS(
             payload=payload,
@@ -5764,7 +5764,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]["addressDetails"]["country"]
         fs = FS(
             payload=payload,
@@ -5799,7 +5799,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]["addressDetails"]["country"]["id"]
         fs = FS(
             payload=payload,
@@ -5835,7 +5835,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]["addressDetails"]["region"]
         fs = FS(
             payload=payload,
@@ -5869,7 +5869,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                      cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]["addressDetails"]["region"]["id"]
         fs = FS(
             payload=payload,
@@ -5904,7 +5904,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                     cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]["addressDetails"]["locality"]
         fs = FS(
             payload=payload,
@@ -5938,7 +5938,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                            cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"]
         fs = FS(
             payload=payload,
@@ -5974,7 +5974,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                        cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]["addressDetails"]["locality"]["id"]
         fs = FS(
             payload=payload,
@@ -6009,7 +6009,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                                 cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["address"]["addressDetails"]["locality"]["description"]
         fs = FS(
             payload=payload,
@@ -6045,7 +6045,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                              cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["additionalIdentifiers"][0]["id"]
         fs = FS(
             payload=payload,
@@ -6079,7 +6079,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                  cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["additionalIdentifiers"][0]["scheme"]
         fs = FS(
             payload=payload,
@@ -6113,7 +6113,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                                      cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["additionalIdentifiers"][0]["legalName"]
         fs = FS(
             payload=payload,
@@ -6147,7 +6147,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                  cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["contactPoint"]
         fs = FS(
             payload=payload,
@@ -6180,7 +6180,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["contactPoint"]["name"]
         fs = FS(
             payload=payload,
@@ -6213,7 +6213,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["contactPoint"]["email"]
         fs = FS(
             payload=payload,
@@ -6246,7 +6246,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithFullDataModelOwnMoneyOfPayloadIfOb
                                                            cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         del payload["buyer"]["contactPoint"]["telephone"]
         fs = FS(
             payload=payload,
@@ -6280,7 +6280,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
     def test_send_the_request_27551_1(self, country, language, instance, cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_obligatory_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_obligatory_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -6301,7 +6301,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_obligatory_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_obligatory_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -6324,7 +6324,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
                                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_obligatory_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_obligatory_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["country"]["id"] = \
             payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"]
         payload["buyer"]["address"]["addressDetails"]["region"]["id"] = \
@@ -7301,7 +7301,7 @@ class TestCheckTheCorrectSettingOfTheReleaseDateValueInTheFsRelease(object):
                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -7322,7 +7322,7 @@ class TestCheckTheCorrectSettingOfTheReleaseDateValueInTheFsRelease(object):
                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -7344,7 +7344,7 @@ class TestCheckTheCorrectSettingOfTheReleaseDateValueInTheFsRelease(object):
                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -7375,7 +7375,7 @@ class TestCheckTheCorrectSettingOfTheReleaseDateValueInTheFsRelease(object):
                                                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -7411,7 +7411,7 @@ class TestCheckOnImpossibilityOfCreatingFsIfBearerTokenIsFake(object):
     def test_send_the_request_27553_1(self, country, language, instance, cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -7441,7 +7441,7 @@ class TestCheckOnImpossibilityOfCreatingFsIfValueOfAuthorizationIsFake(object):
     def test_send_the_request_27554_1(self, country, language, instance, cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -7471,7 +7471,7 @@ class TestCheckOnImpossibilityOfCreatingFsIfRequestOwnerEqualOwnerFromDB(object)
     def test_send_the_request_27555_1(self, country, language, instance, cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -7492,7 +7492,7 @@ class TestCheckOnImpossibilityOfCreatingFsIfRequestOwnerEqualOwnerFromDB(object)
     def test_send_the_request_27555_2(self, country, language, instance, cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         fs = FS(
             payload=payload,
             lang=language,
@@ -7547,7 +7547,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"] = {}
         fs = FS(
             payload=payload,
@@ -7581,7 +7581,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                                 cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"] = {}
         fs = FS(
             payload=payload,
@@ -7617,7 +7617,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                                            cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["identifier"] = {}
         fs = FS(
             payload=payload,
@@ -7653,7 +7653,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"] = {}
         fs = FS(
             payload=payload,
@@ -7693,7 +7693,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                                      cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"] = {}
         fs = FS(
             payload=payload,
@@ -7730,7 +7730,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"] = {}
         fs = FS(
             payload=payload,
@@ -7768,7 +7768,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                                             cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"] = {}
         fs = FS(
             payload=payload,
@@ -7806,7 +7806,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"] = {}
         fs = FS(
             payload=payload,
@@ -7844,7 +7844,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["additionalIdentifiers"] = []
         fs = FS(
             payload=payload,
@@ -7886,7 +7886,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                                      cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["additionalIdentifiers"] = [] = {}
         fs = FS(
             payload=payload,
@@ -7921,7 +7921,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                             cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"] = {}
         fs = FS(
             payload=payload,
@@ -7955,7 +7955,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                             cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"] = {}
         fs = FS(
             payload=payload,
@@ -7988,7 +7988,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["identifier"] = {}
         fs = FS(
             payload=payload,
@@ -8022,7 +8022,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                     cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"] = {}
         fs = FS(
             payload=payload,
@@ -8057,7 +8057,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                     cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"] = {}
         fs = FS(
             payload=payload,
@@ -8092,7 +8092,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["country"] = {}
         fs = FS(
             payload=payload,
@@ -8128,7 +8128,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["country"] = {}
         fs = FS(
             payload=payload,
@@ -8164,7 +8164,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                            cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["region"] = {}
         fs = FS(
             payload=payload,
@@ -8200,7 +8200,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                              cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["locality"] = {}
         fs = FS(
             payload=payload,
@@ -8236,7 +8236,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                   cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["additionalIdentifiers"] = []
         fs = FS(
             payload=payload,
@@ -8276,7 +8276,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                    cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["additionalIdentifiers"][0] = {}
         fs = FS(
             payload=payload,
@@ -8311,7 +8311,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                           cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"] = {}
         fs = FS(
             payload=payload,
@@ -8345,7 +8345,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"] = {}
         fs = FS(
             payload=payload,
@@ -8369,7 +8369,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"] = {}
         fs = FS(
             payload=payload,
@@ -8393,7 +8393,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["period"] = {}
         fs = FS(
             payload=payload,
@@ -8428,7 +8428,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["amount"] = {}
         fs = FS(
             payload=payload,
@@ -8462,7 +8462,7 @@ class TestCheckThatEmptyObjectsAndArraysAreNotPublishedOrThereIsAnErrorMessage(o
                                                                              cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["europeanUnionFunding"] = {}
         fs = FS(
             payload=payload,
@@ -8530,7 +8530,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"] = ""
         fs = FS(
             payload=payload,
@@ -8560,7 +8560,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                           cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"] = ""
         fs = FS(
             payload=payload,
@@ -8596,7 +8596,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["name"] = ""
         fs = FS(
             payload=payload,
@@ -8626,7 +8626,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                         cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["identifier"]["id"] = ""
         fs = FS(
             payload=payload,
@@ -8656,7 +8656,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["identifier"]["scheme"] = ""
         fs = FS(
             payload=payload,
@@ -8685,7 +8685,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                 cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["identifier"]["legalName"] = ""
         fs = FS(
             payload=payload,
@@ -8716,7 +8716,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["identifier"]["uri"] = ""
         fs = FS(
             payload=payload,
@@ -8747,7 +8747,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                  cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["streetAddress"] = ""
         fs = FS(
             payload=payload,
@@ -8778,7 +8778,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["postalCode"] = ""
         fs = FS(
             payload=payload,
@@ -8810,7 +8810,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = ""
         fs = FS(
             payload=payload,
@@ -8840,7 +8840,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = ""
         fs = FS(
             payload=payload,
@@ -8870,7 +8870,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = ""
         fs = FS(
             payload=payload,
@@ -8901,7 +8901,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"] = ""
         fs = FS(
             payload=payload,
@@ -8933,7 +8933,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                                 cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = ""
         fs = FS(
             payload=payload,
@@ -8977,7 +8977,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = ""
         fs = FS(
             payload=payload,
@@ -9025,7 +9025,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                      cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = ""
         fs = FS(
             payload=payload,
@@ -9057,7 +9057,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["scheme"] = ""
         fs = FS(
             payload=payload,
@@ -9089,7 +9089,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["legalName"] = ""
         fs = FS(
             payload=payload,
@@ -9121,7 +9121,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = ""
         fs = FS(
             payload=payload,
@@ -9153,7 +9153,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"]["name"] = ""
         fs = FS(
             payload=payload,
@@ -9185,7 +9185,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"]["email"] = ""
         fs = FS(
             payload=payload,
@@ -9217,7 +9217,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = ""
         fs = FS(
             payload=payload,
@@ -9249,7 +9249,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = ""
         fs = FS(
             payload=payload,
@@ -9281,7 +9281,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"]["url"] = ""
         fs = FS(
             payload=payload,
@@ -9311,7 +9311,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["name"] = ""
         fs = FS(
             payload=payload,
@@ -9342,7 +9342,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["identifier"]["id"] = ""
         fs = FS(
             payload=payload,
@@ -9373,7 +9373,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                            cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["identifier"]["scheme"] = ""
         fs = FS(
             payload=payload,
@@ -9402,7 +9402,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["identifier"]["legalName"] = ""
         fs = FS(
             payload=payload,
@@ -9433,7 +9433,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["identifier"]["uri"] = ""
         fs = FS(
             payload=payload,
@@ -9464,7 +9464,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                 cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["streetAddress"] = ""
         fs = FS(
             payload=payload,
@@ -9495,7 +9495,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["postalCode"] = ""
         fs = FS(
             payload=payload,
@@ -9525,7 +9525,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["country"]["id"] = ""
         fs = FS(
             payload=payload,
@@ -9553,7 +9553,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                            cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["region"]["id"] = ""
         fs = FS(
             payload=payload,
@@ -9581,7 +9581,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                              cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = ""
         fs = FS(
             payload=payload,
@@ -9609,7 +9609,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                              cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = ""
         fs = FS(
             payload=payload,
@@ -9639,7 +9639,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                              cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["region"]["id"] = \
             payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"]
         payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = \
@@ -9687,7 +9687,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                    cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["additionalIdentifiers"][0]["id"] = ""
         fs = FS(
             payload=payload,
@@ -9717,7 +9717,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                        cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["additionalIdentifiers"][0]["scheme"] = ""
         fs = FS(
             payload=payload,
@@ -9747,7 +9747,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                            cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["additionalIdentifiers"][0]["legalName"] = ""
         fs = FS(
             payload=payload,
@@ -9777,7 +9777,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                     cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["additionalIdentifiers"][0]["uri"] = ""
         fs = FS(
             payload=payload,
@@ -9807,7 +9807,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"]["name"] = ""
         fs = FS(
             payload=payload,
@@ -9837,7 +9837,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                              cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"]["email"] = ""
         fs = FS(
             payload=payload,
@@ -9867,7 +9867,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                  cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"]["telephone"] = ""
         fs = FS(
             payload=payload,
@@ -9897,7 +9897,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                            cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"]["faxNumber"] = ""
         fs = FS(
             payload=payload,
@@ -9927,7 +9927,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                            cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"]["url"] = ""
         fs = FS(
             payload=payload,
@@ -9957,7 +9957,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                       cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["rationale"] = ""
         fs = FS(
             payload=payload,
@@ -9987,7 +9987,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                       cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["id"] = ""
         fs = FS(
             payload=payload,
@@ -10017,7 +10017,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["description"] = ""
         fs = FS(
             payload=payload,
@@ -10047,7 +10047,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                      cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["period"]["startDate"] = ""
         fs = FS(
             payload=payload,
@@ -10082,7 +10082,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                    cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["period"]["endDate"] = ""
         fs = FS(
             payload=payload,
@@ -10117,7 +10117,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                  cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["amount"]["amount"] = ""
         fs = FS(
             payload=payload,
@@ -10151,7 +10151,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                    cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["amount"]["currency"] = ""
         fs = FS(
             payload=payload,
@@ -10179,7 +10179,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["isEuropeanUnionFunded"] = ""
         fs = FS(
             payload=payload,
@@ -10215,7 +10215,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = ""
         fs = FS(
             payload=payload,
@@ -10247,7 +10247,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = ""
         fs = FS(
             payload=payload,
@@ -10278,7 +10278,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = ""
         fs = FS(
             payload=payload,
@@ -10308,7 +10308,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                            cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["project"] = ""
         fs = FS(
             payload=payload,
@@ -10338,7 +10338,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["projectID"] = ""
         fs = FS(
             payload=payload,
@@ -10368,7 +10368,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["uri"] = ""
         fs = FS(
             payload=payload,
@@ -10400,7 +10400,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["name"] = True
         fs = FS(
             payload=payload,
@@ -10430,7 +10430,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                            cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["identifier"]["id"] = True
         fs = FS(
             payload=payload,
@@ -10461,7 +10461,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["identifier"]["scheme"] = True
         fs = FS(
             payload=payload,
@@ -10493,7 +10493,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["identifier"]["legalName"] = True
         fs = FS(
             payload=payload,
@@ -10524,7 +10524,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["identifier"]["uri"] = True
         fs = FS(
             payload=payload,
@@ -10555,7 +10555,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["streetAddress"] = True
         fs = FS(
             payload=payload,
@@ -10585,7 +10585,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                          cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["postalCode"] = True
         fs = FS(
             payload=payload,
@@ -10618,7 +10618,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = True
         fs = FS(
             payload=payload,
@@ -10652,7 +10652,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = True
         fs = FS(
             payload=payload,
@@ -10686,7 +10686,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = True
         fs = FS(
             payload=payload,
@@ -10721,7 +10721,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                              cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"] = True
         fs = FS(
             payload=payload,
@@ -10756,7 +10756,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = True
         fs = FS(
             payload=payload,
@@ -10790,7 +10790,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = True
         fs = FS(
             payload=payload,
@@ -10822,7 +10822,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                     cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["scheme"] = True
         fs = FS(
             payload=payload,
@@ -10854,7 +10854,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["legalName"] = True
         fs = FS(
             payload=payload,
@@ -10886,7 +10886,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                  cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = True
         fs = FS(
             payload=payload,
@@ -10918,7 +10918,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"]["name"] = True
         fs = FS(
             payload=payload,
@@ -10950,7 +10950,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                           cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"]["email"] = True
         fs = FS(
             payload=payload,
@@ -10982,7 +10982,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = True
         fs = FS(
             payload=payload,
@@ -11014,7 +11014,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = True
         fs = FS(
             payload=payload,
@@ -11046,7 +11046,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["tender"]["procuringEntity"]["contactPoint"]["url"] = True
         fs = FS(
             payload=payload,
@@ -11078,7 +11078,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["name"] = True
         fs = FS(
             payload=payload,
@@ -11107,7 +11107,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["identifier"]["id"] = True
         fs = FS(
             payload=payload,
@@ -11138,7 +11138,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["identifier"]["scheme"] = True
         fs = FS(
             payload=payload,
@@ -11169,7 +11169,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                           cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["identifier"]["legalName"] = True
         fs = FS(
             payload=payload,
@@ -11200,7 +11200,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                    cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["identifier"]["uri"] = True
         fs = FS(
             payload=payload,
@@ -11231,7 +11231,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                            cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["streetAddress"] = True
         fs = FS(
             payload=payload,
@@ -11261,7 +11261,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["postalCode"] = True
         fs = FS(
             payload=payload,
@@ -11291,7 +11291,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["country"]["id"] = True
         fs = FS(
             payload=payload,
@@ -11323,7 +11323,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["region"]["id"] = True
         fs = FS(
             payload=payload,
@@ -11356,7 +11356,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = True
         fs = FS(
             payload=payload,
@@ -11388,7 +11388,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                             cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = True
         fs = FS(
             payload=payload,
@@ -11421,7 +11421,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                  cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = True
         fs = FS(
             payload=payload,
@@ -11453,7 +11453,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                               cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["additionalIdentifiers"][0]["id"] = True
         fs = FS(
             payload=payload,
@@ -11483,7 +11483,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["additionalIdentifiers"][0]["scheme"] = True
         fs = FS(
             payload=payload,
@@ -11514,7 +11514,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["additionalIdentifiers"][0]["legalName"] = True
         fs = FS(
             payload=payload,
@@ -11545,7 +11545,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["additionalIdentifiers"][0]["uri"] = True
         fs = FS(
             payload=payload,
@@ -11576,7 +11576,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                        cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"]["name"] = True
         fs = FS(
             payload=payload,
@@ -11607,7 +11607,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                         cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"]["email"] = True
         fs = FS(
             payload=payload,
@@ -11638,7 +11638,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                             cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"]["telephone"] = True
         fs = FS(
             payload=payload,
@@ -11668,7 +11668,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                              cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"]["faxNumber"] = True
         fs = FS(
             payload=payload,
@@ -11698,7 +11698,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                       cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["buyer"]["contactPoint"]["url"] = True
         fs = FS(
             payload=payload,
@@ -11728,7 +11728,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                  cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["rationale"] = True
         fs = FS(
             payload=payload,
@@ -11756,7 +11756,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                  cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["id"] = True
         fs = FS(
             payload=payload,
@@ -11785,7 +11785,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                           cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["description"] = True
         fs = FS(
             payload=payload,
@@ -11814,7 +11814,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                 cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["period"]["startDate"] = True
         fs = FS(
             payload=payload,
@@ -11845,7 +11845,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                               cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["period"]["endDate"] = True
         fs = FS(
             payload=payload,
@@ -11876,7 +11876,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                             cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["amount"]["amount"] = "2000.0"
         fs = FS(
             payload=payload,
@@ -11906,7 +11906,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                               cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["amount"]["currency"] = True
         fs = FS(
             payload=payload,
@@ -11936,7 +11936,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                        cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["isEuropeanUnionFunded"] = str(True)
         fs = FS(
             payload=payload,
@@ -11967,7 +11967,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = True
         fs = FS(
             payload=payload,
@@ -11999,7 +11999,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = True
         fs = FS(
             payload=payload,
@@ -12032,7 +12032,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = True
         fs = FS(
             payload=payload,
@@ -12064,7 +12064,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                       cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["project"] = True
         fs = FS(
             payload=payload,
@@ -12094,7 +12094,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["projectID"] = True
         fs = FS(
             payload=payload,
@@ -12124,7 +12124,7 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
                                                   cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
-        payload = copy.deepcopy(payload_fs_full_data_model_own_money)
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
         payload["planning"]["budget"]["uri"] = True
         fs = FS(
             payload=payload,
