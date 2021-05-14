@@ -4829,7 +4829,7 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnFullDataModel(objec
             cassandra_username=cassandra_username,
             cassandra_password=cassandra_password
         )
-        create_fs_response = fs.insert_fs_own_obligatory_ei_obligatory_without_items(
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
             cp_id=cp_id,
             ei_token=ei_token
         )
@@ -4919,7 +4919,7 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnFullDataModel(objec
             cassandra_username=cassandra_username,
             cassandra_password=cassandra_password
         )
-        create_fs_response = fs.insert_fs_own_obligatory_ei_obligatory_without_items(
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
             cp_id=cp_id,
             ei_token=ei_token
         )
@@ -5013,7 +5013,7 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnFullDataModel(objec
             cassandra_username=cassandra_username,
             cassandra_password=cassandra_password
         )
-        create_fs_response = fs.insert_fs_own_obligatory_ei_obligatory_without_items(
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
             cp_id=cp_id,
             ei_token=ei_token
         )
@@ -6198,6 +6198,5739 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnFullDataModel(objec
         assert compare_actual_result_and_expected_result(
             expected_result=payload["planning"]["rationale"],
             actual_result=fs_update["releases"][0]["planning"]["rationale"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["id"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["relationship"][0],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["relationship"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["scheme"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["identifier"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["identifier"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["uri"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["uri"]
+        )
+
+
+class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnFullDataModel(object):
+    @pytestrail.case("27566")
+    def test_send_the_request_27566_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = "new_test_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_uri_2"
+        payload["planning"]["rationale"] = "test_new_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_procuring_name"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_procuring_id"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_procuring_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_procuring_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_procuring_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_procuring_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "scheme"] = "test_new_procuring_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "legalName"] = "test_new_procuring_additional_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_procuring_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_procuring_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_procuring_address_postal"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"][
+            "id"] = "test_new_procuring_address_country_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"][
+            "id"] = "test_new_procuring_address_region_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "id"] = "test_new_procuring_address_locality_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_procuring_address_locality_scheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_procuring_address_locality_description"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_procuring_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_procuring_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_procuring_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_procuring_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_procuring_contact_url"
+        payload["buyer"]["name"] = "test_new_buyer_name"
+        payload["buyer"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["buyer"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["buyer"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["buyer"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["buyer"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "test_new_buyer_address_country_id"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "test_new_buyer_address_region_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "test_new_buyer_address_locality_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_buyer_address_locality_description"
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_additional_legalName"
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        payload["buyer"]["contactPoint"]["faxNumber"] = "test_new_buyer_contact_faxNumber"
+        payload["buyer"]["contactPoint"]["url"] = "test_new_buyer_contact_url"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_obligatory_ei_full_with_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(202),
+            actual_result=str(update_fs_response.status_code)
+        )
+
+    @pytestrail.case("27566")
+    def test_see_the_result_in_feed_point_point_27566_2(self, country, language, instance, cassandra_username,
+                                                        cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = "new_test_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_uri_2"
+        payload["planning"]["rationale"] = "test_new_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_procuring_name"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_procuring_id"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_procuring_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_procuring_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_procuring_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_procuring_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "scheme"] = "test_new_procuring_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "legalName"] = "test_new_procuring_additional_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_procuring_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_procuring_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_procuring_address_postal"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"][
+            "id"] = "test_new_procuring_address_country_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"][
+            "id"] = "test_new_procuring_address_region_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "id"] = "test_new_procuring_address_locality_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_procuring_address_locality_scheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_procuring_address_locality_description"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_procuring_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_procuring_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_procuring_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_procuring_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_procuring_contact_url"
+        payload["buyer"]["name"] = "test_new_buyer_name"
+        payload["buyer"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["buyer"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["buyer"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["buyer"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["buyer"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "test_new_buyer_address_country_id"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "test_new_buyer_address_region_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "test_new_buyer_address_locality_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_buyer_address_locality_description"
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_additional_legalName"
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        payload["buyer"]["contactPoint"]["faxNumber"] = "test_new_buyer_contact_faxNumber"
+        payload["buyer"]["contactPoint"]["url"] = "test_new_buyer_contact_url"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_obligatory_ei_full_with_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(True),
+            actual_result=str(
+                fs.check_on_that_message_is_successfully_update_fs(
+                    cp_id=cp_id,
+                    fs_id=create_fs_response[1]))
+        )
+
+    @pytestrail.case("27566")
+    def test_check_on_correctness_of_publishing_fs_27566_3(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = "new_test_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_uri_2"
+        payload["planning"]["rationale"] = "test_new_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_procuring_name"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_procuring_id"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_procuring_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_procuring_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_procuring_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_procuring_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "scheme"] = "test_new_procuring_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "legalName"] = "test_new_procuring_additional_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_procuring_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_procuring_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_procuring_address_postal"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"][
+            "id"] = "test_new_procuring_address_country_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"][
+            "id"] = "test_new_procuring_address_region_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "id"] = "test_new_procuring_address_locality_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_procuring_address_locality_scheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_procuring_address_locality_description"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_procuring_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_procuring_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_procuring_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_procuring_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_procuring_contact_url"
+        payload["buyer"]["name"] = "test_new_buyer_name"
+        payload["buyer"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["buyer"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["buyer"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["buyer"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["buyer"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "test_new_buyer_address_country_id"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "test_new_buyer_address_region_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "test_new_buyer_address_locality_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_buyer_address_locality_description"
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_additional_legalName"
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        payload["buyer"]["contactPoint"]["faxNumber"] = "test_new_buyer_contact_faxNumber"
+        payload["buyer"]["contactPoint"]["url"] = "test_new_buyer_contact_url"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_obligatory_ei_full_with_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        release_list = list()
+        for key, values in fs_update["releases"][0]["parties"][0].items():
+            if key == "roles":
+                role = fs_update["releases"][0]["parties"][0].get(key)
+                release_list.append(role[0])
+        keys_list = list()
+        for i in fs_update.keys():
+            if i == "uri":
+                keys_list.append(i)
+            if i == "version":
+                keys_list.append(i)
+            if i == "extensions":
+                keys_list.append(i)
+            if i == "publisher":
+                keys_list.append(i)
+            if i == "license":
+                keys_list.append(i)
+            if i == "publicationPolicy":
+                keys_list.append(i)
+            if i == "publishedDate":
+                keys_list.append(i)
+            if i == "releases":
+                keys_list.append(i)
+        for i in fs_update["publisher"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0].keys():
+            if i == "ocid":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "date":
+                keys_list.append(i)
+            if i == "tag":
+                keys_list.append(i)
+            if i == "initiationType":
+                keys_list.append(i)
+            if i == "tender":
+                keys_list.append(i)
+            if i == "parties":
+                keys_list.append(i)
+            if i == "planning":
+                keys_list.append(i)
+            if i == "relatedProcesses":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["tender"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "status":
+                keys_list.append(i)
+            if i == "statusDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                raise Exception("You can not update payer object")
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                raise Exception("You can not update payer object")
+        for i in fs_update["releases"][0]["parties"][0]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                raise Exception("You can not update payer object")
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                raise Exception("You can not update payer object")
+            if i == "url":
+                raise Exception("You can not update payer object")
+
+        for i in fs_update["releases"][0]["parties"][1].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                raise Exception("You can not update payer object")
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                raise Exception("You can not update payer object")
+        for i in fs_update["releases"][0]["parties"][1]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                raise Exception("You can not update payer object")
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                raise Exception("You can not update payer object")
+            if i == "url":
+                raise Exception("You can not update payer object")
+        for i in fs_update["releases"][0]["planning"].keys():
+            if i == "budget":
+                keys_list.append(i)
+            if i == "rationale":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"].keys():
+            if i == "id":
+                raise Exception("You can not update planning.budget.id")
+            if i == "description":
+                keys_list.append(i)
+            if i == "period":
+                keys_list.append(i)
+            if i == "amount":
+                keys_list.append(i)
+            if i == "europeanUnionFunding":
+                keys_list.append(i)
+            if i == "isEuropeanUnionFunded":
+                keys_list.append(i)
+            if i == "verified":
+                keys_list.append(i)
+            if i == "sourceEntity":
+                keys_list.append(i)
+            if i == "project":
+                keys_list.append(i)
+            if i == "projectID":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["period"].keys():
+            if i == "startDate":
+                keys_list.append(i)
+            if i == "endDate":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["amount"].keys():
+            if i == "amount":
+                keys_list.append(i)
+            if i == "currency":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"].keys():
+            if i == "project":
+                keys_list.append(i)
+            if i == "projectID":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["sourceEntity"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["relatedProcesses"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "relationship":
+                keys_list.append(i)
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="version",
+            actual_result=keys_list[1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="extensions",
+            actual_result=keys_list[2]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publisher",
+            actual_result=keys_list[3]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="license",
+            actual_result=keys_list[4]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publicationPolicy",
+            actual_result=keys_list[5]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publishedDate",
+            actual_result=keys_list[6]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="releases",
+            actual_result=keys_list[7]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[8]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[9]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="ocid",
+            actual_result=keys_list[10]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[11]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="date",
+            actual_result=keys_list[12]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tag",
+            actual_result=keys_list[13]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="initiationType",
+            actual_result=keys_list[14]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tender",
+            actual_result=keys_list[15]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="parties",
+            actual_result=keys_list[16]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="planning",
+            actual_result=keys_list[17])
+        assert compare_actual_result_and_expected_result(
+            expected_result="relatedProcesses",
+            actual_result=keys_list[18]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[19]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="status",
+            actual_result=keys_list[20]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="statusDetails",
+            actual_result=keys_list[21]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[22]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[23]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[24]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[25]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[26]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[27]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[28]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[29]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[30]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[31]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[32]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[33]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[34]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[35]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[36]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[37]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[38]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[39]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[40]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[41]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[42]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[43]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[44]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[45]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[47]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[48]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[49]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[50]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[51]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[52]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[53]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[54]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[55]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[56]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[57]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[58]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[59]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[60]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[61]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[62]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[63]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[64]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[65]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[66]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[67]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[68]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[69]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[70]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[71]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[72]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[73]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[74]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[75]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[76]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[77]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[78]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[79]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="budget",
+            actual_result=keys_list[80]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="rationale",
+            actual_result=keys_list[81]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[82]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="period",
+            actual_result=keys_list[83]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[84]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="europeanUnionFunding",
+            actual_result=keys_list[85]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="isEuropeanUnionFunded",
+            actual_result=keys_list[86]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="verified",
+            actual_result=keys_list[87]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="sourceEntity",
+            actual_result=keys_list[88]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="project",
+            actual_result=keys_list[89]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="projectID",
+            actual_result=keys_list[90]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[91]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="startDate",
+            actual_result=keys_list[92]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="endDate",
+            actual_result=keys_list[93]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[94]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="currency",
+            actual_result=keys_list[95]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[96]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[97]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[98]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[99]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="relationship",
+            actual_result=keys_list[100]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[101]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[102]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[103]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["uri"],
+            actual_result=fs_update["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["version"],
+            actual_result=fs_update["version"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][0],
+            actual_result=fs_update["extensions"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][1],
+            actual_result=fs_update["extensions"][1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["name"],
+            actual_result=fs_update["publisher"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["uri"],
+            actual_result=fs_update["publisher"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["license"],
+            actual_result=fs_update["license"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publicationPolicy"],
+            actual_result=fs_update["publicationPolicy"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publishedDate"],
+            actual_result=fs_update["publishedDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["ocid"],
+            actual_result=fs_update["releases"][0]["ocid"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["id"][0:46],
+            actual_result=fs_update["releases"][0]["id"][0:46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=get_human_date_in_utc_format(int(fs_update["releases"][0]["id"][46:59]))[0],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tag"][0],
+            actual_result=fs_update["releases"][0]["tag"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["initiationType"],
+            actual_result=fs_update["releases"][0]["initiationType"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["id"],
+            actual_result=fs_update["releases"][0]["tender"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["status"],
+            actual_result=fs_update["releases"][0]["tender"]["status"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["statusDetails"],
+            actual_result=fs_update["releases"][0]["tender"]["statusDetails"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["id"],
+            actual_result=parties_obj_after_update[0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["parties"][0]["contactPoint"]["name"],
+            actual_result=fs_update["releases"][0]["parties"][0]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["roles"][0],
+            actual_result=parties_obj_after_update[0]["roles"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["id"],
+            actual_result=parties_obj_after_update[1]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["name"],
+            actual_result=parties_obj_after_update[1]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[1]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["id"],
+            actual_result=parties_obj_after_update[1]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[1]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[1]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["parties"][1]["contactPoint"]["name"],
+            actual_result=fs_update["releases"][0]["parties"][1]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["roles"][0],
+            actual_result=parties_obj_after_update[1]["roles"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["description"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["startDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["startDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["endDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["endDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["amount"]["amount"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["amount"]["currency"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["amount"]["currency"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["projectName"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["projectName"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["uri"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["uri"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(fs_create["releases"][0]["planning"]["budget"]["verified"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["verified"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["id"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["name"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["project"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["project"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["projectID"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["projectID"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["uri"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["rationale"],
+            actual_result=fs_update["releases"][0]["planning"]["rationale"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["id"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["relationship"][0],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["relationship"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["scheme"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["identifier"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["identifier"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["uri"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["uri"]
+        )
+
+
+class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnObligatoryDataModel(object):
+    @pytestrail.case("27567")
+    def test_send_the_request_27567_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_obligatory_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = False
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_buyer_address_locality_scheme"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_full_with_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(202),
+            actual_result=str(update_fs_response.status_code)
+        )
+
+    @pytestrail.case("27567")
+    def test_see_the_result_in_feed_point_point_27567_2(self, country, language, instance, cassandra_username,
+                                                        cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_obligatory_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = False
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_buyer_address_locality_scheme"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_full_with_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(True),
+            actual_result=str(
+                fs.check_on_that_message_is_successfully_update_fs(
+                    cp_id=cp_id,
+                    fs_id=create_fs_response[1]))
+        )
+
+    @pytestrail.case("27567")
+    def test_check_on_correctness_of_publishing_fs_27567_3(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_obligatory_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = False
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_buyer_address_locality_scheme"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_full_with_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        release_list = list()
+        for key, values in fs_update["releases"][0]["parties"][0].items():
+            if key == "roles":
+                role = fs_update["releases"][0]["parties"][0].get(key)
+                release_list.append(role[0])
+        keys_list = list()
+        for i in fs_update.keys():
+            if i == "uri":
+                keys_list.append(i)
+            if i == "version":
+                keys_list.append(i)
+            if i == "extensions":
+                keys_list.append(i)
+            if i == "publisher":
+                keys_list.append(i)
+            if i == "license":
+                keys_list.append(i)
+            if i == "publicationPolicy":
+                keys_list.append(i)
+            if i == "publishedDate":
+                keys_list.append(i)
+            if i == "releases":
+                keys_list.append(i)
+        for i in fs_update["publisher"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0].keys():
+            if i == "ocid":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "date":
+                keys_list.append(i)
+            if i == "tag":
+                keys_list.append(i)
+            if i == "initiationType":
+                keys_list.append(i)
+            if i == "tender":
+                keys_list.append(i)
+            if i == "parties":
+                keys_list.append(i)
+            if i == "planning":
+                keys_list.append(i)
+            if i == "relatedProcesses":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["tender"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "status":
+                keys_list.append(i)
+            if i == "statusDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                keys_list.append(i)
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                keys_list.append(i)
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["additionalIdentifiers"][0].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                keys_list.append(i)
+            if i == "url":
+                keys_list.append(i)
+
+        for i in fs_update["releases"][0]["parties"][1].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                keys_list.append(i)
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                keys_list.append(i)
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["additionalIdentifiers"][0].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                keys_list.append(i)
+            if i == "url":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"].keys():
+            if i == "budget":
+                keys_list.append(i)
+            if i == "rationale":
+                raise Exception("This attribute was not published, attribute was not sent")
+        for i in fs_update["releases"][0]["planning"]["budget"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                raise Exception("This attribute was not published, attribute was not sent")
+            if i == "period":
+                keys_list.append(i)
+            if i == "amount":
+                keys_list.append(i)
+            if i == "isEuropeanUnionFunded":
+                keys_list.append(i)
+            if i == "europeanUnionFunding":
+                raise Exception("This attribute was not published, attribute was not sent")
+            if i == "verified":
+                keys_list.append(i)
+            if i == "sourceEntity":
+                keys_list.append(i)
+            if i == "project":
+                raise Exception("This attribute was not published, attribute was not sent")
+            if i == "projectID":
+                raise Exception("This attribute was not published, attribute was not sent")
+            if i == "uri":
+                raise Exception("This attribute was not published, attribute was not sent")
+        for i in fs_update["releases"][0]["planning"]["budget"]["period"].keys():
+            if i == "startDate":
+                keys_list.append(i)
+            if i == "endDate":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["amount"].keys():
+            if i == "amount":
+                keys_list.append(i)
+            if i == "currency":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["sourceEntity"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["relatedProcesses"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "relationship":
+                keys_list.append(i)
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="version",
+            actual_result=keys_list[1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="extensions",
+            actual_result=keys_list[2]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publisher",
+            actual_result=keys_list[3]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="license",
+            actual_result=keys_list[4]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publicationPolicy",
+            actual_result=keys_list[5]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publishedDate",
+            actual_result=keys_list[6]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="releases",
+            actual_result=keys_list[7]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[8]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[9]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="ocid",
+            actual_result=keys_list[10]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[11]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="date",
+            actual_result=keys_list[12]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tag",
+            actual_result=keys_list[13]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="initiationType",
+            actual_result=keys_list[14]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tender",
+            actual_result=keys_list[15]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="parties",
+            actual_result=keys_list[16]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="planning",
+            actual_result=keys_list[17])
+        assert compare_actual_result_and_expected_result(
+            expected_result="relatedProcesses",
+            actual_result=keys_list[18]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[19]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="status",
+            actual_result=keys_list[20]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="statusDetails",
+            actual_result=keys_list[21]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[22]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[23]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[24]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[25]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="additionalIdentifiers",
+            actual_result=keys_list[26]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[27]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[28]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[29]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[30]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[31]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[32]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[33]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="postalCode",
+            actual_result=keys_list[34]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[35]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[36]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[37]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[38]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[39]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[40]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[41]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[42]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[43]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[44]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[45]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[47]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[48]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[49]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[50]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[51]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[52]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[53]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[54]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[55]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[56]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[57]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="faxNumber",
+            actual_result=keys_list[58]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="url",
+            actual_result=keys_list[59]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[60]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[61]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[62]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[63]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="additionalIdentifiers",
+            actual_result=keys_list[64]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[65]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[66]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[67]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[68]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[69]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[70]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[71]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="postalCode",
+            actual_result=keys_list[72]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[73]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[74]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[75]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[76]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[77]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[78]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[79]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[80]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[81]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[82]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[83]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[84]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[85]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[86]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[87]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[88]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[89]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[90]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[91]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[92]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[93]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[94]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[95]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="faxNumber",
+            actual_result=keys_list[96]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="url",
+            actual_result=keys_list[97]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="budget",
+            actual_result=keys_list[98]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[99]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="period",
+            actual_result=keys_list[100]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[101]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="isEuropeanUnionFunded",
+            actual_result=keys_list[102]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="verified",
+            actual_result=keys_list[103]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="sourceEntity",
+            actual_result=keys_list[104]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="startDate",
+            actual_result=keys_list[105]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="endDate",
+            actual_result=keys_list[106]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[107]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="currency",
+            actual_result=keys_list[108]
+        )
+
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[109]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[110]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[111]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="relationship",
+            actual_result=keys_list[112]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[113]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[114]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[115]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["uri"],
+            actual_result=fs_update["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["version"],
+            actual_result=fs_update["version"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][0],
+            actual_result=fs_update["extensions"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][1],
+            actual_result=fs_update["extensions"][1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["name"],
+            actual_result=fs_update["publisher"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["uri"],
+            actual_result=fs_update["publisher"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["license"],
+            actual_result=fs_update["license"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publicationPolicy"],
+            actual_result=fs_update["publicationPolicy"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publishedDate"],
+            actual_result=fs_update["publishedDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["ocid"],
+            actual_result=fs_update["releases"][0]["ocid"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["id"][0:46],
+            actual_result=fs_update["releases"][0]["id"][0:46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=get_human_date_in_utc_format(int(fs_update["releases"][0]["id"][46:59]))[0],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tag"][0],
+            actual_result=fs_update["releases"][0]["tag"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["initiationType"],
+            actual_result=fs_update["releases"][0]["initiationType"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["id"],
+            actual_result=fs_update["releases"][0]["tender"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["status"],
+            actual_result=fs_update["releases"][0]["tender"]["status"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["statusDetails"],
+            actual_result=fs_update["releases"][0]["tender"]["statusDetails"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["id"],
+            actual_result=parties_obj_after_update[0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["uri"],
+            actual_result=parties_obj_after_update[0]["identifier"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["postalCode"],
+            actual_result=parties_obj_after_update[0]["address"]["postalCode"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["parties"][0]["contactPoint"]["name"],
+            actual_result=fs_update["releases"][0]["parties"][0]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["faxNumber"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["faxNumber"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["url"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["url"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["roles"][0],
+            actual_result=parties_obj_after_update[0]["roles"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["id"],
+            actual_result=parties_obj_after_update[1]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["name"],
+            actual_result=parties_obj_after_update[1]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[1]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["id"],
+            actual_result=parties_obj_after_update[1]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[1]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["uri"],
+            actual_result=parties_obj_after_update[1]["identifier"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[1]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["postalCode"],
+            actual_result=parties_obj_after_update[1]["address"]["postalCode"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["scheme"],
+            actual_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["id"],
+            actual_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["legalName"],
+            actual_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["uri"],
+            actual_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["parties"][1]["contactPoint"]["name"],
+            actual_result=fs_update["releases"][0]["parties"][1]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["faxNumber"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["faxNumber"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["url"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["url"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["roles"][0],
+            actual_result=parties_obj_after_update[1]["roles"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_update["releases"][0]["planning"]["budget"]["id"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["startDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["startDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["endDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["endDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["amount"]["amount"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["amount"]["currency"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["amount"]["currency"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(fs_create["releases"][0]["planning"]["budget"]["verified"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["verified"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["id"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["name"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["id"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["relationship"][0],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["relationship"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["scheme"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["identifier"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["identifier"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["uri"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["uri"]
+        )
+
+
+class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToOwnFullDataModel(object):
+    @pytestrail.case("27568")
+    def test_send_the_request_27568_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = "new_test_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_uri_2"
+        payload["planning"]["rationale"] = "test_new_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_procuring_name"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_procuring_id"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_procuring_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_procuring_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_procuring_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_procuring_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "scheme"] = "test_new_procuring_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "legalName"] = "test_new_procuring_additional_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_procuring_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_procuring_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_procuring_address_postal"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"][
+            "id"] = "test_new_procuring_address_country_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"][
+            "id"] = "test_new_procuring_address_region_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "id"] = "test_new_procuring_address_locality_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_procuring_address_locality_scheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_procuring_address_locality_description"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_procuring_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_procuring_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_procuring_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_procuring_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_procuring_contact_url"
+        payload["buyer"]["name"] = "test_new_buyer_name"
+        payload["buyer"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["buyer"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["buyer"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["buyer"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["buyer"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "test_new_buyer_address_country_id"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "test_new_buyer_address_region_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "test_new_buyer_address_locality_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_buyer_address_locality_description"
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_additional_legalName"
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        payload["buyer"]["contactPoint"]["faxNumber"] = "test_new_buyer_contact_faxNumber"
+        payload["buyer"]["contactPoint"]["url"] = "test_new_buyer_contact_url"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_treasury_obligatory_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(202),
+            actual_result=str(update_fs_response.status_code)
+        )
+
+    @pytestrail.case("27568")
+    def test_see_the_result_in_feed_point_point_27568_2(self, country, language, instance, cassandra_username,
+                                                        cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = "new_test_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_uri_2"
+        payload["planning"]["rationale"] = "test_new_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_procuring_name"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_procuring_id"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_procuring_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_procuring_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_procuring_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_procuring_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "scheme"] = "test_new_procuring_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "legalName"] = "test_new_procuring_additional_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_procuring_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_procuring_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_procuring_address_postal"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"][
+            "id"] = "test_new_procuring_address_country_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"][
+            "id"] = "test_new_procuring_address_region_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "id"] = "test_new_procuring_address_locality_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_procuring_address_locality_scheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_procuring_address_locality_description"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_procuring_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_procuring_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_procuring_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_procuring_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_procuring_contact_url"
+        payload["buyer"]["name"] = "test_new_buyer_name"
+        payload["buyer"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["buyer"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["buyer"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["buyer"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["buyer"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "test_new_buyer_address_country_id"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "test_new_buyer_address_region_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "test_new_buyer_address_locality_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_buyer_address_locality_description"
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_additional_legalName"
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        payload["buyer"]["contactPoint"]["faxNumber"] = "test_new_buyer_contact_faxNumber"
+        payload["buyer"]["contactPoint"]["url"] = "test_new_buyer_contact_url"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_treasury_obligatory_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(True),
+            actual_result=str(
+                fs.check_on_that_message_is_successfully_update_fs(
+                    cp_id=cp_id,
+                    fs_id=create_fs_response[1]))
+        )
+
+    @pytestrail.case("27568")
+    def test_check_on_correctness_of_publishing_fs_27568_3(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = "new_test_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_uri_2"
+        payload["planning"]["rationale"] = "test_new_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_procuring_name"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_procuring_id"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_procuring_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_procuring_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_procuring_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_procuring_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "scheme"] = "test_new_procuring_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "legalName"] = "test_new_procuring_additional_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_procuring_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_procuring_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_procuring_address_postal"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"][
+            "id"] = "test_new_procuring_address_country_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"][
+            "id"] = "test_new_procuring_address_region_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "id"] = "test_new_procuring_address_locality_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_procuring_address_locality_scheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_procuring_address_locality_description"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_procuring_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_procuring_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_procuring_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_procuring_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_procuring_contact_url"
+        payload["buyer"]["name"] = "test_new_buyer_name"
+        payload["buyer"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["buyer"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["buyer"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["buyer"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["buyer"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "test_new_buyer_address_country_id"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "test_new_buyer_address_region_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "test_new_buyer_address_locality_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_buyer_address_locality_description"
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_additional_legalName"
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        payload["buyer"]["contactPoint"]["faxNumber"] = "test_new_buyer_contact_faxNumber"
+        payload["buyer"]["contactPoint"]["url"] = "test_new_buyer_contact_url"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_treasury_obligatory_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+
+        release_list = list()
+        for key, values in fs_update["releases"][0]["parties"][0].items():
+            if key == "roles":
+                role = fs_update["releases"][0]["parties"][0].get(key)
+                release_list.append(role[0])
+        keys_list = list()
+        for i in fs_update.keys():
+            if i == "uri":
+                keys_list.append(i)
+            if i == "version":
+                keys_list.append(i)
+            if i == "extensions":
+                keys_list.append(i)
+            if i == "publisher":
+                keys_list.append(i)
+            if i == "license":
+                keys_list.append(i)
+            if i == "publicationPolicy":
+                keys_list.append(i)
+            if i == "publishedDate":
+                keys_list.append(i)
+            if i == "releases":
+                keys_list.append(i)
+        for i in fs_update["publisher"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0].keys():
+            if i == "ocid":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "date":
+                keys_list.append(i)
+            if i == "tag":
+                keys_list.append(i)
+            if i == "initiationType":
+                keys_list.append(i)
+            if i == "tender":
+                keys_list.append(i)
+            if i == "parties":
+                keys_list.append(i)
+            if i == "planning":
+                keys_list.append(i)
+            if i == "relatedProcesses":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["tender"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "status":
+                keys_list.append(i)
+            if i == "statusDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                raise Exception("You can not update payer object")
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                raise Exception("You can not update payer object")
+        for i in fs_update["releases"][0]["parties"][0]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                raise Exception("You can not update payer object")
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                raise Exception("You can not update payer object")
+            if i == "url":
+                raise Exception("You can not update payer object")
+        for i in fs_update["releases"][0]["planning"].keys():
+            if i == "budget":
+                keys_list.append(i)
+            if i == "rationale":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "period":
+                keys_list.append(i)
+            if i == "amount":
+                keys_list.append(i)
+            if i == "europeanUnionFunding":
+                keys_list.append(i)
+            if i == "isEuropeanUnionFunded":
+                keys_list.append(i)
+            if i == "verified":
+                keys_list.append(i)
+            if i == "sourceEntity":
+                keys_list.append(i)
+            if i == "project":
+                keys_list.append(i)
+            if i == "projectID":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["period"].keys():
+            if i == "startDate":
+                keys_list.append(i)
+            if i == "endDate":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["amount"].keys():
+            if i == "amount":
+                keys_list.append(i)
+            if i == "currency":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"].keys():
+            if i == "projectIdentifier":
+                keys_list.append(i)
+            if i == "projectName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["sourceEntity"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["relatedProcesses"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "relationship":
+                keys_list.append(i)
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+            if p["roles"] == ["funder"]:
+                raise Exception("You have to use treasury money model")
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+            if p["roles"] == ["funder"]:
+                raise Exception("You can not update parties array")
+
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="version",
+            actual_result=keys_list[1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="extensions",
+            actual_result=keys_list[2]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publisher",
+            actual_result=keys_list[3]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="license",
+            actual_result=keys_list[4]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publicationPolicy",
+            actual_result=keys_list[5]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publishedDate",
+            actual_result=keys_list[6]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="releases",
+            actual_result=keys_list[7]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[8]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[9]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="ocid",
+            actual_result=keys_list[10]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[11]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="date",
+            actual_result=keys_list[12]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tag",
+            actual_result=keys_list[13]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="initiationType",
+            actual_result=keys_list[14]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tender",
+            actual_result=keys_list[15]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="parties",
+            actual_result=keys_list[16]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="planning",
+            actual_result=keys_list[17])
+        assert compare_actual_result_and_expected_result(
+            expected_result="relatedProcesses",
+            actual_result=keys_list[18]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[19]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="status",
+            actual_result=keys_list[20]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="statusDetails",
+            actual_result=keys_list[21]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[22]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[23]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[24]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[25]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[26]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[27]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[28]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[29]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[30]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[31]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[32]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[33]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[34]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[35]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[36]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[37]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[38]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[39]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[40]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[41]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[42]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[43]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[44]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[45]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[47]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[48]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[49]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[50]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="budget",
+            actual_result=keys_list[51]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="rationale",
+            actual_result=keys_list[52]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[53]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[54]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="period",
+            actual_result=keys_list[55]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[56]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="europeanUnionFunding",
+            actual_result=keys_list[57]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="isEuropeanUnionFunded",
+            actual_result=keys_list[58]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="verified",
+            actual_result=keys_list[59]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="sourceEntity",
+            actual_result=keys_list[60]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="project",
+            actual_result=keys_list[61]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="projectID",
+            actual_result=keys_list[62]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[63]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="startDate",
+            actual_result=keys_list[64]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="endDate",
+            actual_result=keys_list[65]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[66]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="currency",
+            actual_result=keys_list[67]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="projectIdentifier",
+            actual_result=keys_list[68]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="projectName",
+            actual_result=keys_list[69]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[70]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[71]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[72]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[73]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="relationship",
+            actual_result=keys_list[74]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[75]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[76]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[77]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["uri"],
+            actual_result=fs_update["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["version"],
+            actual_result=fs_update["version"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][0],
+            actual_result=fs_update["extensions"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][1],
+            actual_result=fs_update["extensions"][1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["name"],
+            actual_result=fs_update["publisher"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["uri"],
+            actual_result=fs_update["publisher"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["license"],
+            actual_result=fs_update["license"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publicationPolicy"],
+            actual_result=fs_update["publicationPolicy"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publishedDate"],
+            actual_result=fs_update["publishedDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["ocid"],
+            actual_result=fs_update["releases"][0]["ocid"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["id"][0:46],
+            actual_result=fs_update["releases"][0]["id"][0:46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=get_human_date_in_utc_format(int(fs_update["releases"][0]["id"][46:59]))[0],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tag"][0],
+            actual_result=fs_update["releases"][0]["tag"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["initiationType"],
+            actual_result=fs_update["releases"][0]["initiationType"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["id"],
+            actual_result=fs_update["releases"][0]["tender"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["status"],
+            actual_result=fs_update["releases"][0]["tender"]["status"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["statusDetails"],
+            actual_result=fs_update["releases"][0]["tender"]["statusDetails"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["id"],
+            actual_result=parties_obj_after_update[0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["parties"][0]["contactPoint"]["name"],
+            actual_result=fs_update["releases"][0]["parties"][0]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["roles"][0],
+            actual_result=parties_obj_after_update[0]["roles"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["id"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["description"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["startDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["startDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["endDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["endDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["amount"]["amount"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["amount"]["currency"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["amount"]["currency"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["projectName"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["projectName"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["uri"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["uri"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(fs_create["releases"][0]["planning"]["budget"]["verified"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["verified"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["id"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["name"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["project"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["project"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["projectID"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["projectID"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["uri"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["rationale"],
+            actual_result=fs_update["releases"][0]["planning"]["rationale"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["id"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["relationship"][0],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["relationship"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["scheme"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["identifier"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["identifier"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["uri"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["uri"]
+        )
+
+class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullDataModel(object):
+    @pytestrail.case("27569")
+    def test_send_the_request_27569_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_treasury_money)
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["description"] = "test_new_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_budget_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_budget_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_budget_uri"
+        payload["planning"]["rationale"] = "test_new_planning_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_buyer_name"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_buyer_postalCode"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = "test_new_country"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = "test_new_region"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "test_new_location_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"] = "test_new_loscheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = "test_new_de"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_contact_url"
+        payload["planning"]["budget"]["id"] = "test_new_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_obligatory_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(202),
+            actual_result=str(update_fs_response.status_code)
+        )
+
+    @pytestrail.case("27569")
+    def test_see_the_result_in_feed_point_point_27569_2(self, country, language, instance, cassandra_username,
+                                                        cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_treasury_money)
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["description"] = "test_new_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_budget_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_budget_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_budget_uri"
+        payload["planning"]["rationale"] = "test_new_planning_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_buyer_name"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_buyer_postalCode"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = "test_new_country"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = "test_new_region"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "test_new_location_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"] = "test_new_loscheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = "test_new_de"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_contact_url"
+        payload["planning"]["budget"]["id"] = "test_new_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_obligatory_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(True),
+            actual_result=str(
+                fs.check_on_that_message_is_successfully_update_fs(
+                    cp_id=cp_id,
+                    fs_id=create_fs_response[1]))
+        )
+
+    @pytestrail.case("27569")
+    def test_check_on_correctness_of_publishing_fs_27569_3(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_treasury_money)
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["description"] = "test_new_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_budget_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_budget_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_budget_uri"
+        payload["planning"]["rationale"] = "test_new_planning_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_buyer_name"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_buyer_postalCode"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = "test_new_country"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = "test_new_region"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "test_new_location_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"] = "test_new_loscheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = "test_new_de"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_contact_url"
+        payload["planning"]["budget"]["id"] = "test_new_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_obligatory_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        release_list = list()
+        for key, values in fs_update["releases"][0]["parties"][0].items():
+            if key == "roles":
+                role = fs_update["releases"][0]["parties"][0].get(key)
+                release_list.append(role[0])
+        keys_list = list()
+        for i in fs_update.keys():
+            if i == "uri":
+                keys_list.append(i)
+            if i == "version":
+                keys_list.append(i)
+            if i == "extensions":
+                keys_list.append(i)
+            if i == "publisher":
+                keys_list.append(i)
+            if i == "license":
+                keys_list.append(i)
+            if i == "publicationPolicy":
+                keys_list.append(i)
+            if i == "publishedDate":
+                keys_list.append(i)
+            if i == "releases":
+                keys_list.append(i)
+        for i in fs_update["publisher"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0].keys():
+            if i == "ocid":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "date":
+                keys_list.append(i)
+            if i == "tag":
+                keys_list.append(i)
+            if i == "initiationType":
+                keys_list.append(i)
+            if i == "tender":
+                keys_list.append(i)
+            if i == "parties":
+                keys_list.append(i)
+            if i == "planning":
+                keys_list.append(i)
+            if i == "relatedProcesses":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["tender"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "status":
+                keys_list.append(i)
+            if i == "statusDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                raise Exception("You can not update payer object")
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                raise Exception("You can not update payer object")
+        for i in fs_update["releases"][0]["parties"][0]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                raise Exception("You can not update payer object")
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                raise Exception("You can not update payer object")
+            if i == "url":
+                raise Exception("You can not update payer object")
+        for i in fs_update["releases"][0]["parties"][1].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                raise Exception("You can not update payer object")
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                raise Exception("You can not update payer object")
+        for i in fs_update["releases"][0]["parties"][1]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                raise Exception("You can not update payer object")
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                raise Exception("You can not update payer object")
+            if i == "url":
+                raise Exception("You can not update payer object")
+        for i in fs_update["releases"][0]["planning"].keys():
+            if i == "budget":
+                keys_list.append(i)
+            if i == "rationale":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"].keys():
+            if i == "id":
+                raise Exception("You can not update budget.id")
+            if i == "description":
+                keys_list.append(i)
+            if i == "period":
+                keys_list.append(i)
+            if i == "amount":
+                keys_list.append(i)
+            if i == "europeanUnionFunding":
+                keys_list.append(i)
+            if i == "isEuropeanUnionFunded":
+                keys_list.append(i)
+            if i == "verified":
+                keys_list.append(i)
+            if i == "sourceEntity":
+                keys_list.append(i)
+            if i == "project":
+                keys_list.append(i)
+            if i == "projectID":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["period"].keys():
+            if i == "startDate":
+                keys_list.append(i)
+            if i == "endDate":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["amount"].keys():
+            if i == "amount":
+                keys_list.append(i)
+            if i == "currency":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"].keys():
+            if i == "projectIdentifier":
+                keys_list.append(i)
+            if i == "projectName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["sourceEntity"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["relatedProcesses"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "relationship":
+                keys_list.append(i)
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="version",
+            actual_result=keys_list[1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="extensions",
+            actual_result=keys_list[2]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publisher",
+            actual_result=keys_list[3]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="license",
+            actual_result=keys_list[4]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publicationPolicy",
+            actual_result=keys_list[5]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publishedDate",
+            actual_result=keys_list[6]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="releases",
+            actual_result=keys_list[7]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[8]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[9]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="ocid",
+            actual_result=keys_list[10]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[11]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="date",
+            actual_result=keys_list[12]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tag",
+            actual_result=keys_list[13]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="initiationType",
+            actual_result=keys_list[14]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tender",
+            actual_result=keys_list[15]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="parties",
+            actual_result=keys_list[16]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="planning",
+            actual_result=keys_list[17])
+        assert compare_actual_result_and_expected_result(
+            expected_result="relatedProcesses",
+            actual_result=keys_list[18]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[19]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="status",
+            actual_result=keys_list[20]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="statusDetails",
+            actual_result=keys_list[21]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[22]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[23]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[24]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[25]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[26]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[27]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[28]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[29]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[30]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[31]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[32]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[33]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[34]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[35]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[36]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[37]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[38]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[39]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[40]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[41]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[42]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[43]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[44]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[45]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[47]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[48]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[49]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[50]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[51]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[52]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[53]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[54]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[55]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[56]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[57]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[58]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[59]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[60]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[61]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[62]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[63]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[64]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[65]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[66]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[67]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[68]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[69]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[70]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[71]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[72]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[73]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[74]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[75]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[76]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[77]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[78]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[79]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="budget",
+            actual_result=keys_list[80]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="rationale",
+            actual_result=keys_list[81]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[82]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="period",
+            actual_result=keys_list[83]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[84]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="europeanUnionFunding",
+            actual_result=keys_list[85]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="isEuropeanUnionFunded",
+            actual_result=keys_list[86]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="verified",
+            actual_result=keys_list[87]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="sourceEntity",
+            actual_result=keys_list[88]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="project",
+            actual_result=keys_list[89]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="projectID",
+            actual_result=keys_list[90]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[91]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="startDate",
+            actual_result=keys_list[92]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="endDate",
+            actual_result=keys_list[93]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[94]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="currency",
+            actual_result=keys_list[95]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="projectIdentifier",
+            actual_result=keys_list[96]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="projectName",
+            actual_result=keys_list[97]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[98]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[99]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[100]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[101]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="relationship",
+            actual_result=keys_list[102]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[103]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[104]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[105]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["uri"],
+            actual_result=fs_update["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["version"],
+            actual_result=fs_update["version"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][0],
+            actual_result=fs_update["extensions"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][1],
+            actual_result=fs_update["extensions"][1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["name"],
+            actual_result=fs_update["publisher"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["uri"],
+            actual_result=fs_update["publisher"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["license"],
+            actual_result=fs_update["license"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publicationPolicy"],
+            actual_result=fs_update["publicationPolicy"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publishedDate"],
+            actual_result=fs_update["publishedDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["ocid"],
+            actual_result=fs_update["releases"][0]["ocid"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["id"][0:46],
+            actual_result=fs_update["releases"][0]["id"][0:46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=get_human_date_in_utc_format(int(fs_update["releases"][0]["id"][46:59]))[0],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tag"][0],
+            actual_result=fs_update["releases"][0]["tag"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["initiationType"],
+            actual_result=fs_update["releases"][0]["initiationType"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["id"],
+            actual_result=fs_update["releases"][0]["tender"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["status"],
+            actual_result=fs_update["releases"][0]["tender"]["status"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["statusDetails"],
+            actual_result=fs_update["releases"][0]["tender"]["statusDetails"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["id"],
+            actual_result=parties_obj_after_update[0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["name"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["roles"][0],
+            actual_result=parties_obj_after_update[0]["roles"][0]
+        )
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["id"],
+            actual_result=parties_obj_after_update[1]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["name"],
+            actual_result=parties_obj_after_update[1]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[1]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["id"],
+            actual_result=parties_obj_after_update[1]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[1]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[1]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["name"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["roles"][0],
+            actual_result=parties_obj_after_update[1]["roles"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["description"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["startDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["startDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["endDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["endDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["amount"]["amount"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["amount"]["currency"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["amount"]["currency"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["projectName"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["projectName"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["uri"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["uri"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(fs_create["releases"][0]["planning"]["budget"]["verified"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["verified"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["id"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["name"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["project"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["project"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["projectID"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["projectID"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["uri"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["rationale"],
+            actual_result=fs_update["releases"][0]["planning"]["rationale"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["id"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["relationship"][0],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["relationship"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["scheme"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["identifier"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["identifier"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["uri"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["uri"]
+        )
+
+
+class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToOwnObligatoryDataModel(object):
+    @pytestrail.case("27570")
+    def test_send_the_request_27570_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_obligatory_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = False
+        payload["buyer"]["name"] = "Sergey Petrovich"
+        payload["buyer"]["identifier"]["id"] = "3333333"
+        payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+        payload["buyer"]["identifier"]["legalName"] = "Nachalnik"
+        payload["buyer"]["address"]["streetAddress"] = "Kvitkova"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "test_new_value"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["uri"] = "www.test_new@value"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_telephone"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_treasury_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(202),
+            actual_result=str(update_fs_response.status_code)
+        )
+
+    @pytestrail.case("27570")
+    def test_see_the_result_in_feed_point_point_27570_2(self, country, language, instance, cassandra_username,
+                                                        cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_obligatory_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = False
+        payload["buyer"]["name"] = "Sergey Petrovich"
+        payload["buyer"]["identifier"]["id"] = "3333333"
+        payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+        payload["buyer"]["identifier"]["legalName"] = "Nachalnik"
+        payload["buyer"]["address"]["streetAddress"] = "Kvitkova"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "test_new_value"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["uri"] = "www.test_new@value"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_telephone"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_treasury_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(True),
+            actual_result=str(
+                fs.check_on_that_message_is_successfully_update_fs(
+                    cp_id=cp_id,
+                    fs_id=create_fs_response[1]))
+        )
+
+    @pytestrail.case("27570")
+    def test_check_on_correctness_of_publishing_fs_27570_3(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_obligatory_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = False
+        payload["buyer"]["name"] = "Sergey Petrovich"
+        payload["buyer"]["identifier"]["id"] = "3333333"
+        payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+        payload["buyer"]["identifier"]["legalName"] = "Nachalnik"
+        payload["buyer"]["address"]["streetAddress"] = "Kvitkova"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "test_new_value"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["uri"] = "www.test_new@value"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_telephone"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_treasury_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        release_list = list()
+        for key, values in fs_update["releases"][0]["parties"][0].items():
+            if key == "roles":
+                role = fs_update["releases"][0]["parties"][0].get(key)
+                release_list.append(role[0])
+        keys_list = list()
+        for i in fs_update.keys():
+            if i == "uri":
+                keys_list.append(i)
+            if i == "version":
+                keys_list.append(i)
+            if i == "extensions":
+                keys_list.append(i)
+            if i == "publisher":
+                keys_list.append(i)
+            if i == "license":
+                keys_list.append(i)
+            if i == "publicationPolicy":
+                keys_list.append(i)
+            if i == "publishedDate":
+                keys_list.append(i)
+            if i == "releases":
+                keys_list.append(i)
+        for i in fs_update["publisher"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0].keys():
+            if i == "ocid":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "date":
+                keys_list.append(i)
+            if i == "tag":
+                keys_list.append(i)
+            if i == "initiationType":
+                keys_list.append(i)
+            if i == "tender":
+                keys_list.append(i)
+            if i == "parties":
+                keys_list.append(i)
+            if i == "planning":
+                keys_list.append(i)
+            if i == "relatedProcesses":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["tender"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "status":
+                keys_list.append(i)
+            if i == "statusDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                keys_list.append(i)
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                keys_list.append(i)
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["additionalIdentifiers"][0].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                keys_list.append(i)
+            if i == "url":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"].keys():
+            if i == "budget":
+                keys_list.append(i)
+            if i == "rationale":
+                raise Exception("This attribute was not published, attribute was not sent")
+        for i in fs_update["releases"][0]["planning"]["budget"].keys():
+            if i == "id":
+                raise Exception("This attribute was not published, attribute was not sent")
+            if i == "description":
+                raise Exception("This attribute was not published, attribute was not sent")
+            if i == "period":
+                keys_list.append(i)
+            if i == "amount":
+                keys_list.append(i)
+            if i == "europeanUnionFunding":
+                raise Exception("This attribute was not published, attribute was not sent")
+            if i == "isEuropeanUnionFunded":
+                keys_list.append(i)
+            if i == "verified":
+                keys_list.append(i)
+            if i == "sourceEntity":
+                keys_list.append(i)
+            if i == "project":
+                raise Exception("This attribute was not published, attribute was not sent")
+            if i == "projectID":
+                raise Exception("This attribute was not published, attribute was not sent")
+            if i == "uri":
+                raise Exception("This attribute was not published, attribute was not sent")
+        for i in fs_update["releases"][0]["planning"]["budget"]["period"].keys():
+            if i == "startDate":
+                keys_list.append(i)
+            if i == "endDate":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["amount"].keys():
+            if i == "amount":
+                keys_list.append(i)
+            if i == "currency":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["sourceEntity"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["relatedProcesses"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "relationship":
+                keys_list.append(i)
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+            if p["roles"] == ["funder"]:
+                raise Exception("You can not update parties array")
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+            if p["roles"] == ["funder"]:
+                raise Exception("You can not update parties array")
+
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="version",
+            actual_result=keys_list[1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="extensions",
+            actual_result=keys_list[2]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publisher",
+            actual_result=keys_list[3]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="license",
+            actual_result=keys_list[4]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publicationPolicy",
+            actual_result=keys_list[5]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publishedDate",
+            actual_result=keys_list[6]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="releases",
+            actual_result=keys_list[7]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[8]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[9]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="ocid",
+            actual_result=keys_list[10]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[11]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="date",
+            actual_result=keys_list[12]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tag",
+            actual_result=keys_list[13]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="initiationType",
+            actual_result=keys_list[14]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tender",
+            actual_result=keys_list[15]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="parties",
+            actual_result=keys_list[16]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="planning",
+            actual_result=keys_list[17])
+        assert compare_actual_result_and_expected_result(
+            expected_result="relatedProcesses",
+            actual_result=keys_list[18]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[19]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="status",
+            actual_result=keys_list[20]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="statusDetails",
+            actual_result=keys_list[21]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[22]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[23]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[24]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[25]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="additionalIdentifiers",
+            actual_result=keys_list[26]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[27]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[28]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[29]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[30]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[31]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[32]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[33]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="postalCode",
+            actual_result=keys_list[34]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[35]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[36]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[37]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[38]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[39]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[40]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[41]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[42]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[43]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[44]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[45]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[47]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[48]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[49]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[50]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[51]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[52]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[53]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[54]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[55]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[56]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[57]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="faxNumber",
+            actual_result=keys_list[58]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="url",
+            actual_result=keys_list[59]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="budget",
+            actual_result=keys_list[60]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="period",
+            actual_result=keys_list[61]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[62]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="isEuropeanUnionFunded",
+            actual_result=keys_list[63]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="verified",
+            actual_result=keys_list[64]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="sourceEntity",
+            actual_result=keys_list[65]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="startDate",
+            actual_result=keys_list[66]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="endDate",
+            actual_result=keys_list[67]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[68]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="currency",
+            actual_result=keys_list[69]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[70]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[71]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[72]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="relationship",
+            actual_result=keys_list[73]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[74]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[75]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[76]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["uri"],
+            actual_result=fs_update["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["version"],
+            actual_result=fs_update["version"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][0],
+            actual_result=fs_update["extensions"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][1],
+            actual_result=fs_update["extensions"][1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["name"],
+            actual_result=fs_update["publisher"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["uri"],
+            actual_result=fs_update["publisher"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["license"],
+            actual_result=fs_update["license"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publicationPolicy"],
+            actual_result=fs_update["publicationPolicy"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publishedDate"],
+            actual_result=fs_update["publishedDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["ocid"],
+            actual_result=fs_update["releases"][0]["ocid"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["id"][0:46],
+            actual_result=fs_update["releases"][0]["id"][0:46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=get_human_date_in_utc_format(int(fs_update["releases"][0]["id"][46:59]))[0],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tag"][0],
+            actual_result=fs_update["releases"][0]["tag"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["initiationType"],
+            actual_result=fs_update["releases"][0]["initiationType"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["id"],
+            actual_result=fs_update["releases"][0]["tender"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["status"],
+            actual_result=fs_update["releases"][0]["tender"]["status"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["statusDetails"],
+            actual_result=fs_update["releases"][0]["tender"]["statusDetails"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["id"],
+            actual_result=parties_obj_after_update[0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["uri"],
+            actual_result=parties_obj_after_update[0]["identifier"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["postalCode"],
+            actual_result=parties_obj_after_update[0]["address"]["postalCode"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["name"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["faxNumber"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["faxNumber"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["url"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["url"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["roles"][0],
+            actual_result=parties_obj_after_update[0]["roles"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["startDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["startDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["endDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["endDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["amount"]["amount"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["amount"]["currency"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["amount"]["currency"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(fs_create["releases"][0]["planning"]["budget"]["verified"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["verified"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["id"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["name"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["name"]
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["relatedProcesses"][0]["id"],
