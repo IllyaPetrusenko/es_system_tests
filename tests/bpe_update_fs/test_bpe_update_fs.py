@@ -1819,8 +1819,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryFullDataM
             actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=fs_create["releases"][0]["planning"]["budget"]["verified"],
-            actual_result=fs_update["releases"][0]["planning"]["budget"]["verified"]
+            expected_result=str(fs_create["releases"][0]["planning"]["budget"]["verified"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["verified"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["id"],
@@ -2784,7 +2784,7 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryFul
             actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=fs_create["releases"][0]["planning"]["budget"]["verified"],
+            expected_result=str(fs_create["releases"][0]["planning"]["budget"]["verified"]),
             actual_result=fs_update["releases"][0]["planning"]["budget"]["verified"]
         )
         assert compare_actual_result_and_expected_result(
