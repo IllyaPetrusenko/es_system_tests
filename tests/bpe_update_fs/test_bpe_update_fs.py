@@ -1595,8 +1595,12 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryFullDataM
             actual_result=fs_update["version"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=fs_create["extensions"],
-            actual_result=fs_update["extensions"]
+            expected_result=fs_create["extensions"][0],
+            actual_result=fs_update["extensions"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][1],
+            actual_result=fs_update["extensions"][1]
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["publisher"]["name"],
@@ -2588,8 +2592,12 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryFul
             actual_result=fs_update["version"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=fs_create["extensions"],
-            actual_result=fs_update["extensions"]
+            expected_result=fs_create["extensions"][0],
+            actual_result=fs_update["extensions"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][1],
+            actual_result=fs_update["extensions"][1]
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["publisher"]["name"],
