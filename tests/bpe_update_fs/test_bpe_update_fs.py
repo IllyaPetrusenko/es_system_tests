@@ -1815,8 +1815,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryFullDataM
             actual_result=fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["isEuropeanUnionFunded"],
-            actual_result=fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"]
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["planning"]["budget"]["verified"],
@@ -2780,8 +2780,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryFul
             actual_result=fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=payload["planning"]["budget"]["isEuropeanUnionFunded"],
-            actual_result=fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"]
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["planning"]["budget"]["verified"],
@@ -17691,9 +17691,9 @@ class TestCheckOnImpossibilityOfUpdatingFsWithEmptyFieldsInPayload(object):
 
 
 class TestCheckOnImpossibilityOfUpdatingFsIfPlanningBudgetIdIsEmptyInPayload(object):
-    @pytestrail.case('27573')
-    def test_planning_budget_uri_as_empty_27573_55(self, country, language, instance, cassandra_username,
-                                                   cassandra_password):
+    @pytestrail.case('27584')
+    def test_planning_budget_uri_as_empty_27584_1(self, country, language, instance, cassandra_username,
+                                                  cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
         payload = copy.deepcopy(update_fs_payload_fs_full_data_model_treasury_money)
