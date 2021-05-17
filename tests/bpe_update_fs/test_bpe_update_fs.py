@@ -306,7 +306,7 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryObl
         parties_obj_before_update = list()
         for p in fs_create["releases"][0]["parties"]:
             if p["roles"] == ["payer"]:
-                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
+                parties_obj_before_update.append(p)
             if p["roles"] == ["funder"]:
                 raise Exception("Treasury money model was used -> BR-10.3.15")
 
