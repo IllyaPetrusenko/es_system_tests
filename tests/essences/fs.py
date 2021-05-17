@@ -193,11 +193,11 @@ class FS:
         return fs
 
     @allure.step('Update FS')
-    def update_fs(self, cp_id, fs_id, fs_token):
+    def update_fs(self, cp_id, fs_id, fs_token, authorization_token="Bearer"):
         fs = requests.post(
             url=self.host_of_request + "/do/fs/" + cp_id + "/" + fs_id,
             headers={
-                'Authorization': 'Bearer ' + self.access_token,
+                'Authorization': authorization_token + self.access_token,
                 'X-OPERATION-ID': self.x_operation_id,
                 'X-TOKEN': fs_token,
                 'Content-Type': 'application/json'},
@@ -1918,7 +1918,7 @@ class FS:
             },
             "planning": {
                 "budget": {
-                    "id": "IBAN - 102030",
+                    "id": self.tender_classification_id,
                     "description": "description",
                     "period": {
                         "startDate": self.planning_budget_period_start_date,
@@ -2139,7 +2139,7 @@ class FS:
             }],
             "planning": {
                 "budget": {
-                    "id": "IBAN - 102030",
+                    "id": self.tender_classification_id,
                     "description": "description",
                     "period": {
                         "startDate": self.planning_budget_period_start_date,
@@ -2319,7 +2319,7 @@ class FS:
             }],
             "planning": {
                 "budget": {
-                    "id": "IBAN - 102030",
+                    "id": self.tender_classification_id,
                     "description": "description",
                     "period": {
                         "startDate": self.planning_budget_period_start_date,
@@ -3080,7 +3080,7 @@ class FS:
             },
             "planning": {
                 "budget": {
-                    "id": "IBAN - 102030",
+                    "id": self.tender_classification_id,
                     "description": "description",
                     "period": {
                         "startDate": self.planning_budget_period_start_date,
@@ -3332,7 +3332,7 @@ class FS:
             }],
             "planning": {
                 "budget": {
-                    "id": "IBAN - 102030",
+                    "id": self.tender_classification_id,
                     "description": "description",
                     "period": {
                         "startDate": self.planning_budget_period_start_date,
@@ -3543,7 +3543,7 @@ class FS:
             }],
             "planning": {
                 "budget": {
-                    "id": "IBAN - 102030",
+                    "id": self.tender_classification_id,
                     "description": "description",
                     "period": {
                         "startDate": self.planning_budget_period_start_date,
@@ -4238,7 +4238,6 @@ class FS:
                         f"VALUES ('{cp_id}',{period[2]});").one()
         return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
 
-    # ---------------------------------------------------------------------------------------
     @allure.step('Insert FS: Own - full, based on EI: without items - obligatory')
     def insert_fs_own_full_ei_obligatory_without_items(self, cp_id, ei_token):
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
@@ -4911,7 +4910,7 @@ class FS:
             ],
             "planning": {
                 "budget": {
-                    "id": "IBAN - 102030",
+                    "id": self.tender_classification_id,
                     "description": "description",
                     "period": {
                         "startDate": self.planning_budget_period_start_date,
@@ -4981,8 +4980,6 @@ class FS:
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
         return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
-
-    # =======================================================================================
 
     @allure.step('Insert FS: Own - obligatory, based on EI: with items - full')
     def insert_fs_own_obligatory_ei_full_with_items(self, cp_id, ei_token):
@@ -6668,7 +6665,7 @@ class FS:
             ],
             "planning": {
                 "budget": {
-                    "id": "IBAN - 102030",
+                    "id": self.tender_classification_id,
                     "description": "description",
                     "period": {
                         "startDate": self.planning_budget_period_start_date,
@@ -6739,14 +6736,12 @@ class FS:
                         f"VALUES ('{cp_id}',{period[2]});").one()
         return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
 
-
     @allure.step('Receive message in feed-point')
     def get_message_from_kafka(self):
         time.sleep(1.8)
         message_from_kafka = get_message_from_kafka(self.x_operation_id)
         allure.attach(json.dumps(message_from_kafka), 'Message in feed-point')
         return message_from_kafka
-
 
     def check_on_that_message_is_successfully_create_fs(self):
         message = get_message_from_kafka(self.x_operation_id)
@@ -6765,7 +6760,6 @@ class FS:
             return True
         else:
             return False
-
 
     def check_on_that_message_is_successfully_update_fs(self, cp_id, fs_id):
         message = get_message_from_kafka(self.x_operation_id)

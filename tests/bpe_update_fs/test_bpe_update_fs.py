@@ -1,13 +1,20 @@
 import copy
+import json
 from uuid import uuid4
+
+import allure
 import requests
 from pytest_testrail.plugin import pytestrail
+
+from tests.Cassandra_session import Cassandra
+from tests.authorization import get_x_operation_id
 from tests.essences.fs import FS
 from tests.payloads.fs_payload import update_fs_payload_fs_obligatory_data_model_treasury_money, \
     update_fs_payload_fs_full_data_model_treasury_money, update_fs_payload_fs_obligatory_data_model_own_money, \
-    update_fs_payload_fs_full_data_model_own_money
+    update_fs_payload_fs_full_data_model_own_money, create_fs_payload_fs_full_data_model_treasury_money, \
+    create_fs_payload_fs_obligatory_data_model_own_money
 from useful_functions import prepared_cp_id, compare_actual_result_and_expected_result, get_new_period, \
-    get_human_date_in_utc_format
+    get_human_date_in_utc_format, get_access_token_for_platform_two, prepared_test_cp_id
 
 
 class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryObligatoryDataModel(object):
@@ -301,14 +308,14 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryObl
             if p["roles"] == ["payer"]:
                 parties_obj_before_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("Parties array must contains only one object with role payer")
+                raise Exception("Treasury money model was used -> BR-10.3.15")
 
         parties_obj_after_update = list()
         for p in fs_update["releases"][0]["parties"]:
             if p["roles"] == ["payer"]:
                 parties_obj_after_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("Parties array must contains only one object with role payer")
+                raise Exception("Can not update parties array -> BR-10.4.1")
 
         assert compare_actual_result_and_expected_result(
             expected_result="uri",
@@ -1223,14 +1230,14 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryFullDataM
             if p["roles"] == ["payer"]:
                 parties_obj_before_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("Parties array must contains only one object with role payer")
+                raise Exception("Treasury money model was used -> BR-10.3.15")
 
         parties_obj_after_update = list()
         for p in fs_update["releases"][0]["parties"]:
             if p["roles"] == ["payer"]:
                 parties_obj_after_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("Parties array must contains only one object with role payer")
+                raise Exception("You can not update parties array -> BR-10.4.1")
 
         assert compare_actual_result_and_expected_result(
             expected_result="uri",
@@ -2119,7 +2126,7 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryFul
             if i == "address":
                 keys_list.append(i)
             if i == "additionalIdentifiers":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "contactPoint":
                 keys_list.append(i)
             if i == "roles":
@@ -2132,12 +2139,12 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryFul
             if i == "legalName":
                 keys_list.append(i)
             if i == "uri":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["parties"][0]["address"].keys():
             if i == "streetAddress":
                 keys_list.append(i)
             if i == "postalCode":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "addressDetails":
                 keys_list.append(i)
         for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
@@ -2182,9 +2189,9 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryFul
             if i == "telephone":
                 keys_list.append(i)
             if i == "faxNumber":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "url":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["planning"].keys():
             if i == "budget":
                 keys_list.append(i)
@@ -2251,14 +2258,14 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryFul
             if p["roles"] == ["payer"]:
                 parties_obj_before_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("Parties array must contains only one object with role payer")
+                raise Exception("Treasury money model was used -> BR-10.3.15")
 
         parties_obj_after_update = list()
         for p in fs_update["releases"][0]["parties"]:
             if p["roles"] == ["payer"]:
                 parties_obj_after_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("Parties array must contains only one object with role payer")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         assert compare_actual_result_and_expected_result(
             expected_result="uri",
             actual_result=keys_list[0]
@@ -3065,18 +3072,18 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryObligator
             if i == "budget":
                 keys_list.append(i)
             if i == "rationale":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
         for i in fs_update["releases"][0]["planning"]["budget"].keys():
             if i == "id":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "description":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "period":
                 keys_list.append(i)
             if i == "amount":
                 keys_list.append(i)
             if i == "europeanUnionFunding":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "isEuropeanUnionFunded":
                 keys_list.append(i)
             if i == "verified":
@@ -3084,11 +3091,11 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryObligator
             if i == "sourceEntity":
                 keys_list.append(i)
             if i == "project":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "projectID":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "uri":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
         for i in fs_update["releases"][0]["planning"]["budget"]["period"].keys():
             if i == "startDate":
                 keys_list.append(i)
@@ -3120,14 +3127,14 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryObligator
             if p["roles"] == ["payer"]:
                 parties_obj_before_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("Parties array must contains only one object with role payer")
+                raise Exception("Treasury money model was used -> BR-10.3.15")
 
         parties_obj_after_update = list()
         for p in fs_update["releases"][0]["parties"]:
             if p["roles"] == ["payer"]:
                 parties_obj_after_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("Parties array must contains only one object with role payer")
+                raise Exception("You can not update parties array -> BR-10.4.1")
 
         assert compare_actual_result_and_expected_result(
             expected_result="uri",
@@ -6560,7 +6567,7 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnFullDataModel
             if i == "address":
                 keys_list.append(i)
             if i == "additionalIdentifiers":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "contactPoint":
                 keys_list.append(i)
             if i == "roles":
@@ -6573,12 +6580,12 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnFullDataModel
             if i == "legalName":
                 keys_list.append(i)
             if i == "uri":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["parties"][0]["address"].keys():
             if i == "streetAddress":
                 keys_list.append(i)
             if i == "postalCode":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "addressDetails":
                 keys_list.append(i)
         for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
@@ -6623,9 +6630,9 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnFullDataModel
             if i == "telephone":
                 keys_list.append(i)
             if i == "faxNumber":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "url":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
 
         for i in fs_update["releases"][0]["parties"][1].keys():
             if i == "id":
@@ -6637,7 +6644,7 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnFullDataModel
             if i == "address":
                 keys_list.append(i)
             if i == "additionalIdentifiers":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "contactPoint":
                 keys_list.append(i)
             if i == "roles":
@@ -6650,12 +6657,12 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnFullDataModel
             if i == "legalName":
                 keys_list.append(i)
             if i == "uri":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["parties"][1]["address"].keys():
             if i == "streetAddress":
                 keys_list.append(i)
             if i == "postalCode":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "addressDetails":
                 keys_list.append(i)
         for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"].keys():
@@ -6700,9 +6707,9 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnFullDataModel
             if i == "telephone":
                 keys_list.append(i)
             if i == "faxNumber":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "url":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["planning"].keys():
             if i == "budget":
                 keys_list.append(i)
@@ -6710,7 +6717,7 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnFullDataModel
                 keys_list.append(i)
         for i in fs_update["releases"][0]["planning"]["budget"].keys():
             if i == "id":
-                raise Exception("You can not update planning.budget.id")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "description":
                 keys_list.append(i)
             if i == "period":
@@ -7876,12 +7883,12 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnObligatoryDataModel
             if i == "budget":
                 keys_list.append(i)
             if i == "rationale":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
         for i in fs_update["releases"][0]["planning"]["budget"].keys():
             if i == "id":
                 keys_list.append(i)
             if i == "description":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "period":
                 keys_list.append(i)
             if i == "amount":
@@ -7889,17 +7896,17 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnObligatoryDataModel
             if i == "isEuropeanUnionFunded":
                 keys_list.append(i)
             if i == "europeanUnionFunding":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "verified":
                 keys_list.append(i)
             if i == "sourceEntity":
                 keys_list.append(i)
             if i == "project":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "projectID":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "uri":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
         for i in fs_update["releases"][0]["planning"]["budget"]["period"].keys():
             if i == "startDate":
                 keys_list.append(i)
@@ -9112,7 +9119,7 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToOwnFullData
             if i == "address":
                 keys_list.append(i)
             if i == "additionalIdentifiers":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "contactPoint":
                 keys_list.append(i)
             if i == "roles":
@@ -9125,12 +9132,12 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToOwnFullData
             if i == "legalName":
                 keys_list.append(i)
             if i == "uri":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["parties"][0]["address"].keys():
             if i == "streetAddress":
                 keys_list.append(i)
             if i == "postalCode":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "addressDetails":
                 keys_list.append(i)
         for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
@@ -9175,9 +9182,9 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToOwnFullData
             if i == "telephone":
                 keys_list.append(i)
             if i == "faxNumber":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "url":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["planning"].keys():
             if i == "budget":
                 keys_list.append(i)
@@ -9244,14 +9251,14 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToOwnFullData
             if p["roles"] == ["payer"]:
                 parties_obj_before_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("You have to use treasury money model")
+                raise Exception("Treasury money model was used -> BR-10.3.15")
 
         parties_obj_after_update = list()
         for p in fs_update["releases"][0]["parties"]:
             if p["roles"] == ["payer"]:
                 parties_obj_after_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("You can not update parties array")
+                raise Exception("You can not update parties array -> BR-10.4.1")
 
         assert compare_actual_result_and_expected_result(
             expected_result="uri",
@@ -9815,6 +9822,7 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToOwnFullData
             actual_result=fs_update["releases"][0]["relatedProcesses"][0]["uri"]
         )
 
+
 class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullDataModel(object):
     @pytestrail.case("27569")
     def test_send_the_request_27569_1(self, country, language, instance, cassandra_username,
@@ -10076,7 +10084,7 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullData
             if i == "address":
                 keys_list.append(i)
             if i == "additionalIdentifiers":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "contactPoint":
                 keys_list.append(i)
             if i == "roles":
@@ -10089,12 +10097,12 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullData
             if i == "legalName":
                 keys_list.append(i)
             if i == "uri":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["parties"][0]["address"].keys():
             if i == "streetAddress":
                 keys_list.append(i)
             if i == "postalCode":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "addressDetails":
                 keys_list.append(i)
         for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
@@ -10139,9 +10147,9 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullData
             if i == "telephone":
                 keys_list.append(i)
             if i == "faxNumber":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "url":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["parties"][1].keys():
             if i == "id":
                 keys_list.append(i)
@@ -10152,7 +10160,7 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullData
             if i == "address":
                 keys_list.append(i)
             if i == "additionalIdentifiers":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "contactPoint":
                 keys_list.append(i)
             if i == "roles":
@@ -10165,12 +10173,12 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullData
             if i == "legalName":
                 keys_list.append(i)
             if i == "uri":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["parties"][1]["address"].keys():
             if i == "streetAddress":
                 keys_list.append(i)
             if i == "postalCode":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "addressDetails":
                 keys_list.append(i)
         for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"].keys():
@@ -10215,9 +10223,9 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullData
             if i == "telephone":
                 keys_list.append(i)
             if i == "faxNumber":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
             if i == "url":
-                raise Exception("You can not update payer object")
+                raise Exception("You can not update parties array -> BR-10.4.1")
         for i in fs_update["releases"][0]["planning"].keys():
             if i == "budget":
                 keys_list.append(i)
@@ -10225,7 +10233,7 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullData
                 keys_list.append(i)
         for i in fs_update["releases"][0]["planning"]["budget"].keys():
             if i == "id":
-                raise Exception("You can not update budget.id")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "description":
                 keys_list.append(i)
             if i == "period":
@@ -11338,18 +11346,18 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToOwnObligatoryData
             if i == "budget":
                 keys_list.append(i)
             if i == "rationale":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
         for i in fs_update["releases"][0]["planning"]["budget"].keys():
             if i == "id":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "description":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "period":
                 keys_list.append(i)
             if i == "amount":
                 keys_list.append(i)
             if i == "europeanUnionFunding":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "isEuropeanUnionFunded":
                 keys_list.append(i)
             if i == "verified":
@@ -11357,11 +11365,11 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToOwnObligatoryData
             if i == "sourceEntity":
                 keys_list.append(i)
             if i == "project":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "projectID":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
             if i == "uri":
-                raise Exception("This attribute was not published, attribute was not sent")
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
         for i in fs_update["releases"][0]["planning"]["budget"]["period"].keys():
             if i == "startDate":
                 keys_list.append(i)
@@ -11393,14 +11401,14 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToOwnObligatoryData
             if p["roles"] == ["payer"]:
                 parties_obj_before_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("You can not update parties array")
+                raise Exception("Treasury money model was used -> BR-10.3.15")
 
         parties_obj_after_update = list()
         for p in fs_update["releases"][0]["parties"]:
             if p["roles"] == ["payer"]:
                 parties_obj_after_update.append(p)
             if p["roles"] == ["funder"]:
-                raise Exception("You can not update parties array")
+                raise Exception("You can not update parties array -> BR-10.4.1")
 
         assert compare_actual_result_and_expected_result(
             expected_result="uri",
@@ -11931,6 +11939,8317 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToOwnObligatoryData
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["name"],
             actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["id"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["relationship"][0],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["relationship"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["scheme"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["identifier"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["identifier"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["uri"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["uri"]
+        )
+
+
+class TestCheckOnPossibilityOfUpdatingTheOneOfTwoFsBasedOnAnOneEi(object):
+    @pytestrail.case("27571")
+    def test_send_the_request_27571_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
+
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_obligatory_data_model(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.create_fs(cp_id=cp_id)
+        message_from_kafka_first = fs.get_message_from_kafka()
+        payload = copy.deepcopy(create_fs_payload_fs_obligatory_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.create_fs(cp_id=cp_id)
+        payload = copy.deepcopy(update_fs_payload_fs_obligatory_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = False
+        payload["buyer"]["name"] = "Sergey Petrovich"
+        payload["buyer"]["identifier"]["id"] = "3333333"
+        payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+        payload["buyer"]["identifier"]["legalName"] = "Nachalnik"
+        payload["buyer"]["address"]["streetAddress"] = "Kvitkova"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "test_new_value"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["uri"] = "www.test_new@value"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_telephone"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=message_from_kafka_first["data"]["outcomes"]["fs"][0]["id"],
+            fs_token=str(message_from_kafka_first["data"]["outcomes"]["fs"][0]["X-TOKEN"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(202),
+            actual_result=str(update_fs_response.status_code)
+        )
+
+    @pytestrail.case("27571")
+    def test_see_the_result_in_feed_point_point_27571_2(self, country, language, instance, cassandra_username,
+                                                        cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
+
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_obligatory_data_model(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.create_fs(cp_id=cp_id)
+        message_from_kafka_first = fs.get_message_from_kafka()
+        payload = copy.deepcopy(create_fs_payload_fs_obligatory_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.create_fs(cp_id=cp_id)
+        payload = copy.deepcopy(update_fs_payload_fs_obligatory_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = False
+        payload["buyer"]["name"] = "Sergey Petrovich"
+        payload["buyer"]["identifier"]["id"] = "3333333"
+        payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+        payload["buyer"]["identifier"]["legalName"] = "Nachalnik"
+        payload["buyer"]["address"]["streetAddress"] = "Kvitkova"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "test_new_value"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["uri"] = "www.test_new@value"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_telephone"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=message_from_kafka_first["data"]["outcomes"]["fs"][0]["id"],
+            fs_token=str(message_from_kafka_first["data"]["outcomes"]["fs"][0]["X-TOKEN"])
+        )
+        fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(True),
+            actual_result=str(
+                fs.check_on_that_message_is_successfully_update_fs(
+                    cp_id=cp_id,
+                    fs_id=message_from_kafka_first["data"]["outcomes"]["fs"][0]["id"]))
+        )
+
+    @pytestrail.case("27571")
+    def test_check_on_correctness_of_publishing_fs_27571_3(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_treasury_money)
+
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.insert_ei_obligatory_data_model(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.create_fs(cp_id=cp_id)
+        message_from_kafka_first = fs.get_message_from_kafka()
+        fs_id = message_from_kafka_first["data"]["outcomes"]["fs"][0]["id"]
+        url_create = message_from_kafka_first["data"]["url"] + "/" + fs_id
+        fs_create = requests.get(url=url_create).json()
+        payload = copy.deepcopy(create_fs_payload_fs_obligatory_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.create_fs(cp_id=cp_id)
+        payload = copy.deepcopy(update_fs_payload_fs_obligatory_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = False
+        payload["buyer"]["name"] = "Sergey Petrovich"
+        payload["buyer"]["identifier"]["id"] = "3333333"
+        payload["buyer"]["identifier"]["scheme"] = "MD-IDNO"
+        payload["buyer"]["identifier"]["legalName"] = "Nachalnik"
+        payload["buyer"]["address"]["streetAddress"] = "Kvitkova"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "MD"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "1700000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "1701000"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = "test_new_value"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["uri"] = "www.test_new@value"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_telephone"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=fs_id,
+            fs_token=str(message_from_kafka_first["data"]["outcomes"]["fs"][0]["X-TOKEN"])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        release_list = list()
+        for key, values in fs_update["releases"][0]["parties"][0].items():
+            if key == "roles":
+                role = fs_update["releases"][0]["parties"][0].get(key)
+                release_list.append(role[0])
+        keys_list = list()
+        for i in fs_update.keys():
+            if i == "uri":
+                keys_list.append(i)
+            if i == "version":
+                keys_list.append(i)
+            if i == "extensions":
+                keys_list.append(i)
+            if i == "publisher":
+                keys_list.append(i)
+            if i == "license":
+                keys_list.append(i)
+            if i == "publicationPolicy":
+                keys_list.append(i)
+            if i == "publishedDate":
+                keys_list.append(i)
+            if i == "releases":
+                keys_list.append(i)
+        for i in fs_update["publisher"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0].keys():
+            if i == "ocid":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "date":
+                keys_list.append(i)
+            if i == "tag":
+                keys_list.append(i)
+            if i == "initiationType":
+                keys_list.append(i)
+            if i == "tender":
+                keys_list.append(i)
+            if i == "parties":
+                keys_list.append(i)
+            if i == "planning":
+                keys_list.append(i)
+            if i == "relatedProcesses":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["tender"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "status":
+                keys_list.append(i)
+            if i == "statusDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                keys_list.append(i)
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                keys_list.append(i)
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["additionalIdentifiers"][0].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                keys_list.append(i)
+            if i == "url":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"].keys():
+            if i == "budget":
+                keys_list.append(i)
+            if i == "rationale":
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
+        for i in fs_update["releases"][0]["planning"]["budget"].keys():
+            if i == "id":
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
+            if i == "description":
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
+            if i == "period":
+                keys_list.append(i)
+            if i == "amount":
+                keys_list.append(i)
+            if i == "europeanUnionFunding":
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
+            if i == "isEuropeanUnionFunded":
+                keys_list.append(i)
+            if i == "verified":
+                keys_list.append(i)
+            if i == "sourceEntity":
+                keys_list.append(i)
+            if i == "project":
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
+            if i == "projectID":
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
+            if i == "uri":
+                raise Exception("This attribute was not published, attribute was not sent -> BR-10.4.1")
+        for i in fs_update["releases"][0]["planning"]["budget"]["period"].keys():
+            if i == "startDate":
+                keys_list.append(i)
+            if i == "endDate":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["amount"].keys():
+            if i == "amount":
+                keys_list.append(i)
+            if i == "currency":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["sourceEntity"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["relatedProcesses"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "relationship":
+                keys_list.append(i)
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+            if p["roles"] == ["funder"]:
+                raise Exception("Treasury money model was used -> BR-10.3.15")
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+            if p["roles"] == ["funder"]:
+                raise Exception("You can not update parties array -> BR-10.4.1")
+
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="version",
+            actual_result=keys_list[1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="extensions",
+            actual_result=keys_list[2]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publisher",
+            actual_result=keys_list[3]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="license",
+            actual_result=keys_list[4]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publicationPolicy",
+            actual_result=keys_list[5]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publishedDate",
+            actual_result=keys_list[6]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="releases",
+            actual_result=keys_list[7]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[8]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[9]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="ocid",
+            actual_result=keys_list[10]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[11]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="date",
+            actual_result=keys_list[12]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tag",
+            actual_result=keys_list[13]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="initiationType",
+            actual_result=keys_list[14]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tender",
+            actual_result=keys_list[15]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="parties",
+            actual_result=keys_list[16]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="planning",
+            actual_result=keys_list[17])
+        assert compare_actual_result_and_expected_result(
+            expected_result="relatedProcesses",
+            actual_result=keys_list[18]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[19]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="status",
+            actual_result=keys_list[20]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="statusDetails",
+            actual_result=keys_list[21]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[22]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[23]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[24]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[25]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="additionalIdentifiers",
+            actual_result=keys_list[26]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[27]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[28]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[29]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[30]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[31]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[32]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[33]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="postalCode",
+            actual_result=keys_list[34]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[35]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[36]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[37]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[38]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[39]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[40]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[41]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[42]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[43]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[44]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[45]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[47]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[48]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[49]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[50]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[51]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[52]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[53]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[54]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[55]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[56]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[57]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="faxNumber",
+            actual_result=keys_list[58]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="url",
+            actual_result=keys_list[59]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="budget",
+            actual_result=keys_list[60]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="period",
+            actual_result=keys_list[61]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[62]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="isEuropeanUnionFunded",
+            actual_result=keys_list[63]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="verified",
+            actual_result=keys_list[64]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="sourceEntity",
+            actual_result=keys_list[65]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="startDate",
+            actual_result=keys_list[66]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="endDate",
+            actual_result=keys_list[67]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[68]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="currency",
+            actual_result=keys_list[69]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[70]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[71]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[72]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="relationship",
+            actual_result=keys_list[73]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[74]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[75]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[76]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["uri"],
+            actual_result=fs_update["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["version"],
+            actual_result=fs_update["version"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][0],
+            actual_result=fs_update["extensions"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][1],
+            actual_result=fs_update["extensions"][1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["name"],
+            actual_result=fs_update["publisher"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["uri"],
+            actual_result=fs_update["publisher"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["license"],
+            actual_result=fs_update["license"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publicationPolicy"],
+            actual_result=fs_update["publicationPolicy"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publishedDate"],
+            actual_result=fs_update["publishedDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["ocid"],
+            actual_result=fs_update["releases"][0]["ocid"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["id"][0:46],
+            actual_result=fs_update["releases"][0]["id"][0:46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=get_human_date_in_utc_format(int(fs_update["releases"][0]["id"][46:59]))[0],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tag"][0],
+            actual_result=fs_update["releases"][0]["tag"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["initiationType"],
+            actual_result=fs_update["releases"][0]["initiationType"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["id"],
+            actual_result=fs_update["releases"][0]["tender"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["status"],
+            actual_result=fs_update["releases"][0]["tender"]["status"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["statusDetails"],
+            actual_result=fs_update["releases"][0]["tender"]["statusDetails"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["id"],
+            actual_result=parties_obj_after_update[0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["uri"],
+            actual_result=parties_obj_after_update[0]["identifier"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["postalCode"],
+            actual_result=parties_obj_after_update[0]["address"]["postalCode"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["name"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["faxNumber"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["faxNumber"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["url"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["url"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["roles"][0],
+            actual_result=parties_obj_after_update[0]["roles"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["startDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["startDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["endDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["endDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["amount"]["amount"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["amount"]["currency"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["amount"]["currency"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(fs_create["releases"][0]["planning"]["budget"]["verified"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["verified"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["id"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["name"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["id"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["relationship"][0],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["relationship"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["scheme"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["identifier"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["identifier"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["relatedProcesses"][0]["uri"],
+            actual_result=fs_update["releases"][0]["relatedProcesses"][0]["uri"]
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsWithInvalidDatatypeInPayload(object):
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_name_as_bool_27572_1(self, country, language, instance, cassandra_username,
+                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["name"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_identifier_id_as_bool_27572_2(self, country, language, instance,
+                                                                   cassandra_username,
+                                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_identifier_scheme_as_bool_27572_3(self, country, language, instance,
+                                                                       cassandra_username,
+                                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_identifier_legal_name_as_bool_27572_4(self, country, language, instance,
+                                                                           cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_identifier_uri_as_bool_27572_5(self, country, language, instance,
+                                                                    cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["uri"],
+            actual_result=parties_obj_after_update[0]["identifier"]["uri"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_additional_identifiers_scheme_as_bool_27572_6(self, country, language, instance,
+                                                                                   cassandra_username,
+                                                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["scheme"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_additional_identifiers_id_as_bool_27572_7(self, country, language, instance,
+                                                                               cassandra_username,
+                                                                               cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["id"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_additional_identifiers_legal_name_as_bool_27572_8(self, country, language,
+                                                                                       instance,
+                                                                                       cassandra_username,
+                                                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["legalName"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["legalName"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_additional_identifiers_uri_as_bool_27572_9(self, country, language, instance,
+                                                                                cassandra_username,
+                                                                                cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["uri"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_address_street_address_as_bool_27572_10(self, country, language, instance,
+                                                                             cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_address_postal_code_as_bool_27572_11(self, country, language, instance,
+                                                                          cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["postalCode"],
+            actual_result=parties_obj_after_update[0]["address"]["postalCode"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_address_address_details_country_id_as_bool_27572_12(self, country, language,
+                                                                                         instance, cassandra_username,
+                                                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_address_address_details_region_id_as_bool_27572_13(self, country, language,
+                                                                                        instance, cassandra_username,
+                                                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_address_address_details_locality_id_as_bool_27572_14(self, country, language,
+                                                                                          instance, cassandra_username,
+                                                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_address_address_details_locality_scheme_as_bool_27572_15(self, country, language,
+                                                                                              instance,
+                                                                                              cassandra_username,
+                                                                                              cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_address_address_details_locality_description_as_bool_27572_16(self, country,
+                                                                                                   language,
+                                                                                                   instance,
+                                                                                                   cassandra_username,
+                                                                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_contact_point_name_as_bool_27572_17(self, country, language, instance,
+                                                                         cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["name"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["name"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_contact_point_email_as_bool_27572_18(self, country, language, instance,
+                                                                          cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_contact_point_telephone_as_bool_27572_19(self, country, language, instance,
+                                                                              cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_contact_point_fax_number_as_bool_27572_20(self, country, language, instance,
+                                                                               cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["faxNumber"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["faxNumber"]
+        )
+
+    @pytestrail.case('27572')
+    def test_tender_procuring_entity_contact_point_url_as_bool_27572_21(self, country, language, instance,
+                                                                        cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["url"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["url"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_name_as_bool_27572_22(self, country, language, instance, cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["name"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_identifier_id_as_bool_27572_23(self, country, language, instance, cassandra_username,
+                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_identifier_scheme_as_bool_27572_24(self, country, language, instance, cassandra_username,
+                                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_identifier_legal_name_as_bool_27572_25(self, country, language, instance, cassandra_username,
+                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["legalName"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_identifier_uri_as_bool_27572_26(self, country, language, instance,
+                                                   cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["uri"],
+            actual_result=parties_obj_after_update[0]["identifier"]["uri"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_additional_identifiers_scheme_as_bool_27572_27(self, country, language, instance,
+                                                                  cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["scheme"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_additional_identifiers_id_as_bool_27572_28(self, country, language, instance,
+                                                              cassandra_username,
+                                                              cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["id"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_additional_identifiers_legal_name_as_bool_27572_29(self, country, language, instance,
+                                                                      cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["legalName"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_additional_identifiers_uri_as_bool_27572_30(self, country, language, instance,
+                                                               cassandra_username,
+                                                               cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["uri"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_address_street_address_as_bool_27572_31(self, country, language, instance,
+                                                           cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["streetAddress"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_address_postal_code_as_bool_27572_32(self, country, language, instance,
+                                                        cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["postalCode"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["postalCode"],
+            actual_result=parties_obj_after_update[0]["address"]["postalCode"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_address_address_details_country_id_as_bool_27572_33(self, country, language, instance,
+                                                                       cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_address_address_details_region_id_as_bool_27572_34(self, country, language, instance,
+                                                                      cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_address_address_details_locality_id_as_bool_27572_35(self, country, language,
+                                                                        instance, cassandra_username,
+                                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_address_address_details_locality_scheme_as_bool_27572_36(self, country, language,
+                                                                            instance,
+                                                                            cassandra_username,
+                                                                            cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_address_address_details_locality_description_as_bool_27572_37(self, country,
+                                                                                 language,
+                                                                                 instance,
+                                                                                 cassandra_username,
+                                                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_contact_point_name_as_bool_27572_38(self, country, language, instance,
+                                                       cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["name"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["name"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["name"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_contact_point_email_as_bool_27572_39(self, country, language, instance,
+                                                        cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["email"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_contact_point_telephone_as_bool_27572_40(self, country, language, instance,
+                                                            cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["telephone"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_contact_point_fax_number_as_bool_27572_41(self, country, language, instance,
+                                                             cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["faxNumber"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["faxNumber"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["faxNumber"]
+        )
+
+    @pytestrail.case('27572')
+    def test_buyer_contact_point_url_as_bool_27572_42(self, country, language, instance,
+                                                      cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["url"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["url"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["url"]
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_id_as_bool_27572_43(self, country, language, instance, cassandra_username,
+                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: id (through "
+                                                 "reference chain: com.procurement.budget.model.dto.fs.request."
+                                                 "FsUpdate[\"planning\"]->com.procurement.budget.model.dto.fs."
+                                                 "request.PlanningFsUpdate[\"budget\"]->com.procurement.budget."
+                                                 "model.dto.fs.request.BudgetFsUpdate[\"id\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_description_as_bool_27572_44(self, country, language, instance, cassandra_username,
+                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["description"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: description "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsUpdate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsUpdate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsUpdate[\"description\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_period_start_date_as_bool_27572_45(self, country, language, instance, cassandra_username,
+                                                                cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: Text 'true' "
+                                                 "could not be parsed at index 0 (through reference chain: "
+                                                 "com.procurement.budget.model.dto.fs.request.FsUpdate"
+                                                 "[\"planning\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "PlanningFsUpdate[\"budget\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.BudgetFsUpdate[\"period\"]->com.procurement."
+                                                 "budget.model.dto.ocds.Period[\"startDate\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_period_end_date_as_bool_27572_46(self, country, language, instance, cassandra_username,
+                                                              cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["period"]["endDate"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: Text "
+                                                 "'true' could not be parsed at index 0 (through reference chain: "
+                                                 "com.procurement.budget.model.dto.fs.request.FsUpdate[\"planning\"]"
+                                                 "->com.procurement.budget.model.dto.fs.request.PlanningFsUpdate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "BudgetFsUpdate[\"period\"]->com.procurement.budget.model.dto."
+                                                 "ocds.Period[\"endDate\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_amount_amount_as_bool_27572_47(self, country, language, instance, cassandra_username,
+                                                            cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["amount"]["amount"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.exc.MismatchedInputException: "
+                                                 "Cannot deserialize instance of `java.math.BigDecimal` out of "
+                                                 "VALUE_TRUE token\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsUpdate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsUpdate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsUpdate[\"amount\"]->com."
+                                                 "procurement.budget.model.dto.ocds.Value[\"amount\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_amount_amount_as_bool_27572_48(self, country, language, instance, cassandra_username,
+                                                            cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["amount"]["currency"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: currency "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsUpdate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsUpdate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsUpdate[\"amount\"]->com."
+                                                 "procurement.budget.model.dto.ocds.Value[\"currency\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_is_european_union_funded_as_bool_27572_49(self, country, language, instance,
+                                                                       cassandra_username,
+                                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = str(True)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "isEuropeanUnionFunded (through reference chain: com.procurement."
+                                                 "budget.model.dto.fs.request.FsUpdate[\"planning\"]->com."
+                                                 "procurement.budget.model.dto.fs.request.PlanningFsUpdate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "BudgetFsUpdate[\"isEuropeanUnionFunded\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_european_union_funding_project_name_as_bool_27572_50(self, country, language, instance,
+                                                                                  cassandra_username,
+                                                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "projectName (through reference chain: com.procurement.budget."
+                                                 "model.dto.fs.request.FsUpdate[\"planning\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.PlanningFsUpdate[\"budget\"]->com."
+                                                 "procurement.budget.model.dto.fs.request.BudgetFsUpdate"
+                                                 "[\"europeanUnionFunding\"]->com.procurement.budget.model."
+                                                 "dto.ocds.EuropeanUnionFunding[\"projectName\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_european_union_funding_project_identifier_as_bool_27572_51(self, country, language,
+                                                                                        instance,
+                                                                                        cassandra_username,
+                                                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "projectIdentifier (through reference chain: com.procurement."
+                                                 "budget.model.dto.fs.request.FsUpdate[\"planning\"]->com."
+                                                 "procurement.budget.model.dto.fs.request.PlanningFsUpdate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "BudgetFsUpdate[\"europeanUnionFunding\"]->com.procurement."
+                                                 "budget.model.dto.ocds.EuropeanUnionFunding"
+                                                 "[\"projectIdentifier\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_european_union_funding_uri_as_bool_27572_52(self, country, language, instance,
+                                                                         cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: uri "
+                                                 "(through reference chain: com.procurement.budget.model.dto."
+                                                 "fs.request.FsUpdate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsUpdate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsUpdate"
+                                                 "[\"europeanUnionFunding\"]->com.procurement.budget.model."
+                                                 "dto.ocds.EuropeanUnionFunding[\"uri\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_project_as_bool_27572_53(self, country, language, instance,
+                                                      cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["project"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "project (through reference chain: com.procurement.budget."
+                                                 "model.dto.fs.request.FsUpdate[\"planning\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.PlanningFsUpdate[\"budget\"]->com."
+                                                 "procurement.budget.model.dto.fs.request.BudgetFsUpdate"
+                                                 "[\"project\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_project_id_as_bool_27572_54(self, country, language, instance,
+                                                         cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["projectID"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: projectID "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsUpdate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsUpdate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsUpdate[\"projectID\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_budget_uri_as_bool_27572_55(self, country, language, instance,
+                                                  cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["uri"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: uri "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsUpdate[\"planning\"]->com.procurement.budget.model.dto."
+                                                 "fs.request.PlanningFsUpdate[\"budget\"]->com.procurement.budget."
+                                                 "model.dto.fs.request.BudgetFsUpdate[\"uri\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27572')
+    def test_planning_rationale_as_bool_27572_56(self, country, language, instance,
+                                                 cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["rationale"] = True
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "rationale (through reference chain: com.procurement.budget.model."
+                                                 "dto.fs.request.FsUpdate[\"planning\"]->com.procurement.budget."
+                                                 "model.dto.fs.request.PlanningFsUpdate[\"rationale\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsWithEmptyFieldsInPayload(object):
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_name_as_empty_27573_1(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["name"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_identifier_id_as_empty_27573_2(self, country, language, instance,
+                                                                    cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_identifier_scheme_as_empty_27573_3(self, country, language, instance,
+                                                                        cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_identifier_legal_name_as_empty_27573_4(self, country, language, instance,
+                                                                            cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_identifier_uri_as_empty_27573_5(self, country, language, instance,
+                                                                     cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["uri"],
+            actual_result=parties_obj_after_update[0]["identifier"]["uri"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_additional_identifiers_scheme_as_empty_27573_6(self, country, language, instance,
+                                                                                    cassandra_username,
+                                                                                    cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["scheme"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["scheme"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_additional_identifiers_id_as_empty_27573_7(self, country, language, instance,
+                                                                                cassandra_username,
+                                                                                cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["id"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_additional_identifiers_legal_name_as_empty_27573_8(self, country, language,
+                                                                                        instance,
+                                                                                        cassandra_username,
+                                                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["legalName"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["legalName"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_additional_identifiers_uri_as_empty_27573_9(self, country, language, instance,
+                                                                                 cassandra_username,
+                                                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["uri"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_address_street_address_as_empty_27573_10(self, country, language, instance,
+                                                                              cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_address_postal_code_as_empty_27573_11(self, country, language, instance,
+                                                                           cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["postalCode"],
+            actual_result=parties_obj_after_update[0]["address"]["postalCode"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_address_address_details_country_id_as_empty_27573_12(self, country, language,
+                                                                                          instance, cassandra_username,
+                                                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_address_address_details_region_id_as_empty_27573_13(self, country, language,
+                                                                                         instance, cassandra_username,
+                                                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_address_address_details_locality_id_as_empty_27573_14(self, country, language,
+                                                                                           instance, cassandra_username,
+                                                                                           cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_address_address_details_locality_scheme_as_empty_27573_15(self, country, language,
+                                                                                               instance,
+                                                                                               cassandra_username,
+                                                                                               cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_address_address_details_locality_description_as_empty_27573_16(self, country,
+                                                                                                    language,
+                                                                                                    instance,
+                                                                                                    cassandra_username,
+                                                                                                    cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_contact_point_name_as_empty_27573_17(self, country, language, instance,
+                                                                          cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["name"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["name"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_contact_point_email_as_empty_27573_18(self, country, language, instance,
+                                                                           cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_contact_point_telephone_as_empty_27573_19(self, country, language, instance,
+                                                                               cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_contact_point_fax_number_as_empty_27573_20(self, country, language, instance,
+                                                                                cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["faxNumber"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["faxNumber"]
+        )
+
+    @pytestrail.case('27573')
+    def test_tender_procuring_entity_contact_point_url_as_empty_27573_21(self, country, language, instance,
+                                                                         cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["url"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["url"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_name_as_empty_27573_22(self, country, language, instance, cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["name"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_identifier_id_as_empty_27573_23(self, country, language, instance, cassandra_username,
+                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_identifier_scheme_as_empty_27573_24(self, country, language, instance, cassandra_username,
+                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["scheme"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_identifier_legal_name_as_empty_27573_25(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["legalName"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_identifier_uri_as_empty_27573_26(self, country, language, instance,
+                                                    cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["identifier"]["uri"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["uri"],
+            actual_result=parties_obj_after_update[0]["identifier"]["uri"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_additional_identifiers_scheme_as_empty_27573_27(self, country, language, instance,
+                                                                   cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["scheme"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_additional_identifiers_id_as_empty_27573_28(self, country, language, instance,
+                                                               cassandra_username,
+                                                               cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["id"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_additional_identifiers_legal_name_as_empty_27573_29(self, country, language, instance,
+                                                                       cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["legalName"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_additional_identifiers_uri_as_empty_27573_30(self, country, language, instance,
+                                                                cassandra_username,
+                                                                cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"],
+            actual_result=parties_obj_after_update[0]["additionalIdentifiers"][0]["uri"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_address_street_address_as_empty_27573_31(self, country, language, instance,
+                                                            cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["streetAddress"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_address_postal_code_as_empty_27573_32(self, country, language, instance,
+                                                         cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["postalCode"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["postalCode"],
+            actual_result=parties_obj_after_update[0]["address"]["postalCode"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_address_address_details_country_id_as_empty_27573_33(self, country, language, instance,
+                                                                        cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_address_address_details_region_id_as_empty_27573_34(self, country, language, instance,
+                                                                       cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_address_address_details_locality_id_as_empty_27573_35(self, country, language,
+                                                                         instance, cassandra_username,
+                                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_address_address_details_locality_scheme_as_empty_27573_36(self, country, language,
+                                                                             instance,
+                                                                             cassandra_username,
+                                                                             cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["scheme"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_address_address_details_locality_description_as_empty_27573_37(self, country,
+                                                                                  language,
+                                                                                  instance,
+                                                                                  cassandra_username,
+                                                                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["address"]["addressDetails"]["locality"]["description"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_contact_point_name_as_empty_27573_38(self, country, language, instance,
+                                                        cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["name"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["name"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["name"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_contact_point_email_as_empty_27573_39(self, country, language, instance,
+                                                         cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["email"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_contact_point_telephone_as_empty_27573_40(self, country, language, instance,
+                                                             cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["telephone"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_contact_point_fax_number_as_empty_27573_41(self, country, language, instance,
+                                                              cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["faxNumber"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["faxNumber"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["faxNumber"]
+        )
+
+    @pytestrail.case('27573')
+    def test_buyer_contact_point_url_as_empty_27573_42(self, country, language, instance,
+                                                       cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["buyer"]["contactPoint"]["url"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["url"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["url"]
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_description_as_empty_27573_43(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["description"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'planning.budget."
+                                                 "description' is empty or blank."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_period_start_date_as_empty_27573_44(self, country, language, instance, cassandra_username,
+                                                                 cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["period"]["startDate"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: Text '' "
+                                                 "could not be parsed at index 0 (through reference chain: "
+                                                 "com.procurement.budget.model.dto.fs.request.FsUpdate"
+                                                 "[\"planning\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "PlanningFsUpdate[\"budget\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.BudgetFsUpdate[\"period\"]->com.procurement."
+                                                 "budget.model.dto.ocds.Period[\"startDate\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_period_end_date_as_empty_27573_45(self, country, language, instance, cassandra_username,
+                                                               cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["period"]["endDate"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: Text '' "
+                                                 "could not be parsed at index 0 (through reference chain: "
+                                                 "com.procurement.budget.model.dto.fs.request.FsUpdate"
+                                                 "[\"planning\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "PlanningFsUpdate[\"budget\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.BudgetFsUpdate[\"period\"]->com.procurement."
+                                                 "budget.model.dto.ocds.Period[\"endDate\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_amount_amount_as_empty_27573_46(self, country, language, instance, cassandra_username,
+                                                             cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["amount"]["amount"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00", "description": "com.fasterxml.jackson.databind.JsonMapping"
+                                                                      "Exception: amount (through reference chain: "
+                                                                      "com.procurement.budget.model.dto.fs.request."
+                                                                      "FsUpdate[\"planning\"]->com.procurement."
+                                                                      "budget.model.dto.fs.request.PlanningFsUpdate"
+                                                                      "[\"budget\"]->com.procurement.budget.model."
+                                                                      "dto.fs.request.BudgetFsUpdate[\"amount\"]->"
+                                                                      "com.procurement.budget.model.dto.ocds.Value"
+                                                                      "[\"amount\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_amount_currency_as_empty_27573_47(self, country, language, instance, cassandra_username,
+                                                               cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["amount"]["currency"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00.06", "description": "Invalid currency."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_is_european_union_funded_as_empty_27573_48(self, country, language, instance,
+                                                                        cassandra_username,
+                                                                        cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.databind.JsonMappingException: "
+                                                 "isEuropeanUnionFunded (through reference chain: com.procurement."
+                                                 "budget.model.dto.fs.request.FsUpdate[\"planning\"]->com."
+                                                 "procurement.budget.model.dto.fs.request.PlanningFsUpdate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "BudgetFsUpdate[\"isEuropeanUnionFunded\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_european_union_funding_project_name_as_empty_27573_49(self, country, language, instance,
+                                                                                   cassandra_username,
+                                                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'planning.budget."
+                                                 "europeanUnionFunding.projectName' is empty or blank."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_european_union_funding_project_identifier_as_empty_27573_50(self, country, language,
+                                                                                         instance,
+                                                                                         cassandra_username,
+                                                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'planning.budget."
+                                                 "europeanUnionFunding.projectIdentifier' is empty or blank."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_european_union_funding_uri_as_empty_27573_51(self, country, language,
+                                                                          instance, cassandra_username,
+                                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'planning.budget."
+                                                 "europeanUnionFunding.uri' is empty or blank."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_project_as_empty_27573_52(self, country, language, instance, cassandra_username,
+                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["project"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'planning.budget."
+                                                 "project' is empty or blank."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_project_id_as_empty_27573_53(self, country, language, instance, cassandra_username,
+                                                          cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["projectID"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'planning.budget."
+                                                 "projectID' is empty or blank."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_uri_as_empty_27573_54(self, country, language, instance, cassandra_username,
+                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["uri"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'planning.budget."
+                                                 "uri' is empty or blank."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27573')
+    def test_planning_budget_uri_as_empty_27573_55(self, country, language, instance, cassandra_username,
+                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["rationale"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'planning.rationale' "
+                                                 "is empty or blank."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsIfPlanningBudgetIdIsEmptyInPayload(object):
+    @pytestrail.case('27573')
+    def test_planning_budget_uri_as_empty_27573_55(self, country, language, instance, cassandra_username,
+                                                   cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_treasury_money)
+        payload["planning"]["budget"]["id"] = ""
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_treasury_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.20.11",
+                                  "description": "Incorrect an attribute value.The attribute 'planning.budget.id' "
+                                                 "is empty or blank."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsWithoutObligatoryFieldsInPayload(object):
+    @pytestrail.case('27574')
+    def test_del_planning_27574_1(self, country, language, instance, cassandra_username,
+                                  cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        del payload["planning"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.fs.request.FsUpdate] value failed for JSON "
+                                                 "property planning due to missing (therefore NULL) value for "
+                                                 "creator parameter planning which is a non-nullable type\n at "
+                                                 "[Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                 "chain: com.procurement.budget.model.dto.fs.request.FsUpdate"
+                                                 "[\"planning\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27574')
+    def test_del_planning_budget_27574_2(self, country, language, instance, cassandra_username,
+                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        del payload["planning"]["budget"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00", "description": "com.fasterxml.jackson.module.kotlin.Missing"
+                                                                      "KotlinParameterException: Instantiation of "
+                                                                      "[simple type, class com.procurement.budget."
+                                                                      "model.dto.fs.request.PlanningFsUpdate] value "
+                                                                      "failed for JSON property budget due to missing "
+                                                                      "(therefore NULL) value for creator parameter "
+                                                                      "budget which is a non-nullable type\n at "
+                                                                      "[Source: UNKNOWN; line: -1, column: -1] "
+                                                                      "(through reference chain: com.procurement."
+                                                                      "budget.model.dto.fs.request.FsUpdate"
+                                                                      "[\"planning\"]->com.procurement.budget.model."
+                                                                      "dto.fs.request.PlanningFsUpdate[\"budget\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27574')
+    def test_del_planning_budget_period_27574_3(self, country, language, instance, cassandra_username,
+                                                cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        del payload["planning"]["budget"]["period"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsUpdate] value failed for "
+                                                 "JSON property period due to missing (therefore NULL) value for "
+                                                 "creator parameter period which is a non-nullable type\n at "
+                                                 "[Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                 "chain: com.procurement.budget.model.dto.fs.request.FsUpdate"
+                                                 "[\"planning\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "PlanningFsUpdate[\"budget\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.BudgetFsUpdate[\"period\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27574')
+    def test_del_planning_budget_period_start_date_27574_4(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        del payload["planning"]["budget"]["period"]["startDate"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.ocds.Period] value failed for JSON property "
+                                                 "startDate due to missing (therefore NULL) value for creator "
+                                                 "parameter startDate which is a non-nullable type\n at "
+                                                 "[Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                 "chain: com.procurement.budget.model.dto.fs.request.FsUpdate"
+                                                 "[\"planning\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "PlanningFsUpdate[\"budget\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.BudgetFsUpdate[\"period\"]->com.procurement."
+                                                 "budget.model.dto.ocds.Period[\"startDate\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27574')
+    def test_del_planning_budget_period_end_date_27574_5(self, country, language, instance, cassandra_username,
+                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        del payload["planning"]["budget"]["period"]["endDate"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00", "description": "com.fasterxml.jackson.module.kotlin.Missing"
+                                                                      "KotlinParameterException: Instantiation of "
+                                                                      "[simple type, class com.procurement.budget."
+                                                                      "model.dto.ocds.Period] value failed for "
+                                                                      "JSON property endDate due to missing "
+                                                                      "(therefore NULL) value for creator "
+                                                                      "parameter endDate which is a non-nullable "
+                                                                      "type\n at [Source: UNKNOWN; line: -1, "
+                                                                      "column: -1] (through reference chain: com."
+                                                                      "procurement.budget.model.dto.fs.request."
+                                                                      "FsUpdate[\"planning\"]->com.procurement."
+                                                                      "budget.model.dto.fs.request.PlanningFsUpdate"
+                                                                      "[\"budget\"]->com.procurement.budget.model."
+                                                                      "dto.fs.request.BudgetFsUpdate[\"period\"]->"
+                                                                      "com.procurement.budget.model.dto.ocds."
+                                                                      "Period[\"endDate\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27574')
+    def test_del_planning_budget_amount_27574_6(self, country, language, instance, cassandra_username,
+                                                cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        del payload["planning"]["budget"]["amount"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsUpdate] value failed for "
+                                                 "JSON property amount due to missing (therefore NULL) value "
+                                                 "for creator parameter amount which is a non-nullable type\n at "
+                                                 "[Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                 "chain: com.procurement.budget.model.dto.fs.request.FsUpdate"
+                                                 "[\"planning\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "PlanningFsUpdate[\"budget\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.BudgetFsUpdate[\"amount\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27574')
+    def test_del_planning_budget_amount_amount_27574_7(self, country, language, instance, cassandra_username,
+                                                       cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        del payload["planning"]["budget"]["amount"]["amount"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.ocds.Value] value failed for JSON property "
+                                                 "amount due to missing (therefore NULL) value for creator "
+                                                 "parameter amount which is a non-nullable type\n at [Source: "
+                                                 "UNKNOWN; line: -1, column: -1] (through reference chain: com."
+                                                 "procurement.budget.model.dto.fs.request.FsUpdate[\"planning\"]->"
+                                                 "com.procurement.budget.model.dto.fs.request.PlanningFsUpdate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "BudgetFsUpdate[\"amount\"]->com.procurement.budget.model."
+                                                 "dto.ocds.Value[\"amount\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27574')
+    def test_del_planning_budget_amount_currency_27574_8(self, country, language, instance, cassandra_username,
+                                                         cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        del payload["planning"]["budget"]["amount"]["currency"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com."
+                                                 "procurement.budget.model.dto.ocds.Value] value failed for "
+                                                 "JSON property currency due to missing (therefore NULL) value "
+                                                 "for creator parameter currency which is a non-nullable type\n "
+                                                 "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                 "chain: com.procurement.budget.model.dto.fs.request.FsUpdate"
+                                                 "[\"planning\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "PlanningFsUpdate[\"budget\"]->com.procurement.budget.model.dto."
+                                                 "fs.request.BudgetFsUpdate[\"amount\"]->com.procurement.budget."
+                                                 "model.dto.ocds.Value[\"currency\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27574')
+    def test_del_planning_budget_is_european_union_funded_27574_9(self, country, language, instance,
+                                                                  cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        del payload["planning"]["budget"]["isEuropeanUnionFunded"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsUpdate] value failed for "
+                                                 "JSON property isEuropeanUnionFunded due to missing (therefore "
+                                                 "NULL) value for creator parameter isEuropeanUnionFunded which "
+                                                 "is a non-nullable type\n at [Source: UNKNOWN; line: -1, column: "
+                                                 "-1] (through reference chain: com.procurement.budget.model.dto."
+                                                 "fs.request.FsUpdate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsUpdate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsUpdate[\"isEuropeanUnion"
+                                                 "Funded\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27574')
+    def test_del_planning_budget_european_union_funding_project_name_27574_10(self, country, language, instance,
+                                                                              cassandra_username,
+                                                                              cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        del payload["planning"]["budget"]["europeanUnionFunding"]["projectName"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.ocds.EuropeanUnionFunding] value failed for "
+                                                 "JSON property projectName due to missing (therefore NULL) "
+                                                 "value for creator parameter projectName which is a non-"
+                                                 "nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                                 "(through reference chain: com.procurement.budget.model.dto."
+                                                 "fs.request.FsUpdate[\"planning\"]->com.procurement.budget."
+                                                 "model.dto.fs.request.PlanningFsUpdate[\"budget\"]->com."
+                                                 "procurement.budget.model.dto.fs.request.BudgetFsUpdate"
+                                                 "[\"europeanUnionFunding\"]->com.procurement.budget.model."
+                                                 "dto.ocds.EuropeanUnionFunding[\"projectName\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27574')
+    def test_del_planning_budget_european_union_funding_project_identifier_27574_11(self, country, language, instance,
+                                                                                    cassandra_username,
+                                                                                    cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        del payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"]
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.ocds.EuropeanUnionFunding] value failed for "
+                                                 "JSON property projectIdentifier due to missing (therefore NULL)"
+                                                 " value for creator parameter projectIdentifier which is a "
+                                                 "non-nullable type\n at [Source: UNKNOWN; line: -1, column: -1] "
+                                                 "(through reference chain: com.procurement.budget.model.dto.fs."
+                                                 "request.FsUpdate[\"planning\"]->com.procurement.budget.model."
+                                                 "dto.fs.request.PlanningFsUpdate[\"budget\"]->com.procurement."
+                                                 "budget.model.dto.fs.request.BudgetFsUpdate[\"europeanUnion"
+                                                 "Funding\"]->com.procurement.budget.model.dto.ocds.EuropeanUnion"
+                                                 "Funding[\"projectIdentifier\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsIfBearerTokenIsFake(object):
+    @pytestrail.case('27575')
+    def test_send_the_request_27575_1(self, country, language, instance, cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password,
+            platform="zzz"
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(401),
+            actual_result=str(update_fs_response.status_code)
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(
+                [{"code": "401.81.03.04", "description": "The error of verification of the authentication token."}]),
+            actual_result=str(json.loads(update_fs_response.text)['errors'])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsIfValueOfAuthorizationIsFake(object):
+    @pytestrail.case('27576')
+    def test_send_the_request_27576_1(self, country, language, instance, cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password,
+            platform=""
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2]),
+            authorization_token="zzz"
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(401),
+            actual_result=str(update_fs_response.status_code)
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "401.81.02.02",
+                                  "description": "Invalid type of the authentication token. "
+                                                 "Expected type is 'Bearer'."}]),
+            actual_result=str(json.loads(update_fs_response.text)['errors'])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsIfValueOfAuthorizationWasMissed(object):
+    @pytestrail.case('27577')
+    def test_send_the_request_27577_1(self, country, language, instance, cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password,
+            platform=""
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        host_of_request = None
+        instance = instance
+        if instance == "dev":
+            host_of_request = "http://10.0.20.126:8900/api/v1"
+        elif instance == "sandbox":
+            host_of_request = "http://10.0.10.116:8900/api/v1"
+        access_token = get_access_token_for_platform_two(host_of_request)
+        x_operation_id = get_x_operation_id(host=host_of_request, platform_token=access_token)
+
+        @allure.step('Update FS')
+        def update_fs():
+            update = requests.post(
+                url=host_of_request + "/do/fs/" + cp_id + "/" + create_fs_response[1],
+                headers={
+                    'X-OPERATION-ID': x_operation_id,
+                    'X-TOKEN': str(create_fs_response[2]),
+                    'Content-Type': 'application/json'},
+                json=payload)
+
+            allure.attach(host_of_request + "/do/fs/" + cp_id + "/" + create_fs_response[1], 'URL')
+            allure.attach(json.dumps(payload), 'Prepared payload')
+            return update
+
+        update_fs_response = update_fs()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(401),
+            actual_result=str(update_fs_response.status_code)
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "401.81.02.01", "description": "The authentication header is missing."}]),
+            actual_result=str(json.loads(update_fs_response.text)['errors'])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsWithEmptyObjectAndArrayInPayload(object):
+    @pytestrail.case('27578')
+    def test_planning_as_empty_object_27578_1(self, country, language, instance, cassandra_username,
+                                              cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"] = {}
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.fs.request.PlanningFsUpdate] value failed "
+                                                 "for JSON property budget due to missing (therefore NULL) value "
+                                                 "for creator parameter budget which is a non-nullable type\n "
+                                                 "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                 "chain: com.procurement.budget.model.dto.fs.request.FsUpdate"
+                                                 "[\"planning\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "PlanningFsUpdate[\"budget\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27578')
+    def test_planning_budget_as_empty_object_27578_2(self, country, language, instance, cassandra_username,
+                                                     cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"] = {}
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00", "description": "com.fasterxml.jackson.module.kotlin.Missing"
+                                                                      "KotlinParameterException: Instantiation of "
+                                                                      "[simple type, class com.procurement.budget."
+                                                                      "model.dto.fs.request.BudgetFsUpdate] value "
+                                                                      "failed for JSON property period due to "
+                                                                      "missing (therefore NULL) value for creator "
+                                                                      "parameter period which is a non-nullable "
+                                                                      "type\n at [Source: UNKNOWN; line: -1, column: "
+                                                                      "-1] (through reference chain: com.procurement."
+                                                                      "budget.model.dto.fs.request.FsUpdate"
+                                                                      "[\"planning\"]->com.procurement.budget.model."
+                                                                      "dto.fs.request.PlanningFsUpdate[\"budget\"]->"
+                                                                      "com.procurement.budget.model.dto.fs.request."
+                                                                      "BudgetFsUpdate[\"period\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27578')
+    def test_planning_budget_period_as_empty_object_27578_3(self, country, language, instance, cassandra_username,
+                                                            cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["period"] = {}
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.ocds.Period] value failed for JSON property "
+                                                 "startDate due to missing (therefore NULL) value for creator "
+                                                 "parameter startDate which is a non-nullable type\n at [Source: "
+                                                 "UNKNOWN; line: -1, column: -1] (through reference chain: com."
+                                                 "procurement.budget.model.dto.fs.request.FsUpdate[\"planning\"]"
+                                                 "->com.procurement.budget.model.dto.fs.request.PlanningFsUpdate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "BudgetFsUpdate[\"period\"]->com.procurement.budget.model.dto."
+                                                 "ocds.Period[\"startDate\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27578')
+    def test_planning_budget_amount_as_empty_object_27578_4(self, country, language, instance, cassandra_username,
+                                                            cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["amount"] = {}
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.ocds.Value] value failed for JSON property "
+                                                 "amount due to missing (therefore NULL) value for creator "
+                                                 "parameter amount which is a non-nullable type\n at [Source: "
+                                                 "UNKNOWN; line: -1, column: -1] (through reference chain: com."
+                                                 "procurement.budget.model.dto.fs.request.FsUpdate[\"planning\"]->"
+                                                 "com.procurement.budget.model.dto.fs.request.PlanningFsUpdate"
+                                                 "[\"budget\"]->com.procurement.budget.model.dto.fs.request.Budget"
+                                                 "FsUpdate[\"amount\"]->com.procurement.budget.model.dto.ocds."
+                                                 "Value[\"amount\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+    @pytestrail.case('27578')
+    def test_planning_budget_european_union_finding_as_empty_object_27578_5(self, country, language, instance,
+                                                                            cassandra_username,
+                                                                            cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"] = {}
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00",
+                                  "description": "com.fasterxml.jackson.module.kotlin.MissingKotlinParameter"
+                                                 "Exception: Instantiation of [simple type, class com.procurement."
+                                                 "budget.model.dto.ocds.EuropeanUnionFunding] value failed for "
+                                                 "JSON property projectName due to missing (therefore NULL) value "
+                                                 "for creator parameter projectName which is a non-nullable type\n "
+                                                 "at [Source: UNKNOWN; line: -1, column: -1] (through reference "
+                                                 "chain: com.procurement.budget.model.dto.fs.request.FsUpdate"
+                                                 "[\"planning\"]->com.procurement.budget.model.dto.fs.request."
+                                                 "PlanningFsUpdate[\"budget\"]->com.procurement.budget.model.dto."
+                                                 "fs.request.BudgetFsUpdate[\"europeanUnionFunding\"]->com."
+                                                 "procurement.budget.model.dto.ocds.EuropeanUnionFunding"
+                                                 "[\"projectName\"])"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsWithAnotherOwnerOfRequest(object):
+    @pytestrail.case('27579')
+    def test_send_the_request_27579_1(self, country, language, instance, cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password,
+            platform="platform_two"
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(202),
+            actual_result=str(update_fs_response.status_code)
+        )
+
+    @pytestrail.case('27579')
+    def test_see_the_result_in_the_database_27579_2(self, country, language, instance, cassandra_username,
+                                                    cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password,
+            platform="platform_two"
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        database = Cassandra(
+            cp_id=cp_id,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        fs_budget_update_fs_task = database.execute_cql_from_orchestrator_operation_step(
+            task_id='BudgetUpdateFsTask'
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00.03", "description": "Invalid owner."}]),
+            actual_result=str(fs_budget_update_fs_task["errors"])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsWithAnotherFsTokenOfRequest(object):
+    @pytestrail.case('27580')
+    def test_send_the_request_27580_1(self, country, language, instance, cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(uuid4())
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(202),
+            actual_result=str(update_fs_response.status_code)
+        )
+
+    @pytestrail.case('27580')
+    def test_see_the_result_in_the_feed_point_27580_2(self, country, language, instance, cassandra_username,
+                                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(uuid4())
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00.02", "description": "FS not found."}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsWithInvalidFsTokenOfRequest(object):
+    @pytestrail.case('27581')
+    def test_send_the_request_27581_1(self, country, language, instance, cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token="f1al2la"
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(202),
+            actual_result=str(update_fs_response.status_code)
+        )
+
+    @pytestrail.case('27581')
+    def test_see_the_result_in_the_feed_point_27581_2(self, country, language, instance, cassandra_username,
+                                                      cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token="f1al2la"
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.10.00", "description": "Invalid UUID string: f1al2la"}]),
+            actual_result=str(message_from_kafka["errors"])
+        )
+
+
+class TestCheckOnImpossibilityOfUpdatingFsIfFTokenWasMissed(object):
+    @pytestrail.case('27582')
+    def test_send_the_request_27582_1(self, country, language, instance, cassandra_username, cassandra_password):
+        cp_id = prepared_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        host_of_request = None
+        instance = instance
+        if instance == "dev":
+            host_of_request = "http://10.0.20.126:8900/api/v1"
+        elif instance == "sandbox":
+            host_of_request = "http://10.0.10.116:8900/api/v1"
+        access_token = get_access_token_for_platform_two(host_of_request)
+        x_operation_id = get_x_operation_id(host=host_of_request, platform_token=access_token)
+
+        @allure.step('Update FS')
+        def update_fs():
+            update = requests.post(
+                url=host_of_request + "/do/fs/" + cp_id + "/" + create_fs_response[1],
+                headers={
+                    'Authorization': "Bearer" + access_token,
+                    'X-OPERATION-ID': x_operation_id,
+                    'Content-Type': 'application/json'},
+                json=payload)
+
+            allure.attach(host_of_request + "/do/fs/" + cp_id + "/" + create_fs_response[1], 'URL')
+            allure.attach(json.dumps(payload), 'Prepared payload')
+            return update
+
+        update_fs_response = update_fs()
+        print(update_fs_response.text)
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(400),
+            actual_result=str(update_fs_response.status_code)
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str([{"code": "400.00.00.00",
+                                  "description": "Missing request header 'X-TOKEN' for method parameter of type "
+                                                 "String"}]),
+            actual_result=str(json.loads(update_fs_response.text)['errors'])
+        )
+
+
+class TestCheckOnPossibilityOfUpdatingFsBasedOnTestEi(object):
+    @pytestrail.case("27583")
+    def test_send_the_request_27583_1(self, country, language, instance, cassandra_username,
+                                      cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_test_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = "new_test_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_uri_2"
+        payload["planning"]["rationale"] = "test_new_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_procuring_name"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_procuring_id"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_procuring_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_procuring_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_procuring_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_procuring_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "scheme"] = "test_new_procuring_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "legalName"] = "test_new_procuring_additional_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_procuring_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_procuring_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_procuring_address_postal"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"][
+            "id"] = "test_new_procuring_address_country_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"][
+            "id"] = "test_new_procuring_address_region_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "id"] = "test_new_procuring_address_locality_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_procuring_address_locality_scheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_procuring_address_locality_description"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_procuring_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_procuring_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_procuring_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_procuring_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_procuring_contact_url"
+        payload["buyer"]["name"] = "test_new_buyer_name"
+        payload["buyer"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["buyer"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["buyer"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["buyer"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["buyer"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "test_new_buyer_address_country_id"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "test_new_buyer_address_region_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "test_new_buyer_address_locality_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_buyer_address_locality_description"
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_additional_legalName"
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        payload["buyer"]["contactPoint"]["faxNumber"] = "test_new_buyer_contact_faxNumber"
+        payload["buyer"]["contactPoint"]["url"] = "test_new_buyer_contact_url"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        update_fs_response = fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(202),
+            actual_result=str(update_fs_response.status_code)
+        )
+
+    @pytestrail.case("27583")
+    def test_see_the_result_in_feed_point_point_27583_2(self, country, language, instance, cassandra_username,
+                                                        cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_test_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = "new_test_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_uri_2"
+        payload["planning"]["rationale"] = "test_new_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_procuring_name"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_procuring_id"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_procuring_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_procuring_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_procuring_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_procuring_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "scheme"] = "test_new_procuring_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "legalName"] = "test_new_procuring_additional_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_procuring_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_procuring_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_procuring_address_postal"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"][
+            "id"] = "test_new_procuring_address_country_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"][
+            "id"] = "test_new_procuring_address_region_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "id"] = "test_new_procuring_address_locality_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_procuring_address_locality_scheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_procuring_address_locality_description"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_procuring_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_procuring_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_procuring_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_procuring_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_procuring_contact_url"
+        payload["buyer"]["name"] = "test_new_buyer_name"
+        payload["buyer"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["buyer"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["buyer"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["buyer"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["buyer"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "test_new_buyer_address_country_id"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "test_new_buyer_address_region_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "test_new_buyer_address_locality_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_buyer_address_locality_description"
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_additional_legalName"
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        payload["buyer"]["contactPoint"]["faxNumber"] = "test_new_buyer_contact_faxNumber"
+        payload["buyer"]["contactPoint"]["url"] = "test_new_buyer_contact_url"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        fs.get_message_from_kafka()
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(True),
+            actual_result=str(
+                fs.check_on_that_message_is_successfully_update_fs(
+                    cp_id=cp_id,
+                    fs_id=create_fs_response[1]))
+        )
+
+    @pytestrail.case("27583")
+    def test_check_on_correctness_of_publishing_fs_27583_3(self, country, language, instance, cassandra_username,
+                                                           cassandra_password):
+        date = get_new_period()
+        cp_id = prepared_test_cp_id()
+        ei_token = str(uuid4())
+        payload = copy.deepcopy(update_fs_payload_fs_full_data_model_own_money)
+        payload["planning"]["budget"]["id"] = "new_test_budget_id"
+        payload["planning"]["budget"]["description"] = "test_new_budget_description"
+        payload["planning"]["budget"]["period"]["startDate"] = date[0]
+        payload["planning"]["budget"]["period"]["endDate"] = date[1]
+        payload["planning"]["budget"]["amount"]["amount"] = 9959.99
+        payload["planning"]["budget"]["isEuropeanUnionFunded"] = True
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectName"] = "test_new_projectName"
+        payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"] = "test_new_projectIdentifier"
+        payload["planning"]["budget"]["europeanUnionFunding"]["uri"] = "test_new_uri"
+        payload["planning"]["budget"]["project"] = "test_new_project"
+        payload["planning"]["budget"]["projectID"] = "test_new_projectID"
+        payload["planning"]["budget"]["uri"] = "test_new_uri_2"
+        payload["planning"]["rationale"] = "test_new_rationale"
+        payload["tender"]["procuringEntity"]["name"] = "test_new_procuring_name"
+        payload["tender"]["procuringEntity"]["identifier"]["id"] = "test_new_procuring_id"
+        payload["tender"]["procuringEntity"]["identifier"]["scheme"] = "test_new_procuring_scheme"
+        payload["tender"]["procuringEntity"]["identifier"]["legalName"] = "test_new_procuring_legalName"
+        payload["tender"]["procuringEntity"]["identifier"]["uri"] = "test_new_procuring_uri"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["id"] = "test_new_procuring_additional_id"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "scheme"] = "test_new_procuring_additional_scheme"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0][
+            "legalName"] = "test_new_procuring_additional_legalName"
+        payload["tender"]["procuringEntity"]["additionalIdentifiers"][0]["uri"] = "test_new_procuring_additional_uri"
+        payload["tender"]["procuringEntity"]["address"]["streetAddress"] = "test_new_procuring_address_street"
+        payload["tender"]["procuringEntity"]["address"]["postalCode"] = "test_new_procuring_address_postal"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"][
+            "id"] = "test_new_procuring_address_country_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"][
+            "id"] = "test_new_procuring_address_region_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "id"] = "test_new_procuring_address_locality_id"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "scheme"] = "test_new_procuring_address_locality_scheme"
+        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_procuring_address_locality_description"
+        payload["tender"]["procuringEntity"]["contactPoint"]["name"] = "test_new_procuring_contact_name"
+        payload["tender"]["procuringEntity"]["contactPoint"]["email"] = "test_new_procuring_contact_email"
+        payload["tender"]["procuringEntity"]["contactPoint"]["telephone"] = "test_new_procuring_contact_telephone"
+        payload["tender"]["procuringEntity"]["contactPoint"]["faxNumber"] = "test_new_procuring_contact_faxNumber"
+        payload["tender"]["procuringEntity"]["contactPoint"]["url"] = "test_new_procuring_contact_url"
+        payload["buyer"]["name"] = "test_new_buyer_name"
+        payload["buyer"]["identifier"]["id"] = "test_new_buyer_identifier_id"
+        payload["buyer"]["identifier"]["scheme"] = "test_new_buyer_identifier_scheme"
+        payload["buyer"]["identifier"]["legalName"] = "test_new_buyer_identifier_legalName"
+        payload["buyer"]["identifier"]["uri"] = "test_new_buyer_identifier_uri"
+        payload["buyer"]["address"]["streetAddress"] = "test_new_buyer_address_street"
+        payload["buyer"]["address"]["addressDetails"]["country"]["id"] = "test_new_buyer_address_country_id"
+        payload["buyer"]["address"]["addressDetails"]["region"]["id"] = "test_new_buyer_address_region_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"]["id"] = "test_new_buyer_address_locality_id"
+        payload["buyer"]["address"]["addressDetails"]["locality"][
+            "description"] = "test_new_buyer_address_locality_description"
+        payload["buyer"]["additionalIdentifiers"][0]["id"] = "test_new_buyer_additional_id"
+        payload["buyer"]["additionalIdentifiers"][0]["scheme"] = "test_new_buyer_additional_scheme"
+        payload["buyer"]["additionalIdentifiers"][0]["legalName"] = "test_new_buyer_additional_legalName"
+        payload["buyer"]["additionalIdentifiers"][0]["uri"] = "test_new_buyer_additional_uri"
+        payload["buyer"]["contactPoint"]["name"] = "test_new_buyer_contact_name"
+        payload["buyer"]["contactPoint"]["email"] = "test_new_buyer_contact_email"
+        payload["buyer"]["contactPoint"]["telephone"] = "test_new_buyer_contact_telephone"
+        payload["buyer"]["contactPoint"]["faxNumber"] = "test_new_buyer_contact_faxNumber"
+        payload["buyer"]["contactPoint"]["url"] = "test_new_buyer_contact_url"
+        fs = FS(
+            payload=payload,
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password
+        )
+        create_fs_response = fs.insert_fs_own_full_ei_obligatory_without_items(
+            cp_id=cp_id,
+            ei_token=ei_token
+        )
+        url_create = create_fs_response[0] + "/" + create_fs_response[1]
+        fs_create = requests.get(url=url_create).json()
+        fs.update_fs(
+            cp_id=cp_id,
+            fs_id=create_fs_response[1],
+            fs_token=str(create_fs_response[2])
+        )
+        message_from_kafka = fs.get_message_from_kafka()
+        url_update = message_from_kafka['data']['url']
+        fs_update = requests.get(url=url_update).json()
+        release_list = list()
+        for key, values in fs_update["releases"][0]["parties"][0].items():
+            if key == "roles":
+                role = fs_update["releases"][0]["parties"][0].get(key)
+                release_list.append(role[0])
+        keys_list = list()
+        for i in fs_update.keys():
+            if i == "uri":
+                keys_list.append(i)
+            if i == "version":
+                keys_list.append(i)
+            if i == "extensions":
+                keys_list.append(i)
+            if i == "publisher":
+                keys_list.append(i)
+            if i == "license":
+                keys_list.append(i)
+            if i == "publicationPolicy":
+                keys_list.append(i)
+            if i == "publishedDate":
+                keys_list.append(i)
+            if i == "releases":
+                keys_list.append(i)
+        for i in fs_update["publisher"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0].keys():
+            if i == "ocid":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "date":
+                keys_list.append(i)
+            if i == "tag":
+                keys_list.append(i)
+            if i == "initiationType":
+                keys_list.append(i)
+            if i == "tender":
+                keys_list.append(i)
+            if i == "parties":
+                keys_list.append(i)
+            if i == "planning":
+                keys_list.append(i)
+            if i == "relatedProcesses":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["tender"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "status":
+                keys_list.append(i)
+            if i == "statusDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                keys_list.append(i)
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                keys_list.append(i)
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["additionalIdentifiers"][0].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][0]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                keys_list.append(i)
+            if i == "url":
+                keys_list.append(i)
+
+        for i in fs_update["releases"][0]["parties"][1].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "address":
+                keys_list.append(i)
+            if i == "additionalIdentifiers":
+                keys_list.append(i)
+            if i == "contactPoint":
+                keys_list.append(i)
+            if i == "roles":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["identifier"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"].keys():
+            if i == "streetAddress":
+                keys_list.append(i)
+            if i == "postalCode":
+                keys_list.append(i)
+            if i == "addressDetails":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"].keys():
+            if i == "country":
+                keys_list.append(i)
+            if i == "region":
+                keys_list.append(i)
+            if i == "locality":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["country"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["region"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["address"]["addressDetails"]["locality"].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["additionalIdentifiers"][0].keys():
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "id":
+                keys_list.append(i)
+            if i == "legalName":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["parties"][1]["contactPoint"].keys():
+            if i == "name":
+                keys_list.append(i)
+            if i == "email":
+                keys_list.append(i)
+            if i == "telephone":
+                keys_list.append(i)
+            if i == "faxNumber":
+                keys_list.append(i)
+            if i == "url":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"].keys():
+            if i == "budget":
+                keys_list.append(i)
+            if i == "rationale":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "description":
+                keys_list.append(i)
+            if i == "period":
+                keys_list.append(i)
+            if i == "amount":
+                keys_list.append(i)
+            if i == "europeanUnionFunding":
+                keys_list.append(i)
+            if i == "isEuropeanUnionFunded":
+                keys_list.append(i)
+            if i == "verified":
+                keys_list.append(i)
+            if i == "sourceEntity":
+                keys_list.append(i)
+            if i == "project":
+                keys_list.append(i)
+            if i == "projectID":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["period"].keys():
+            if i == "startDate":
+                keys_list.append(i)
+            if i == "endDate":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["amount"].keys():
+            if i == "amount":
+                keys_list.append(i)
+            if i == "currency":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"].keys():
+            if i == "project":
+                keys_list.append(i)
+            if i == "projectID":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["planning"]["budget"]["sourceEntity"].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "name":
+                keys_list.append(i)
+        for i in fs_update["releases"][0]["relatedProcesses"][0].keys():
+            if i == "id":
+                keys_list.append(i)
+            if i == "relationship":
+                keys_list.append(i)
+            if i == "scheme":
+                keys_list.append(i)
+            if i == "identifier":
+                keys_list.append(i)
+            if i == "uri":
+                keys_list.append(i)
+        parties_obj_before_update = list()
+        for p in fs_create["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_before_update.append(p)
+            if p["roles"] == ["funder"]:
+                parties_obj_before_update.append(p)
+
+        parties_obj_after_update = list()
+        for p in fs_update["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_obj_after_update.append(p)
+            if p["roles"] == ["funder"]:
+                parties_obj_after_update.append(p)
+
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="version",
+            actual_result=keys_list[1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="extensions",
+            actual_result=keys_list[2]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publisher",
+            actual_result=keys_list[3]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="license",
+            actual_result=keys_list[4]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publicationPolicy",
+            actual_result=keys_list[5]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="publishedDate",
+            actual_result=keys_list[6]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="releases",
+            actual_result=keys_list[7]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[8]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[9]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="ocid",
+            actual_result=keys_list[10]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[11]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="date",
+            actual_result=keys_list[12]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tag",
+            actual_result=keys_list[13]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="initiationType",
+            actual_result=keys_list[14]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="tender",
+            actual_result=keys_list[15]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="parties",
+            actual_result=keys_list[16]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="planning",
+            actual_result=keys_list[17])
+        assert compare_actual_result_and_expected_result(
+            expected_result="relatedProcesses",
+            actual_result=keys_list[18]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[19]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="status",
+            actual_result=keys_list[20]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="statusDetails",
+            actual_result=keys_list[21]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[22]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[23]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[24]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[25]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="additionalIdentifiers",
+            actual_result=keys_list[26]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[27]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[28]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[29]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[30]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[31]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[32]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[33]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="postalCode",
+            actual_result=keys_list[34]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[35]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[36]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[37]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[38]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[39]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[40]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[41]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[42]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[43]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[44]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[45]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[47]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[48]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[49]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[50]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[51]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[52]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[53]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[54]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[55]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[56]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[57]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="faxNumber",
+            actual_result=keys_list[58]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="url",
+            actual_result=keys_list[59]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[60]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[61]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[62]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="address",
+            actual_result=keys_list[63]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="additionalIdentifiers",
+            actual_result=keys_list[64]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="contactPoint",
+            actual_result=keys_list[65]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="roles",
+            actual_result=keys_list[66]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[67]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[68]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[69]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[70]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="streetAddress",
+            actual_result=keys_list[71]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="postalCode",
+            actual_result=keys_list[72]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="addressDetails",
+            actual_result=keys_list[73]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="country",
+            actual_result=keys_list[74]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="region",
+            actual_result=keys_list[75]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="locality",
+            actual_result=keys_list[76]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[77]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[78]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[79]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[80]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[81]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[82]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[83]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[84]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[85]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[86]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[87]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[88]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[89]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[90]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="legalName",
+            actual_result=keys_list[91]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[92]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[93]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="email",
+            actual_result=keys_list[94]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="telephone",
+            actual_result=keys_list[95]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="faxNumber",
+            actual_result=keys_list[96]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="url",
+            actual_result=keys_list[97]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="budget",
+            actual_result=keys_list[98]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="rationale",
+            actual_result=keys_list[99]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[100]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="description",
+            actual_result=keys_list[101]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="period",
+            actual_result=keys_list[102]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[103]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="europeanUnionFunding",
+            actual_result=keys_list[104]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="isEuropeanUnionFunded",
+            actual_result=keys_list[105]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="verified",
+            actual_result=keys_list[106]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="sourceEntity",
+            actual_result=keys_list[107]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="project",
+            actual_result=keys_list[108]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="projectID",
+            actual_result=keys_list[109]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[110]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="startDate",
+            actual_result=keys_list[111]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="endDate",
+            actual_result=keys_list[112]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="amount",
+            actual_result=keys_list[113]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="currency",
+            actual_result=keys_list[114]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[115]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[116]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="name",
+            actual_result=keys_list[117]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="id",
+            actual_result=keys_list[118]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="relationship",
+            actual_result=keys_list[119]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="scheme",
+            actual_result=keys_list[120]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="identifier",
+            actual_result=keys_list[121]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result="uri",
+            actual_result=keys_list[122]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["uri"],
+            actual_result=fs_update["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["version"],
+            actual_result=fs_update["version"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][0],
+            actual_result=fs_update["extensions"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["extensions"][1],
+            actual_result=fs_update["extensions"][1]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["name"],
+            actual_result=fs_update["publisher"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publisher"]["uri"],
+            actual_result=fs_update["publisher"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["license"],
+            actual_result=fs_update["license"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publicationPolicy"],
+            actual_result=fs_update["publicationPolicy"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["publishedDate"],
+            actual_result=fs_update["publishedDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["ocid"],
+            actual_result=fs_update["releases"][0]["ocid"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["id"][0:46],
+            actual_result=fs_update["releases"][0]["id"][0:46]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=get_human_date_in_utc_format(int(fs_update["releases"][0]["id"][46:59]))[0],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=message_from_kafka["data"]["operationDate"],
+            actual_result=fs_update["releases"][0]["date"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tag"][0],
+            actual_result=fs_update["releases"][0]["tag"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["initiationType"],
+            actual_result=fs_update["releases"][0]["initiationType"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["id"],
+            actual_result=fs_update["releases"][0]["tender"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["status"],
+            actual_result=fs_update["releases"][0]["tender"]["status"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["tender"]["statusDetails"],
+            actual_result=fs_update["releases"][0]["tender"]["statusDetails"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["id"],
+            actual_result=parties_obj_after_update[0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["name"],
+            actual_result=parties_obj_after_update[0]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[0]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["id"],
+            actual_result=parties_obj_after_update[0]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[0]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["identifier"]["uri"],
+            actual_result=parties_obj_after_update[0]["identifier"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[0]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["postalCode"],
+            actual_result=parties_obj_after_update[0]["address"]["postalCode"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[0]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[0]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"],
+            actual_result=parties_obj_before_update[0]["additionalIdentifiers"][0]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["parties"][0]["contactPoint"]["name"],
+            actual_result=fs_update["releases"][0]["parties"][0]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["faxNumber"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["faxNumber"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["contactPoint"]["url"],
+            actual_result=parties_obj_after_update[0]["contactPoint"]["url"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[0]["roles"][0],
+            actual_result=parties_obj_after_update[0]["roles"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["id"],
+            actual_result=parties_obj_after_update[1]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["name"],
+            actual_result=parties_obj_after_update[1]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["scheme"],
+            actual_result=parties_obj_after_update[1]["identifier"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["id"],
+            actual_result=parties_obj_after_update[1]["identifier"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["legalName"],
+            actual_result=parties_obj_after_update[1]["identifier"]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["identifier"]["uri"],
+            actual_result=parties_obj_after_update[1]["identifier"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["streetAddress"],
+            actual_result=parties_obj_after_update[1]["address"]["streetAddress"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["postalCode"],
+            actual_result=parties_obj_after_update[1]["address"]["postalCode"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["country"]["uri"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["country"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["region"]["uri"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["region"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["scheme"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["id"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["description"],
+            actual_result=parties_obj_after_update[1]["address"]["addressDetails"]["locality"]["description"])
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["uri"],
+            actual_result=parties_obj_before_update[1]["address"]["addressDetails"]["locality"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["scheme"],
+            actual_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["scheme"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["id"],
+            actual_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["legalName"],
+            actual_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["legalName"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["uri"],
+            actual_result=parties_obj_before_update[1]["additionalIdentifiers"][0]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["parties"][1]["contactPoint"]["name"],
+            actual_result=fs_update["releases"][0]["parties"][1]["contactPoint"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["email"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["email"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["telephone"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["telephone"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["faxNumber"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["faxNumber"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["contactPoint"]["url"],
+            actual_result=parties_obj_after_update[1]["contactPoint"]["url"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=parties_obj_before_update[1]["roles"][0],
+            actual_result=parties_obj_after_update[1]["roles"][0]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["id"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["description"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["description"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["startDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["startDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["period"]["endDate"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["period"]["endDate"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["amount"]["amount"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["amount"]["amount"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["amount"]["currency"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["amount"]["currency"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["projectIdentifier"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["projectName"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["projectName"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["europeanUnionFunding"]["uri"]),
+            actual_result=str(
+                fs_update["releases"][0]["planning"]["budget"]["europeanUnionFunding"]["uri"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(payload["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(fs_create["releases"][0]["planning"]["budget"]["verified"]),
+            actual_result=str(fs_update["releases"][0]["planning"]["budget"]["verified"])
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["id"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["id"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=fs_create["releases"][0]["planning"]["budget"]["sourceEntity"]["name"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["sourceEntity"]["name"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["project"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["project"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["projectID"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["projectID"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["budget"]["uri"],
+            actual_result=fs_update["releases"][0]["planning"]["budget"]["uri"]
+        )
+        assert compare_actual_result_and_expected_result(
+            expected_result=payload["planning"]["rationale"],
+            actual_result=fs_update["releases"][0]["planning"]["rationale"]
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["relatedProcesses"][0]["id"],

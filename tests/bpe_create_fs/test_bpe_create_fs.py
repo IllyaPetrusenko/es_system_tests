@@ -10396,8 +10396,8 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
 
 class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
     @pytestrail.case('27558')
-    def test_tender_procuring_entity_name_address_as_bool_27558_1(self, country, language, instance, cassandra_username,
-                                                                  cassandra_password):
+    def test_tender_procuring_entity_name_as_bool_27558_1(self, country, language, instance, cassandra_username,
+                                                          cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
         payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
@@ -10426,8 +10426,8 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
         )
 
     @pytestrail.case('27558')
-    def test_tender_procuring_entity_identifier_id_address_as_bool_27558_2(self, country, language, instance,
-                                                                           cassandra_username, cassandra_password):
+    def test_tender_procuring_entity_identifier_id_as_bool_27558_2(self, country, language, instance,
+                                                                   cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
         payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
@@ -10457,8 +10457,8 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
         )
 
     @pytestrail.case('27558')
-    def test_tender_procuring_entity_identifier_scheme_address_as_bool_27558_3(self, country, language, instance,
-                                                                               cassandra_username, cassandra_password):
+    def test_tender_procuring_entity_identifier_scheme_as_bool_27558_3(self, country, language, instance,
+                                                                       cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
         payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
@@ -10488,9 +10488,9 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
         )
 
     @pytestrail.case('27558')
-    def test_tender_procuring_entity_identifier_legal_name_address_as_bool_27558_4(self, country, language, instance,
-                                                                                   cassandra_username,
-                                                                                   cassandra_password):
+    def test_tender_procuring_entity_identifier_legal_name_as_bool_27558_4(self, country, language, instance,
+                                                                           cassandra_username,
+                                                                           cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
         payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
@@ -10520,8 +10520,8 @@ class TestCheckOnImpossibilityOfCreatingFsWithInvalidDataTypes(object):
         )
 
     @pytestrail.case('27558')
-    def test_tender_procuring_entity_identifier_uri_address_as_bool_27558_5(self, country, language, instance,
-                                                                            cassandra_username, cassandra_password):
+    def test_tender_procuring_entity_identifier_uri_as_bool_27558_5(self, country, language, instance,
+                                                                    cassandra_username, cassandra_password):
         cp_id = prepared_cp_id()
         ei_token = str(uuid4())
         payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
