@@ -8,12 +8,11 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 from tests.authorization import get_access_token_for_platform_one, get_x_operation_id
 from tests.kafka_messages import get_message_from_kafka
-from useful_functions import is_it_uuid, prepared_cp_id, get_period, get_access_token_for_platform_two
+from useful_functions import is_it_uuid, get_period, get_access_token_for_platform_two
 
 
 class EI:
     def __init__(self, payload, instance, cassandra_username, cassandra_password, country='MD',
-                 cpid=prepared_cp_id(), ei_token=str(uuid4()), ei_token_update_ei=None,
                  lang='ro', tender_classification_id="45100000-8",
                  tender_item_classification_id="45100000-8", planning_budget_id="45100000-8",
                  platform="platform_one",
@@ -48,8 +47,6 @@ class EI:
                  tender_items_id="6a565c47-ff11-4e2d-8ea1-3f34c5d751f9"):
 
         self.payload = payload
-        self.cpid = cpid
-        self.ei_token = ei_token
         self.tender_items_id = tender_items_id
         self.tender_items_unit_name = tender_items_unit_name
         self.tender_items_unit_id = tender_items_unit_id
@@ -102,10 +99,6 @@ class EI:
         self.instance = instance
         self.cassandra_username = cassandra_username
         self.cassandra_password = cassandra_password
-        if ei_token_update_ei is None:
-            self.ei_token_update_ei = self.ei_token
-        else:
-            self.ei_token_update_ei = ei_token_update_ei
         if instance == "dev":
             self.cassandra_cluster = "10.0.20.104"
             self.host_of_request = "http://10.0.20.126:8900/api/v1"
@@ -116,6 +109,10 @@ class EI:
             elif platform == "platform_two":
                 self.access_token = get_access_token_for_platform_two(self.host_of_request)
                 self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+            else:
+                self.access_token = get_access_token_for_platform_one(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+                self.access_token = platform
         elif instance == "sandbox":
             self.cassandra_cluster = "10.0.10.106"
             self.host_of_request = "http://10.0.10.116:8900/api/v1"
@@ -126,6 +123,10 @@ class EI:
             elif platform == "platform_two":
                 self.access_token = get_access_token_for_platform_two(self.host_of_request)
                 self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+            else:
+                self.access_token = get_access_token_for_platform_two(self.host_of_request)
+                self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
+                self.access_token = platform
 
     @allure.step('Create EI')
     def create_ei(self):
@@ -145,13 +146,13 @@ class EI:
         return ei
 
     @allure.step('Update EI')
-    def update_ei(self):
+    def update_ei(self, cp_id, ei_token):
         ei = requests.post(
-            url=self.host_of_request + "/do/ei/" + self.cpid,
+            url=self.host_of_request + "/do/ei/" + cp_id,
             headers={
                 'Authorization': 'Bearer ' + self.access_token,
                 'X-OPERATION-ID': self.x_operation_id,
-                'X-TOKEN': self.ei_token_update_ei,
+                'X-TOKEN': ei_token,
                 'Content-Type': 'application/json'},
             json=self.payload)
         allure.attach(self.host_of_request + "/do/ei", 'URL')
@@ -159,7 +160,7 @@ class EI:
         return ei
 
     @allure.step('Insert EI')
-    def insert_ei_full_data_model(self):
+    def insert_ei_full_data_model(self, cp_id, ei_token):
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
@@ -168,21 +169,21 @@ class EI:
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
-            "cpid": self.cpid,
+            "cpid": cp_id,
             "stage": "EI",
             "processType": "ei",
             "operationType": "createEI",
             "owner": owner,
             "country": self.country,
             "language": self.lang,
-            "token": self.ei_token,
+            "token": ei_token,
             "startDate": self.planning_budget_period_start_date,
             "timeStamp": period[2],
             "isAuction": False,
             "testMode": False
         }
         json_budget_ei = {
-            "ocid": self.cpid,
+            "ocid": cp_id,
             "tender": {
                 "id": "fbd943ca-aaad-433d-9189-96566e3648ea",
                 "title": self.tender_title,
@@ -304,8 +305,8 @@ class EI:
         }
 
         json_notice_budget_release_ei = {
-            "ocid": self.cpid,
-            "id": self.cpid + '-' + f'{period[2]}',
+            "ocid": cp_id,
+            "id": cp_id + '-' + f'{period[2]}',
             "date": self.planning_budget_period_start_date,
             "tag": ["compiled"],
             "language": self.lang,
@@ -436,8 +437,8 @@ class EI:
         }
 
         json_notice_budget_compiled_release_ei = {
-            "ocid": self.cpid,
-            "id": self.cpid + "-" + f"{period[2]}",
+            "ocid": cp_id,
+            "id": cp_id + "-" + f"{period[2]}",
             "date": self.planning_budget_period_start_date,
             "tag": ["compiled"],
             "language": self.lang,
@@ -567,33 +568,34 @@ class EI:
             }
         }
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{self.cpid}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
 
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
-                        f"'{self.cpid}',{self.ei_token},1609927348000,'{json.dumps(json_budget_ei)}','{owner}');").one()
+                        f"'{cp_id}',{ei_token},1609927348000,'{json.dumps(json_budget_ei)}','{owner}')"
+                        f";").one()
 
         session.execute(f"INSERT INTO notice_budget_release ("
                         f"cp_id,oc_id,release_id,json_data,release_date,stage) VALUES("
-                        f"'{self.cpid}','{self.cpid}','{self.cpid + '1609927348000'}',"
+                        f"'{cp_id}','{cp_id}','{cp_id + '1609927348000'}',"
                         f"'{json.dumps(json_notice_budget_release_ei)}',1609943491271,'EI');").one()
 
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) VALUES("
-                        f"'{self.cpid}','1609927348000');").one()
+                        f"'{cp_id}','1609927348000');").one()
 
         session.execute(f"INSERT INTO notice_budget_compiled_release ("
                         f"cp_id,oc_id,amount,json_data,publish_date,release_date,"
-                        f"release_id,stage) VALUES('{self.cpid}','{self.cpid}', 0.0, "
+                        f"release_id,stage) VALUES('{cp_id}','{cp_id}', 0.0, "
                         f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
-                        f"1609943491271,1609943491271,'{self.cpid + '-' + f'{period[2]}'}',"
+                        f"1609943491271,1609943491271,'{cp_id + '-' + f'{period[2]}'}',"
                         f"'EI');").one()
         allure.attach(owner, 'OWNER')
-        allure.attach(self.cpid, 'CPID')
-        allure.attach(self.ei_token, 'X-TOKEN')
-        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{self.cpid}", 'URL')
-        return f"http://dev.public.eprocurement.systems/budgets/{self.cpid}", self.ei_token, self.cpid
+        allure.attach(cp_id, 'CPID')
+        allure.attach(ei_token, 'X-TOKEN')
+        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{cp_id}", 'URL')
+        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", ei_token, cp_id
 
     @allure.step('Insert EI')
-    def insert_ei_obligatory_data_model(self):
+    def insert_ei_obligatory_data_model(self, cp_id, ei_token):
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
@@ -602,21 +604,21 @@ class EI:
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
-            "cpid": self.cpid,
+            "cpid": cp_id,
             "stage": "EI",
             "processType": "ei",
             "operationType": "createEI",
             "owner": owner,
             "country": self.country,
             "language": self.lang,
-            "token": self.ei_token,
+            "token": ei_token,
             "startDate": self.planning_budget_period_start_date,
             "timeStamp": period[2],
             "isAuction": False,
             "testMode": False
         }
         json_budget_ei = {
-            "ocid": self.cpid,
+            "ocid": cp_id,
             "tender": {
                 "id": "fbd943ca-aaad-433d-9189-96566e3648ea",
                 "title": self.tender_title,
@@ -708,8 +710,8 @@ class EI:
         }
 
         json_notice_budget_release_ei = {
-            "ocid": self.cpid,
-            "id": self.cpid + '-' + f'{period[2]}',
+            "ocid": cp_id,
+            "id": cp_id + '-' + f'{period[2]}',
             "date": self.planning_budget_period_start_date,
             "tag": ["compiled"],
             "language": self.lang,
@@ -810,8 +812,8 @@ class EI:
         }
 
         json_notice_budget_compiled_release_ei = {
-            "ocid": self.cpid,
-            "id": self.cpid + "-" + f"{period[2]}",
+            "ocid": cp_id,
+            "id": cp_id + "-" + f"{period[2]}",
             "date": self.planning_budget_period_start_date,
             "tag": ["compiled"],
             "language": self.lang,
@@ -911,33 +913,34 @@ class EI:
             }
         }
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{self.cpid}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
 
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
-                        f"'{self.cpid}',{self.ei_token},1609927348000,'{json.dumps(json_budget_ei)}','{owner}');").one()
+                        f"'{cp_id}',{ei_token},1609927348000,'{json.dumps(json_budget_ei)}','{owner}')"
+                        f";").one()
 
         session.execute(f"INSERT INTO notice_budget_release ("
                         f"cp_id,oc_id,release_id,json_data,release_date,stage) VALUES("
-                        f"'{self.cpid}','{self.cpid}','{self.cpid + '1609927348000'}',"
+                        f"'{cp_id}','{cp_id}','{cp_id + '1609927348000'}',"
                         f"'{json.dumps(json_notice_budget_release_ei)}',1609943491271,'EI');").one()
 
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) VALUES("
-                        f"'{self.cpid}','1609927348000');").one()
+                        f"'{cp_id}','1609927348000');").one()
 
         session.execute(f"INSERT INTO notice_budget_compiled_release ("
                         f"cp_id,oc_id,amount,json_data,publish_date,release_date,"
-                        f"release_id,stage) VALUES('{self.cpid}','{self.cpid}', 0.0, "
+                        f"release_id,stage) VALUES('{cp_id}','{cp_id}', 0.0, "
                         f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
-                        f"1609943491271,1609943491271,'{self.cpid + '-' + f'{period[2]}'}',"
+                        f"1609943491271,1609943491271,'{cp_id + '-' + f'{period[2]}'}',"
                         f"'EI');").one()
         allure.attach(owner, 'OWNER')
-        allure.attach(self.cpid, 'CPID')
-        allure.attach(self.ei_token, 'X-TOKEN')
-        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{self.cpid}", 'URL')
-        return f"http://dev.public.eprocurement.systems/budgets/{self.cpid}/{self.cpid}", self.ei_token, self.cpid
+        allure.attach(cp_id, 'CPID')
+        allure.attach(ei_token, 'X-TOKEN')
+        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{cp_id}", 'URL')
+        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}", ei_token, cp_id
 
     @allure.step('Insert EI')
-    def insert_ei_full_data_model_without_item(self):
+    def insert_ei_full_data_model_without_item(self, cp_id, ei_token):
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
@@ -946,21 +949,21 @@ class EI:
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
-            "cpid": self.cpid,
+            "cpid": cp_id,
             "stage": "EI",
             "processType": "ei",
             "operationType": "createEI",
             "owner": owner,
             "country": self.country,
             "language": self.lang,
-            "token": self.ei_token,
+            "token": ei_token,
             "startDate": self.planning_budget_period_start_date,
             "timeStamp": period[2],
             "isAuction": False,
             "testMode": False
         }
         json_budget_ei = {
-            "ocid": self.cpid,
+            "ocid": cp_id,
             "tender": {
                 "id": "fbd943ca-aaad-433d-9189-96566e3648ea",
                 "title": self.tender_title,
@@ -1039,8 +1042,8 @@ class EI:
         }
 
         json_notice_budget_release_ei = {
-            "ocid": self.cpid,
-            "id": self.cpid + '-' + f'{period[2]}',
+            "ocid": cp_id,
+            "id": cp_id + '-' + f'{period[2]}',
             "date": self.planning_budget_period_start_date,
             "tag": ["compiled"],
             "language": self.lang,
@@ -1128,8 +1131,8 @@ class EI:
         }
 
         json_notice_budget_compiled_release_ei = {
-            "ocid": self.cpid,
-            "id": self.cpid + "-" + f"{period[2]}",
+            "ocid": cp_id,
+            "id": cp_id + "-" + f"{period[2]}",
             "date": self.planning_budget_period_start_date,
             "tag": ["compiled"],
             "language": self.lang,
@@ -1216,30 +1219,31 @@ class EI:
             }
         }
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{self.cpid}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
 
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
-                        f"'{self.cpid}',{self.ei_token},1609927348000,'{json.dumps(json_budget_ei)}','{owner}');").one()
+                        f"'{cp_id}',{ei_token},1609927348000,'{json.dumps(json_budget_ei)}','{owner}')"
+                        f";").one()
 
         session.execute(f"INSERT INTO notice_budget_release ("
                         f"cp_id,oc_id,release_id,json_data,release_date,stage) VALUES("
-                        f"'{self.cpid}','{self.cpid}','{self.cpid + '1609927348000'}',"
+                        f"'{cp_id}','{cp_id}','{cp_id + '1609927348000'}',"
                         f"'{json.dumps(json_notice_budget_release_ei)}',1609943491271,'EI');").one()
 
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) VALUES("
-                        f"'{self.cpid}','1609927348000');").one()
+                        f"'{cp_id}','1609927348000');").one()
 
         session.execute(f"INSERT INTO notice_budget_compiled_release ("
                         f"cp_id,oc_id,amount,json_data,publish_date,release_date,"
-                        f"release_id,stage) VALUES('{self.cpid}','{self.cpid}', 0.0, "
+                        f"release_id,stage) VALUES('{cp_id}','{cp_id}', 0.0, "
                         f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
-                        f"1609943491271,1609943491271,'{self.cpid + '-' + f'{period[2]}'}',"
+                        f"1609943491271,1609943491271,'{cp_id + '-' + f'{period[2]}'}',"
                         f"'EI');").one()
         allure.attach(owner, 'OWNER')
-        allure.attach(self.cpid, 'CPID')
-        allure.attach(self.ei_token, 'X-TOKEN')
-        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{self.cpid}", 'URL')
-        return f"http://dev.public.eprocurement.systems/budgets/{self.cpid}", self.ei_token, self.cpid
+        allure.attach(cp_id, 'CPID')
+        allure.attach(ei_token, 'X-TOKEN')
+        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{cp_id}", 'URL')
+        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", ei_token, cp_id
 
     @allure.step('Receive message in feed-point')
     def get_message_from_kafka(self):

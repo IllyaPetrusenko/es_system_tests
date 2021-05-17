@@ -50,9 +50,9 @@ def prepared_test_cp_id():
     return cp_id
 
 
-def prepared_fs_oc_id(prepared_cp_id):
-    oc_id = f"{prepared_cp_id}-FS-" + str(int(time.time()) * 1000 + random.randint(1, 100))
-    return oc_id
+def prepared_fs_oc_id(cp_id):
+    fs_id = f"{cp_id}-FS-" + str(int(time.time()) * 1000 + random.randint(1, 100))
+    return fs_id
 
 
 def prepared_pn_oc_id(prepared_cp_id):
