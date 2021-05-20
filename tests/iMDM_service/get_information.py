@@ -126,3 +126,65 @@ class MdmService:
             }
         )
         return data
+
+    def process_tender_data(self, pmd):
+        data = requests.post(
+            url=self.host_of_services + "/command",
+            json={
+                "id": str(uuid.uuid1()),
+                "command": "processTenderData",
+                "context": {
+                    "operationId": str(uuid.uuid4()),
+                    "requestId": str(uuid.uuid1()),
+                    "stage": "PN",
+                    "processType": "createPN",
+                    "operationType": "createPN",
+                    "phase": "planning",
+                    "owner": "445f6851-c908-407d-9b45-14b92f3e964b",
+                    "country": self.country,
+                    "language": self.lang,
+                    "pmd": pmd,
+                    "startDate": period[0],
+                    "timeStamp": period[2],
+                    "isAuction": False,
+                    "testMode": False
+                },
+                "data": {
+                    "tender": {
+                        "lots": None,
+                        "procuringEntity": {
+                            "name": self.procuring_entity_name,
+                            "identifier": {
+                                "id": self.procuring_entity_identifier_id,
+                                "scheme": self.procuring_entity_identifier_scheme,
+                                "legalName": self.procuring_entity_identifier_legal_name
+                            },
+                            "address": {
+                                "streetAddress": "Mircea cel Batrin bd. nr.7  of.151",
+                                "addressDetails": {
+                                    "country": {
+                                        "id": self.country
+                                    },
+                                    "region": {
+                                        "id": self.region
+                                    },
+                                    "locality": {
+                                        "scheme": "other",
+                                        "id": self.locality,
+                                        "description": "Chisinau"
+                                    }
+                                }
+                            },
+                            "contactPoint": {
+                                "name": self.procuring_entity_contact_point_name,
+                                "email": self.procuring_entity_contact_point_email,
+                                "telephone": self.procuring_entity_contact_point_telephone
+                            }
+                        }
+                    }
+                },
+                "version": "0.0.1"
+            }
+        )
+        return data
+

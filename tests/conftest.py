@@ -94,4 +94,6 @@ def tag(request):
 class CreatePn:
     message_from_kafka = None
     payload = None
+    ei_id = None
+    fs_id = None
 
