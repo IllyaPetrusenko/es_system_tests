@@ -1,3 +1,4 @@
+import csv
 import fnmatch
 import json
 import random
@@ -6,6 +7,7 @@ import time
 from uuid import UUID
 import allure
 import requests
+import xlrd
 
 
 def is_valid_uuid(uuid_to_test, version=4):
@@ -202,7 +204,7 @@ def get_new_classification_id(classification_1, classification_2):
     else:
         new.append("0")
 
-    return str(new[0] + new[1] + new[2] + new[3] + new[4] + new[5] + new[6] + new[7] + new[8] + new[9])
+    return str(new[0] + new[1] + new[2] + new[3] + new[4] + new[5] + new[6] + new[7])
 
 
 def create_enquiry_and_tender_period():
@@ -227,6 +229,7 @@ def compare_actual_result_and_expected_result(expected_result, actual_result):
     else:
         return False
 
+
 # @allure.step('REQUEST_OF_UPDATE_EI')
 # def request_update_ei(access_token, x_operation_id, cpid, ei_token, payload):
 #     environment_host = set_instance_for_request()
@@ -245,3 +248,47 @@ def compare_actual_result_and_expected_result(expected_result, actual_result):
 #     allure.attach(ei_token, 'X-TOKEN')
 #     allure.attach(str(payload), 'PAYLOAD')
 #     return update_ei_response
+
+def get_value_from_classification_cpv_dictionary_xls(cpv, language):
+    # Open current xlsx file.
+    excel_data_file = xlrd.open_workbook('CPV_dictionary.xls')
+    # Take current page of the file.
+    sheet = excel_data_file.sheet_by_index(0)
+
+    classification_description = []
+    # How mach rows contains into file?
+    rows_number = sheet.nrows
+    column_number = sheet.ncols
+    requested_row = list()
+    requested_column = list()
+    if rows_number > 0:
+        for row in range(0, rows_number):
+            if cpv in sheet.row(row)[0].value:
+                requested_row.append(row)
+
+    if column_number > 0:
+        for column in range(0, column_number):
+            if language in sheet.col(column)[0].value:
+                requested_column.append(column)
+    new_cpv = sheet.cell_value(rowx=int(requested_row[0]), colx=0)
+    description = sheet.cell_value(rowx=int(requested_row[0]), colx=int(requested_column[0]))
+    return new_cpv, description
+
+
+def get_value_from_cpvs_dictionary_csv(cpvs, language):
+    with open('CPVS_dictionary.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cur_arr = row[0].split(';')
+            if cur_arr[0] == cpvs and cur_arr[3] == f'"{language}"':
+                return cur_arr[0].replace('"', ''), cur_arr[1].replace('"', ''), cur_arr[2].replace('"', ''), cur_arr[
+                    3].replace('"', '')
+
+
+def get_value_from_classification_unit_dictionary_csv(unit_id, language):
+    with open('Units_dictionary.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cur_arr = row[0].split(',')
+            if cur_arr[0] == f'{unit_id}' and cur_arr[4].replace(';', '') == f'"{language}"':
+                return cur_arr[0].replace("'", ""), cur_arr[2].replace('"', ''),

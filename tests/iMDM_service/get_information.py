@@ -2,18 +2,23 @@ import uuid
 
 import requests
 
-from useful_functions import get_period
+from useful_functions import get_period, get_contract_period
 
 period = get_period()
+contract_period = get_contract_period()
 
 
 class MdmService:
     def __init__(self, instance, lang='ro', country='MD', region="3400000", locality="3401000", currency="EUR",
                  procuring_entity_name="Procuring Entity Name", procuring_entity_identifier_id="123456789000",
                  procuring_entity_identifier_scheme="MD-IDNO", procuring_entity_identifier_legal_name="Legal Name",
-                 procuring_entity_contact_point_name="contact person",
+                 procuring_entity_contact_point_name="contact person", lot_country='MD', lot_region='3400000',
+                 lot_locality='3401000',
                  procuring_entity_contact_point_email="string@mail.ccc",
                  procuring_entity_contact_point_telephone="98-79-87"):
+        self.lot_country = lot_country
+        self.lot_region = lot_region
+        self.lot_locality = lot_locality
         self.procuring_entity_contact_point_telephone = procuring_entity_contact_point_telephone
         self.procuring_entity_contact_point_email = procuring_entity_contact_point_email
         self.procuring_entity_contact_point_name = procuring_entity_contact_point_name
@@ -151,16 +156,97 @@ class MdmService:
                 },
                 "data": {
                     "tender": {
-                        "lots": None,
-                        "procuringEntity": {
-                            "name": self.procuring_entity_name,
-                            "identifier": {
-                                "id": self.procuring_entity_identifier_id,
-                                "scheme": self.procuring_entity_identifier_scheme,
-                                "legalName": self.procuring_entity_identifier_legal_name
+                        "lots": [{
+                            "id": "1",
+                            "internalId": "lot 1",
+                            "title": "title",
+                            "description": "description",
+                            "value": {
+                                "amount": 1500.0,
+                                "currency": self.currency
                             },
+                            "contractPeriod": {
+                                "startDate": contract_period[0],
+                                "endDate": contract_period[1]
+                            },
+                            "placeOfPerformance": {
+                                "address": {
+                                    "streetAddress": "street",
+                                    "postalCode": "150009",
+                                    "addressDetails": {
+                                        "country": {
+                                            "id": self.lot_country
+                                        },
+                                        "region": {
+                                            "id": self.lot_region
+                                        },
+                                        "locality": {
+                                            "scheme": "CUATM",
+                                            "id": self.lot_locality,
+                                            "description": "description"
+                                        }
+                                    }
+                                },
+                                "description": "description of lot"
+                            }
+                        }, {
+                            "id": "2",
+                            "internalId": "lot 2",
+                            "title": "title",
+                            "description": "description",
+                            "value": {
+                                "amount": 150.0,
+                                "currency": self.currency
+                            },
+                            "contractPeriod": {
+                                "startDate": contract_period[0],
+                                "endDate": contract_period[1]
+                            },
+                            "placeOfPerformance": {
+                                "address": {
+                                    "streetAddress": "street",
+                                    "postalCode": "150009",
+                                    "addressDetails": {
+                                        "country": {
+                                            "id": self.lot_country
+                                        },
+                                        "region": {
+                                            "id": self.lot_region
+                                        },
+                                        "locality": {
+                                            "scheme": "CUATM",
+                                            "id": self.lot_locality,
+                                            "description": "description"
+                                        }
+                                    }
+                                },
+                                "description": "description of lot"
+                            }
+                        }],
+                        "procuringEntity": {
+                            "name": "name of PE",
+                            "identifier": {
+                                "scheme": "MD-IDNO",
+                                "id": "123654789000",
+                                "legalName": "legal name",
+                                "uri": "uri"
+                            },
+                            "contactPoint": {
+                                "name": "name",
+                                "email": "email",
+                                "telephone": "456-95-96",
+                                "faxNumber": "fax-number",
+                                "url": "url"
+                            },
+                            "additionalIdentifiers": [{
+                                "scheme": "md-idno",
+                                "id": "445521",
+                                "legalName": "legalName",
+                                "uri": "uri"
+                            }],
                             "address": {
-                                "streetAddress": "Mircea cel Batrin bd. nr.7  of.151",
+                                "streetAddress": "street address",
+                                "postalCode": "02232",
                                 "addressDetails": {
                                     "country": {
                                         "id": self.country
@@ -171,20 +257,49 @@ class MdmService:
                                     "locality": {
                                         "scheme": "other",
                                         "id": self.locality,
-                                        "description": "Chisinau"
+                                        "description": "desc",
+                                        "uri": "www segodnya"
                                     }
                                 }
-                            },
-                            "contactPoint": {
-                                "name": self.procuring_entity_contact_point_name,
-                                "email": self.procuring_entity_contact_point_email,
-                                "telephone": self.procuring_entity_contact_point_telephone
                             }
-                        }
+                        },
+                        "classification": {
+                            "id": "45112300"
+                        },
+                        "items": [{
+                            "id": "1",
+                            "internalId": "item 1",
+                            "classification": {
+                                "id": "45112350-3"
+                            },
+                            "additionalClassifications": [{
+                                "id": "AA12-4"
+                            }],
+                            "quantity": 0.01,
+                            "unit": {
+                                "id": "10"
+                            },
+                            "description": "description",
+                            "relatedLot": "1"
+                        }, {
+                            "id": "2",
+                            "internalId": "item 2",
+                            "classification": {
+                                "id": "45112360-6"
+                            },
+                            "additionalClassifications": [{
+                                "id": "AA12-4"
+                            }],
+                            "quantity": 0.01,
+                            "unit": {
+                                "id": "10"
+                            },
+                            "description": "description",
+                            "relatedLot": "2"
+                        }]
                     }
                 },
                 "version": "0.0.1"
             }
         )
         return data
-
