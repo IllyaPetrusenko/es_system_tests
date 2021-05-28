@@ -1,6 +1,7 @@
 import copy
 from uuid import uuid4
 import requests
+from deepdiff import DeepDiff
 from pytest_testrail.plugin import pytestrail
 from tests.conftest import CreatePn
 from tests.essences.pn import PN
@@ -8,7 +9,8 @@ from tests.iMDM_service.get_information import MdmService
 from tests.payloads.pn_payload import create_pn_payload_obligatory_data_model_without_documents, \
     create_pn_payload_full_data_model_with_documents
 from useful_functions import prepared_cp_id, compare_actual_result_and_expected_result, get_human_date_in_utc_format, \
-    is_it_uuid, get_value_from_classification_cpv_dictionary_xls, get_new_classification_id
+    is_it_uuid, get_value_from_classification_cpv_dictionary_xls, get_new_classification_id, \
+    get_value_from_classification_unit_dictionary_csv, get_value_from_cpvs_dictionary_csv
 
 
 class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(object):
@@ -2627,6 +2629,402 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         assert compare_actual_result_and_expected_result(
             expected_result=f"http://dev.public.eprocurement.systems/budgets/{CreatePn.ei_id}/{CreatePn.fs_id}",
             actual_result=related_processes_with_relationship_x_funding_source[0]['uri']
+        )
+
+    @pytestrail.case("27585")
+    def test_check_on_the_platform_data_has_been_transferred_and_displayed_correctly_in_the_ms_release_27585_180(
+            self, language, pmd):
+        ei_id = CreatePn.ei_id
+        message_from_kafka = CreatePn.message_from_kafka
+        url_create_ms = message_from_kafka['data']['url'] + "/" + message_from_kafka['data']['ocid']
+        payload = CreatePn.payload
+        ms_release = requests.get(url=url_create_ms).json()
+        related_processes_list_fs = list()
+        for d in ms_release["releases"]:
+            for d_1 in d["relatedProcesses"]:
+                if d_1["relationship"] == ["x_fundingSource"]:
+                    related_processes_list_fs.append(d_1)
+        fs_release = requests.get(url=related_processes_list_fs[0]["uri"]).json()
+        related_processes_list_ei = list()
+        for d in ms_release["releases"]:
+            for d_1 in d["relatedProcesses"]:
+                if d_1["relationship"] == ["x_expenditureItem"]:
+                    related_processes_list_ei.append(d_1)
+        ei_release = requests.get(url=related_processes_list_ei[0]["uri"]).json()
+        mdm = MdmService(
+            instance="dev",
+            lang="ro",
+            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
+            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
+            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+        )
+        data = mdm.process_tender_data(pmd).json()
+        country_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
+        region_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]
+        procurement_method_details_from_mdm = data["data"]["tender"]["procurementMethodDetails"]
+        eligibility_criteria_from_mdm = data["data"]["tender"]["eligibilityCriteria"]
+        parties_with_buyer_role_ei = list()
+        for p in ei_release["releases"][0]["parties"]:
+            if p["roles"] == ["buyer"]:
+                parties_with_buyer_role_ei.append(p)
+        parties_with_payer_role_fs = list()
+        for p in fs_release["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_with_payer_role_fs.append(p)
+        for p in fs_release["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                raise Exception("Treasury money model was used -> BR-10.3.15")
+        actual_result = ms_release
+        expected_result = {
+            "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                   f"{message_from_kafka['data']['ocid']}/{message_from_kafka['data']['ocid']}",
+            "version": "1.1",
+            "extensions": [
+                "https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/extension.json",
+                "https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/extension.js"],
+            "publisher": {
+                "name": "M-Tender",
+                "uri": "https://www.mtender.gov.md"
+            },
+            "license": "http://opendefinition.org/licenses/",
+            "publicationPolicy": "http://opendefinition.org/licenses/",
+            "publishedDate": message_from_kafka['data']['operationDate'],
+            "releases": [{
+                "ocid": message_from_kafka['data']['ocid'],
+                "id": f"{message_from_kafka['data']['ocid']}-"
+                      f"{message_from_kafka['data']['outcomes']['pn'][0]['id'][32:45]}",
+                "date": message_from_kafka['data']['operationDate'],
+                "tag": ["compiled"],
+                "language": language,
+                "initiationType": "tender",
+                "planning": {
+                    "budget": {
+                        "amount": {
+                            "amount": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"],
+                            "currency": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"]
+                        },
+                        "isEuropeanUnionFunded": fs_release['releases'][0]['planning']['budget'][
+                            'isEuropeanUnionFunded'],
+                        "budgetBreakdown": [{
+                            "id": payload["planning"]["budget"]["budgetBreakdown"][0]['id'],
+                            "amount": {
+                                "amount": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"],
+                                "currency": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"]
+                            },
+                            "period": {
+                                "startDate": fs_release['releases'][0]['planning']['budget']['period']['startDate'],
+                                "endDate": fs_release['releases'][0]['planning']['budget']['period']['endDate']
+                            },
+                            "sourceParty": {
+                                "id": fs_release['releases'][0]['planning']['budget']['sourceEntity']['id'],
+                                "name": fs_release['releases'][0]['planning']['budget']['sourceEntity']['name']
+                            }
+                        }]
+                    }
+                },
+                "tender": {
+                    "id": actual_result['releases'][0]['tender']['id'],
+                    "title": payload['tender']['title'],
+                    "description": payload['tender']['description'],
+                    "status": "planning",
+                    "statusDetails": "planning notice",
+                    "value": {
+                        "amount": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"],
+                        "currency": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"]
+                    },
+                    "procurementMethod": "open",
+                    "procurementMethodDetails": procurement_method_details_from_mdm,
+                    "mainProcurementCategory": ei_release['releases'][0]['tender']['mainProcurementCategory'],
+                    "hasEnquiries": False,
+                    "eligibilityCriteria": eligibility_criteria_from_mdm,
+                    "procuringEntity": {
+                        "id": f"{payload['tender']['procuringEntity']['identifier']['scheme']}-"
+                              f"{payload['tender']['procuringEntity']['identifier']['id']}",
+                        "name": payload['tender']['procuringEntity']['name']
+                    },
+                    "acceleratedProcedure": {
+                        "isAcceleratedProcedure": False
+                    },
+                    "classification": {
+                        "scheme": ei_release['releases'][0]['tender']['classification']['scheme'],
+                        "id": ei_release['releases'][0]['tender']['classification']['id'],
+                        "description": ei_release['releases'][0]['tender']['classification']['description']
+                    },
+                    "designContest": {
+                        "serviceContractAward": False
+                    },
+                    "electronicWorkflows": {
+                        "useOrdering": False,
+                        "usePayment": False,
+                        "acceptInvoicing": False
+                    },
+                    "jointProcurement": {
+                        "isJointProcurement": False
+                    },
+                    "legalBasis": payload['tender']['legalBasis'],
+                    "procedureOutsourcing": {
+                        "procedureOutsourced": False
+                    },
+                    "dynamicPurchasingSystem": {
+                        "hasDynamicPurchasingSystem": False
+                    },
+                    "framework": {
+                        "isAFramework": False
+                    }
+                },
+                "parties": [{
+                    "id": parties_with_buyer_role_ei[0]['id'],
+                    "name": parties_with_buyer_role_ei[0]['name'],
+                    "identifier": {
+                        "scheme": parties_with_buyer_role_ei[0]['identifier']['scheme'],
+                        "id": parties_with_buyer_role_ei[0]['identifier']['id'],
+                        "legalName": parties_with_buyer_role_ei[0]['identifier']['legalName']
+                    },
+                    "address": {
+                        "streetAddress": parties_with_buyer_role_ei[0]['address']['streetAddress'],
+                        "addressDetails": {
+                            "country": {
+                                "scheme": parties_with_buyer_role_ei[0]['address']['addressDetails']['country'][
+                                    'scheme'],
+                                "id": parties_with_buyer_role_ei[0]['address']['addressDetails']['country']['id'],
+                                "description": parties_with_buyer_role_ei[0]['address']['addressDetails']['country'][
+                                    'description'],
+                                "uri": parties_with_buyer_role_ei[0]['address']['addressDetails']['country']['uri']
+                            },
+                            "region": {
+                                "scheme": parties_with_buyer_role_ei[0]['address']['addressDetails']['region'][
+                                    'scheme'],
+                                "id": parties_with_buyer_role_ei[0]['address']['addressDetails']['region']['id'],
+                                "description": parties_with_buyer_role_ei[0]['address']['addressDetails']['region'][
+                                    'description'],
+                                "uri": parties_with_buyer_role_ei[0]['address']['addressDetails']['region']['uri']
+                            },
+                            "locality": {
+                                "scheme": parties_with_buyer_role_ei[0]['address']['addressDetails']['locality'][
+                                    'scheme'],
+                                "id": parties_with_buyer_role_ei[0]['address']['addressDetails']['locality']['id'],
+                                "description": parties_with_buyer_role_ei[0]['address']['addressDetails']['locality'][
+                                    'description'],
+                                "uri": parties_with_buyer_role_ei[0]['address']['addressDetails']['locality']['uri']
+                            }
+                        }
+                    },
+                    "contactPoint": {
+                        "name": parties_with_buyer_role_ei[0]['contactPoint']['name'],
+                        "email": parties_with_buyer_role_ei[0]['contactPoint']['email'],
+                        "telephone": parties_with_buyer_role_ei[0]['contactPoint']['telephone']
+                    },
+                    "roles": ["buyer"]
+                }, {
+                    "id": parties_with_payer_role_fs[0]['id'],
+                    "name": parties_with_payer_role_fs[0]['name'],
+                    "identifier": {
+                        "scheme": parties_with_payer_role_fs[0]['identifier']['scheme'],
+                        "id": parties_with_payer_role_fs[0]['identifier']['id'],
+                        "legalName": parties_with_payer_role_fs[0]['identifier']['legalName']
+
+                    },
+                    "address": {
+                        "streetAddress": parties_with_payer_role_fs[0]['address']['streetAddress'],
+                        "addressDetails": {
+                            "country": {
+                                "scheme": parties_with_payer_role_fs[0]['address']['addressDetails']['country'][
+                                    'scheme'],
+                                "id": parties_with_payer_role_fs[0]['address']['addressDetails']['country']['id'],
+                                "description": parties_with_payer_role_fs[0]['address']['addressDetails']['country'][
+                                    'description'],
+                                "uri": parties_with_payer_role_fs[0]['address']['addressDetails']['country']['uri']
+                            },
+                            "region": {
+                                "scheme": parties_with_payer_role_fs[0]['address']['addressDetails']['region'][
+                                    'scheme'],
+                                "id": parties_with_payer_role_fs[0]['address']['addressDetails']['region']['id'],
+                                "description": parties_with_payer_role_fs[0]['address']['addressDetails']['region'][
+                                    'description'],
+                                "uri": parties_with_payer_role_fs[0]['address']['addressDetails']['region']['uri']
+                            },
+                            "locality": {
+                                "scheme": parties_with_payer_role_fs[0]['address']['addressDetails']['locality'][
+                                    'scheme'],
+                                "id": parties_with_payer_role_fs[0]['address']['addressDetails']['locality']['id'],
+                                "description": parties_with_payer_role_fs[0]['address']['addressDetails']['locality'][
+                                    'description'],
+                                "uri": parties_with_payer_role_fs[0]['address']['addressDetails']['locality']['uri']
+                            }
+                        }
+                    },
+                    "contactPoint": {
+                        "name": parties_with_payer_role_fs[0]['contactPoint']['name'],
+                        "email": parties_with_payer_role_fs[0]['contactPoint']['email'],
+                        "telephone": parties_with_payer_role_fs[0]['contactPoint']['telephone']
+
+                    },
+                    "roles": ["payer"]
+                }, {
+                    "id": f"{payload['tender']['procuringEntity']['identifier']['scheme']}-"
+                          f"{payload['tender']['procuringEntity']['identifier']['id']}",
+                    "name": payload['tender']['procuringEntity']['name'],
+                    "identifier": {
+                        "scheme": payload['tender']['procuringEntity']['identifier']['scheme'],
+                        "id": payload['tender']['procuringEntity']['identifier']['id'],
+                        "legalName": payload['tender']['procuringEntity']['identifier']['legalName']
+                    },
+                    "address": {
+                        "streetAddress": payload['tender']['procuringEntity']['address']['streetAddress'],
+                        "addressDetails": {
+                            "country": {
+                                "scheme": country_from_mdm['scheme'],
+                                "id": payload['tender']['procuringEntity']['address']['addressDetails']['country'][
+                                    'id'],
+                                "description": country_from_mdm['description'],
+                                "uri": country_from_mdm['uri']
+                            },
+                            "region": {
+                                "scheme": region_from_mdm['scheme'],
+                                "id": payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'],
+                                "description": region_from_mdm['description'],
+                                "uri": region_from_mdm['uri']
+                            },
+                            "locality": {
+                                "scheme": payload['tender']['procuringEntity']['address']['addressDetails']['locality'][
+                                    'scheme'],
+                                "id": payload['tender']['procuringEntity']['address']['addressDetails']['locality'][
+                                    'id'],
+                                "description":
+                                    payload['tender']['procuringEntity']['address']['addressDetails']['locality'][
+                                        'description']
+                            }
+                        }
+                    },
+                    "contactPoint": {
+                        "name": payload['tender']['procuringEntity']['contactPoint']['name'],
+                        "email": payload['tender']['procuringEntity']['contactPoint']['email'],
+                        "telephone": payload['tender']['procuringEntity']['contactPoint']['telephone']
+                    },
+                    "roles": ["procuringEntity"]
+                }],
+                "relatedProcesses": [{
+                    "id": actual_result['releases'][0]['relatedProcesses'][0]['id'],
+                    "relationship": ["planning"],
+                    "scheme": "ocid",
+                    "identifier": message_from_kafka['data']['outcomes']['pn'][0]['id'],
+                    "uri": f"{message_from_kafka['data']['url']}/"
+                           f"{message_from_kafka['data']['outcomes']['pn'][0]['id']}"
+                }, {
+                    "id": actual_result['releases'][0]['relatedProcesses'][1]['id'],
+                    "relationship": ["x_expenditureItem"],
+                    "scheme": "ocid",
+                    "identifier": ei_id,
+                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                }, {
+                    "id": actual_result['releases'][0]['relatedProcesses'][2]['id'],
+                    "relationship": ["x_fundingSource"],
+                    "scheme": "ocid",
+                    "identifier": payload["planning"]["budget"]["budgetBreakdown"][0]['id'],
+                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/"
+                           f"{payload['planning']['budget']['budgetBreakdown'][0]['id']}"
+                }]
+            }]
+        }
+        compare_releases = DeepDiff(expected_result, actual_result)
+        assert compare_actual_result_and_expected_result(
+            expected_result={},
+            actual_result=compare_releases
+        )
+
+    @pytestrail.case("27585")
+    def test_check_on_the_platform_data_has_been_transferred_and_displayed_correctly_in_the_pn_release_27585_181(
+            self, language, pmd):
+        message_from_kafka = CreatePn.message_from_kafka
+        url_create_ms = message_from_kafka['data']['url'] + "/" + message_from_kafka['data']['ocid']
+        ms_release = requests.get(url=url_create_ms).json()
+        related_processes_list_ei = list()
+        for d in ms_release["releases"]:
+            for d_1 in d["relatedProcesses"]:
+                if d_1["relationship"] == ["x_expenditureItem"]:
+                    related_processes_list_ei.append(d_1)
+        ei_release = requests.get(url=related_processes_list_ei[0]["uri"]).json()
+        url_create_pn = message_from_kafka['data']['url'] + "/" + message_from_kafka['data']['outcomes']['pn'][0]['id']
+        pn_release = requests.get(url=url_create_pn).json()
+        payload = CreatePn.payload
+        mdm = MdmService(
+            instance="dev",
+            lang="ro",
+            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
+            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
+            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+        )
+        data = mdm.process_tender_data(pmd).json()
+        submissionMethodDetails = data["data"]["tender"]["submissionMethodDetails"]
+        submissionMethodRationale = data["data"]["tender"]["submissionMethodRationale"]
+        actual_result = pn_release
+        expected_result = {
+            "uri": f"http://dev.public.eprocurement.systems/tenders/{message_from_kafka['data']['ocid']}/"
+                   f"{message_from_kafka['data']['outcomes']['pn'][0]['id']}",
+            "version": "1.1",
+            "extensions": [
+                "https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/extension.json",
+                "https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/extension.js"],
+            "publisher": {
+                "name": "M-Tender",
+                "uri": "https://www.mtender.gov.md"
+            },
+            "license": "http://opendefinition.org/licenses/",
+            "publicationPolicy": "http://opendefinition.org/licenses/",
+            "publishedDate": message_from_kafka['data']['operationDate'],
+            "releases": [{
+                "ocid": message_from_kafka['data']['outcomes']['pn'][0]['id'],
+                "id": f"{message_from_kafka['data']['outcomes']['pn'][0]['id']}-"
+                      f"{message_from_kafka['data']['outcomes']['pn'][0]['id'][32:45]}",
+                "date": message_from_kafka['data']['operationDate'],
+                "tag": ["planning"],
+                "language": language,
+                "initiationType": "tender",
+                "tender": {
+                    "id": actual_result['releases'][0]['tender']['id'],
+                    "title": "Planning Notice",
+                    "description": "Contracting process is planned",
+                    "status": "planning",
+                    "statusDetails": "planning",
+                    "lotGroups": [{
+                        "optionToCombine": False
+                    }],
+                    "tenderPeriod": {
+                        "startDate": payload['tender']['tenderPeriod']['startDate']
+                    },
+                    "hasEnquiries": False,
+                    "submissionMethod": ["electronicSubmission"],
+                    "submissionMethodDetails": submissionMethodDetails,
+                    "submissionMethodRationale": submissionMethodRationale,
+                    "requiresElectronicCatalogue": False,
+                    "classification": {
+                        "scheme": "CPV",
+                        "id": ei_release['releases'][0]['tender']['classification']['id'],
+                        "description": ei_release['releases'][0]['tender']['classification']['description']
+                    },
+                    "value": {
+                        "amount": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"],
+                        "currency": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"]
+                    }
+                },
+                "hasPreviousNotice": False,
+                "purposeOfNotice": {
+                    "isACallForCompetition": False
+                },
+                "relatedProcesses": [{
+                    "id": actual_result['releases'][0]['relatedProcesses'][0]['id'],
+                    "relationship": ["parent"],
+                    "scheme": "ocid",
+                    "identifier": message_from_kafka['data']['ocid'],
+                    "uri": f"http://dev.public.eprocurement.systems/tenders/{message_from_kafka['data']['ocid']}/"
+                           f"{message_from_kafka['data']['ocid']}"
+                }]
+            }]
+        }
+        compare_releases = DeepDiff(expected_result, actual_result)
+        assert compare_actual_result_and_expected_result(
+            expected_result={},
+            actual_result=compare_releases
         )
 
 
@@ -6233,4 +6631,757 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         assert compare_actual_result_and_expected_result(
             expected_result=f"http://dev.public.eprocurement.systems/budgets/{CreatePn.ei_id}/{CreatePn.fs_id}",
             actual_result=related_processes_with_relationship_x_funding_source[0]['uri']
+        )
+
+    @pytestrail.case("27588")
+    def test_check_on_the_platform_data_has_been_transferred_and_displayed_correctly_in_the_ms_release_27588_343(
+            self, language, pmd):
+        ei_id = CreatePn.ei_id
+        message_from_kafka = CreatePn.message_from_kafka
+        url_create_ms = message_from_kafka['data']['url'] + "/" + message_from_kafka['data']['ocid']
+        ms_release = requests.get(url=url_create_ms).json()
+        related_processes_list_ei = list()
+        for d in ms_release["releases"]:
+            for d_1 in d["relatedProcesses"]:
+                if d_1["relationship"] == ["x_expenditureItem"]:
+                    related_processes_list_ei.append(d_1)
+        ei_release = requests.get(url=related_processes_list_ei[0]["uri"]).json()
+
+        related_processes_list_fs = list()
+        for d in ms_release["releases"]:
+            for d_1 in d["relatedProcesses"]:
+                if d_1["relationship"] == ["x_fundingSource"]:
+                    related_processes_list_fs.append(d_1)
+        fs_release = requests.get(url=related_processes_list_fs[0]["uri"]).json()
+
+        parties_with_buyer_role_ei = list()
+        for p in ei_release["releases"][0]["parties"]:
+            if p["roles"] == ["buyer"]:
+                parties_with_buyer_role_ei.append(p)
+        parties_with_payer_role_fs = list()
+        for p in fs_release["releases"][0]["parties"]:
+            if p["roles"] == ["payer"]:
+                parties_with_payer_role_fs.append(p)
+
+        parties_with_funder_role_fs = list()
+        for p in fs_release["releases"][0]["parties"]:
+            if p["roles"] == ["funder"]:
+                parties_with_funder_role_fs.append(p)
+
+        payload = CreatePn.payload
+        if payload['tender']['lots'][0]['contractPeriod']['startDate'] <= \
+                payload['tender']['lots'][1]['contractPeriod']['startDate']:
+            start_date = payload['tender']['lots'][0]['contractPeriod']['startDate']
+        elif payload['tender']['lots'][0]['contractPeriod']['startDate'] >= \
+                payload['tender']['lots'][1]['contractPeriod']['startDate']:
+            start_date = payload['tender']['lots'][1]['contractPeriod']['startDate']
+        else:
+            raise Exception("Can not get startDate for tender.contractPeriod")
+        if payload['tender']['lots'][0]['contractPeriod']['endDate'] <= \
+                payload['tender']['lots'][1]['contractPeriod']['endDate']:
+            end_date = payload['tender']['lots'][1]['contractPeriod']['endDate']
+        elif payload['tender']['lots'][0]['contractPeriod']['endDate'] >= \
+                payload['tender']['lots'][1]['contractPeriod']['endDate']:
+            end_date = payload['tender']['lots'][0]['contractPeriod']['endDate']
+        else:
+            raise Exception("Can not get endDate for tender.contractPeriod")
+
+        mdm = MdmService(
+            instance="dev",
+            lang="ro",
+            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
+            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
+            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+        )
+        data = mdm.process_tender_data(pmd).json()
+        country_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
+        region_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]
+        procurement_method_details_from_mdm = data["data"]["tender"]["procurementMethodDetails"]
+        eligibility_criteria_from_mdm = data["data"]["tender"]["eligibilityCriteria"]
+
+        calculate_new_cpv_code = get_new_classification_id(
+            payload['tender']['items'][0]['classification']['id'],
+            payload['tender']['items'][1]['classification']['id']
+        )
+        get_value_by_new_cpv_code = get_value_from_classification_cpv_dictionary_xls(
+            calculate_new_cpv_code,
+            language
+        )
+
+        actual_result = ms_release
+        expected_result = {
+            "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                   f"{message_from_kafka['data']['ocid']}/{message_from_kafka['data']['ocid']}",
+            "version": "1.1",
+            "extensions": [
+                "https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/extension.json",
+                "https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/extension.js"],
+            "publisher": {
+                "name": "M-Tender",
+                "uri": "https://www.mtender.gov.md"
+            },
+            "license": "http://opendefinition.org/licenses/",
+            "publicationPolicy": "http://opendefinition.org/licenses/",
+            "publishedDate": message_from_kafka['data']['operationDate'],
+            "releases": [{
+                "ocid": message_from_kafka['data']['ocid'],
+                "id": f"{message_from_kafka['data']['ocid']}-"
+                      f"{message_from_kafka['data']['outcomes']['pn'][0]['id'][32:45]}",
+                "date": message_from_kafka['data']['operationDate'],
+                "tag": ["compiled"],
+                "language": language,
+                "initiationType": "tender",
+                "planning": {
+                    "budget": {
+                        "description": "description of budget",
+                        "amount": {
+                            "amount": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"],
+                            "currency": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"]
+                        },
+                        "isEuropeanUnionFunded": fs_release['releases'][0]['planning']['budget'][
+                            'isEuropeanUnionFunded'],
+                        "budgetBreakdown": [{
+                            "id": payload["planning"]["budget"]["budgetBreakdown"][0]['id'],
+                            "description": "description",
+                            "amount": {
+                                "amount": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["amount"],
+                                "currency": payload["planning"]["budget"]["budgetBreakdown"][0]["amount"]["currency"]
+                            },
+                            "period": {
+                                "startDate": fs_release['releases'][0]['planning']['budget']['period']['startDate'],
+                                "endDate": fs_release['releases'][0]['planning']['budget']['period']['endDate']
+                            },
+                            "sourceParty": {
+                                "id": fs_release['releases'][0]['planning']['budget']['sourceEntity']['id'],
+                                "name": fs_release['releases'][0]['planning']['budget']['sourceEntity']['name']
+                            },
+                            "europeanUnionFunding": {
+                                "projectIdentifier":
+                                    fs_release['releases'][0]['planning']['budget']['europeanUnionFunding'][
+                                        'projectIdentifier'],
+                                "projectName": fs_release['releases'][0]['planning']['budget']['europeanUnionFunding'][
+                                    'projectName'],
+                                "uri": fs_release['releases'][0]['planning']['budget']['europeanUnionFunding'][
+                                    'uri']
+                            }
+                        }]
+                    },
+                    "rationale": payload['planning']['rationale']
+                },
+                "tender": {
+                    "id": actual_result['releases'][0]['tender']['id'],
+                    "title": payload['tender']['title'],
+                    "description": payload['tender']['description'],
+                    "status": "planning",
+                    "statusDetails": "planning notice",
+                    "value": {
+                        "amount": payload["tender"]["lots"][0]["value"]["amount"] + payload["tender"]["lots"][1][
+                            "value"]["amount"],
+                        "currency": payload["tender"]["lots"][0]["value"]["currency"]
+                    },
+                    "procurementMethod": "open",
+                    "procurementMethodDetails": procurement_method_details_from_mdm,
+                    "procurementMethodRationale": payload['tender']['procurementMethodRationale'],
+                    "mainProcurementCategory": ei_release['releases'][0]['tender']['mainProcurementCategory'],
+                    "hasEnquiries": False,
+                    "eligibilityCriteria": eligibility_criteria_from_mdm,
+                    "contractPeriod": {
+                        "startDate": start_date,
+                        "endDate": end_date
+                    },
+                    "procuringEntity": {
+                        "id": f"{payload['tender']['procuringEntity']['identifier']['scheme']}-"
+                              f"{payload['tender']['procuringEntity']['identifier']['id']}",
+                        "name": payload['tender']['procuringEntity']['name']
+                    },
+                    "acceleratedProcedure": {
+                        "isAcceleratedProcedure": False
+                    },
+                    "classification": {
+                        "scheme": "CPV",
+                        "id": get_value_by_new_cpv_code[0],
+                        "description": get_value_by_new_cpv_code[1]
+                    },
+                    "designContest": {
+                        "serviceContractAward": False
+                    },
+                    "electronicWorkflows": {
+                        "useOrdering": False,
+                        "usePayment": False,
+                        "acceptInvoicing": False
+                    },
+                    "jointProcurement": {
+                        "isJointProcurement": False
+                    },
+                    "legalBasis": payload['tender']['legalBasis'],
+                    "procedureOutsourcing": {
+                        "procedureOutsourced": False
+                    },
+                    "procurementMethodAdditionalInfo": payload['tender']['procurementMethodAdditionalInfo'],
+                    "dynamicPurchasingSystem": {
+                        "hasDynamicPurchasingSystem": False
+                    },
+                    "framework": {
+                        "isAFramework": False
+                    }
+                },
+                "parties": [{
+                    "id": parties_with_buyer_role_ei[0]['id'],
+                    "name": parties_with_buyer_role_ei[0]['name'],
+                    "identifier": {
+                        "scheme": parties_with_buyer_role_ei[0]['identifier']['scheme'],
+                        "id": parties_with_buyer_role_ei[0]['identifier']['id'],
+                        "legalName": parties_with_buyer_role_ei[0]['identifier']['legalName'],
+                        "uri": parties_with_buyer_role_ei[0]['identifier']['uri']
+                    },
+                    "address": {
+                        "streetAddress": parties_with_buyer_role_ei[0]['address']['streetAddress'],
+                        "postalCode": "02217",
+                        "addressDetails": {
+                            "country": {
+                                "scheme": parties_with_buyer_role_ei[0]['address']['addressDetails']['country'][
+                                    'scheme'],
+                                "id": parties_with_buyer_role_ei[0]['address']['addressDetails']['country']['id'],
+                                "description": parties_with_buyer_role_ei[0]['address']['addressDetails']['country'][
+                                    'description'],
+                                "uri": parties_with_buyer_role_ei[0]['address']['addressDetails']['country']['uri']
+                            },
+                            "region": {
+                                "scheme": parties_with_buyer_role_ei[0]['address']['addressDetails']['region'][
+                                    'scheme'],
+                                "id": parties_with_buyer_role_ei[0]['address']['addressDetails']['region']['id'],
+                                "description": parties_with_buyer_role_ei[0]['address']['addressDetails']['region'][
+                                    'description'],
+                                "uri": parties_with_buyer_role_ei[0]['address']['addressDetails']['region']['uri']
+                            },
+                            "locality": {
+                                "scheme": parties_with_buyer_role_ei[0]['address']['addressDetails']['locality'][
+                                    'scheme'],
+                                "id": parties_with_buyer_role_ei[0]['address']['addressDetails']['locality']['id'],
+                                "description": parties_with_buyer_role_ei[0]['address']['addressDetails']['locality'][
+                                    'description'],
+                                "uri": parties_with_buyer_role_ei[0]['address']['addressDetails']['locality']['uri']
+                            }
+                        }
+                    },
+                    "additionalIdentifiers": [{
+                        "scheme": parties_with_buyer_role_ei[0]['additionalIdentifiers'][0]['scheme'],
+                        "id": parties_with_buyer_role_ei[0]['additionalIdentifiers'][0]['id'],
+                        "legalName": parties_with_buyer_role_ei[0]['additionalIdentifiers'][0]['legalName'],
+                        "uri": parties_with_buyer_role_ei[0]['additionalIdentifiers'][0]['uri']
+                    }],
+                    "contactPoint": {
+                        "name": parties_with_buyer_role_ei[0]['contactPoint']['name'],
+                        "email": parties_with_buyer_role_ei[0]['contactPoint']['email'],
+                        "telephone": parties_with_buyer_role_ei[0]['contactPoint']['telephone'],
+                        "faxNumber": parties_with_buyer_role_ei[0]['contactPoint']['faxNumber'],
+                        "url": parties_with_buyer_role_ei[0]['contactPoint']['url']
+                    },
+                    "details": {
+                        "typeOfBuyer": parties_with_buyer_role_ei[0]['details']['typeOfBuyer'],
+                        "mainGeneralActivity": parties_with_buyer_role_ei[0]['details']['mainGeneralActivity'],
+                        "mainSectoralActivity": parties_with_buyer_role_ei[0]['details']['mainSectoralActivity']
+                    },
+                    "roles": ["buyer"]
+                }, {
+                    "id": parties_with_payer_role_fs[0]['id'],
+                    "name": parties_with_payer_role_fs[0]['name'],
+                    "identifier": {
+                        "scheme": parties_with_payer_role_fs[0]['identifier']['scheme'],
+                        "id": parties_with_payer_role_fs[0]['identifier']['id'],
+                        "legalName": parties_with_payer_role_fs[0]['identifier']['legalName'],
+                        "uri": parties_with_payer_role_fs[0]['identifier']['uri']
+                    },
+                    "address": {
+                        "streetAddress": parties_with_payer_role_fs[0]['address']['streetAddress'],
+                        "postalCode": parties_with_payer_role_fs[0]['address']['postalCode'],
+                        "addressDetails": {
+                            "country": {
+                                "scheme": parties_with_payer_role_fs[0]['address']['addressDetails']['country'][
+                                    'scheme'],
+                                "id": parties_with_payer_role_fs[0]['address']['addressDetails']['country']['id'],
+                                "description": parties_with_payer_role_fs[0]['address']['addressDetails']['country'][
+                                    'description'],
+                                "uri": parties_with_payer_role_fs[0]['address']['addressDetails']['country']['uri']
+                            },
+                            "region": {
+                                "scheme": parties_with_payer_role_fs[0]['address']['addressDetails']['region'][
+                                    'scheme'],
+                                "id": parties_with_payer_role_fs[0]['address']['addressDetails']['region']['id'],
+                                "description": parties_with_payer_role_fs[0]['address']['addressDetails']['region'][
+                                    'description'],
+                                "uri": parties_with_payer_role_fs[0]['address']['addressDetails']['region']['uri']
+                            },
+                            "locality": {
+                                "scheme": parties_with_payer_role_fs[0]['address']['addressDetails']['locality'][
+                                    'scheme'],
+                                "id": parties_with_payer_role_fs[0]['address']['addressDetails']['locality']['id'],
+                                "description": parties_with_payer_role_fs[0]['address']['addressDetails']['locality'][
+                                    'description'],
+                                "uri": parties_with_payer_role_fs[0]['address']['addressDetails']['locality']['uri']
+                            }
+                        }
+                    },
+                    "additionalIdentifiers": [{
+                        "scheme": parties_with_payer_role_fs[0]['additionalIdentifiers'][0]['scheme'],
+                        "id": parties_with_payer_role_fs[0]['additionalIdentifiers'][0]['id'],
+                        "legalName": parties_with_payer_role_fs[0]['additionalIdentifiers'][0]['legalName'],
+                        "uri": parties_with_payer_role_fs[0]['additionalIdentifiers'][0]['uri']
+                    }],
+                    "contactPoint": {
+                        "name": parties_with_payer_role_fs[0]['contactPoint']['name'],
+                        "email": parties_with_payer_role_fs[0]['contactPoint']['email'],
+                        "telephone": parties_with_payer_role_fs[0]['contactPoint']['telephone'],
+                        "faxNumber": parties_with_payer_role_fs[0]['contactPoint']['faxNumber'],
+                        "url": parties_with_payer_role_fs[0]['contactPoint']['url']
+                    },
+                    "roles": ["payer"]
+                }, {
+                    "id": parties_with_funder_role_fs[0]['id'],
+                    "name": parties_with_funder_role_fs[0]['name'],
+                    "identifier": {
+                        "scheme": parties_with_funder_role_fs[0]['identifier']['scheme'],
+                        "id": parties_with_funder_role_fs[0]['identifier']['id'],
+                        "legalName": parties_with_funder_role_fs[0]['identifier']['legalName'],
+                        "uri": parties_with_funder_role_fs[0]['identifier']['uri']
+                    },
+                    "address": {
+                        "streetAddress": parties_with_funder_role_fs[0]['address']['streetAddress'],
+                        "postalCode": parties_with_funder_role_fs[0]['address']['postalCode'],
+                        "addressDetails": {
+                            "country": {
+                                "scheme": parties_with_funder_role_fs[0]['address']['addressDetails']['country'][
+                                    'scheme'],
+                                "id": parties_with_funder_role_fs[0]['address']['addressDetails']['country']['id'],
+                                "description": parties_with_funder_role_fs[0]['address']['addressDetails']['country'][
+                                    'description'],
+                                "uri": parties_with_funder_role_fs[0]['address']['addressDetails']['country']['uri']
+                            },
+                            "region": {
+                                "scheme": parties_with_funder_role_fs[0]['address']['addressDetails']['region'][
+                                    'scheme'],
+                                "id": parties_with_funder_role_fs[0]['address']['addressDetails']['region']['id'],
+                                "description": parties_with_funder_role_fs[0]['address']['addressDetails']['region'][
+                                    'description'],
+                                "uri": parties_with_funder_role_fs[0]['address']['addressDetails']['region']['uri']
+                            },
+                            "locality": {
+                                "scheme": parties_with_funder_role_fs[0]['address']['addressDetails']['locality'][
+                                    'scheme'],
+                                "id": parties_with_funder_role_fs[0]['address']['addressDetails']['locality']['id'],
+                                "description": parties_with_funder_role_fs[0]['address']['addressDetails']['locality'][
+                                    'description'],
+                                "uri": parties_with_funder_role_fs[0]['address']['addressDetails']['locality']['uri']
+                            }
+                        }
+                    },
+                    "additionalIdentifiers": [{
+                        "scheme": parties_with_funder_role_fs[0]['additionalIdentifiers'][0]['scheme'],
+                        "id": parties_with_funder_role_fs[0]['additionalIdentifiers'][0]['id'],
+                        "legalName": parties_with_funder_role_fs[0]['additionalIdentifiers'][0]['legalName'],
+                        "uri": parties_with_funder_role_fs[0]['additionalIdentifiers'][0]['uri']
+                    }],
+                    "contactPoint": {
+                        "name": parties_with_funder_role_fs[0]['contactPoint']['name'],
+                        "email": parties_with_funder_role_fs[0]['contactPoint']['email'],
+                        "telephone": parties_with_funder_role_fs[0]['contactPoint']['telephone'],
+                        "faxNumber": parties_with_funder_role_fs[0]['contactPoint']['faxNumber'],
+                        "url": parties_with_funder_role_fs[0]['contactPoint']['url']
+                    },
+                    "roles": ["funder"]
+                }, {
+                    "id": f"{payload['tender']['procuringEntity']['identifier']['scheme']}-"
+                          f"{payload['tender']['procuringEntity']['identifier']['id']}",
+                    "name": payload['tender']['procuringEntity']['name'],
+                    "identifier": {
+                        "scheme": payload['tender']['procuringEntity']['identifier']['scheme'],
+                        "id": payload['tender']['procuringEntity']['identifier']['id'],
+                        "legalName": payload['tender']['procuringEntity']['identifier']['legalName'],
+                        "uri": payload['tender']['procuringEntity']['identifier']['uri']
+                    },
+                    "address": {
+                        "streetAddress": payload['tender']['procuringEntity']['address']['streetAddress'],
+                        "postalCode": payload['tender']['procuringEntity']['address']['postalCode'],
+                        "addressDetails": {
+                            "country": {
+                                "scheme": country_from_mdm['scheme'],
+                                "id": payload['tender']['procuringEntity']['address']['addressDetails']['country'][
+                                    'id'],
+                                "description": country_from_mdm['description'],
+                                "uri": country_from_mdm['uri']
+                            },
+                            "region": {
+                                "scheme": region_from_mdm['scheme'],
+                                "id": payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'],
+                                "description": region_from_mdm['description'],
+                                "uri": region_from_mdm['uri']
+                            },
+                            "locality": {
+                                "scheme": payload['tender']['procuringEntity']['address']['addressDetails']['locality'][
+                                    'scheme'],
+                                "id": payload['tender']['procuringEntity']['address']['addressDetails']['locality'][
+                                    'id'],
+                                "description":
+                                    payload['tender']['procuringEntity']['address']['addressDetails']['locality'][
+                                        'description']
+                            }
+                        }
+                    },
+                    "additionalIdentifiers": [{
+                        "scheme": payload['tender']['procuringEntity']['additionalIdentifiers'][0]['scheme'],
+                        "id": payload['tender']['procuringEntity']['additionalIdentifiers'][0]['id'],
+                        "legalName": payload['tender']['procuringEntity']['additionalIdentifiers'][0]['legalName'],
+                        "uri": payload['tender']['procuringEntity']['additionalIdentifiers'][0]['uri']
+                    }],
+                    "contactPoint": {
+                        "name": payload['tender']['procuringEntity']['contactPoint']['name'],
+                        "email": payload['tender']['procuringEntity']['contactPoint']['email'],
+                        "telephone": payload['tender']['procuringEntity']['contactPoint']['telephone'],
+                        "faxNumber": payload['tender']['procuringEntity']['contactPoint']['faxNumber'],
+                        "url": payload['tender']['procuringEntity']['contactPoint']['url']
+                    },
+                    "roles": ["procuringEntity"]
+                }],
+                "relatedProcesses": [{
+                    "id": actual_result['releases'][0]['relatedProcesses'][0]['id'],
+                    "relationship": ["planning"],
+                    "scheme": "ocid",
+                    "identifier": message_from_kafka['data']['outcomes']['pn'][0]['id'],
+                    "uri": f"{message_from_kafka['data']['url']}/"
+                           f"{message_from_kafka['data']['outcomes']['pn'][0]['id']}"
+                }, {
+                    "id": actual_result['releases'][0]['relatedProcesses'][1]['id'],
+                    "relationship": ["x_expenditureItem"],
+                    "scheme": "ocid",
+                    "identifier": ei_id,
+                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                }, {
+                    "id": actual_result['releases'][0]['relatedProcesses'][2]['id'],
+                    "relationship": ["x_fundingSource"],
+                    "scheme": "ocid",
+                    "identifier": payload["planning"]["budget"]["budgetBreakdown"][0]['id'],
+                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/"
+                           f"{payload['planning']['budget']['budgetBreakdown'][0]['id']}"
+                }]
+            }]
+        }
+        compare_releases = DeepDiff(expected_result, actual_result)
+        assert compare_actual_result_and_expected_result(
+            expected_result={},
+            actual_result=compare_releases
+        )
+
+    @pytestrail.case("27588")
+    def test_check_on_the_platform_data_has_been_transferred_and_displayed_correctly_in_the_pn_release_27588_344(
+            self, language, pmd):
+        message_from_kafka = CreatePn.message_from_kafka
+        url_create_pn = message_from_kafka['data']['url'] + "/" + message_from_kafka['data']['outcomes']['pn'][0]['id']
+        pn_release = requests.get(url=url_create_pn).json()
+        payload = CreatePn.payload
+        mdm = MdmService(
+            instance="dev",
+            lang="ro",
+            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
+            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
+            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+        )
+        data = mdm.process_tender_data(pmd).json()
+        first_lot_country_from_mdm = \
+            data["data"]["tender"]["lots"][0]['placeOfPerformance']['address']['addressDetails']['country']
+        first_lot_region_from_mdm = \
+            data["data"]["tender"]["lots"][0]['placeOfPerformance']['address']['addressDetails']['region']
+        first_lot_locality_from_mdm = \
+            data["data"]["tender"]["lots"][0]['placeOfPerformance']['address']['addressDetails']['locality']
+        second_lot_country_from_mdm = \
+            data["data"]["tender"]["lots"][1]['placeOfPerformance']['address']['addressDetails']['country']
+        second_lot_region_from_mdm = \
+            data["data"]["tender"]["lots"][1]['placeOfPerformance']['address']['addressDetails']['region']
+        second_lot_locality_from_mdm = \
+            data["data"]["tender"]["lots"][1]['placeOfPerformance']['address']['addressDetails']['locality']
+
+        submissionMethodDetails = data["data"]["tender"]["submissionMethodDetails"]
+        submissionMethodRationale = data["data"]["tender"]["submissionMethodRationale"]
+        calculate_new_cpv_code = get_new_classification_id(
+            payload['tender']['items'][0]['classification']['id'],
+            payload['tender']['items'][1]['classification']['id']
+        )
+        get_value_by_new_cpv_code = get_value_from_classification_cpv_dictionary_xls(
+            calculate_new_cpv_code,
+            language
+        )
+        get_value_by_first_item_cpv_code = get_value_from_classification_cpv_dictionary_xls(
+            payload['tender']['items'][0]['classification']['id'],
+            language
+        )
+        get_value_by_second_item_cpv_code = get_value_from_classification_cpv_dictionary_xls(
+            payload['tender']['items'][1]['classification']['id'],
+            language
+        )
+        get_value_by_first_item_cpvs_code = get_value_from_cpvs_dictionary_csv(
+            payload['tender']['items'][0]['additionalClassifications'][0]['id'],
+            language
+        )
+        get_value_by_second_item_cpvs_code = get_value_from_cpvs_dictionary_csv(
+            payload['tender']['items'][1]['additionalClassifications'][0]['id'],
+            language
+        )
+        get_value_by_first_item_unit_id = get_value_from_classification_unit_dictionary_csv(
+            payload['tender']['items'][0]['unit']['id'],
+            language
+        )
+        get_value_by_second_item_unit_id = get_value_from_classification_unit_dictionary_csv(
+            payload['tender']['items'][1]['unit']['id'],
+            language
+        )
+        actual_result = pn_release
+        expected_result = {
+            "uri": f"http://dev.public.eprocurement.systems/tenders/{message_from_kafka['data']['ocid']}/"
+                   f"{message_from_kafka['data']['outcomes']['pn'][0]['id']}",
+            "version": "1.1",
+            "extensions": [
+                "https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/extension.json",
+                "https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/extension.js"],
+            "publisher": {
+                "name": "M-Tender",
+                "uri": "https://www.mtender.gov.md"
+            },
+            "license": "http://opendefinition.org/licenses/",
+            "publicationPolicy": "http://opendefinition.org/licenses/",
+            "publishedDate": message_from_kafka['data']['operationDate'],
+            "releases": [{
+                "ocid": message_from_kafka['data']['outcomes']['pn'][0]['id'],
+                "id": f"{message_from_kafka['data']['outcomes']['pn'][0]['id']}-"
+                      f"{message_from_kafka['data']['outcomes']['pn'][0]['id'][32:45]}",
+                "date": message_from_kafka['data']['operationDate'],
+                "tag": ["planning"],
+                "language": language,
+                "initiationType": "tender",
+                "tender": {
+                    "id": actual_result['releases'][0]['tender']['id'],
+                    "title": "Planning Notice",
+                    "description": "Contracting process is planned",
+                    "status": "planning",
+                    "statusDetails": "planning",
+                    "items": [{
+                        "id": actual_result['releases'][0]['tender']['items'][0]['id'],
+                        "internalId": payload['tender']['items'][0]['internalId'],
+                        "description": payload['tender']['items'][0]['description'],
+                        "classification": {
+                            "scheme": "CPV",
+                            "id": payload['tender']['items'][0]['classification']['id'],
+                            "description": get_value_by_first_item_cpv_code[1]
+                        },
+                        "additionalClassifications": [{
+                            "scheme": "CPVS",
+                            "id": payload['tender']['items'][0]['additionalClassifications'][0]['id'],
+                            "description": get_value_by_first_item_cpvs_code[2]
+                        }],
+                        "quantity": payload['tender']['items'][0]['quantity'],
+                        "unit": {
+                            "name": get_value_by_first_item_unit_id[1],
+                            "id": payload['tender']['items'][0]['unit']['id']
+                        },
+                        "relatedLot": actual_result['releases'][0]['tender']['lots'][0]['id']
+                    }, {
+                        "id": actual_result['releases'][0]['tender']['items'][1]['id'],
+                        "internalId": payload['tender']['items'][1]['internalId'],
+                        "description": payload['tender']['items'][1]['description'],
+                        "classification": {
+                            "scheme": "CPV",
+                            "id": payload['tender']['items'][1]['classification']['id'],
+                            "description": get_value_by_second_item_cpv_code[1]
+                        },
+                        "additionalClassifications": [{
+                            "scheme": "CPVS",
+                            "id": payload['tender']['items'][1]['additionalClassifications'][0]['id'],
+                            "description": get_value_by_second_item_cpvs_code[2]
+                        }],
+                        "quantity": payload['tender']['items'][1]['quantity'],
+                        "unit": {
+                            "name": get_value_by_second_item_unit_id[1],
+                            "id": payload['tender']['items'][1]['unit']['id']
+                        },
+                        "relatedLot": actual_result['releases'][0]['tender']['lots'][1]['id']
+                    }],
+                    "lots": [{
+                        "id": actual_result['releases'][0]['tender']['lots'][0]['id'],
+                        "internalId": payload['tender']['lots'][0]['internalId'],
+                        "title": payload['tender']['lots'][0]['title'],
+                        "description": payload['tender']['lots'][0]['description'],
+                        "status": "planning",
+                        "statusDetails": "empty",
+                        "value": {
+                            "amount": payload['tender']['lots'][0]['value']['amount'],
+                            "currency": payload['tender']['lots'][0]['value']['currency']
+                        },
+                        "recurrentProcurement": [{
+                            "isRecurrent": False
+                        }],
+                        "renewals": [{
+                            "hasRenewals": False
+                        }],
+                        "variants": [{
+                            "hasVariants": False
+                        }],
+                        "contractPeriod": {
+                            "startDate": payload['tender']['lots'][0]['contractPeriod']['startDate'],
+                            "endDate": payload['tender']['lots'][0]['contractPeriod']['endDate']
+                        },
+                        "placeOfPerformance": {
+                            "address": {
+                                "streetAddress": payload['tender']['lots'][0]['placeOfPerformance']['address'][
+                                    'streetAddress'],
+                                "postalCode": payload['tender']['lots'][0]['placeOfPerformance']['address'][
+                                    'postalCode'],
+                                "addressDetails": {
+                                    "country": {
+                                        "scheme": first_lot_country_from_mdm['scheme'],
+                                        "id": payload['tender']['lots'][0]['placeOfPerformance']['address'][
+                                            'addressDetails']['country']['id'],
+                                        "description": first_lot_country_from_mdm['description'],
+                                        "uri": first_lot_country_from_mdm['uri']
+                                    },
+                                    "region": {
+                                        "scheme": first_lot_region_from_mdm['scheme'],
+                                        "id": payload['tender']['lots'][0]['placeOfPerformance']['address'][
+                                            'addressDetails']['region']['id'],
+                                        "description": first_lot_region_from_mdm['description'],
+                                        "uri": first_lot_region_from_mdm['uri']
+                                    },
+                                    "locality": {
+                                        "scheme": payload['tender']['lots'][0]['placeOfPerformance']['address'][
+                                            'addressDetails']['locality']['scheme'],
+                                        "id": payload['tender']['lots'][0]['placeOfPerformance']['address'][
+                                            'addressDetails']['locality']['id'],
+                                        "description": first_lot_locality_from_mdm['description'],
+                                        "uri": first_lot_locality_from_mdm['uri']
+                                    }
+                                }
+                            },
+                            "description": payload['tender']['lots'][0]['placeOfPerformance']['description']
+                        },
+                        "options": [{
+                            "hasOptions": False
+                        }]
+                    }, {
+                        "id": actual_result['releases'][0]['tender']['lots'][1]['id'],
+                        "internalId": payload['tender']['lots'][1]['internalId'],
+                        "title": payload['tender']['lots'][1]['title'],
+                        "description": payload['tender']['lots'][1]['description'],
+                        "status": "planning",
+                        "statusDetails": "empty",
+                        "value": {
+                            "amount": payload['tender']['lots'][1]['value']['amount'],
+                            "currency": payload['tender']['lots'][1]['value']['currency']
+                        },
+                        "recurrentProcurement": [{
+                            "isRecurrent": False
+                        }],
+                        "renewals": [{
+                            "hasRenewals": False
+                        }],
+                        "variants": [{
+                            "hasVariants": False
+                        }],
+                        "contractPeriod": {
+                            "startDate": payload['tender']['lots'][1]['contractPeriod']['startDate'],
+                            "endDate": payload['tender']['lots'][1]['contractPeriod']['endDate']
+                        },
+                        "placeOfPerformance": {
+                            "address": {
+                                "streetAddress": payload['tender']['lots'][1]['placeOfPerformance']['address'][
+                                    'streetAddress'],
+                                "postalCode": payload['tender']['lots'][1]['placeOfPerformance']['address'][
+                                    'postalCode'],
+                                "addressDetails": {
+                                    "country": {
+                                        "scheme": second_lot_country_from_mdm['scheme'],
+                                        "id": payload['tender']['lots'][1]['placeOfPerformance']['address'][
+                                            'addressDetails']['country']['id'],
+                                        "description": second_lot_country_from_mdm['description'],
+                                        "uri": second_lot_country_from_mdm['uri']
+                                    },
+                                    "region": {
+                                        "scheme": second_lot_region_from_mdm['scheme'],
+                                        "id": payload['tender']['lots'][1]['placeOfPerformance']['address'][
+                                            'addressDetails']['region']['id'],
+                                        "description": second_lot_region_from_mdm['description'],
+                                        "uri": second_lot_region_from_mdm['uri']
+                                    },
+                                    "locality": {
+                                        "scheme": payload['tender']['lots'][1]['placeOfPerformance']['address'][
+                                            'addressDetails']['locality']['scheme'],
+                                        "id": payload['tender']['lots'][1]['placeOfPerformance']['address'][
+                                            'addressDetails']['locality']['id'],
+                                        "description": second_lot_locality_from_mdm['description'],
+                                        "uri": second_lot_locality_from_mdm['uri']
+                                    }
+                                }
+                            },
+                            "description": payload['tender']['lots'][1]['placeOfPerformance']['description']
+                        },
+                        "options": [{
+                            "hasOptions": False
+                        }]
+                    }],
+                    "lotGroups": [{
+                        "optionToCombine": False
+                    }],
+                    "tenderPeriod": {
+                        "startDate": payload['tender']['tenderPeriod']['startDate']
+                    },
+                    "hasEnquiries": False,
+                    "documents": [{
+                        "id": payload['tender']['documents'][0]['id'],
+                        "documentType": payload['tender']['documents'][0]['documentType'],
+                        "title": payload['tender']['documents'][0]['title'],
+                        "description": payload['tender']['documents'][0]['description'],
+                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                               f"{payload['tender']['documents'][0]['id']}",
+                        "datePublished": message_from_kafka['data']['operationDate'],
+                        "relatedLots": [actual_result['releases'][0]['tender']['lots'][0]['id']]
+                    }, {
+                        "id": payload['tender']['documents'][1]['id'],
+                        "documentType": payload['tender']['documents'][1]['documentType'],
+                        "title": payload['tender']['documents'][1]['title'],
+                        "description": payload['tender']['documents'][1]['description'],
+                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                               f"{payload['tender']['documents'][1]['id']}",
+                        "datePublished": message_from_kafka['data']['operationDate'],
+                        "relatedLots": [actual_result['releases'][0]['tender']['lots'][1]['id']]
+                    }],
+                    "submissionMethod": ["electronicSubmission"],
+                    "submissionMethodDetails": submissionMethodDetails,
+                    "submissionMethodRationale": submissionMethodRationale,
+                    "requiresElectronicCatalogue": False,
+                    "procurementMethodRationale": payload['tender']['procurementMethodRationale'],
+                    "classification": {
+                        "scheme": "CPV",
+                        "id": get_value_by_new_cpv_code[0],
+                        "description": get_value_by_new_cpv_code[1]
+                    },
+                    "value": {
+                        "amount": payload['tender']['lots'][0]['value']['amount'] + payload['tender']['lots'][1][
+                            'value']['amount'],
+                        "currency": payload['tender']['lots'][0]['value']['currency']
+                    }
+                },
+                "hasPreviousNotice": False,
+                "purposeOfNotice": {
+                    "isACallForCompetition": False
+                },
+                "relatedProcesses": [{
+                    "id": actual_result['releases'][0]['relatedProcesses'][0]['id'],
+                    "relationship": ["parent"],
+                    "scheme": "ocid",
+                    "identifier": message_from_kafka['data']['ocid'],
+                    "uri": f"http://dev.public.eprocurement.systems/tenders/{message_from_kafka['data']['ocid']}/"
+                           f"{message_from_kafka['data']['ocid']}"
+                }]
+            }]
+        }
+        compare_releases = DeepDiff(expected_result, actual_result)
+        assert compare_actual_result_and_expected_result(
+            expected_result={},
+            actual_result=compare_releases
         )

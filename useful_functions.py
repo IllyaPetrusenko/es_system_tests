@@ -68,6 +68,15 @@ def time_at_now():
     return f"{time_at_now_}"
 
 
+def time_at_now_as_utc(gep_hour=3):
+    date = datetime.datetime.now()
+    set_date = date - datetime.timedelta(hours=gep_hour, seconds=1)
+    time_at_now_ = set_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    make_timestamp = int(
+        time.mktime(datetime.datetime.strptime(time_at_now_, "%Y-%m-%dT%H:%M:%S.%fZ").timetuple())) * 1000
+    return f"{time_at_now_}", make_timestamp
+
+
 def timestamp():
     date = datetime.datetime.now()
     time_at_now_miliseconds = date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
@@ -268,7 +277,7 @@ def get_value_from_classification_cpv_dictionary_xls(cpv, language):
 
     if column_number > 0:
         for column in range(0, column_number):
-            if language in sheet.col(column)[0].value:
+            if language.upper() in sheet.col(column)[0].value:
                 requested_column.append(column)
     new_cpv = sheet.cell_value(rowx=int(requested_row[0]), colx=0)
     description = sheet.cell_value(rowx=int(requested_row[0]), colx=int(requested_column[0]))
