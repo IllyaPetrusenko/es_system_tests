@@ -9,37 +9,75 @@ contract_period = get_contract_period()
 
 
 class MdmService:
-    def __init__(self, instance, lang='ro', country='MD', region="3400000", locality="3401000", currency="EUR",
-                 procuring_entity_name="Procuring Entity Name", procuring_entity_identifier_id="123456789000",
-                 procuring_entity_identifier_scheme="MD-IDNO", procuring_entity_identifier_legal_name="Legal Name",
-                 procuring_entity_contact_point_name="contact person", lot_country='MD', lot_region='3400000',
-                 lot_locality='3401000',
-                 procuring_entity_contact_point_email="string@mail.ccc",
-                 procuring_entity_contact_point_telephone="98-79-87"):
-        self.lot_country = lot_country
-        self.lot_region = lot_region
-        self.lot_locality = lot_locality
-        self.procuring_entity_contact_point_telephone = procuring_entity_contact_point_telephone
-        self.procuring_entity_contact_point_email = procuring_entity_contact_point_email
-        self.procuring_entity_contact_point_name = procuring_entity_contact_point_name
-        self.procuring_entity_identifier_legal_name = procuring_entity_identifier_legal_name
-        self.procuring_entity_identifier_scheme = procuring_entity_identifier_scheme
-        self.procuring_entity_identifier_id = procuring_entity_identifier_id
-        self.procuring_entity_name = procuring_entity_name
-        self.currency = currency
-        self.instance = instance
-        self.lang = lang
-        self.country = country
-        self.region = region
-        self.locality = locality
+    def __init__(self, instance, lang='ro', country_id='MD', region_id='1700000', locality_id='1701000',
+                 ei_tender_classification_id='45100000-8', ei_tender_item_classification_id='45100000-8',
+                 ei_tender_item_additional_classifications_id='AA12-4', ei_tender_item_unit_id='10',
+                 ei_tender_items_delivery_details_country_id='MD', ei_tender_items_delivery_details_region_id='3400000',
+                 ei_tender_items_delivery_details_locality_scheme='CUATM',
+                 ei_tender_items_delivery_details_locality_id='3401000', buyer_address_details_country_id='MD',
+                 buyer_address_details_region_id='1700000', buyer_address_details_locality_scheme='CUATM',
+                 buyer_address_details_locality_id='1701000', currency='EUR', payer_address_details_country_id='MD',
+                 payer_address_details_region_id='1700000', payer_address_details_locality_scheme='CUATM',
+                 payer_address_details_locality_id='1701000', funder_address_details_country_id='MD',
+                 funder_address_details_region_id='1700000', funder_address_details_locality_scheme='CUATM',
+                 funder_address_details_locality_id='1701000', pn_lot_address_details_country_id='MD',
+                 pn_lot_address_details_region_id='1700000', pn_lot_address_details_locality_scheme='CUATM',
+                 pn_lot_address_details_locality_id='1701000', procuring_address_details_country_id='MD',
+                 procuring_address_details_region_id='1700000', procuring_address_details_locality_scheme='CUATM',
+                 procuring_address_details_locality_id='1701000', pn_tender_classification_id='45112300',
+                 pn_tender_item_one_classification_id='45112350-3',
+                 pn_tender_item_one_additional_classifications_id='AA12-4', pn_tender_item_one_unit_id='10',
+                 pn_tender_item_two_classification_id='45112360-6',
+                 pn_tender_item_two_additional_classifications_id='AA12-4', pn_tender_item_two_unit_id='10'
+                 ):
         if instance == "dev":
             self.host_of_services = "http://10.0.20.126:9161"
         elif instance == "sandbox":
             self.host_of_services = "http://10.0.10.116:9161"
+        self.lang = lang
+        self.country_id = country_id
+        self.region_id = region_id
+        self.locality_id = locality_id
+        self.ei_tender_classification_id = ei_tender_classification_id
+        self.ei_tender_item_classification_id = ei_tender_item_classification_id
+        self.ei_tender_item_additional_classifications_id = ei_tender_item_additional_classifications_id
+        self.ei_tender_item_unit_id = ei_tender_item_unit_id
+        self.ei_tender_items_delivery_details_country_id = ei_tender_items_delivery_details_country_id
+        self.ei_tender_items_delivery_details_region_id = ei_tender_items_delivery_details_region_id
+        self.ei_tender_items_delivery_details_locality_scheme = ei_tender_items_delivery_details_locality_scheme
+        self.ei_tender_items_delivery_details_locality_id = ei_tender_items_delivery_details_locality_id
+        self.buyer_address_details_country_id = buyer_address_details_country_id
+        self.buyer_address_details_region_id = buyer_address_details_region_id
+        self.buyer_address_details_locality_scheme = buyer_address_details_locality_scheme
+        self.buyer_address_details_locality_id = buyer_address_details_locality_id
+        self.currency = currency
+        self.payer_address_details_country_id = payer_address_details_country_id
+        self.payer_address_details_region_id = payer_address_details_region_id
+        self.payer_address_details_locality_scheme = payer_address_details_locality_scheme
+        self.payer_address_details_locality_id = payer_address_details_locality_id
+        self.funder_address_details_country_id = funder_address_details_country_id
+        self.funder_address_details_region_id = funder_address_details_region_id
+        self.funder_address_details_locality_scheme = funder_address_details_locality_scheme
+        self.funder_address_details_locality_id = funder_address_details_locality_id
+        self.pn_lot_address_details_country_id = pn_lot_address_details_country_id
+        self.pn_lot_address_details_region_id = pn_lot_address_details_region_id
+        self.pn_lot_address_details_locality_scheme = pn_lot_address_details_locality_scheme
+        self.pn_lot_address_details_locality_id = pn_lot_address_details_locality_id
+        self.procuring_address_details_country_id = procuring_address_details_country_id
+        self.procuring_address_details_region_id = procuring_address_details_region_id
+        self.procuring_address_details_locality_scheme = procuring_address_details_locality_scheme
+        self.procuring_address_details_locality_id = procuring_address_details_locality_id
+        self.pn_tender_classification_id = pn_tender_classification_id
+        self.pn_tender_item_one_classification_id = pn_tender_item_one_classification_id
+        self.pn_tender_item_one_additional_classifications_id = pn_tender_item_one_additional_classifications_id
+        self.pn_tender_item_one_unit_id = pn_tender_item_one_unit_id
+        self.pn_tender_item_two_classification_id = pn_tender_item_two_classification_id
+        self.pn_tender_item_two_additional_classifications_id = pn_tender_item_two_additional_classifications_id
+        self.pn_tender_item_two_unit_id = pn_tender_item_two_unit_id
 
     def get_country(self):
         country = requests.get(
-            url=self.host_of_services + "/addresses/countries/" + self.country,
+            url=self.host_of_services + "/addresses/countries/" + self.country_id,
             params={
                 'lang': self.lang
             }
@@ -48,7 +86,7 @@ class MdmService:
 
     def get_region(self):
         region = requests.get(
-            url=self.host_of_services + "/addresses/countries/" + self.country + "/regions/" + self.region,
+            url=self.host_of_services + "/addresses/countries/" + self.country_id + "/regions/" + self.region_id,
             params={
                 'lang': self.lang
             }
@@ -56,8 +94,8 @@ class MdmService:
         return region
 
     def get_locality(self):
-        url = self.host_of_services + "/addresses/countries/" + self.country + "/regions/" + self.region + \
-              "/localities/" + self.locality
+        url = self.host_of_services + "/addresses/countries/" + self.country_id + "/regions/" + self.region_id + \
+              "/localities/" + self.locality_id
         locality = requests.get(
             url=url,
             params={
@@ -66,7 +104,114 @@ class MdmService:
         )
         return locality
 
-    def process_fs_data(self, cp_id):
+    def process_ei_data(self):
+        data = requests.post(
+            url=self.host_of_services + "/command",
+            json={
+                "id": str(uuid.uuid1()),
+                "command": "processEiData",
+                "context": {
+                    "operationId": str(uuid.uuid4()),
+                    "requestId": str(uuid.uuid1()),
+                    "stage": "EI",
+                    "processType": "ei",
+                    "operationType": "createEI",
+                    "owner": "445f6851-c908-407d-9b45-14b92f3e964b",
+                    "country": self.country_id,
+                    "language": self.lang,
+                    "startDate": period[0],
+                    "timeStamp": period[2],
+                    "isAuction": False,
+                    "testMode": False
+                },
+                "data": {
+                    "tender": {
+                        "classification": {
+                            "id": self.ei_tender_classification_id
+                        },
+                        "items": [{
+                            "id": "1",
+                            "description": "item 1",
+                            "classification": {
+                                "id": self.ei_tender_item_classification_id
+                            },
+                            "additionalClassifications": [{
+                                "id": self.ei_tender_item_additional_classifications_id
+                            }],
+                            "deliveryAddress": {
+                                "streetAddress": "street",
+                                "postalCode": "postal",
+                                "addressDetails": {
+                                    "country": {
+                                        "id": self.ei_tender_items_delivery_details_country_id
+                                    },
+                                    "region": {
+                                        "id": self.ei_tender_items_delivery_details_region_id
+                                    },
+                                    "locality": {
+                                        "id": self.ei_tender_items_delivery_details_locality_id,
+                                        "description": "qwe",
+                                        "scheme": self.ei_tender_items_delivery_details_locality_scheme
+                                    }
+                                }
+                            },
+                            "quantity": 1,
+                            "unit": {
+                                "id": self.ei_tender_item_unit_id
+                            }
+                        }]
+                    },
+                    "buyer": {
+                        "name": "buyer",
+                        "identifier": {
+                            "id": "1",
+                            "scheme": "MD-IDNO",
+                            "legalName": "Directia Cultura a Primariei mun.Chisinau",
+                            "uri": "uri"
+                        },
+                        "address": {
+                            "streetAddress": "str.Bucuresti 68",
+                            "postalCode": "postal_2",
+                            "addressDetails": {
+                                "country": {
+                                    "id": self.buyer_address_details_country_id
+                                },
+                                "region": {
+                                    "id": self.buyer_address_details_region_id
+                                },
+                                "locality": {
+                                    "scheme": self.buyer_address_details_locality_scheme,
+                                    "id": self.buyer_address_details_locality_id,
+                                    "description": "qwe"
+                                }
+                            }
+                        },
+                        "additionalIdentifiers": [{
+                            "id": "additional identifier",
+                            "scheme": "MD-K",
+                            "legalName": "legalname",
+                            "uri": "http://k.to"
+                        }],
+                        "contactPoint": {
+                            "name": "Dumitru Popa",
+                            "email": "directiacultшra@yahoo.com",
+                            "telephone": "022242290",
+                            "faxNumber": "fax",
+                            "url": "url_3"
+                        },
+                        "details": {
+                            "typeOfBuyer": "NATIONAL_AGENCY",
+                            "mainGeneralActivity": "HEALTH",
+                            "mainSectoralActivity": "WATER"
+                        }
+                    }
+                },
+                "version": "0.0.1"
+            }
+        )
+        return data
+
+    def process_fs_data(self, ei_id):
         data = requests.post(
             url=self.host_of_services + "/command",
             json={
@@ -75,12 +220,12 @@ class MdmService:
                 "context": {
                     "operationId": str(uuid.uuid4()),
                     "requestId": str(uuid.uuid1()),
-                    "cpid": cp_id,
+                    "cpid": ei_id,
                     "stage": "FS",
                     "processType": "fs",
                     "operationType": "createFS",
                     "owner": "445f6851-c908-407d-9b45-14b92f3e964b",
-                    "country": self.country,
+                    "country": self.country_id,
                     "language": self.lang,
                     "startDate": period[0],
                     "timeStamp": period[2],
@@ -96,36 +241,84 @@ class MdmService:
                     },
                     "tender": {
                         "procuringEntity": {
-                            "name": self.procuring_entity_name,
+                            "name": "payer",
                             "identifier": {
-                                "id": self.procuring_entity_identifier_id,
-                                "scheme": self.procuring_entity_identifier_scheme,
-                                "legalName": self.procuring_entity_identifier_legal_name
+                                "id": "2",
+                                "scheme": "MD-IDNO",
+                                "legalName": "Legal Name",
+                                "uri": "http://454.to"
                             },
+                            "additionalIdentifiers": [{
+                                "id": "additional identifier",
+                                "scheme": "MD-K",
+                                "legalName": "legalname",
+                                "uri": "http://k.to"
+                            }],
                             "address": {
                                 "streetAddress": "street",
+                                "postalCode": "785412",
                                 "addressDetails": {
                                     "country": {
-                                        "id": self.country
+                                        "id": self.payer_address_details_country_id
                                     },
                                     "region": {
-                                        "id": self.region
+                                        "id": self.payer_address_details_region_id
                                     },
                                     "locality": {
-                                        "scheme": "CUATM",
-                                        "id": self.locality,
-                                        "description": ""
+                                        "scheme": self.payer_address_details_locality_scheme,
+                                        "id": self.payer_address_details_locality_id,
+                                        "description": "qwe"
                                     }
                                 }
                             },
                             "contactPoint": {
-                                "name": self.procuring_entity_contact_point_name,
-                                "email": self.procuring_entity_contact_point_email,
-                                "telephone": self.procuring_entity_contact_point_telephone
+                                "name": "contact person",
+                                "email": "string@mail.ccc",
+                                "telephone": "98-79-87",
+                                "faxNumber": "78-56-55",
+                                "url": "http://url.com"
                             }
                         }
                     },
-                    "buyer": None
+                    "buyer": {
+                        "name": "funder",
+                        "identifier": {
+                            "id": "3",
+                            "scheme": "MD-IDNO",
+                            "legalName": "legal Name",
+                            "uri": "http://buyer.com"
+                        },
+                        "address": {
+                            "streetAddress": "street address of buyer",
+                            "postalCode": "02054",
+                            "addressDetails": {
+                                "country": {
+                                    "id": self.funder_address_details_country_id
+                                },
+                                "region": {
+                                    "id": self.funder_address_details_region_id
+                                },
+                                "locality": {
+                                    "scheme": self.funder_address_details_locality_scheme,
+                                    "id": self.funder_address_details_locality_id,
+                                    "description": "qwe"
+                                }
+                            }
+                        },
+                        "additionalIdentifiers": [{
+                            "id": "additional identifier",
+                            "scheme": "scheme",
+                            "legalName": "legal name",
+                            "uri": "http://addtIdent.com"
+                        }],
+                        "contactPoint": {
+                            "name": "contact point of buyer",
+                            "email": "email.com",
+                            "telephone": "32-22-23",
+                            "faxNumber": "12-22-21",
+                            "url": "http://url.com"
+                        }
+                    }
                 },
                 "version": "0.0.1"
             }
@@ -146,7 +339,7 @@ class MdmService:
                     "operationType": "createPN",
                     "phase": "planning",
                     "owner": "445f6851-c908-407d-9b45-14b92f3e964b",
-                    "country": self.country,
+                    "country": self.country_id,
                     "language": self.lang,
                     "pmd": pmd,
                     "startDate": period[0],
@@ -175,15 +368,15 @@ class MdmService:
                                     "postalCode": "150009",
                                     "addressDetails": {
                                         "country": {
-                                            "id": self.lot_country
+                                            "id": self.pn_lot_address_details_country_id
                                         },
                                         "region": {
-                                            "id": self.lot_region
+                                            "id": self.pn_lot_address_details_region_id
                                         },
                                         "locality": {
-                                            "scheme": "CUATM",
-                                            "id": self.lot_locality,
-                                            "description": "description"
+                                            "scheme": self.pn_lot_address_details_locality_scheme,
+                                            "id": self.pn_lot_address_details_locality_id,
+                                            "description": "qwe"
                                         }
                                     }
                                 },
@@ -208,15 +401,15 @@ class MdmService:
                                     "postalCode": "150009",
                                     "addressDetails": {
                                         "country": {
-                                            "id": self.lot_country
+                                            "id": self.pn_lot_address_details_country_id
                                         },
                                         "region": {
-                                            "id": self.lot_region
+                                            "id": self.pn_lot_address_details_region_id
                                         },
                                         "locality": {
-                                            "scheme": "CUATM",
-                                            "id": self.lot_locality,
-                                            "description": "description"
+                                            "scheme": self.pn_lot_address_details_locality_scheme,
+                                            "id": self.pn_lot_address_details_locality_id,
+                                            "description": "qwe"
                                         }
                                     }
                                 },
@@ -249,35 +442,35 @@ class MdmService:
                                 "postalCode": "02232",
                                 "addressDetails": {
                                     "country": {
-                                        "id": self.country
+                                        "id": self.procuring_address_details_country_id
                                     },
                                     "region": {
-                                        "id": self.region
+                                        "id": self.procuring_address_details_region_id
                                     },
                                     "locality": {
-                                        "scheme": "other",
-                                        "id": self.locality,
-                                        "description": "desc",
-                                        "uri": "www segodnya"
+                                        "scheme": self.procuring_address_details_locality_scheme,
+                                        "id": self.procuring_address_details_locality_id,
+                                        "description": "qwe"
+
                                     }
                                 }
                             }
                         },
                         "classification": {
-                            "id": "45112300"
+                            "id": self.pn_tender_classification_id
                         },
                         "items": [{
                             "id": "1",
                             "internalId": "item 1",
                             "classification": {
-                                "id": "45112350-3"
+                                "id": self.pn_tender_item_one_classification_id
                             },
                             "additionalClassifications": [{
-                                "id": "AA12-4"
+                                "id": self.pn_tender_item_one_additional_classifications_id
                             }],
                             "quantity": 0.01,
                             "unit": {
-                                "id": "10"
+                                "id": self.pn_tender_item_one_unit_id
                             },
                             "description": "description",
                             "relatedLot": "1"
@@ -285,14 +478,14 @@ class MdmService:
                             "id": "2",
                             "internalId": "item 2",
                             "classification": {
-                                "id": "45112360-6"
+                                "id": self.pn_tender_item_two_classification_id
                             },
                             "additionalClassifications": [{
-                                "id": "AA12-4"
+                                "id": self.pn_tender_item_two_additional_classifications_id
                             }],
                             "quantity": 0.01,
                             "unit": {
-                                "id": "10"
+                                "id": self.pn_tender_item_two_unit_id
                             },
                             "description": "description",
                             "relatedLot": "2"
