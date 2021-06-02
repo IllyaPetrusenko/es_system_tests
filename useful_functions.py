@@ -124,8 +124,14 @@ def get_contract_period():
     start_date = duration_start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     end_date = duration_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     tender_period_start_date = duration_tender_start_date.strftime("%Y-%m-01T%H:%M:%SZ")
+    tender_period_start_date_new = duration_start_date.strftime("%Y-%m-01T%H:%M:%SZ")
     last_date = duration_last_date.strftime("%Y-%m-%dT%H:%M:%SZ")
-    return start_date, end_date, tender_period_start_date, last_date
+    duration_start_date_new = date + datetime.timedelta(days=65)
+    duration_end_date_new = date + datetime.timedelta(days=95)
+    start_date_new = duration_start_date_new.strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_date_new = duration_end_date_new.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return start_date, end_date, tender_period_start_date, last_date, tender_period_start_date_new, start_date_new, \
+           end_date_new
 
 
 def get_human_date_in_utc_format(time_stamp):

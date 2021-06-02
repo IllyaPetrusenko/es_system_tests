@@ -2,6 +2,7 @@ import hashlib
 import os
 import requests
 
+
 class Document:
     def __init__(self, instance, path, file_name):
         self.path = os.path.abspath(path)

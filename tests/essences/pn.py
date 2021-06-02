@@ -70,7 +70,8 @@ class PN:
                  second_item_additional_classifications="AA12-4", first_item_unit_id="10", second_item_unit_id="10",
                  procuring_entity_address_address_details_country_id="MD",
                  procuring_entity_address_address_details_region_id="1700000",
-                 procuring_entity_address_address_details_locality_id="1701000"):
+                 procuring_entity_address_address_details_locality_id="1701000", document_one_id=None,
+                 document_two_id=None):
         self.procuring_entity_address_address_details_country_id = procuring_entity_address_address_details_country_id
         self.procuring_entity_address_address_details_region_id = procuring_entity_address_address_details_region_id
         self.procuring_entity_address_address_details_locality_id = procuring_entity_address_address_details_locality_id
@@ -199,6 +200,15 @@ class PN:
                 self.access_token = get_access_token_for_platform_two(self.host_of_request)
                 self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
                 self.access_token = platform
+        if document_one_id is None and document_two_id is None:
+            document = Document(instance=instance,
+                                path="/home/roman/Documents/git/es_system_tests/API.pdf",
+                                file_name="API.pdf")
+            self.document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
+            self.document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
+        else:
+            self.document_one_was_uploaded = document_one_id
+            self.document_two_was_uploaded = document_two_id
 
     @allure.step('Create PN')
     def create_pn(self, fs_id):
@@ -214,6 +224,20 @@ class PN:
                 'pmd': self.pmd,
                 'lang': self.lang
             },
+            json=self.payload)
+        allure.attach(self.host_of_request + "/do/pn/", 'URL')
+        allure.attach(json.dumps(self.payload), 'Prepared payload')
+        return plan
+
+    @allure.step('Update PN')
+    def update_pn(self, cp_id, pn_id, pn_token):
+        plan = requests.post(
+            url=self.host_of_request + "/do/pn/" + cp_id + "/" + pn_id,
+            headers={
+                'Authorization': 'Bearer ' + self.access_token,
+                'X-OPERATION-ID': self.x_operation_id,
+                'Content-Type': 'application/json',
+                'X-TOKEN': f'{pn_token}'},
             json=self.payload)
         allure.attach(self.host_of_request + "/do/pn/", 'URL')
         allure.attach(json.dumps(self.payload), 'Prepared payload')
@@ -5674,6 +5698,20 @@ class PN:
         else:
             return False
 
+    def check_on_that_message_is_successfully_update_pn(self, cp_id, pn_id):
+        message = get_message_from_kafka(self.x_operation_id)
+        check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
+        check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
+        check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
+        check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], f"{pn_id}")
+        check_url = fnmatch.fnmatch(message["data"]["url"],
+                                    f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}")
+        check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
+        if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
+                check_oc_id is True and check_url is True and check_operation_date is True:
+            return True
+        else:
+            return False
     # --------------------------------------------------------
     @allure.step('Insert PN: based on FS: own - full, based on EI: with items - full')
     def insert_pn_full_(self, first_lot_id, second_lot_id, first_item_id, second_item_id):
@@ -5735,12 +5773,6 @@ class PN:
 
         procurement_method_details_from_mdm = data_pn["data"]["tender"]["procurementMethodDetails"]
         eligibility_criteria_from_mdm = data_pn["data"]["tender"]["eligibilityCriteria"]
-
-        document = Document(instance="dev",
-                            path="/home/roman/Documents/git/es_system_tests/API.pdf",
-                            file_name="API.pdf")
-        document_one_was_uploaded = document.uploading_document()
-        document_two_was_uploaded = document.uploading_document()
 
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
@@ -6254,11 +6286,11 @@ class PN:
                                     "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
                                         "addressDetails"]["region"]['scheme'],
                                     "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
+                                        "addressDetails"]["region"]['id'],
                                     "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['scheme'],
+                                        "address"]["addressDetails"]["region"]['description'],
                                     "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme']
+                                        "addressDetails"]["region"]['uri']
                                 },
                                 "locality": {
                                     "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
@@ -6320,11 +6352,11 @@ class PN:
                                     "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
                                         "addressDetails"]["region"]['scheme'],
                                     "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
+                                        "addressDetails"]["region"]['id'],
                                     "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['scheme'],
+                                        "address"]["addressDetails"]["region"]['description'],
                                     "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme']
+                                        "addressDetails"]["region"]['uri']
                                 },
                                 "locality": {
                                     "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
@@ -6388,7 +6420,7 @@ class PN:
                 "submissionMethodDetails": submission_method_details,
                 "documents": [
                     {
-                        "id": document_one_was_uploaded[0]["data"]["id"],
+                        "id": self.document_one_was_uploaded,
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
@@ -6396,7 +6428,7 @@ class PN:
                             first_lot_id]
                     },
                     {
-                        "id": document_two_was_uploaded[0]["data"]["id"],
+                        "id": self.document_two_was_uploaded,
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
@@ -7460,11 +7492,11 @@ class PN:
                                     "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
                                         "addressDetails"]["region"]['scheme'],
                                     "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
+                                        "addressDetails"]["region"]['id'],
                                     "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['scheme'],
+                                        "address"]["addressDetails"]["region"]['description'],
                                     "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme']
+                                        "addressDetails"]["region"]['uri']
                                 },
                                 "locality": {
                                     "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
@@ -7526,11 +7558,11 @@ class PN:
                                     "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
                                         "addressDetails"]["region"]['scheme'],
                                     "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
+                                        "addressDetails"]["region"]['id'],
                                     "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['scheme'],
+                                        "address"]["addressDetails"]["region"]['description'],
                                     "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme']
+                                        "addressDetails"]["region"]['uri']
                                 },
                                 "locality": {
                                     "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
@@ -7559,22 +7591,22 @@ class PN:
                 "hasEnquiries": False,
                 "documents": [
                     {
-                        "id": document_one_was_uploaded[0]["data"]["id"],
+                        "id": self.document_one_was_uploaded,
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
                         "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
-                               f"{document_one_was_uploaded[0]['data']['id']}",
+                               f"{self.document_one_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [first_lot_id]
                     },
                     {
-                        "id": document_two_was_uploaded[0]["data"]["id"],
+                        "id": self.document_two_was_uploaded,
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
                         "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
-                               f"{document_two_was_uploaded[0]['data']['id']}",
+                               f"{self.document_two_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [second_lot_id]
                     }],
@@ -8013,11 +8045,11 @@ class PN:
                                     "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
                                         "addressDetails"]["region"]['scheme'],
                                     "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
+                                        "addressDetails"]["region"]['id'],
                                     "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['scheme'],
+                                        "address"]["addressDetails"]["region"]['description'],
                                     "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme']
+                                        "addressDetails"]["region"]['uri']
                                 },
                                 "locality": {
                                     "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
@@ -8079,11 +8111,11 @@ class PN:
                                     "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
                                         "addressDetails"]["region"]['scheme'],
                                     "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
+                                        "addressDetails"]["region"]['id'],
                                     "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['scheme'],
+                                        "address"]["addressDetails"]["region"]['description'],
                                     "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme']
+                                        "addressDetails"]["region"]['uri']
                                 },
                                 "locality": {
                                     "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
@@ -8112,22 +8144,22 @@ class PN:
                 "hasEnquiries": False,
                 "documents": [
                     {
-                        "id": document_one_was_uploaded[0]["data"]["id"],
+                        "id": self.document_one_was_uploaded,
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
                         "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
-                               f"{document_one_was_uploaded[0]['data']['id']}",
+                               f"{self.document_one_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [first_lot_id]
                     },
                     {
-                        "id": document_two_was_uploaded[0]["data"]["id"],
+                        "id": self.document_two_was_uploaded,
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
                         "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
-                               f"{document_two_was_uploaded[0]['data']['id']}",
+                               f"{self.document_two_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [second_lot_id]
                     }],
@@ -8212,4 +8244,7 @@ class PN:
         session.execute(f"INSERT INTO notice_offset (cp_id,release_date, stage, status) "
                         f"VALUES ('{cp_id}', {pn_id[32:45]}, 'PN', 'planning');").one()
 
-        return f"http://dev.public.eprocurement.systems/tenders/{cp_id}", ei_id
+        return ei_id, ei_token, fs_id, fs_token, cp_id, pn_id, pn_token, \
+               f"http://dev.public.eprocurement.systems/tenders/{cp_id}", \
+               f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}", \
+               f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"

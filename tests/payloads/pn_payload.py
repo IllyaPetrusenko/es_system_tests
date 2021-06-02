@@ -277,38 +277,38 @@ create_pn_payload_full_data_model_with_documents = {
 
 update_pn_payload_full_data_model_with_documents = {
     "planning": {
-        "rationale": "reason for budget",
+        "rationale": "update planning.rationale",
         "budget": {
-            "description": "description of budget"
+            "description": "update planning.budget.description"
         }
     },
     "tender": {
-        "title": "title of tender",
-        "description": "desription of tender",
-        "legalBasis": "REGULATION_966_2012",
-        "procurementMethodRationale": "procurementMethodRationale",
-        "procurementMethodAdditionalInfo": "procurementMethodAdditionalInfo",
+        "title": "update tender.title",
+        "description": "update tender description",
+        "legalBasis": f'{random.choice(legal_basis)}',
+        "procurementMethodRationale": "update tender.procurementMethodRationale",
+        "procurementMethodAdditionalInfo": "update tender.procurementMethodAdditionalInfo",
         "tenderPeriod": {
-            "startDate": period[2]
+            "startDate": period[4]
         },
         "lots": [
             {
                 "id": "{{lot_id_1}}",
-                "internalId": "lot 1",
-                "title": "title",
-                "description": "descriptio",
+                "internalId": "update tender.lots[0].internalId",
+                "title": "update tender.lots[0].title",
+                "description": "update tender.lots[0].description",
                 "value": {
-                    "amount": 1500,
+                    "amount": 1700,
                     "currency": "EUR"
                 },
                 "contractPeriod": {
-                    "startDate": period[0],
-                    "endDate": period[1]
+                    "startDate": period[5],
+                    "endDate": period[6]
                 },
                 "placeOfPerformance": {
                     "address": {
-                        "streetAddress": "street",
-                        "postalCode": "150009",
+                        "streetAddress": "update tender.lots[0].placeOfPerformance.address.streetAddress",
+                        "postalCode": "update tender.lots[0].placeOfPerformance.address.postalCode",
                         "addressDetails": {
                             "country": {
                                 "id": "MD"
@@ -324,25 +324,25 @@ update_pn_payload_full_data_model_with_documents = {
                             }
                         }
                     },
-                    "description": "description of lot"
+                    "description": "update tender.lots[0].placeOfPerformance.description"
                 }
             },
             {
                 "id": "{{lot_id_2}}",
-                "internalId": "lot 2",
-                "title": "title",
-                "description": "description",
+                "internalId": "update tender.lots[1].internalId",
+                "title": "update tender.lots[1].title",
+                "description": "update tender.lots[1].description",
                 "value": {
-                    "amount": 150,
+                    "amount": 250,
                     "currency": "EUR"
                 },
                 "contractPeriod": {
-                    "startDate": period[0],
-                    "endDate": period[1]
+                    "startDate": period[5],
+                    "endDate": period[6]
                 },
                 "placeOfPerformance": {
                     "address": {
-                        "streetAddress": "street",
+                        "streetAddress": "update tender.lots[1].placeOfPerformance.address.streetAddress",
                         "postalCode": "150009",
                         "addressDetails": {
                             "country": {
@@ -359,7 +359,7 @@ update_pn_payload_full_data_model_with_documents = {
                             }
                         }
                     },
-                    "description": "description of lot"
+                    "description": "update tender.lots[1].placeOfPerformance.description"
                 }
             }
 
@@ -367,74 +367,74 @@ update_pn_payload_full_data_model_with_documents = {
         "items": [
             {
                 "id": "{{item_id_1}}",
-                "internalId": "item 1",
+                "internalId": "update tender.items[0].internalId",
                 "classification": {
-                    "id": "45112350-3",
+                    "id": "45112400-9",
                     "scheme": "CPV",
-                    "description": "cpv description"
+                    "description": "update tender.items[0].classification.description"
 
                 },
                 "additionalClassifications": [
                     {
-                        "id": "AA12-4",
+                        "id": "AB13-8",
                         "scheme": "CPVs",
-                        "description": "cpvs description"
+                        "description": "update tender.items[0].additionalClassifications[0].description"
 
                     }
                 ],
-                "quantity": 0.01,
+                "quantity": 1250.01,
                 "unit": {
-                    "id": "10",
-                    "name": "name of unit"
+                    "id": "120",
+                    "name": "update tender.items[0].unit.name"
 
                 },
-                "description": "description",
+                "description": "update tender.items[0].description",
                 "relatedLot": "{{lot_id_1}}"
             },
             {
                 "id": "{{item_id_2}}",
-                "internalId": "item 2",
+                "internalId": "update tender.items[1].internalId",
                 "classification": {
-                    "id": "45112360-6",
+                    "id": "45112410-2",
                     "scheme": "CPV",
-                    "description": "cpv description"
+                    "description": "update tender.items[1].classification.description"
                 },
                 "additionalClassifications": [
                     {
-                        "id": "AA12-4",
+                        "id": "AB09-6",
                         "scheme": "CPVs",
-                        "description": "cpvs description"
+                        "description": "update tender.items[1].additionalClassifications[0].description"
 
                     }
                 ],
-                "quantity": 0.01,
+                "quantity": 126.01,
                 "unit": {
-                    "id": "10",
-                    "name": "name of unit"
+                    "id": "120",
+                    "name": "update tender.items[1].unit.name"
 
                 },
-                "description": "description",
+                "description": "update tender.items[0].description",
                 "relatedLot": "{{lot_id_2}}"
             }
 
         ],
         "documents": [
             {
-                "documentType": "contractArrangements",
+                "documentType": "procurementPlan",
                 "id": document_one_was_uploaded[0]["data"]["id"],
-                "title": "title of document",
-                "description": "descrition of document",
+                "title": "update tender.documents[0].title",
+                "description": "update tender.documents[0].description",
                 "relatedLots": [
-                    "1"
+                    "{{lot_id_1}}"
                 ]
             },
             {
-                "documentType": "contractArrangements",
+                "documentType": "procurementPlan",
                 "id": document_two_was_uploaded[0]["data"]["id"],
-                "title": "title of document",
-                "description": "descrition of document",
+                "title": "update tender.documents[1].title",
+                "description": "update tender.documents[1].description",
                 "relatedLots": [
-                    "2"
+                    "{{lot_id_2}}"
                 ]
             }
         ]
