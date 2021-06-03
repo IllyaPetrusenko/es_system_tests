@@ -76,8 +76,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
                      CreatePn.message_from_kafka['data']['outcomes']['pn'][0]['id']
         pn_release = requests.get(url=url_create).json()
         assert compare_actual_result_and_expected_result(
-            expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
-                            "extension.js",
+            expected_result="https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/"
+                            "extension.json",
             actual_result=pn_release["extensions"][0]
         )
         assert compare_actual_result_and_expected_result(
@@ -286,8 +286,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
                      CreatePn.message_from_kafka['data']['outcomes']['pn'][0]['id']
         pn_release = requests.get(url=url_create).json()
         assert compare_actual_result_and_expected_result(
-            expected_result=str(["electronicSubmission"]),
-            actual_result=str(pn_release["releases"][0]["tender"]["submissionMethod"])
+            expected_result="electronicSubmission",
+            actual_result=pn_release["releases"][0]["tender"]["submissionMethod"][0]
         )
 
     @pytestrail.case("27585")
@@ -336,8 +336,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         data = mdm.process_tender_data(pmd).json()
         submission_method_rationale_from_mdm = data["data"]["tender"]["submissionMethodRationale"]
         assert compare_actual_result_and_expected_result(
-            expected_result=str(submission_method_rationale_from_mdm),
-            actual_result=str(pn_release["releases"][0]["tender"]["submissionMethodRationale"])
+            expected_result=submission_method_rationale_from_mdm[0],
+            actual_result=pn_release["releases"][0]["tender"]["submissionMethodRationale"][0]
         )
 
     @pytestrail.case("27585")
@@ -540,8 +540,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
                      CreatePn.message_from_kafka['data']['ocid']
         ms_release = requests.get(url=url_create).json()
         assert compare_actual_result_and_expected_result(
-            expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
-                            "extension.js",
+            expected_result="https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/"
+                            "extension.json",
             actual_result=ms_release["extensions"][0]
         )
         assert compare_actual_result_and_expected_result(
