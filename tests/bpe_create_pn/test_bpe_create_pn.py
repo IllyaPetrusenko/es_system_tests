@@ -299,9 +299,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance="dev",
             lang="ro",
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         submission_method_details_from_mdm = data["data"]["tender"]["submissionMethodDetails"]
@@ -319,9 +324,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance="dev",
             lang="ro",
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         submission_method_rationale_from_mdm = data["data"]["tender"]["submissionMethodRationale"]
@@ -883,9 +893,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance="dev",
             lang="ro",
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         procurement_method_details_from_mdm = data["data"]["tender"]["procurementMethodDetails"]
@@ -932,9 +947,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance="dev",
             lang="ro",
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         eligibility_criteria_from_mdm = data["data"]["tender"]["eligibilityCriteria"]
@@ -2139,9 +2159,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         country_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
@@ -2164,9 +2189,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         country_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
@@ -2189,9 +2219,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         country_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
@@ -2214,9 +2249,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         region_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]
@@ -2254,9 +2294,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         region_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]
@@ -2279,9 +2324,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         region_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]
@@ -2654,9 +2704,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance="dev",
             lang="ro",
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         country_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
@@ -2950,9 +3005,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         mdm = MdmService(
             instance="dev",
             lang="ro",
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         submissionMethodDetails = data["data"]["tender"]["submissionMethodDetails"]
@@ -3537,9 +3597,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         mdm = MdmService(
             instance="dev",
             lang="ro",
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         procurement_method_details_from_mdm = data["data"]["tender"]["procurementMethodDetails"]
@@ -3598,9 +3663,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         mdm = MdmService(
             instance="dev",
             lang="ro",
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_tender_data(pmd).json()
         eligibility_criteria_from_mdm = data["data"]["tender"]["eligibilityCriteria"]
@@ -6111,9 +6181,22 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"],
+            pn_lot_address_details_country_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['country']['id'],
+            pn_lot_address_details_region_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['region']['id'],
+            pn_lot_address_details_locality_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['id'],
+            pn_lot_address_details_locality_scheme=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['scheme']
         )
         data = mdm.process_tender_data(pmd).json()
         country_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
@@ -6136,9 +6219,22 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"],
+            pn_lot_address_details_country_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['country']['id'],
+            pn_lot_address_details_region_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['region']['id'],
+            pn_lot_address_details_locality_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['id'],
+            pn_lot_address_details_locality_scheme=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['scheme']
         )
         data = mdm.process_tender_data(pmd).json()
         country_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
@@ -6161,9 +6257,22 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"],
+            pn_lot_address_details_country_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['country']['id'],
+            pn_lot_address_details_region_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['region']['id'],
+            pn_lot_address_details_locality_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['id'],
+            pn_lot_address_details_locality_scheme=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['scheme']
         )
         data = mdm.process_tender_data(pmd).json()
         country_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
@@ -6186,9 +6295,22 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"],
+            pn_lot_address_details_country_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['country']['id'],
+            pn_lot_address_details_region_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['region']['id'],
+            pn_lot_address_details_locality_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['id'],
+            pn_lot_address_details_locality_scheme=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['scheme']
         )
         data = mdm.process_tender_data(pmd).json()
         region_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]
@@ -6226,9 +6348,22 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"],
+            pn_lot_address_details_country_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['country']['id'],
+            pn_lot_address_details_region_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['region']['id'],
+            pn_lot_address_details_locality_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['id'],
+            pn_lot_address_details_locality_scheme=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['scheme']
         )
         data = mdm.process_tender_data(pmd).json()
         region_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]
@@ -6251,9 +6386,22 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"],
+            pn_lot_address_details_country_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['country']['id'],
+            pn_lot_address_details_region_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['region']['id'],
+            pn_lot_address_details_locality_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['id'],
+            pn_lot_address_details_locality_scheme=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['scheme']
         )
         data = mdm.process_tender_data(pmd).json()
         region_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]
@@ -6689,9 +6837,22 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         mdm = MdmService(
             instance="dev",
             lang="ro",
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"],
+            pn_lot_address_details_country_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['country']['id'],
+            pn_lot_address_details_region_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['region']['id'],
+            pn_lot_address_details_locality_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['id'],
+            pn_lot_address_details_locality_scheme=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['scheme']
         )
         data = mdm.process_tender_data(pmd).json()
         country_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]
@@ -7081,9 +7242,22 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         mdm = MdmService(
             instance="dev",
             lang="ro",
-            country=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["country"]["id"],
-            region=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["region"]["id"],
-            locality=payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"]
+            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["country"]["id"],
+            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["region"]["id"],
+            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["scheme"],
+            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+                "addressDetails"]["locality"]["id"],
+            pn_lot_address_details_country_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['country']['id'],
+            pn_lot_address_details_region_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['region']['id'],
+            pn_lot_address_details_locality_id=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['id'],
+            pn_lot_address_details_locality_scheme=payload["tender"]["lots"][0]['placeOfPerformance']['address'][
+                'addressDetails']['locality']['scheme']
         )
         data = mdm.process_tender_data(pmd).json()
         first_lot_country_from_mdm = \

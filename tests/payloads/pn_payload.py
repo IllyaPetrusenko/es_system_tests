@@ -440,3 +440,17 @@ update_pn_payload_full_data_model_with_documents = {
         ]
     }
 }
+
+update_pn_payload_obligatory_data_model_without_documents = {
+    "planning": {
+        "budget": {
+        }
+    },
+    "tender": {
+        "title": "update tender.title",
+        "description": "update tender description",
+        "tenderPeriod": {
+            "startDate": period[4]
+        }
+    }
+}
