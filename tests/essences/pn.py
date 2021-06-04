@@ -201,9 +201,7 @@ class PN:
                 self.x_operation_id = get_x_operation_id(host=self.host_of_request, platform_token=self.access_token)
                 self.access_token = platform
         if document_one_id is None and document_two_id is None:
-            document = Document(instance=instance,
-                                path="/home/roman/Documents/git/es_system_tests/API.pdf",
-                                file_name="API.pdf")
+            document = Document(instance=instance)
             self.document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
             self.document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
         else:

@@ -6,6 +6,7 @@ from pytest_testrail.plugin import pytestrail
 from tests.conftest import CreatePn
 from tests.essences.pn import PN
 from tests.iMDM_service.get_information import MdmService
+from tests.iStorage import Document
 from tests.payloads.pn_payload import create_pn_payload_obligatory_data_model_without_documents, \
     create_pn_payload_full_data_model_with_documents
 from useful_functions import prepared_cp_id, compare_actual_result_and_expected_result, get_human_date_in_utc_format, \
@@ -19,6 +20,9 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
                                                            cassandra_password, pmd):
         ei_id = prepared_cp_id()
         ei_token = str(uuid4())
+        document = Document(instance=instance)
+        document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
+        document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
         payload = copy.deepcopy(create_pn_payload_obligatory_data_model_without_documents)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "test_value_for_locality"
@@ -31,7 +35,9 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
             instance=instance,
             cassandra_username=cassandra_username,
             cassandra_password=cassandra_password,
-            pmd=pmd
+            pmd=pmd,
+            document_one_id=document_one_was_uploaded,
+            document_two_id=document_two_was_uploaded
         )
         create_fs_response = pn.insert_fs_treasury_obligatory_ei_obligatory_without_items(
             cp_id=ei_id,
@@ -291,14 +297,15 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         )
 
     @pytestrail.case("27585")
-    def test_check_releases_0_tender_submission_method_details_0_on_pp_pn_release_27585_26(self, pmd):
+    def test_check_releases_0_tender_submission_method_details_0_on_pp_pn_release_27585_26(self, pmd, instance,
+                                                                                           language):
         url_create = CreatePn.message_from_kafka['data']['url'] + "/" + \
                      CreatePn.message_from_kafka['data']['outcomes']['pn'][0]['id']
         pn_release = requests.get(url=url_create).json()
         payload = CreatePn.payload
         mdm = MdmService(
-            instance="dev",
-            lang="ro",
+            instance=instance,
+            lang=language,
             procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
             procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
@@ -316,14 +323,15 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         )
 
     @pytestrail.case("27585")
-    def test_check_releases_0_tender_submission_method_rationale_0_on_pp_pn_release_27585_27(self, pmd):
+    def test_check_releases_0_tender_submission_method_rationale_0_on_pp_pn_release_27585_27(self, pmd, instance,
+                                                                                             language):
         url_create = CreatePn.message_from_kafka['data']['url'] + "/" + \
                      CreatePn.message_from_kafka['data']['outcomes']['pn'][0]['id']
         pn_release = requests.get(url=url_create).json()
         payload = CreatePn.payload
         mdm = MdmService(
-            instance="dev",
-            lang="ro",
+            instance=instance,
+            lang=language,
             procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
             procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
@@ -885,14 +893,15 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         )
 
     @pytestrail.case("27585")
-    def test_check_releases_0_tender_procurement_method_details_on_pp_ms_release_27585_74(self, pmd):
+    def test_check_releases_0_tender_procurement_method_details_on_pp_ms_release_27585_74(self, pmd, instance,
+                                                                                          language):
         url_create = CreatePn.message_from_kafka['data']['url'] + "/" + \
                      CreatePn.message_from_kafka['data']['ocid']
         ms_release = requests.get(url=url_create).json()
         payload = CreatePn.payload
         mdm = MdmService(
-            instance="dev",
-            lang="ro",
+            instance=instance,
+            lang=language,
             procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
             procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
@@ -939,14 +948,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         )
 
     @pytestrail.case("27585")
-    def test_check_releases_0_tender_eligibility_criteria_on_pp_ms_release_27585_77(self, pmd):
+    def test_check_releases_0_tender_eligibility_criteria_on_pp_ms_release_27585_77(self, pmd, instance, language):
         url_create = CreatePn.message_from_kafka['data']['url'] + "/" + \
                      CreatePn.message_from_kafka['data']['ocid']
         ms_release = requests.get(url=url_create).json()
         payload = CreatePn.payload
         mdm = MdmService(
-            instance="dev",
-            lang="ro",
+            instance=instance,
+            lang=language,
             procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
             procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
@@ -2683,7 +2692,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
 
     @pytestrail.case("27585")
     def test_check_on_the_platform_data_has_been_transferred_and_displayed_correctly_in_the_ms_release_27585_180(
-            self, language, pmd):
+            self, language, pmd, instance):
         ei_id = CreatePn.ei_id
         message_from_kafka = CreatePn.message_from_kafka
         url_create_ms = message_from_kafka['data']['url'] + "/" + message_from_kafka['data']['ocid']
@@ -2702,8 +2711,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
                     related_processes_list_ei.append(d_1)
         ei_release = requests.get(url=related_processes_list_ei[0]["uri"]).json()
         mdm = MdmService(
-            instance="dev",
-            lang="ro",
+            instance=instance,
+            lang=language,
             procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
             procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
@@ -2989,7 +2998,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
 
     @pytestrail.case("27585")
     def test_check_on_the_platform_data_has_been_transferred_and_displayed_correctly_in_the_pn_release_27585_181(
-            self, language, pmd):
+            self, language, pmd, instance):
         message_from_kafka = CreatePn.message_from_kafka
         url_create_ms = message_from_kafka['data']['url'] + "/" + message_from_kafka['data']['ocid']
         ms_release = requests.get(url=url_create_ms).json()
@@ -3003,8 +3012,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         pn_release = requests.get(url=url_create_pn).json()
         payload = CreatePn.payload
         mdm = MdmService(
-            instance="dev",
-            lang="ro",
+            instance=instance,
+            lang=language,
             procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
             procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
@@ -3094,11 +3103,16 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
                                                            cassandra_password, pmd):
         ei_id = prepared_cp_id()
         ei_token = str(uuid4())
+        document = Document(instance=instance)
+        document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
+        document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
         payload = copy.deepcopy(create_pn_payload_full_data_model_with_documents)
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["scheme"] = "other"
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["id"] = "test_value_for_locality"
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = "desc"
         payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["uri"] = "www segodnya"
+        payload['tender']['documents'][0]['id'] = document_one_was_uploaded
+        payload['tender']['documents'][1]['id'] = document_two_was_uploaded
         pn = PN(
             payload=payload,
             lang=language,
@@ -3106,7 +3120,9 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
             instance=instance,
             cassandra_username=cassandra_username,
             cassandra_password=cassandra_password,
-            pmd=pmd
+            pmd=pmd,
+            document_one_id=document_one_was_uploaded,
+            document_two_id=document_two_was_uploaded
         )
         create_fs_response = pn.insert_fs_own_full_ei_full_with_items(
             cp_id=ei_id,
@@ -3589,14 +3605,15 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         )
 
     @pytestrail.case("27588")
-    def test_check_releases_0_tender_procurement_method_details_on_pp_ms_release_27588_179(self, pmd):
+    def test_check_releases_0_tender_procurement_method_details_on_pp_ms_release_27588_179(self, pmd, instance,
+                                                                                           language):
         url_create = CreatePn.message_from_kafka['data']['url'] + "/" + \
                      CreatePn.message_from_kafka['data']['ocid']
         ms_release = requests.get(url=url_create).json()
         payload = CreatePn.payload
         mdm = MdmService(
-            instance="dev",
-            lang="ro",
+            instance=instance,
+            lang=language,
             procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
             procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
@@ -3655,14 +3672,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         )
 
     @pytestrail.case("27588")
-    def test_check_releases_0_tender_eligibility_criteria_on_pp_ms_release_27588_183(self, pmd):
+    def test_check_releases_0_tender_eligibility_criteria_on_pp_ms_release_27588_183(self, pmd, instance, language):
         url_create = CreatePn.message_from_kafka['data']['url'] + "/" + \
                      CreatePn.message_from_kafka['data']['ocid']
         ms_release = requests.get(url=url_create).json()
         payload = CreatePn.payload
         mdm = MdmService(
-            instance="dev",
-            lang="ro",
+            instance=instance,
+            lang=language,
             procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
             procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
@@ -6783,7 +6800,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
 
     @pytestrail.case("27588")
     def test_check_on_the_platform_data_has_been_transferred_and_displayed_correctly_in_the_ms_release_27588_343(
-            self, language, pmd):
+            self, language, pmd, instance):
         ei_id = CreatePn.ei_id
         message_from_kafka = CreatePn.message_from_kafka
         url_create_ms = message_from_kafka['data']['url'] + "/" + message_from_kafka['data']['ocid']
@@ -6835,8 +6852,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
             raise Exception("Can not get endDate for tender.contractPeriod")
 
         mdm = MdmService(
-            instance="dev",
-            lang="ro",
+            instance=instance,
+            lang=language,
             procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
             procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
@@ -7234,14 +7251,14 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
 
     @pytestrail.case("27588")
     def test_check_on_the_platform_data_has_been_transferred_and_displayed_correctly_in_the_pn_release_27588_344(
-            self, language, pmd):
+            self, language, pmd, instance):
         message_from_kafka = CreatePn.message_from_kafka
         url_create_pn = message_from_kafka['data']['url'] + "/" + message_from_kafka['data']['outcomes']['pn'][0]['id']
         pn_release = requests.get(url=url_create_pn).json()
         payload = CreatePn.payload
         mdm = MdmService(
-            instance="dev",
-            lang="ro",
+            instance=instance,
+            lang=language,
             procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
             procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][

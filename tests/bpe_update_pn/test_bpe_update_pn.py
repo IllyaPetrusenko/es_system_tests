@@ -18,9 +18,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithFullDataModel(object):
         second_lot_id = f"{uuid4()}"
         first_item_id = f"{uuid4()}"
         second_item_id = f"{uuid4()}"
-        document = Document(instance="dev",
-                            path="/home/roman/Documents/git/es_system_tests/API.pdf",
-                            file_name="API.pdf")
+        document = Document(instance=instance)
         document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
         document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
         payload = copy.deepcopy(update_pn_payload_full_data_model_with_documents)
@@ -68,9 +66,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithFullDataModel(object):
         second_lot_id = f"{uuid4()}"
         first_item_id = f"{uuid4()}"
         second_item_id = f"{uuid4()}"
-        document = Document(instance="dev",
-                            path="/home/roman/Documents/git/es_system_tests/API.pdf",
-                            file_name="API.pdf")
+        document = Document(instance=instance)
         document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
         document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
         payload = copy.deepcopy(update_pn_payload_full_data_model_with_documents)
@@ -124,9 +120,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithFullDataModel(object):
         second_lot_id = f"{uuid4()}"
         first_item_id = f"{uuid4()}"
         second_item_id = f"{uuid4()}"
-        document = Document(instance="dev",
-                            path="/home/roman/Documents/git/es_system_tests/API.pdf",
-                            file_name="API.pdf")
+        document = Document(instance=instance)
         document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
         document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
         payload = copy.deepcopy(update_pn_payload_full_data_model_with_documents)
@@ -425,9 +419,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithFullDataModel(object):
         second_lot_id = f"{uuid4()}"
         first_item_id = f"{uuid4()}"
         second_item_id = f"{uuid4()}"
-        document = Document(instance="dev",
-                            path="/home/roman/Documents/git/es_system_tests/API.pdf",
-                            file_name="API.pdf")
+        document = Document(instance=instance)
         document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
         document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
         payload = copy.deepcopy(update_pn_payload_full_data_model_with_documents)
@@ -533,9 +525,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithFullDataModel(object):
         second_lot_id = f"{uuid4()}"
         first_item_id = f"{uuid4()}"
         second_item_id = f"{uuid4()}"
-        document = Document(instance="dev",
-                            path="/home/roman/Documents/git/es_system_tests/API.pdf",
-                            file_name="API.pdf")
+        document = Document(instance=instance)
         document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
         document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
         payload = copy.deepcopy(update_pn_payload_full_data_model_with_documents)
@@ -606,9 +596,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithFullDataModel(object):
         second_lot_id = f"{uuid4()}"
         first_item_id = f"{uuid4()}"
         second_item_id = f"{uuid4()}"
-        document = Document(instance="dev",
-                            path="/home/roman/Documents/git/es_system_tests/API.pdf",
-                            file_name="API.pdf")
+        document = Document(instance=instance)
         document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
         document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
         payload = copy.deepcopy(update_pn_payload_full_data_model_with_documents)
@@ -915,7 +903,6 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
             pn_token=create_pn_response[6]
         )
         update_pn_response = pn.get_message_from_kafka()
-        update_pn_response = pn.get_message_from_kafka()
         pn_release_after_updating = requests.get(url=update_pn_response['data']['url']).json()
         related_ms = list()
         for d in pn_release_after_updating["releases"]:
@@ -971,16 +958,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.PnUpdate] value failed for JSON " \
-#                                                                     "property planning due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter planning " \
-#                                                                     "which is a non-nullable type\n at [Source: " \
-#                                                                     "UNKNOWN; line: -1, column: -1] (through " \
-#                                                                     "reference chain: com.procurement.access.model." \
-#                                                                     "dto.pn.PnUpdate[\"planning\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_2_smoke(self, additional_value):
@@ -993,17 +971,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.PlanningPnUpdate] value failed for " \
-#                                                                     "JSON property budget due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter budget which " \
-#                                                                     "is a non-nullable type\n at [Source: UNKNOWN; " \
-#                                                                     "line: -1, column: -1] (through reference chain: " \
-#                                                                     "com.procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"planning\"]->com.procurement.access.model." \
-#                                                                     "dto.pn.PlanningPnUpdate[\"budget\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_3_smoke(self, additional_value):
@@ -1029,17 +997,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.TenderPnUpdate] value failed for " \
-#                                                                     "JSON property title due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter title which " \
-#                                                                     "is a non-nullable type\n at [Source: UNKNOWN; " \
-#                                                                     "line: -1, column: -1] (through reference chain: " \
-#                                                                     "com.procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"tender\"]->com.procurement.access.model.dto." \
-#                                                                     "pn.TenderPnUpdate[\"title\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_5_smoke(self, additional_value):
@@ -1052,19 +1010,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.TenderPnUpdate] value failed for " \
-#                                                                     "JSON property description due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "description which is a non-nullable " \
-#                                                                     "type\n at [Source: UNKNOWN; line: -1, " \
-#                                                                     "column: -1] (through reference chain: com." \
-#                                                                     "procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"tender\"]->com.procurement.access.model." \
-#                                                                     "dto.pn.TenderPnUpdate[\"description\"])"
-#
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #     @pytestrail.case("27179")
 #     def test_27179_6_smoke(self, additional_value):
 #         cpid = prepared_cpid()
@@ -1076,18 +1022,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.TenderPnUpdate] value failed for " \
-#                                                                     "JSON property tenderPeriod due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "tenderPeriod which is a non-nullable type\n " \
-#                                                                     "at [Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement.a" \
-#                                                                     "ccess.model.dto.pn.PnUpdate[\"tender\"]->com." \
-#                                                                     "procurement.access.model.dto.pn.TenderPn" \
-#                                                                     "Update[\"tenderPeriod\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_7_smoke(self, additional_value):
@@ -1100,19 +1035,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.PeriodPnUpdate] value failed for " \
-#                                                                     "JSON property startDate due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "startDate which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->" \
-#                                                                     "com.procurement.access.model.dto.pn.Tender" \
-#                                                                     "PnUpdate[\"tenderPeriod\"]->com.procurement." \
-#                                                                     "access.model.dto.pn.PeriodPnUpdate[\"startDate\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_8_smoke(self, additional_value):
@@ -1138,20 +1061,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.LotPnUpdate] value failed for JSON " \
-#                                                                     "property id due to missing (therefore NULL) " \
-#                                                                     "value for creator parameter id which is a non-" \
-#                                                                     "nullable type\n at [Source: UNKNOWN; line: -1, " \
-#                                                                     "column: -1] (through reference chain: com." \
-#                                                                     "procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"tender\"]->com.procurement.access.model.dto." \
-#                                                                     "pn.TenderPnUpdate[\"lots\"]->java.util." \
-#                                                                     "ArrayList[0]->com.procurement.access.model.d" \
-#                                                                     "to.pn.LotPnUpdate[\"id\"])"
-#
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #     @pytestrail.case("27179")
 #     def test_27179_10_smoke(self, additional_value):
 #         cpid = prepared_cpid()
@@ -1163,19 +1073,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.LotPnUpdate] value failed for " \
-#                                                                     "JSON property title due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter title which " \
-#                                                                     "is a non-nullable type\n at [Source: UNKNOWN; " \
-#                                                                     "line: -1, column: -1] (through reference chain: " \
-#                                                                     "com.procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"tender\"]->com.procurement.access.model.dto." \
-#                                                                     "pn.TenderPnUpdate[\"lots\"]->java.util.Array" \
-#                                                                     "List[0]->com.procurement.access.model.dto.pn." \
-#                                                                     "LotPnUpdate[\"title\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_11_smoke(self, additional_value):
@@ -1188,20 +1086,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.LotPnUpdate] value failed for " \
-#                                                                     "JSON property description due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "description which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->com." \
-#                                                                     "procurement.access.model.dto.pn.TenderPnUpdate" \
-#                                                                     "[\"lots\"]->java.util.ArrayList[0]->com." \
-#                                                                     "procurement.access.model.dto.pn.LotPnUpdate" \
-#                                                                     "[\"description\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_12_smoke(self, additional_value):
@@ -1214,19 +1099,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.LotPnUpdate] value failed for " \
-#                                                                     "JSON property value due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter value which " \
-#                                                                     "is a non-nullable type\n at [Source: UNKNOWN; " \
-#                                                                     "line: -1, column: -1] (through reference chain: " \
-#                                                                     "com.procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"tender\"]->com.procurement.access.model." \
-#                                                                     "dto.pn.TenderPnUpdate[\"lots\"]->java.util." \
-#                                                                     "ArrayList[0]->com.procurement.access.model." \
-#                                                                     "dto.pn.LotPnUpdate[\"value\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_13_smoke(self, additional_value):
@@ -1239,20 +1112,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.Value] value failed for JSON " \
-#                                                                     "property amount due to missing (therefore NULL) " \
-#                                                                     "value for creator parameter amount which is a " \
-#                                                                     "non-nullable type\n at [Source: UNKNOWN; line: " \
-#                                                                     "-1, column: -1] (through reference chain: com." \
-#                                                                     "procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"tender\"]->com.procurement.access.model." \
-#                                                                     "dto.pn.TenderPnUpdate[\"lots\"]->java.util." \
-#                                                                     "ArrayList[0]->com.procurement.access.model." \
-#                                                                     "dto.pn.LotPnUpdate[\"value\"]->com.procurement." \
-#                                                                     "access.model.dto.ocds.Value[\"amount\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_14_smoke(self, additional_value):
@@ -1265,21 +1125,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.Value] value failed for JSON " \
-#                                                                     "property currency due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter currency " \
-#                                                                     "which is a non-nullable type\n at [Source: " \
-#                                                                     "UNKNOWN; line: -1, column: -1] (through " \
-#                                                                     "reference chain: com.procurement.access." \
-#                                                                     "model.dto.pn.PnUpdate[\"tender\"]->com." \
-#                                                                     "procurement.access.model.dto.pn.TenderPn" \
-#                                                                     "Update[\"lots\"]->java.util.ArrayList[0]->" \
-#                                                                     "com.procurement.access.model.dto.pn.LotPn" \
-#                                                                     "Update[\"value\"]->com.procurement.access." \
-#                                                                     "model.dto.ocds.Value[\"currency\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_15_smoke(self, additional_value):
@@ -1292,20 +1138,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.LotPnUpdate] value failed for " \
-#                                                                     "JSON property contractPeriod due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "contractPeriod which is a non-nullable type\n " \
-#                                                                     "at [Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->" \
-#                                                                     "com.procurement.access.model.dto.pn.TenderPn" \
-#                                                                     "Update[\"lots\"]->java.util.ArrayList[0]->" \
-#                                                                     "com.procurement.access.model.dto.pn.LotPn" \
-#                                                                     "Update[\"contractPeriod\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_16_smoke(self, additional_value):
@@ -1318,22 +1151,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.ContractPeriod] value failed " \
-#                                                                     "for JSON property startDate due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "startDate which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->" \
-#                                                                     "com.procurement.access.model.dto.pn.TenderPn" \
-#                                                                     "Update[\"lots\"]->java.util.ArrayList[0]->" \
-#                                                                     "com.procurement.access.model.dto.pn.LotPn" \
-#                                                                     "Update[\"contractPeriod\"]->com.procurement." \
-#                                                                     "access.model.dto.ocds.ContractPeriod" \
-#                                                                     "[\"startDate\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_17_smoke(self, additional_value):
@@ -1346,22 +1164,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.ContractPeriod] value failed " \
-#                                                                     "for JSON property endDate due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "endDate which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->" \
-#                                                                     "com.procurement.access.model.dto.pn.TenderPn" \
-#                                                                     "Update[\"lots\"]->java.util.ArrayList[0]->" \
-#                                                                     "com.procurement.access.model.dto.pn.Lot" \
-#                                                                     "PnUpdate[\"contractPeriod\"]->com.procurement." \
-#                                                                     "access.model.dto.ocds.ContractPeriod" \
-#                                                                     "[\"endDate\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_18_smoke(self, additional_value):
@@ -1374,20 +1177,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.LotPnUpdate] value failed for " \
-#                                                                     "JSON property placeOfPerformance due to " \
-#                                                                     "missing (therefore NULL) value for creator " \
-#                                                                     "parameter placeOfPerformance which is a " \
-#                                                                     "non-nullable type\n at [Source: UNKNOWN; " \
-#                                                                     "line: -1, column: -1] (through reference " \
-#                                                                     "chain: com.procurement.access.model.dto.pn." \
-#                                                                     "PnUpdate[\"tender\"]->com.procurement.access." \
-#                                                                     "model.dto.pn.TenderPnUpdate[\"lots\"]->java." \
-#                                                                     "util.ArrayList[0]->com.procurement.access." \
-#                                                                     "model.dto.pn.LotPnUpdate[\"placeOfPerformance\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_19_smoke(self, additional_value):
@@ -1400,22 +1190,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm.model." \
-#                                                                     "dto.data.PlaceOfPerformance] value failed for " \
-#                                                                     "JSON property address due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "address which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "mdm.model.dto.data.TD[\"tender\"]->com." \
-#                                                                     "procurement.mdm.model.dto.data.TenderTD" \
-#                                                                     "[\"lots\"]->java.util.ArrayList[0]->com." \
-#                                                                     "procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement." \
-#                                                                     "mdm.model.dto.data.PlaceOfPerformance" \
-#                                                                     "[\"address\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_20_smoke(self, additional_value):
@@ -1428,23 +1203,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm.model." \
-#                                                                     "dto.data.Address] value failed for JSON " \
-#                                                                     "property streetAddress due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "streetAddress which is a non-nullable " \
-#                                                                     "type\n at [Source: UNKNOWN; line: -1, " \
-#                                                                     "column: -1] (through reference chain: com." \
-#                                                                     "procurement.mdm.model.dto.data.TD[\"tender\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.TenderTD" \
-#                                                                     "[\"lots\"]->java.util.ArrayList[0]->com." \
-#                                                                     "procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.PlaceOfPerformance[\"address\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "[\"streetAddress\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_21_smoke(self, additional_value):
@@ -1457,23 +1216,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm.model." \
-#                                                                     "dto.data.Address] value failed for JSON " \
-#                                                                     "property addressDetails due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "addressDetails which is a non-nullable " \
-#                                                                     "type\n at [Source: UNKNOWN; line: -1, " \
-#                                                                     "column: -1] (through reference chain: com." \
-#                                                                     "procurement.mdm.model.dto.data.TD[\"tender\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.TenderTD" \
-#                                                                     "[\"lots\"]->java.util.ArrayList[0]->com." \
-#                                                                     "procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement." \
-#                                                                     "mdm.model.dto.data.PlaceOfPerformance" \
-#                                                                     "[\"address\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.Address[\"addressDetails\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_22_smoke(self, additional_value):
@@ -1486,23 +1229,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm.model." \
-#                                                                     "dto.data.AddressDetails] value failed for JSON " \
-#                                                                     "property country due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter country which " \
-#                                                                     "is a non-nullable type\n at [Source: UNKNOWN; " \
-#                                                                     "line: -1, column: -1] (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.PlaceOfPerformance[\"address\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "[\"addressDetails\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.AddressDetails[\"country\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_23_smoke(self, additional_value):
@@ -1515,24 +1242,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm.model." \
-#                                                                     "dto.data.CountryDetails] value failed for " \
-#                                                                     "JSON property id due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter id which " \
-#                                                                     "is a non-nullable type\n at [Source: UNKNOWN; " \
-#                                                                     "line: -1, column: -1] (through reference " \
-#                                                                     "chain: com.procurement.mdm.model.dto.data." \
-#                                                                     "TD[\"tender\"]->com.procurement.mdm.model." \
-#                                                                     "dto.data.TenderTD[\"lots\"]->java.util." \
-#                                                                     "ArrayList[0]->com.procurement.mdm.model.dto." \
-#                                                                     "data.LotTD[\"placeOfPerformance\"]->com." \
-#                                                                     "procurement.mdm.model.dto.data.PlaceOf" \
-#                                                                     "Performance[\"address\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.Address[\"addressDetails\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "Details[\"country\"]->com.procurement.mdm." \
+#         assert update_pn_response[1]["errors"][0]["description"] == dm." \
 #                                                                     "model.dto.data.CountryDetails[\"id\"])"
 #
 #     @pytestrail.case("27179")
@@ -1546,26 +1256,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm." \
-#                                                                     "model.dto.data.AddressDetails] value failed " \
-#                                                                     "for JSON property region due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "region which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "mdm.model.dto.data.TD[\"tender\"]->com." \
-#                                                                     "procurement.mdm.model.dto.data.TenderTD" \
-#                                                                     "[\"lots\"]->java.util.ArrayList[0]->com." \
-#                                                                     "procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement." \
-#                                                                     "mdm.model.dto.data.PlaceOfPerformance" \
-#                                                                     "[\"address\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.Address[\"addressDetails\"]->com." \
-#                                                                     "procurement.mdm.model.dto.data.AddressDetails" \
-#                                                                     "[\"region\"])"
-#
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #     @pytestrail.case("27179")
 #     def test_27179_25_smoke(self, additional_value):
 #         cpid = prepared_cpid()
@@ -1577,25 +1268,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm.model." \
-#                                                                     "dto.data.RegionDetails] value failed for JSON " \
-#                                                                     "property id due to missing (therefore NULL) " \
-#                                                                     "value for creator parameter id which is a non-" \
-#                                                                     "nullable type\n at [Source: UNKNOWN; line: " \
-#                                                                     "-1, column: -1] (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data." \
-#                                                                     "TD[\"tender\"]->com.procurement.mdm.model." \
-#                                                                     "dto.data.TenderTD[\"lots\"]->java.util." \
-#                                                                     "ArrayList[0]->com.procurement.mdm.model." \
-#                                                                     "dto.data.LotTD[\"placeOfPerformance\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.Place" \
-#                                                                     "OfPerformance[\"address\"]->com.procurement." \
-#                                                                     "mdm.model.dto.data.Address[\"addressDetails\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "Details[\"region\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.RegionDetails[\"id\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_26_smoke(self, additional_value):
@@ -1608,24 +1281,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm.model." \
-#                                                                     "dto.data.AddressDetails] value failed for " \
-#                                                                     "JSON property locality due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "locality which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement.mdm." \
-#                                                                     "model.dto.data.TD[\"tender\"]->com.procurement." \
-#                                                                     "mdm.model.dto.data.TenderTD[\"lots\"]->java." \
-#                                                                     "util.ArrayList[0]->com.procurement.mdm.model." \
-#                                                                     "dto.data.LotTD[\"placeOfPerformance\"]->com." \
-#                                                                     "procurement.mdm.model.dto.data.PlaceOf" \
-#                                                                     "Performance[\"address\"]->com.procurement." \
-#                                                                     "mdm.model.dto.data.Address[\"addressDetails\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "Details[\"locality\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_27_smoke(self, additional_value):
@@ -1638,25 +1294,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm.model." \
-#                                                                     "dto.data.LocalityDetails] value failed for " \
-#                                                                     "JSON property scheme due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "scheme which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement.mdm." \
-#                                                                     "model.dto.data.TD[\"tender\"]->com.procurement." \
-#                                                                     "mdm.model.dto.data.TenderTD[\"lots\"]->java." \
-#                                                                     "util.ArrayList[0]->com.procurement.mdm.model." \
-#                                                                     "dto.data.LotTD[\"placeOfPerformance\"]->com." \
-#                                                                     "procurement.mdm.model.dto.data.PlaceOf" \
-#                                                                     "Performance[\"address\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.Address[\"addressDetails\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "Details[\"locality\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.LocalityDetails[\"scheme\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_28_smoke(self, additional_value):
@@ -1669,25 +1307,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm.model." \
-#                                                                     "dto.data.LocalityDetails] value failed for JSON " \
-#                                                                     "property id due to missing (therefore NULL) " \
-#                                                                     "value for creator parameter id which is a non-" \
-#                                                                     "nullable type\n at [Source: UNKNOWN; line: " \
-#                                                                     "-1, column: -1] (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data." \
-#                                                                     "TD[\"tender\"]->com.procurement.mdm.model." \
-#                                                                     "dto.data.TenderTD[\"lots\"]->java.util." \
-#                                                                     "ArrayList[0]->com.procurement.mdm.model." \
-#                                                                     "dto.data.LotTD[\"placeOfPerformance\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.PlaceOf" \
-#                                                                     "Performance[\"address\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.Address[\"addressDetails\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "Details[\"locality\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.LocalityDetails[\"id\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_29_smoke(self, additional_value):
@@ -1700,26 +1320,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.mdm.model." \
-#                                                                     "dto.data.LocalityDetails] value failed for " \
-#                                                                     "JSON property description due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "description which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement.mdm." \
-#                                                                     "model.dto.data.TD[\"tender\"]->com." \
-#                                                                     "procurement.mdm.model.dto.data.TenderTD" \
-#                                                                     "[\"lots\"]->java.util.ArrayList[0]->com." \
-#                                                                     "procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.PlaceOfPerformance[\"address\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "[\"addressDetails\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.AddressDetails[\"locality\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.Locality" \
-#                                                                     "Details[\"description\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_30_smoke(self, additional_value):
@@ -1745,20 +1346,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "infrastructure.handler.v1.model.request." \
-#                                                                     "CheckItemsRequest$Item] value failed for " \
-#                                                                     "JSON property id due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter id which " \
-#                                                                     "is a non-nullable type\n at [Source: UNKNOWN; " \
-#                                                                     "line: -1, column: -1] (through reference " \
-#                                                                     "chain: com.procurement.access.infrastructure." \
-#                                                                     "handler.v1.model.request.CheckItemsRequest" \
-#                                                                     "[\"items\"]->java.util.ArrayList[0]->com." \
-#                                                                     "procurement.access.infrastructure.handler.v1." \
-#                                                                     "model.request.CheckItemsRequest$Item[\"id\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_32_smoke(self, additional_value):
@@ -1771,21 +1359,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "infrastructure.handler.v1.model.request." \
-#                                                                     "CheckItemsRequest$Item] value failed for " \
-#                                                                     "JSON property classification due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "classification which is a non-nullable " \
-#                                                                     "type\n at [Source: UNKNOWN; line: -1, column: " \
-#                                                                     "-1] (through reference chain: com.procurement." \
-#                                                                     "access.infrastructure.handler.v1.model." \
-#                                                                     "request.CheckItemsRequest[\"items\"]->java." \
-#                                                                     "util.ArrayList[0]->com.procurement.access." \
-#                                                                     "infrastructure.handler.v1.model.request." \
-#                                                                     "CheckItemsRequest$Item[\"classification\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_33_smoke(self, additional_value):
@@ -1798,25 +1372,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "infrastructure.handler.v1.model.request." \
-#                                                                     "CheckItemsRequest$Item$Classification] value " \
-#                                                                     "failed for JSON property id due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "id which is a non-nullable type\n at [Source: " \
-#                                                                     "UNKNOWN; line: -1, column: -1] (through " \
-#                                                                     "reference chain: com.procurement.access." \
-#                                                                     "infrastructure.handler.v1.model.request.Check" \
-#                                                                     "ItemsRequest[\"items\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.access.infrastructure." \
-#                                                                     "handler.v1.model.request.CheckItemsRequest$" \
-#                                                                     "Item[\"classification\"]->com.procurement." \
-#                                                                     "access.infrastructure.handler.v1.model." \
-#                                                                     "request.CheckItemsRequest$Item$" \
-#                                                                     "Classification[\"id\"])"
-#
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #     @pytestrail.case("27179")
 #     def test_27179_34_smoke(self, additional_value):
 #         cpid = prepared_cpid()
@@ -1828,21 +1384,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.Classification] value failed " \
-#                                                                     "for JSON property scheme due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "scheme which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->" \
-#                                                                     "com.procurement.access.model.dto.pn.Tender" \
-#                                                                     "PnUpdate[\"items\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.access.model.dto.pn.ItemPn" \
-#                                                                     "Update[\"classification\"]->com.procurement." \
-#                                                                     "access.model.dto.ocds.Classification[\"scheme\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_35_smoke(self, additional_value):
@@ -1855,22 +1397,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.Classification] value failed " \
-#                                                                     "for JSON property description due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "description which is a non-nullable type\n " \
-#                                                                     "at [Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->" \
-#                                                                     "com.procurement.access.model.dto.pn.TenderPn" \
-#                                                                     "Update[\"items\"]->java.util.ArrayList[0]->" \
-#                                                                     "com.procurement.access.model.dto.pn.ItemPn" \
-#                                                                     "Update[\"classification\"]->com.procurement." \
-#                                                                     "access.model.dto.ocds.Classification" \
-#                                                                     "[\"description\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_36_smoke(self, additional_value):
@@ -1883,22 +1410,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.Classification] value failed " \
-#                                                                     "for JSON property id due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter id which is " \
-#                                                                     "a non-nullable type\n at [Source: UNKNOWN; " \
-#                                                                     "line: -1, column: -1] (through reference chain:" \
-#                                                                     " com.procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"tender\"]->com.procurement.access.model." \
-#                                                                     "dto.pn.TenderPnUpdate[\"items\"]->java.util." \
-#                                                                     "ArrayList[0]->com.procurement.access.model." \
-#                                                                     "dto.pn.ItemPnUpdate[\"additional" \
-#                                                                     "Classifications\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.access.model.dto.ocds." \
-#                                                                     "Classification[\"id\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_37_smoke(self, additional_value):
@@ -1911,22 +1423,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.Classification] value failed " \
-#                                                                     "for JSON property scheme due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "scheme which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->" \
-#                                                                     "com.procurement.access.model.dto.pn.Tender" \
-#                                                                     "PnUpdate[\"items\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.access.model.dto.pn.Item" \
-#                                                                     "PnUpdate[\"additionalClassifications\"]->" \
-#                                                                     "java.util.ArrayList[0]->com.procurement.access." \
-#                                                                     "model.dto.ocds.Classification[\"scheme\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_38_smoke(self, additional_value):
@@ -1939,23 +1436,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.Classification] value failed " \
-#                                                                     "for JSON property description due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "description which is a non-nullable type\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->" \
-#                                                                     "com.procurement.access.model.dto.pn.Tender" \
-#                                                                     "PnUpdate[\"items\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.access.model.dto.pn.Item" \
-#                                                                     "PnUpdate[\"additionalClassifications\"]->" \
-#                                                                     "java.util.ArrayList[0]->com.procurement." \
-#                                                                     "access.model.dto.ocds.Classification" \
-#                                                                     "[\"description\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_39_smoke(self, additional_value):
@@ -1994,19 +1475,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.pn.ItemPnUpdate] value failed for " \
-#                                                                     "JSON property unit due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter unit which " \
-#                                                                     "is a non-nullable type\n at [Source: UNKNOWN; " \
-#                                                                     "line: -1, column: -1] (through reference chain:" \
-#                                                                     " com.procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"tender\"]->com.procurement.access.model.dto." \
-#                                                                     "pn.TenderPnUpdate[\"items\"]->java.util." \
-#                                                                     "ArrayList[0]->com.procurement.access.model." \
-#                                                                     "dto.pn.ItemPnUpdate[\"unit\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_41_smoke(self, additional_value):
@@ -2052,20 +1521,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.Unit] value failed for JSON " \
-#                                                                     "property name due to missing (therefore NULL) " \
-#                                                                     "value for creator parameter name which is a " \
-#                                                                     "non-nullable type\n at [Source: UNKNOWN; line:" \
-#                                                                     " -1, column: -1] (through reference chain: " \
-#                                                                     "com.procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"tender\"]->com.procurement.access.model." \
-#                                                                     "dto.pn.TenderPnUpdate[\"items\"]->java.util." \
-#                                                                     "ArrayList[0]->com.procurement.access.model." \
-#                                                                     "dto.pn.ItemPnUpdate[\"unit\"]->com.procurement." \
-#                                                                     "access.model.dto.ocds.Unit[\"name\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_43_smoke(self, additional_value):
@@ -2131,20 +1587,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.access." \
-#                                                                     "model.dto.ocds.Document] value failed for " \
-#                                                                     "JSON property documentType due to missing " \
-#                                                                     "(therefore NULL) value for creator parameter " \
-#                                                                     "documentType which is a non-nullable type\n " \
-#                                                                     "at [Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->" \
-#                                                                     "com.procurement.access.model.dto.pn.Tender" \
-#                                                                     "PnUpdate[\"documents\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.access.model.dto.ocds." \
-#                                                                     "Document[\"documentType\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_46_smoke(self, additional_value):
@@ -2157,18 +1600,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "500.14.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.module.kotlin.Missing" \
-#                                                                     "KotlinParameterException: Instantiation of " \
-#                                                                     "[simple type, class com.procurement.storage." \
-#                                                                     "model.dto.registration.Document] value failed " \
-#                                                                     "for JSON property id due to missing (therefore " \
-#                                                                     "NULL) value for creator parameter id which is a" \
-#                                                                     " non-nullable type\n at [Source: UNKNOWN; line: " \
-#                                                                     "-1, column: -1] (through reference chain: com." \
-#                                                                     "procurement.storage.model.dto.registration." \
-#                                                                     "DocumentsRq[\"documents\"]->java.util.ArrayList" \
-#                                                                     "[0]->com.procurement.storage.model.dto." \
-#                                                                     "registration.Document[\"id\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27179")
 #     def test_27179_47_smoke(self, additional_value):
@@ -2181,8 +1613,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.10.67"
-#         assert update_pn_response[1]["errors"][0]["description"] == "Incorrect an attribute value. Missing attribute " \
-#                                                                     "'document.title' at 'tender'."
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27180")
 #     def test_27180_1_smoke(self, additional_value):
@@ -2481,14 +1912,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: Text 'false' could not be parsed at " \
-#                                                                     "index 0 (through reference chain: com." \
-#                                                                     "procurement.access.model.dto.pn.PnUpdate" \
-#                                                                     "[\"tender\"]->com.procurement.access.model." \
-#                                                                     "dto.pn.TenderPnUpdate[\"tenderPeriod\"]->com." \
-#                                                                     "procurement.access.model.dto.pn.PeriodPnUpdate" \
-#                                                                     "[\"startDate\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_9_smoke(self, additional_value):
@@ -2535,14 +1959,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"internalId\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_11_smoke(self, additional_value):
@@ -2595,17 +2012,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc.Mismatched" \
-#                                                                     "InputException: Cannot deserialize instance " \
-#                                                                     "of `java.math.BigDecimal` out of VALUE_FALSE " \
-#                                                                     "token\n at [Source: UNKNOWN; line: -1, column:" \
-#                                                                     " -1] (through reference chain: com.procurement." \
-#                                                                     "mdm.model.dto.data.TD[\"tender\"]->com." \
-#                                                                     "procurement.mdm.model.dto.data.TenderTD" \
-#                                                                     "[\"lots\"]->java.util.ArrayList[0]->com." \
-#                                                                     "procurement.mdm.model.dto.data.LotTD[\"value\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Value" \
-#                                                                     "[\"amount\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_14_smoke(self, additional_value):
@@ -2618,15 +2025,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"value\"]->com.procurement.mdm.model.dto.data." \
-#                                                                     "Value[\"currency\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_15_smoke(self, additional_value):
@@ -2682,18 +2081,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.PlaceOfPerformance[\"address\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "[\"streetAddress\"])"
-#
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #     @pytestrail.case("27190")
 #     def test_27190_18_smoke(self, additional_value):
 #         cpid = prepared_cpid()
@@ -2705,18 +2093,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.PlaceOfPerformance[\"address\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "[\"postalCode\"])"
-#
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #     @pytestrail.case("27190")
 #     def test_27190_19_smoke(self, additional_value):
 #         cpid = prepared_cpid()
@@ -2728,20 +2105,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.PlaceOfPerformance[\"address\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "[\"addressDetails\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.AddressDetails[\"country\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.Country" \
-#                                                                     "Details[\"id\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_20_smoke(self, additional_value):
@@ -2754,20 +2118,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model." \
-#                                                                     "dto.data.TenderTD[\"lots\"]->java.util.Array" \
-#                                                                     "List[0]->com.procurement.mdm.model.dto.data." \
-#                                                                     "LotTD[\"placeOfPerformance\"]->com.procurement." \
-#                                                                     "mdm.model.dto.data.PlaceOfPerformance" \
-#                                                                     "[\"address\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.Address[\"addressDetails\"]->com." \
-#                                                                     "procurement.mdm.model.dto.data.AddressDetails" \
-#                                                                     "[\"region\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.RegionDetails[\"id\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_21_smoke(self, additional_value):
@@ -2780,20 +2131,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.PlaceOfPerformance[\"address\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "[\"addressDetails\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.AddressDetails[\"locality\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.Locality" \
-#                                                                     "Details[\"scheme\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_22_smoke(self, additional_value):
@@ -2806,20 +2144,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.PlaceOfPerformance[\"address\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "[\"addressDetails\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.AddressDetails[\"locality\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.Locality" \
-#                                                                     "Details[\"id\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_23_smoke(self, additional_value):
@@ -2833,20 +2158,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.PlaceOfPerformance[\"address\"]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.Address" \
-#                                                                     "[\"addressDetails\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.AddressDetails[\"locality\"]->" \
-#                                                                     "com.procurement.mdm.model.dto.data.Locality" \
-#                                                                     "Details[\"description\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_24_smoke(self, additional_value):
@@ -2859,17 +2171,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList" \
-#                                                                     "[0]->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"placeOfPerformance\"]->com.procurement.mdm." \
-#                                                                     "model.dto.data.PlaceOfPerformance" \
-#                                                                     "[\"description\"])"
-#
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 # # we expect to get error.code = 400.20.00 from eMDM, but system returns error.code = 400.03.10.11 from eAccess
 # # QA team decided we had failed this case, but system had returned the error and it is ok on 15/03/2021
 #     @pytestrail.case("27190")
@@ -2954,14 +2256,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.20.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.JsonMapping" \
-#                                                                     "Exception: (was com.procurement.mdm.exception." \
-#                                                                     "InErrorException) (through reference chain: " \
-#                                                                     "com.procurement.mdm.model.dto.data.TD" \
-#                                                                     "[\"tender\"]->com.procurement.mdm.model.dto." \
-#                                                                     "data.TenderTD[\"lots\"]->java.util.ArrayList[0]" \
-#                                                                     "->com.procurement.mdm.model.dto.data.LotTD" \
-#                                                                     "[\"internalId\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_27_smoke(self, additional_value):
@@ -3215,29 +2510,7 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         assert update_pn_response[0].status_code == 202
 #         assert update_pn_response[1]["X-OPERATION-ID"] == update_pn_response[2]
 #         assert update_pn_response[1]["errors"][0]["code"] == "400.03.00"
-#         assert update_pn_response[1]["errors"][0]["description"] == "com.fasterxml.jackson.databind.exc.Invalid" \
-#                                                                     "DefinitionException: Cannot construct instance " \
-#                                                                     "of `com.procurement.access.domain.model.enums." \
-#                                                                     "DocumentType`, problem: Unknown value for enum" \
-#                                                                     "Type com.procurement.access.domain.model.enums." \
-#                                                                     "DocumentType: false, Allowed values are " \
-#                                                                     "evaluationCriteria, eligibilityCriteria, bill" \
-#                                                                     "OfQuantity, illustration, marketStudies, tender" \
-#                                                                     "Notice, biddingDocuments, procurementPlan, " \
-#                                                                     "technicalSpecifications, contractDraft, hearing" \
-#                                                                     "Notice, clarifications, environmentalImpact, " \
-#                                                                     "assetAndLiabilityAssessment, riskProvisions, " \
-#                                                                     "complaints, needsAssessment, feasibilityStudy, " \
-#                                                                     "projectPlan, conflictOfInterest, cancellation" \
-#                                                                     "Details, shortlistedFirms, evaluationReports, " \
-#                                                                     "contractArrangements, contractGuarantees\n at " \
-#                                                                     "[Source: UNKNOWN; line: -1, column: -1] " \
-#                                                                     "(through reference chain: com.procurement." \
-#                                                                     "access.model.dto.pn.PnUpdate[\"tender\"]->com." \
-#                                                                     "procurement.access.model.dto.pn.TenderPnUpdate" \
-#                                                                     "[\"documents\"]->java.util.ArrayList[0]->com." \
-#                                                                     "procurement.access.model.dto.ocds.Document" \
-#                                                                     "[\"documentType\"])"
+#         assert update_pn_response[1]["errors"][0]["description"] ==
 #
 #     @pytestrail.case("27190")
 #     def test_27190_39_smoke(self, additional_value):
@@ -3742,7 +3015,8 @@ class TestCheckThePossibilityOfPlanningNoticeUpdatingWithObligatoryDataModel(obj
 #         cpid = prepared_cpid()
 #         payload = copy.deepcopy(pn_update_full_data_model_with_documents)
 #         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["scheme"] = "tEST"
-#         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["description"] = ""
+#         payload["tender"]["lots"][0]["placeOfPerformance"]["address"]["addressDetails"]["locality"]["description"]
+#         = ""
 #         update_pn_response = bpe_update_pn_one_fs_if_pn_full(cpid=cpid, pn_update_payload=payload,
 #                                                              additional_value=additional_value)
 #         assert update_pn_response[0].text == "ok"

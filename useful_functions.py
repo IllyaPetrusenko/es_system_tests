@@ -8,6 +8,7 @@ from uuid import UUID
 import allure
 import requests
 import xlrd
+from pathlib import Path
 
 
 def is_valid_uuid(uuid_to_test, version=4):
@@ -57,8 +58,8 @@ def prepared_fs_oc_id(cp_id):
     return fs_id
 
 
-def prepared_pn_oc_id(prepared_cp_id):
-    oc_id = f"{prepared_cp_id}-PN-" + str(int(time.time()) * 1000 + random.randint(1, 100))
+def prepared_pn_oc_id(cp_id):
+    oc_id = f"{cp_id}-PN-" + str(int(time.time()) * 1000 + random.randint(1, 100))
     return oc_id
 
 
@@ -130,8 +131,8 @@ def get_contract_period():
     duration_end_date_new = date + datetime.timedelta(days=95)
     start_date_new = duration_start_date_new.strftime("%Y-%m-%dT%H:%M:%SZ")
     end_date_new = duration_end_date_new.strftime("%Y-%m-%dT%H:%M:%SZ")
-    return start_date, end_date, tender_period_start_date, last_date, tender_period_start_date_new, start_date_new, \
-           end_date_new
+    return start_date, end_date, tender_period_start_date, last_date, tender_period_start_date_new, \
+           start_date_new, end_date_new
 
 
 def get_human_date_in_utc_format(time_stamp):
@@ -270,7 +271,7 @@ def get_value_from_classification_cpv_dictionary_xls(cpv, language):
     # Take current page of the file.
     sheet = excel_data_file.sheet_by_index(0)
 
-    classification_description = []
+    # classification_description = []
     # How mach rows contains into file?
     rows_number = sheet.nrows
     column_number = sheet.ncols
@@ -307,3 +308,8 @@ def get_value_from_classification_unit_dictionary_csv(unit_id, language):
             cur_arr = row[0].split(',')
             if cur_arr[0] == f'{unit_id}' and cur_arr[4].replace(';', '') == f'"{language}"':
                 return cur_arr[0].replace("'", ""), cur_arr[2].replace('"', ''),
+
+
+# This function returns 'es_system_tests' dir
+def get_project_root() -> Path:
+    return Path(__file__).parent

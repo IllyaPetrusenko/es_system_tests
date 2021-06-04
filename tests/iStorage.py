@@ -1,11 +1,13 @@
 import hashlib
 import os
 import requests
+from useful_functions import get_project_root
 
 
 class Document:
-    def __init__(self, instance, path, file_name):
-        self.path = os.path.abspath(path)
+    def __init__(self, instance, file_name="API.pdf"):
+        # The 'get_project_root()' get root dir
+        self.path = get_project_root() / file_name
         self.filename = file_name
         self.m = None
         self.weight = None
@@ -16,7 +18,7 @@ class Document:
             self.host_of_services = "http://10.0.10.116"
 
     def uploading_document(self):
-        with open(self.filename, 'rb') as f:
+        with open(self.path, 'rb') as f:
             self.m = hashlib.md5()
             while True:
                 # The 'API.pdf' file was divided into 8192-byte pieces, because 'API.pdf' has big weight.

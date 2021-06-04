@@ -1,12 +1,5 @@
 import random
 from useful_functions import get_contract_period
-from tests.iStorage import Document
-
-document = Document(instance="dev",
-                    path="/home/roman/Documents/git/es_system_tests/API.pdf",
-                    file_name="API.pdf")
-document_one_was_uploaded = document.uploading_document()
-document_two_was_uploaded = document.uploading_document()
 
 period = get_contract_period()
 legal_basis = ("DIRECTIVE_2014_23_EU",
@@ -255,7 +248,7 @@ create_pn_payload_full_data_model_with_documents = {
         "documents": [
             {
                 "documentType": "contractArrangements",
-                "id": document_one_was_uploaded[0]["data"]["id"],
+                "id": '1',
                 "title": "title of document",
                 "description": "descrition of document",
                 "relatedLots": [
@@ -264,7 +257,7 @@ create_pn_payload_full_data_model_with_documents = {
             },
             {
                 "documentType": "contractArrangements",
-                "id": document_two_was_uploaded[0]["data"]["id"],
+                "id": '2',
                 "title": "title of document",
                 "description": "descrition of document",
                 "relatedLots": [
@@ -421,7 +414,7 @@ update_pn_payload_full_data_model_with_documents = {
         "documents": [
             {
                 "documentType": "procurementPlan",
-                "id": document_one_was_uploaded[0]["data"]["id"],
+                "id": '1',
                 "title": "update tender.documents[0].title",
                 "description": "update tender.documents[0].description",
                 "relatedLots": [
@@ -430,7 +423,7 @@ update_pn_payload_full_data_model_with_documents = {
             },
             {
                 "documentType": "procurementPlan",
-                "id": document_two_was_uploaded[0]["data"]["id"],
+                "id": '2',
                 "title": "update tender.documents[1].title",
                 "description": "update tender.documents[1].description",
                 "relatedLots": [
