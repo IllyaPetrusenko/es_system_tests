@@ -1,4 +1,3 @@
-
 from uuid import uuid4
 import requests
 from deepdiff import DeepDiff
@@ -409,6 +408,7 @@ class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeCreationWithObli
             actual_result=actual_result
         )
 
+
 class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeUpdatingWithFullDataModel(object):
     @pytestrail.case('27593')
     def test_send_the_request_27593_1(self, country, language, instance, cassandra_username, cassandra_password, pmd):
@@ -643,7 +643,8 @@ class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeUpdatingWithFull
             actual_result=actual_result
         )
 
-class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeCreationWithObligatoryDataModel(object):
+
+class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeUpdatingWithObligatoryDataModel(object):
     @pytestrail.case('27594')
     def test_send_the_request_27594_1(self, country, language, instance, cassandra_username, cassandra_password, pmd):
         pn = PN(
