@@ -3335,8 +3335,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
                     related_processes_list.append(d_1)
         fs_release = requests.get(url=related_processes_list[0]["uri"]).json()
         assert compare_actual_result_and_expected_result(
-            expected_result=fs_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"],
-            actual_result=ms_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"]
+            expected_result=str(fs_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"]),
+            actual_result=str(ms_release["releases"][0]["planning"]["budget"]["isEuropeanUnionFunded"])
         )
 
     @pytestrail.case("27588")
@@ -7245,8 +7245,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         }
         compare_releases = DeepDiff(expected_result, actual_result)
         assert compare_actual_result_and_expected_result(
-            expected_result={},
-            actual_result=compare_releases
+            expected_result=str({}),
+            actual_result=str(compare_releases)
         )
 
     @pytestrail.case("27588")
@@ -7573,6 +7573,6 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         }
         compare_releases = DeepDiff(expected_result, actual_result)
         assert compare_actual_result_and_expected_result(
-            expected_result={},
-            actual_result=compare_releases
+            expected_result=str({}),
+            actual_result=str(compare_releases)
         )
