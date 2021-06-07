@@ -163,8 +163,8 @@ class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeCreationWithFull
 
         actual_result = DeepDiff(pn_release_before_cancelling, pn_release_after_cancelling)
         assert compare_actual_result_and_expected_result(
-            expected_result=expected_result,
-            actual_result=actual_result
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
         )
 
     @pytestrail.case('27591')
@@ -237,8 +237,8 @@ class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeCreationWithFull
         }
         actual_result = DeepDiff(ms_release_before_cancelling, ms_release_after_cancelling)
         assert compare_actual_result_and_expected_result(
-            expected_result=expected_result,
-            actual_result=actual_result
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
         )
 
 
@@ -345,8 +345,8 @@ class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeCreationWithObli
 
         actual_result = DeepDiff(pn_release_before_cancelling, pn_release_after_cancelling)
         assert compare_actual_result_and_expected_result(
-            expected_result=expected_result,
-            actual_result=actual_result
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
         )
 
     @pytestrail.case('27592')
@@ -404,8 +404,8 @@ class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeCreationWithObli
         }
         actual_result = DeepDiff(ms_release_before_cancelling, ms_release_after_cancelling)
         assert compare_actual_result_and_expected_result(
-            expected_result=expected_result,
-            actual_result=actual_result
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
         )
 
 
@@ -565,8 +565,8 @@ class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeUpdatingWithFull
 
         actual_result = DeepDiff(pn_release_before_cancelling, pn_release_after_cancelling)
         assert compare_actual_result_and_expected_result(
-            expected_result=expected_result,
-            actual_result=actual_result
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
         )
 
     @pytestrail.case('27593')
@@ -639,8 +639,8 @@ class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeUpdatingWithFull
         }
         actual_result = DeepDiff(ms_release_before_cancelling, ms_release_after_cancelling)
         assert compare_actual_result_and_expected_result(
-            expected_result=expected_result,
-            actual_result=actual_result
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
         )
 
 
@@ -747,8 +747,8 @@ class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeUpdatingWithObli
 
         actual_result = DeepDiff(pn_release_before_cancelling, pn_release_after_cancelling)
         assert compare_actual_result_and_expected_result(
-            expected_result=expected_result,
-            actual_result=actual_result
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
         )
 
     @pytestrail.case('27594')
@@ -806,6 +806,6 @@ class TestCheckOnPossibilityOfCancellingThePnAfterPlanningNoticeUpdatingWithObli
         }
         actual_result = DeepDiff(ms_release_before_cancelling, ms_release_after_cancelling)
         assert compare_actual_result_and_expected_result(
-            expected_result=expected_result,
-            actual_result=actual_result
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
         )
