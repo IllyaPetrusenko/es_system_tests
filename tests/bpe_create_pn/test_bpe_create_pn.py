@@ -2992,8 +2992,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         }
         compare_releases = DeepDiff(expected_result, actual_result)
         assert compare_actual_result_and_expected_result(
-            expected_result={},
-            actual_result=compare_releases
+            expected_result=str({}),
+            actual_result=str(compare_releases)
         )
 
     @pytestrail.case("27585")
@@ -3092,8 +3092,8 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         }
         compare_releases = DeepDiff(expected_result, actual_result)
         assert compare_actual_result_and_expected_result(
-            expected_result={},
-            actual_result=compare_releases
+            expected_result=str({}),
+            actual_result=str(compare_releases)
         )
 
 

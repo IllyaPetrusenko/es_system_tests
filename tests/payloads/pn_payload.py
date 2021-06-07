@@ -33,7 +33,7 @@ create_pn_payload_obligatory_data_model_without_documents = {
             "name": "uStudio QA Team",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "111-111",
+                "id": "4",
                 "legalName": "uStudio QA Team LLC"
             },
             "address": {
@@ -90,7 +90,7 @@ create_pn_payload_full_data_model_with_documents = {
             "name": "name of PE",
             "identifier": {
                 "scheme": "MD-IDNO",
-                "id": "123654789000",
+                "id": "4",
                 "legalName": "legal name",
                 "uri": "uri"
             },
