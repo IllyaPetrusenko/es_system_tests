@@ -28,18 +28,18 @@ import testrail
 client = testrail.APIClient('https://ustudiocompany.testrail.io')  # do not include index.php?/api/v2
 client.user = 'noreply@ustudio.company'  # TestRail email address
 client.password = 'add2uStudio'  # TestRail password or API token
-suite_id = 279
+suite_id = 283
 project_id = 13
-type_of_case = 'smoke'
+# type_of_case = 'smoke'
 
-sections_id = client.send_get(f'/get_sections/13&suite_id={suite_id}&filter={type_of_case}')
+sections_id = client.send_get(f'/get_sections/13&suite_id={suite_id}')
 print("What section do you need? Set it, please in 'section_id'.")
 print("Warning! The default value is 'sections_id[0]['id']'")
 print(sections_id)
 # What section do you need?
 section_id = sections_id[0]["id"]
 
-cases = client.send_get(f'/get_cases/13&suite_id={suite_id}&section_id={section_id}&filter={type_of_case}')
+cases = client.send_get(f'/get_cases/13&suite_id={suite_id}&section_id={section_id}')
 li = []
 for case in cases:
     case_ids = case['id']
@@ -47,7 +47,7 @@ for case in cases:
 
 post_body = {
     "suite_id": suite_id,
-        "name": "BPE: create FS (open) (This is a new test run for automation)",
+        "name": "BPE: update pn (open) (This is a new test run for automation)",
     "include_all": False,
     "case_ids": li
 

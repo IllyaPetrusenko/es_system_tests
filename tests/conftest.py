@@ -1,4 +1,11 @@
+import copy
+from uuid import uuid4
+
 import pytest
+
+from tests.essences.pn import PN
+from tests.payloads.pn_payload import create_pn_payload_obligatory_data_model_without_documents
+from useful_functions import prepared_cp_id
 
 
 def pytest_addoption(parser):
@@ -68,7 +75,6 @@ def cassandra_password(request):
     return request.config.getoption("--cassandra_password")
 
 
-
 @pytest.fixture(scope="session")
 def pmd(request):
     """Handler for --additional_value parameter"""
@@ -81,4 +87,13 @@ def tag(request):
     """Handler for --additional_value parameter"""
 
     return request.config.getoption("--tag")
+
+
 # # =============================================================================================================
+# Need this class for reuse 'message_from_kafka' and 'payload' into a various function of test_bpe_create_pn.py
+class CreatePn:
+    message_from_kafka = None
+    payload = None
+    ei_id = None
+    fs_id = None
+
