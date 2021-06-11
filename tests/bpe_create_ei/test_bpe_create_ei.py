@@ -2811,21 +2811,21 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         assert compare_actual_result_and_expected_result(
             expected_result=f"http://dev.public.eprocurement.systems/budgets/{cpid}/{cpid}",
             actual_result=ei_release["uri"])
-        assert compare_actual_result_and_expected_result(expected_result="666", actual_result=ei_release["version"])
+        assert compare_actual_result_and_expected_result(expected_result="1.1", actual_result=ei_release["version"])
         assert compare_actual_result_and_expected_result(
             expected_result="https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/"
                             "extension.json", actual_result=ei_release["extensions"][0])
         assert compare_actual_result_and_expected_result(
             expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
-                            "extension.js222", actual_result=ei_release["extensions"][1])
+                            "extension.js", actual_result=ei_release["extensions"][1])
         assert compare_actual_result_and_expected_result(
-            expected_result=instance.upper() + "-ENV", actual_result=ei_release["publisher"]["name"])
+            expected_result="M-Tender", actual_result=ei_release["publisher"]["name"])
         assert compare_actual_result_and_expected_result(
-            expected_result="https://www.ustudio.com", actual_result=ei_release["publisher"]["uri"])
+            expected_result="https://www.mtender.gov.md", actual_result=ei_release["publisher"]["uri"])
         assert compare_actual_result_and_expected_result(
-            expected_result="http://opendefinition.org/licenses/222", actual_result=ei_release["license"])
+            expected_result="http://opendefinition.org/licenses/", actual_result=ei_release["license"])
         assert compare_actual_result_and_expected_result(
-            expected_result="http://opendefinition.org/licenses/222", actual_result=ei_release["publicationPolicy"])
+            expected_result="http://opendefinition.org/licenses/", actual_result=ei_release["publicationPolicy"])
         assert compare_actual_result_and_expected_result(
             expected_result=message_from_kafka["data"]["operationDate"], actual_result=ei_release["publishedDate"])
         assert compare_actual_result_and_expected_result(
