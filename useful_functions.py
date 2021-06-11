@@ -223,13 +223,13 @@ def get_new_classification_id(classification_1, classification_2):
     return str(new[0] + new[1] + new[2] + new[3] + new[4] + new[5] + new[6] + new[7])
 
 
-def create_enquiry_and_tender_period():
+def create_enquiry_and_tender_period(second_enquiry=121, second_tender=300):
     date = datetime.datetime.now()
-    duration_enquiry_end_date = date + datetime.timedelta(seconds=121)
+    duration_enquiry_end_date = date + datetime.timedelta(seconds=second_enquiry)
     enquiry_start_date = date.strftime("%Y-%m-%dT%H:%M:%SZ")
     enquiry_end_date = duration_enquiry_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    duration_tender_end_date = date + datetime.timedelta(seconds=300)
+    duration_tender_end_date = date + datetime.timedelta(seconds=second_tender)
     tender_start_date = duration_enquiry_end_date
     tender_end_date = duration_tender_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
 

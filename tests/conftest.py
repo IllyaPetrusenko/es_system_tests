@@ -97,3 +97,19 @@ class CreatePn:
     ei_id = None
     fs_id = None
 
+
+class CreateCn:
+    message_from_kafka = None
+    payload = None
+    cp_id = None
+    pn_id = None
+    successfully_create_cn = None
+    pn_release_before_cn_creation = None
+    ms_release_before_cn_creation = None
+    document_one_was_uploaded = None
+    document_two_was_uploaded = None
+    document_three_was_uploaded = None
+    first_lot_id = None
+    second_lot_id = None
+    first_item_id = None
+    second_item_id = None

@@ -7359,18 +7359,18 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
                         "description": payload['tender']['items'][0]['description'],
                         "classification": {
                             "scheme": "CPV",
-                            "id": payload['tender']['items'][0]['classification']['id'],
+                            "id": get_value_by_first_item_cpv_code[0],
                             "description": get_value_by_first_item_cpv_code[1]
                         },
                         "additionalClassifications": [{
                             "scheme": "CPVS",
-                            "id": payload['tender']['items'][0]['additionalClassifications'][0]['id'],
+                            "id":get_value_by_first_item_cpvs_code[0],
                             "description": get_value_by_first_item_cpvs_code[2]
                         }],
                         "quantity": payload['tender']['items'][0]['quantity'],
                         "unit": {
                             "name": get_value_by_first_item_unit_id[1],
-                            "id": payload['tender']['items'][0]['unit']['id']
+                            "id": get_value_by_first_item_unit_id[0]
                         },
                         "relatedLot": actual_result['releases'][0]['tender']['lots'][0]['id']
                     }, {

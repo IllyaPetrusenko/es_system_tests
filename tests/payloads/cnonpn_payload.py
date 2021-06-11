@@ -1,7 +1,9 @@
-from useful_functions import create_enquiry_and_tender_period
+from useful_functions import create_enquiry_and_tender_period, get_new_period, get_contract_period
 
-enquiry_and_tender_period = create_enquiry_and_tender_period()
+enquiry_and_tender_period = create_enquiry_and_tender_period(second_enquiry=121, second_tender=600)
 period = get_new_period()
+contract_period = get_contract_period()
+
 create_cn_on_pn_payload_full_data_model_with_auction = {
     "planning": {
         "rationale": "create CNonPN: planning.rationale",
@@ -14,7 +16,7 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
         "description": "create CNonPN: tender.description",
         "procurementMethodRationale": "create CNonPN: tender.procurementMethodRationale",
         "procurementMethodAdditionalInfo": "create CNonPN: tender.procurementMethodAdditionalInfo",
-        "awardCriteria": "costOnly",
+        "awardCriteria": "ratedCriteria",
         "awardCriteriaDetails": "automated",
         "tenderPeriod": {
             "endDate": enquiry_and_tender_period[3]
@@ -34,6 +36,18 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
                         {
                             "eligibleMinimumDifference": {
                                 "amount": 100.00,
+                                "currency": "EUR"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "relatedLot": "2",
+                    "electronicAuctionModalities": [
+                        {
+                            "eligibleMinimumDifference": {
+                                "amount": 10.00,
                                 "currency": "EUR"
                             }
                         }
@@ -78,30 +92,51 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
         "criteria": [
             {
                 "id": "001",
-                "title": "Bankruptcy",
+                "title": "create CNonPN: tender.criteria[0].title =Bankruptcy",
                 "relatesTo": "tender",
                 "classification": {
-                    "id": "CRITERION.SELECTION.ECONOMIC_FINANCIAL_STANDING.TURNOVER.GENERAL_YEARLY",
+                    "id": "CRITERION.EXCLUSION.CONVICTIONS.PARTICIPATION_IN_CRIMINAL_ORGANISATION",
                     "scheme": "ESPD"
                 },
-                "description": "Is the economic operator bankrupt?",
+                "description": "create CNonPN: tender.criteria[0].description ="
+                               "Is the economic operator bankrupt? This information needs not be given if "
+                               "exclusion of economic operators in this case has been made mandatory under the "
+                               "applicable national law without any possibility of derogation where the economic "
+                               "operator is nevertheless able to perform the contract.",
                 "requirementGroups": [
                     {
                         "id": "001-1",
+                        "description": "create CNonPN: tender.criteria[0].requirementGroups[0].description ="
+                                       "approve that Bankruptcy requirement group",
                         "requirements": [
                             {
                                 "id": "001-1-1",
-                                "title": "Your answer?",
+                                "title": "create CNonPN: tender.criteria[0].requirementGroups[0].requirements.title",
+                                "description": "create CNonPN: tender.criteria[0].requirementGroups[0].requirements."
+                                               "description",
                                 "dataType": "boolean",
-                                "expectedValue": false,
+                                "expectedValue": False,
                                 "eligibleEvidences": [
                                     {
                                         "id": "1",
-                                        "title": "title of eligibleEvidences 1",
-                                        "description": "description of eligibleEvidences 1",
+                                        "title": "create CNonPN: tender.criteria[0].requirementGroups[0]."
+                                                 "requirements[0].eligibleEvidences[0].title",
+                                        "description": "create CNonPN: tender.criteria[0].requirementGroups[0]."
+                                                       "requirements[0].eligibleEvidences[0].description",
                                         "type": "document",
                                         "relatedDocument": {
-                                            "id": "{{Document-2}}"
+                                            "id": "{{Document-1}}"
+                                        }
+                                    },
+                                    {
+                                        "id": "2",
+                                        "title": "create CNonPN: tender.criteria[0].requirementGroups[0]."
+                                                 "requirements[0].eligibleEvidences[1].title",
+                                        "description": "create CNonPN: tender.criteria[0].requirementGroups[0]."
+                                                       "requirements[0].eligibleEvidences[1].description",
+                                        "type": "document",
+                                        "relatedDocument": {
+                                            "id": "{{Document-1}}"
                                         }
                                     }
                                 ]
@@ -112,43 +147,50 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
             },
             {
                 "id": "002",
-                "title": "Product warranty",
+                "title": "create CNonPN: tender.criteria[1].title",
+                "description": "create CNonPN: tender.criteria[1].description",
+                "relatesTo": "lot",
+                "relatedItem": "1",
                 "classification": {
-                    "id": "CRITERION.EXCLUSION.CONVICTIONS.PARTICIPATION_IN_CRIMINAL_ORGANISATION",
+                    "id": "CRITERION.SELECTION.ECONOMIC_FINANCIAL_STANDING.TURNOVER.GENERAL_YEARLY",
                     "scheme": "ESPD"
                 },
-                "description": "A minimum product warranty of 1 year is required for all bids.",
-                "relatesTo": "item",
-                "relatedItem": "1",
                 "requirementGroups": [
                     {
                         "id": "002-1",
-                        "description": "A minimum product warranty of 1 year is required for all bids.",
+                        "description": "create CNonPN: tender.criteria[1].requirementGroups[0].description",
                         "requirements": [
                             {
                                 "id": "002-1-1",
-                                "title": "A minimum product warranty of 1 year is guaranteed",
+                                "title": "create CNonPN: tender.criteria[1].requirementGroups[0].requirements[0].title",
+                                "description": "create CNonPN: tender.criteria[1].requirementGroups[0].requirements."
+                                               "description",
                                 "dataType": "boolean",
-                                "expectedValue": true
+                                "expectedValue": True
                             },
                             {
                                 "id": "002-1-2",
-                                "title": "The number of years for proposed product warranty",
+                                "title": "create CNonPN: tender.criteria[1].requirementGroups[0].requirements[1].title "
+                                         "=The number of years for proposed product warranty",
+                                "description": "create CNonPN: tender.criteria[1].requirementGroups[0].requirements[1]."
+                                               "description",
                                 "dataType": "number",
                                 "minValue": 1.0,
                                 "maxValue": 3.0,
                                 "period": {
-                                    "startDate": "2021-03-01T16:00:00Z",
-                                    "endDate": "2021-03-30T16:00:00Z"
+                                    "startDate": period[2],
+                                    "endDate": period[4]
                                 },
                                 "eligibleEvidences": [
                                     {
-                                        "id": "1",
-                                        "title": "title of eligibleEvidences 1",
-                                        "description": "description of eligibleEvidences 1",
+                                        "id": "3",
+                                        "title": "create CNonPN: tender.criteria[1].requirementGroups[0]."
+                                                 "requirements[1].eligibleEvidences[0].title",
+                                        "description": "create CNonPN: tender.criteria[1].requirementGroups[0]."
+                                                       "requirements[1].eligibleEvidences[0].description",
                                         "type": "document",
                                         "relatedDocument": {
-                                            "id": "{{Document-2}}"
+                                            "id": "{{Document-1}}"
                                         }
                                     }
                                 ]
@@ -160,26 +202,47 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
             },
             {
                 "id": "003",
-                "title": "Product",
+                "title": "create CNonPN: tender.criteria[2].title",
                 "classification": {
                     "id": "CRITERION.EXCLUSION.NATIONAL.OTHER",
                     "scheme": "ESPD"
                 },
-                "description": "Country of origin",
-                "relatesTo": "tender",
+                "description": "create CNonPN: tender.criteria[2].description",
+                "relatesTo": "tenderer",
                 "requirementGroups": [
                     {
                         "id": "003-1",
+                        "description": "create CNonPN: tender.criteria[2].requirementGroups[0].description",
                         "requirements": [
                             {
                                 "id": "003-1-1",
-                                "title": "Product has to be manufactured in the EU",
+                                "title": "create CNonPN: tender.criteria[2].requirementGroups[0].requirements[0]."
+                                         "title =Product has to be manufactured in the EU",
                                 "dataType": "boolean",
-                                "expectedValue": true
+                                "expectedValue": True
                             },
                             {
                                 "id": "003-1-2",
-                                "title": "Country of origin",
+                                "title": "create CNonPN: tender.criteria[2].requirementGroups[0]..requirements[1]."
+                                         "title =Country of origin",
+                                "dataType": "string"
+                            }
+                        ]
+                    }, {
+                        "id": "003-2",
+                        "description": "create CNonPN: tender.criteria[2].requirementGroups[1].description",
+                        "requirements": [
+                            {
+                                "id": "003-2-1",
+                                "title": "create CNonPN: tender.criteria[2].requirementGroups[1].requirements[0]."
+                                         "title =Product has to be manufactured in the EU",
+                                "dataType": "boolean",
+                                "expectedValue": True
+                            },
+                            {
+                                "id": "003-2-2",
+                                "title": "create CNonPN: tender.criteria[2].requirementGroups[1]..requirements[1]."
+                                         "title =Country of origin",
                                 "dataType": "string"
                             }
                         ]
@@ -188,26 +251,30 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
             },
             {
                 "id": "004",
-                "title": "Product warranty 2",
-                "relatesTo": "tender",
+                "title": "create CNonPN: tender.criteria[3].title",
+                "relatesTo": "item",
+                "relatedItem": "1",
                 "classification": {
-                    "id": "CRITERION.OTHER.EO_DATA.SHELTERED_WORKSHOP",
+                    "id": "CRITERION.OTHER.EO_DATA.RELIES_ON_OTHER_CAPACITIES",
                     "scheme": "ESPD"
                 },
-                "description": "A minimum product warranty of 1 year is required for all bids 2",
+                "description": "create CNonPN: tender.criteria[3].description ="
+                               "A minimum product warranty of 1 year is required for all bids 2",
                 "requirementGroups": [
                     {
                         "id": "004-1",
+                        "description": "create CNonPN: tender.criteria[3].requirementGroups[0].description",
                         "requirements": [
                             {
                                 "id": "004-1-1",
-                                "title": "The number of years for proposed product warranty",
+                                "title": "create CNonPN: tender.criteria[3].requirementGroups[0].requirements[0]."
+                                         "title = The number of years for proposed product warranty",
                                 "dataType": "number",
                                 "minValue": 1.0,
                                 "maxValue": 3.0,
                                 "period": {
-                                    "startDate": "2021-03-01T16:00:00Z",
-                                    "endDate": "2021-03-30T16:00:00Z"
+                                    "startDate": period[2],
+                                    "endDate": period[4]
                                 }
                             }
                         ]
@@ -215,20 +282,46 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
                 ]
             }, {
                 "id": "005",
-                "title": "Product 2",
-                "relatesTo": "",
+                "title": "create CNonPN: tender.criteria[4].title",
+                "relatesTo": "tender",
+                "classification": {
+                    "id": "CRITERION.EXCLUSION.NATIONAL.OTHER",
+                    "scheme": "ESPD"
+                },
+                "description": "create CNonPN: tender.criteria[4].description",
+                "requirementGroups": [
+                    {
+                        "id": "005-1",
+                        "description": "create CNonPN: tender.criteria[4].requirementGroups[0].description",
+                        "requirements": [
+                            {
+                                "id": "005-1-1",
+                                "title": "create CNonPN: tender.criteria[4].requirementGroups[0].requirements[0]."
+                                         "title =Country of origin",
+                                "dataType": "string"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "006",
+                "title": "create CNonPN: tender.criteria[4].title",
+                "relatesTo": "tender",
                 "classification": {
                     "id": "CRITERION.OTHER.EO_DATA.RELIES_ON_OTHER_CAPACITIES",
                     "scheme": "ESPD"
                 },
-                "description": "Country of origin",
+                "description": "create CNonPN: tender.criteria[4].description",
                 "requirementGroups": [
                     {
-                        "id": "5",
+                        "id": "006-1",
+                        "description": "create CNonPN: tender.criteria[4].requirementGroups[0].description",
                         "requirements": [
                             {
-                                "id": "5",
-                                "title": "Country of origin",
+                                "id": "006-1-1",
+                                "title": "create CNonPN: tender.criteria[4].requirementGroups[0].requirements[0]."
+                                         "title =Country of origin",
                                 "dataType": "string"
                             }
                         ]
@@ -238,11 +331,25 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
         ],
         "conversions": [
             {
-                "id": "conversion 1",
+                "id": "2",
                 "relatesTo": "requirement",
-                "relatedItem": "4",
-                "rationale": "Number of years for product guarantee",
-                "description": "description of conversion 1",
+                "relatedItem": "002-1-1",
+                "rationale": "create CNonPN: tender.conversions[1].rationale",
+                "description": "create CNonPN: tender.conversions[1].description",
+                "coefficients": [
+                    {
+                        "id": "coefficient-1",
+                        "value": False,
+                        "coefficient": 1
+                    }
+                ]
+            },
+            {
+                "id": "3",
+                "relatesTo": "requirement",
+                "relatedItem": "002-1-2",
+                "rationale": "create CNonPN: tender.conversions[3].rationale",
+                "description": "create CNonPN: tender.conversions[3].description",
                 "coefficients": [
                     {
                         "id": "coefficient-1",
@@ -252,34 +359,325 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
                     {
                         "id": "coefficient-2",
                         "value": 2.0,
-                        "coefficient": 0.8
+                        "coefficient": 1
                     },
                     {
                         "id": "coefficient-3",
                         "value": 3.0,
-                        "coefficient": 0.9
+                        "coefficient": 0.93
+                    }
+                ]
+            },
+            {
+                "id": "6",
+                "relatesTo": "requirement",
+                "relatedItem": "004-1-1",
+                "rationale": "create CNonPN: tender.conversions[6].rationale",
+                "description": "create CNonPN: tender.conversions[6].description",
+                "coefficients": [
+                    {
+                        "id": "coefficient-1",
+                        "value": 1.0,
+                        "coefficient": 1
+                    },
+                    {
+                        "id": "coefficient-2",
+                        "value": 2.0,
+                        "coefficient": 1
+                    },
+                    {
+                        "id": "coefficient-3",
+                        "value": 3.0,
+                        "coefficient": 0.93
+                    }
+                ]
+            },
+            {
+                "id": "7",
+                "relatesTo": "requirement",
+                "relatedItem": "006-1-1",
+                "rationale": "create CNonPN: tender.conversions[6].rationale",
+                "description": "create CNonPN: tender.conversions[6].description",
+                "coefficients": [
+                    {
+                        "id": "coefficient-1",
+                        "value": "option_1",
+                        "relatedOption": "option_1",
+                        "coefficient": 1
+                    },
+                    {
+                        "id": "coefficient-2",
+                        "value": "option_2",
+                        "relatedOption": "option_2",
+                        "coefficient": 1
+                    },
+                    {
+                        "id": "coefficient-3",
+                        "value": "option_3",
+                        "relatedOption": "option_3",
+                        "coefficient": 0.93
                     }
                 ]
             }
         ],
         "lots": [
             {
-                "id": "{{lot_id_1}}",
-                "internalId": "internalId of lot",
-                "title": "title of lot",
-                "description": "description of lot",
+                "id": "1",
+                "internalId": "create CNonPN: tender.lots[0].internalId",
+                "title": "create CNonPN: tender.lots[0].title",
+                "description": "create CNonPN: tender.lots[0].description",
                 "value": {
-                    "amount": 10000,
+                    "amount": 1500.0,
                     "currency": "EUR"
                 },
                 "contractPeriod": {
-                    "startDate": "2021-03-19T16:00:00Z",
-                    "endDate": "2021-03-20T16:00:00Z"
+                    "startDate": contract_period[0],
+                    "endDate": contract_period[1]
                 },
                 "placeOfPerformance": {
                     "address": {
-                        "streetAddress": "street of placeOfPerformance",
-                        "postalCode": "postalCode of placeOfPerformance",
+                        "streetAddress": "create CNonPN: tender.lots[0].placeOfPerformance.address.street",
+                        "postalCode": "create CNonPN: tender.lots[0].placeOfPerformance.address.postal",
+                        "addressDetails": {
+                            "country": {
+                                "id": "MD"
+                            },
+                            "region": {
+                                "id": "5700000"
+                            },
+                            "locality": {
+                                "scheme": "CUATM",
+                                "id": "5711001",
+                                "description": "create CNonPN: tender.lots[0].placeOfPerformance.address."
+                                               "addressDetails.locality.description"
+                            }
+                        }
+                    },
+                    "description": "create CNonPN: tender.lots[0].placeOfPerformance.description"
+                },
+                "hasOptions": True,
+                "options": [
+                    {
+                        "description": "create CNonPN: tender.lots[0].options.description",
+                        "period": {
+                            "durationInDays": 180,
+                            "startDate": contract_period[0],
+                            "endDate": contract_period[1],
+                            "maxExtentDate": contract_period[1]
+                        }
+                    }
+                ],
+                "hasRecurrence": True,
+                "recurrence": {
+                    "dates": [
+                        {
+                            "startDate": contract_period[0]
+                        },
+                        {
+                            "startDate": contract_period[0]
+                        }
+                    ],
+                    "description": "create CNonPN: tender.lots[0].description ="
+                                   "The duration of this contract and recurrent contracts will not exceed three years."
+                },
+                "hasRenewal": True,
+                "renewal": {
+                    "description": "create CNonPN: tender.lots[0].renewal ="
+                                   "The contracting authority reserves the right to extend the term for a period "
+                                   "or periods of up to 1 year with a maximum of 2 such extensions on the same "
+                                   "terms and conditions, subject to the contracting authority's obligations at law.",
+                    "minimumRenewals": 2,
+                    "maximumRenewals": 5,
+                    "period": {
+                        "durationInDays": 365,
+                        "startDate": contract_period[0],
+                        "endDate": contract_period[1],
+                        "maxExtentDate": contract_period[1]
+                    }
+                }
+            },
+            {
+                "id": "2",
+                "internalId": "create CNonPN: tender.lots[1].internalId",
+                "title": "create CNonPN: tender.lots[1].title",
+                "description": "create CNonPN: tender.lots[1].description",
+                "value": {
+                    "amount": 100.0,
+                    "currency": "EUR"
+                },
+                "contractPeriod": {
+                    "startDate": contract_period[0],
+                    "endDate": contract_period[1]
+                },
+                "placeOfPerformance": {
+                    "address": {
+                        "streetAddress": "create CNonPN: tender.lots[1].placeOfPerformance.address.street",
+                        "postalCode": "create CNonPN: tender.lots[1].placeOfPerformance.address.postal",
+                        "addressDetails": {
+                            "country": {
+                                "id": "MD"
+                            },
+                            "region": {
+                                "id": "5700000"
+                            },
+                            "locality": {
+                                "scheme": "CUATM",
+                                "id": "5711001",
+                                "description": "create CNonPN: tender.lots[1].placeOfPerformance.address."
+                                               "addressDetails.locality.description"
+                            }
+                        }
+                    },
+                    "description": "create CNonPN: tender.lots[1].placeOfPerformance.description"
+                },
+                "hasOptions": True,
+                "options": [
+                    {
+                        "description": "create CNonPN: tender.lots[0].options.description",
+                        "period": {
+                            "durationInDays": 180,
+                            "startDate": contract_period[0],
+                            "endDate": contract_period[1],
+                            "maxExtentDate": contract_period[1]
+                        }
+                    }
+                ],
+                "hasRecurrence": True,
+                "recurrence": {
+                    "dates": [
+                        {
+                            "startDate": contract_period[0]
+                        },
+                        {
+                            "startDate": contract_period[0]
+                        }
+                    ],
+                    "description": "create CNonPN: tender.lots[0].description ="
+                                   "The duration of this contract and recurrent contracts will not exceed three years."
+                },
+                "hasRenewal": True,
+                "renewal": {
+                    "description": "create CNonPN: tender.lots[0].renewal ="
+                                   "The contracting authority reserves the right to extend the term for a period "
+                                   "or periods of up to 1 year with a maximum of 2 such extensions on the same "
+                                   "terms and conditions, subject to the contracting authority's obligations at law.",
+                    "minimumRenewals": 2,
+                    "maximumRenewals": 5,
+                    "period": {
+                        "durationInDays": 365,
+                        "startDate": contract_period[0],
+                        "endDate": contract_period[1],
+                        "maxExtentDate": contract_period[1]
+                    }
+                }
+            }
+        ],
+        "items": [
+            {
+                "id": "1",
+                "internalId": "create CNonPN: tender.items[0].internalId",
+                "classification": {
+                    "id": "45112350-3",
+                    "scheme": "CPV",
+                    "description": "description"
+                },
+                "additionalClassifications": [
+                    {
+                        "id": "AA12-4",
+                        "scheme": "CPVS",
+                        "description": "description"
+                    }
+                ],
+                "quantity": 10.0,
+                "unit": {
+                    "id": "10",
+                    "name": "name"
+                },
+                "description": "create CNonPN: tender.items[0].description",
+                "relatedLot": "1"
+            },
+            {
+                "id": "2",
+                "internalId": "create CNonPN: tender.items[1].internalId",
+                "classification": {
+                    "id": "45112360-6",
+                    "scheme": "CPV",
+                    "description": "description"
+                },
+                "additionalClassifications": [
+                    {
+                        "id": "AA12-4",
+                        "scheme": "CPVS",
+                        "description": "description"
+                    }
+                ],
+                "quantity": 10.0,
+                "unit": {
+                    "id": "10",
+                    "name": "name"
+                },
+                "description": "create CNonPN: tender.items[0].description",
+                "relatedLot": "2"
+            }
+        ],
+        "documents": [
+            {
+                "documentType": "procurementPlan",
+                "id": "{{Document-1}}",
+                "title": "create CNonPN: tender.documents[0].title",
+                "description": "create CNonPN: tender.documents[0].description",
+                "relatedLots": [
+                    "1"
+                ]
+            },
+            {
+                "documentType": "tenderNotice",
+                "id": "{{Document-2}}",
+                "title": "create CNonPN: tender.documents[1].title",
+                "description": "create CNonPN: tender.documents[1].description",
+                "relatedLots": [
+                    "2"
+                ]
+            },
+            {
+                "documentType": "eligibilityCriteria",
+                "id": "{{Document-3}}",
+                "title": "create CNonPN: tender.documents[1].title",
+                "description": "create CNonPN: tender.documents[1].description",
+                "relatedLots": [
+                    "1"
+                ]
+            }
+        ]
+    }
+}
+
+create_cn_on_pn_payload_obligatory_data_model = {
+    "tender": {
+        "awardCriteria": "priceOnly",
+        "awardCriteriaDetails": "automated",
+        "tenderPeriod": {
+            "endDate": enquiry_and_tender_period[3]
+        },
+        "enquiryPeriod": {
+            "endDate": enquiry_and_tender_period[1]
+        },
+        "lots": [
+            {
+                "id": "1",
+                "title": "Create CN: title of lot",
+                "description": "Create CN: description of lot",
+                "value": {
+                    "amount": 1500.0,
+                    "currency": "EUR"
+                },
+                "contractPeriod": {
+                    "startDate": contract_period[0],
+                    "endDate": contract_period[1]
+                },
+                "placeOfPerformance": {
+                    "address": {
+                        "streetAddress": "Create CN: street of placeOfPerformance",
                         "addressDetails": {
                             "country": {
                                 "id": "MD"
@@ -293,43 +691,6 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
                                 "description": "description of locality"
                             }
                         }
-                    },
-                    "description": "description of placeOfPerformance"
-                },
-                "hasOptions": true,
-                "options": [
-                    {
-                        "description": "The buyer has the option to buy an additional hundred uniforms.",
-                        "period": {
-                            "durationInDays": 180,
-                            "startDate": "2021-02-10T00:00:00Z",
-                            "endDate": "2024-02-10T00:00:00Z",
-                            "maxExtentDate": "2024-02-10T00:00:00Z"
-                        }
-                    }
-                ],
-                "hasRecurrence": true,
-                "recurrence": {
-                    "dates": [
-                        {
-                            "startDate": "2020-01-01T00:00:00Z"
-                        },
-                        {
-                            "startDate": "2021-01-01T00:00:00Z"
-                        }
-                    ],
-                    "description": "The duration of this contract and recurrent contracts will not exceed three years."
-                },
-                "hasRenewal": true,
-                "renewal": {
-                    "description": "The contracting authority reserves the right to extend the term for a period or periods of up to 1 year with a maximum of 2 such extensions on the same terms and conditions, subject to the contracting authority's obligations at law.",
-                    "minimumRenewals": 2,
-                    "maximumRenewals": 5,
-                    "period": {
-                        "durationInDays": 365,
-                        "startDate": "2021-02-10T00:00:00Z",
-                        "endDate": "2024-02-10T00:00:00Z",
-                        "maxExtentDate": "2024-02-10T00:00:00Z"
                     }
                 }
             }
@@ -337,41 +698,22 @@ create_cn_on_pn_payload_full_data_model_with_auction = {
         "items": [
             {
                 "id": "{{item_id_1}}",
-                "internalId": "internalId of item",
                 "classification": {
-                    "id": "03100000-2"
+                    "id": "45112350-3"
                 },
-                "additionalClassifications": [
-                    {
-                        "id": "AA12-4"
-                    }
-                ],
-                "quantity": 10,
+                "quantity": 10.0,
                 "unit": {
                     "id": "10"
                 },
-                "description": "description of item",
-                "relatedLot": "{{lot_id_1}}"
+                "description": "Create CN: description of item",
+                "relatedLot": "1"
             }
         ],
         "documents": [
             {
                 "documentType": "illustration",
                 "id": "{{Document-1}}",
-                "title": "title of document 1",
-                "description": "description of of document 1",
-                "relatedLots": [
-                    "{{lot_id_1}}"
-                ]
-            },
-            {
-                "documentType": "illustration",
-                "id": "{{Document-2}}",
-                "title": "title of document 2",
-                "description": "description of of document 2",
-                "relatedLots": [
-                    "{{lot_id_1}}"
-                ]
+                "title": "Create CN: title of document"
             }
         ]
     }
