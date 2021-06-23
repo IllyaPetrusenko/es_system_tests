@@ -125,3 +125,15 @@ class UpdateCn:
     cp_id = None
     ev_id = None
     pn_id = None
+
+
+class CancelCn:
+    ms_release_before_tender_cancelling = None
+    pn_release_before_tender_cancelling = None
+    ev_release_before_tender_cancelling = None
+    message_from_kafka = None
+    successfully_cancel_tender = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None

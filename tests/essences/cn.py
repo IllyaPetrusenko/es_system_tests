@@ -244,6 +244,20 @@ class CN:
         allure.attach(json.dumps(self.payload), 'Prepared payload')
         return tender
 
+    @allure.step('Cancel tender')
+    def cancel_tender(self, cp_id, ev_id, pn_token):
+        tender = requests.post(
+            url=self.host_of_request + f"/cancel/tender/{cp_id}/{ev_id}",
+            headers={
+                'Authorization': 'Bearer ' + self.access_token,
+                'X-OPERATION-ID': self.x_operation_id,
+                'Content-Type': 'application/json',
+                'X-TOKEN': f'{pn_token}'},
+            json=self.payload)
+        allure.attach(self.host_of_request + "/cancel/tender/", 'URL')
+        allure.attach(json.dumps(self.payload), 'Prepared payload')
+        return tender
+
     @allure.step('Receive message in feed-point')
     def get_message_from_kafka(self):
         message_from_kafka = get_message_from_kafka(self.x_operation_id)
@@ -281,6 +295,24 @@ class CN:
         check_amendments = is_it_uuid(message["data"]['outcomes']['amendments'][0]['id'], 4)
         if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
                 check_oc_id is True and check_url is True and check_operation_date is True and check_amendments is True:
+            return True
+        else:
+            return False
+
+    def check_on_that_message_is_successfully_cancel_tender(self, cp_id, ev_id):
+        message = get_message_from_kafka(self.x_operation_id)
+        check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
+        check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 4)
+        check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
+        check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], f"{ev_id}")
+        check_url = fnmatch.fnmatch(message["data"]["url"],
+                                    f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{ev_id}")
+        check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
+        check_amendments = is_it_uuid(message["data"]['outcomes']['amendments'][0]['id'], 4)
+        check_amendments_token = is_it_uuid(message["data"]['outcomes']['amendments'][0]["X-TOKEN"], 4)
+        if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
+                check_oc_id is True and check_url is True and check_operation_date is True and \
+                check_amendments is True and check_amendments_token is True:
             return True
         else:
             return False
