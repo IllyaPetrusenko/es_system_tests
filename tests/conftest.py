@@ -113,3 +113,15 @@ class CreateCn:
     second_lot_id = None
     first_item_id = None
     second_item_id = None
+
+
+class UpdateCn:
+    ms_release_before_cn_updating = None
+    pn_release_before_cn_updating = None
+    ev_release_before_cn_updating = None
+    message_from_kafka = None
+    successfully_update_cn = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None

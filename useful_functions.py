@@ -63,6 +63,11 @@ def prepared_pn_oc_id(cp_id):
     return oc_id
 
 
+def prepared_cn_oc_id(cp_id):
+    oc_id = f"{cp_id}-EV-" + str(int(time.time()) * 1000 + random.randint(1, 100))
+    return oc_id
+
+
 def time_at_now():
     date = datetime.datetime.now()
     time_at_now_ = date.strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -223,14 +228,14 @@ def get_new_classification_id(classification_1, classification_2):
     return str(new[0] + new[1] + new[2] + new[3] + new[4] + new[5] + new[6] + new[7])
 
 
-def create_enquiry_and_tender_period(second_enquiry=121, second_tender=300):
+def create_enquiry_and_tender_period(second_enquiry=121, second_tender=300, hours=3):
     date = datetime.datetime.now()
-    duration_enquiry_end_date = date + datetime.timedelta(seconds=second_enquiry)
+    duration_enquiry_end_date = date - datetime.timedelta(hours=hours) + datetime.timedelta(seconds=second_enquiry)
     enquiry_start_date = date.strftime("%Y-%m-%dT%H:%M:%SZ")
     enquiry_end_date = duration_enquiry_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    duration_tender_end_date = date + datetime.timedelta(seconds=second_tender)
-    tender_start_date = duration_enquiry_end_date
+    duration_tender_end_date = date - datetime.timedelta(hours=hours) + datetime.timedelta(seconds=second_tender)
+    tender_start_date = duration_enquiry_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     tender_end_date = duration_tender_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     return enquiry_start_date, enquiry_end_date, tender_start_date, tender_end_date
@@ -313,3 +318,12 @@ def get_value_from_classification_unit_dictionary_csv(unit_id, language):
 # This function returns 'es_system_tests' dir
 def get_project_root() -> Path:
     return Path(__file__).parent
+
+
+def get_auction_date():
+    date = datetime.datetime.now()
+    duration_date_start = date + datetime.timedelta(minutes=5)
+    auction_date = duration_date_start.strftime('%Y-%m-%dT%H:%M:%SZ')
+    return auction_date
+
+
