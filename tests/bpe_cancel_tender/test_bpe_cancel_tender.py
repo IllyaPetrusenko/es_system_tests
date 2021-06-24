@@ -12,6 +12,8 @@ from useful_functions import compare_actual_result_and_expected_result
 
 
 class TestCheckOnThePossibilityOfTenderCancellationWithFullDataModelInRequestBasedOnCnOnPnFullDataModel(object):
+    # Check on the possibility of tender cancellation for tender in active clarification tender status
+    # with full data model in request, based on CnOnPn full data model.
     @pytestrail.case("27600")
     def test_test_send_the_request_27600_1(self, country, language, instance, cassandra_username, cassandra_password,
                                            pmd):
@@ -93,11 +95,6 @@ class TestCheckOnThePossibilityOfTenderCancellationWithFullDataModelInRequestBas
         actual_result = DeepDiff(CancelCn.ev_release_before_tender_cancelling, ev_release_after_cancelling)
         dictionary_item_added_was_cleaned = str(actual_result['dictionary_item_added']).replace('root', '')[1:-1]
         actual_result['dictionary_item_added'] = dictionary_item_added_was_cleaned
-
-        assert compare_actual_result_and_expected_result(
-            expected_result=str(expected_result),
-            actual_result=str(actual_result)
-        )
         actual_amendments = ev_release_after_cancelling['releases'][0]['tender']['amendments']
         expected_amendments = [{
             "id": actual_amendments[0]['id'],
@@ -119,6 +116,10 @@ class TestCheckOnThePossibilityOfTenderCancellationWithFullDataModelInRequestBas
             }]
         }]
         assert compare_actual_result_and_expected_result(
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
+        )
+        assert compare_actual_result_and_expected_result(
             expected_result=str(expected_amendments),
             actual_result=str(actual_amendments)
         )
@@ -137,6 +138,8 @@ class TestCheckOnThePossibilityOfTenderCancellationWithFullDataModelInRequestBas
 
 
 class TestCheckOnThePossibilityOfTenderCancellationWithObligatoryDataModelInRequestBasedOnCnOnPnObligatoryDataM(object):
+    # Check on the possibility of tender cancellation for tender in active clarification tender status
+    # with obligatory data model in request, based on CnOnPn obligatory data model.
     @pytestrail.case("27601")
     def test_test_send_the_request_27601_1(self, country, language, instance, cassandra_username, cassandra_password,
                                            pmd):
@@ -214,11 +217,6 @@ class TestCheckOnThePossibilityOfTenderCancellationWithObligatoryDataModelInRequ
         actual_result = DeepDiff(CancelCn.ev_release_before_tender_cancelling, ev_release_after_cancelling)
         dictionary_item_added_was_cleaned = str(actual_result['dictionary_item_added']).replace('root', '')[1:-1]
         actual_result['dictionary_item_added'] = dictionary_item_added_was_cleaned
-
-        assert compare_actual_result_and_expected_result(
-            expected_result=str(expected_result),
-            actual_result=str(actual_result)
-        )
         actual_amendments = ev_release_after_cancelling['releases'][0]['tender']['amendments']
         expected_amendments = [{
             "id": actual_amendments[0]['id'],
@@ -229,6 +227,10 @@ class TestCheckOnThePossibilityOfTenderCancellationWithObligatoryDataModelInRequ
             "date": CancelCn.message_from_kafka['data']['operationDate'],
             "rationale": CancelCn.payload['amendments'][0]['rationale'],
         }]
+        assert compare_actual_result_and_expected_result(
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
+        )
         assert compare_actual_result_and_expected_result(
             expected_result=str(expected_amendments),
             actual_result=str(actual_amendments)

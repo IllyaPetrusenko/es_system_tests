@@ -8247,8 +8247,8 @@ class PN:
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
         session.execute(
-            f"INSERT INTO access_tender (cp_id,stage,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', 'PN', {pn_token}, {pn_id[32:45]}, "
+            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -9532,8 +9532,8 @@ class PN:
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
         session.execute(
-            f"INSERT INTO access_tender (cp_id,stage,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', 'PN', {pn_token}, {pn_id[32:45]}, "
+            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -12069,8 +12069,8 @@ class PN:
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
         session.execute(
-            f"INSERT INTO access_tender (cp_id,stage,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', 'PN', {pn_token}, {pn_id[32:45]}, "
+            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -13356,8 +13356,8 @@ class PN:
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
         session.execute(
-            f"INSERT INTO access_tender (cp_id,stage,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', 'PN', {pn_token}, {pn_id[32:45]}, "
+            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "

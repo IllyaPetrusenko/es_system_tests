@@ -105,6 +105,16 @@ def get_period():
     return start_date, end_date, timestamp_now, tender_period, duration_fake_tender_period
 
 
+def get_period_for_amendment():
+    date = datetime.datetime.now()
+    duration_date_start = date + datetime.timedelta(minutes=2)
+    start_date = duration_date_start.strftime('%Y-%m-%dT%H:%M:%SZ')
+    time_at_now_miliseconds = duration_date_start.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    timestamp_now = int(
+        time.mktime(datetime.datetime.strptime(time_at_now_miliseconds, "%Y-%m-%dT%H:%M:%S.%fZ").timetuple())) * 1000
+    return start_date, timestamp_now,
+
+
 def get_new_period():
     date = datetime.datetime.now()
     duration_start_date = date + datetime.timedelta(days=5)

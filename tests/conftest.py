@@ -137,3 +137,31 @@ class CancelCn:
     cp_id = None
     ev_id = None
     pn_id = None
+
+
+class ConfirmTenderAmendment:
+    ms_release_before_tender_amendment_confirmation = None
+    pn_release_before_tender_amendment_confirmation = None
+    ev_release_before_tender_amendment_confirmation = None
+    message_from_kafka = None
+    successfully_tender_amendment_confirmation = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    amendment_id = None
+    amendment_token = None
+
+
+class CancelTenderAmendment:
+    ms_release_before_tender_amendment_cancellation = None
+    pn_release_before_tender_amendment_cancellation = None
+    ev_release_before_tender_amendment_cancellation = None
+    message_from_kafka = None
+    successfully_tender_amendment_cancellation = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    amendment_id = None
+    amendment_token = None

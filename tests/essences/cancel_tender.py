@@ -1,7 +1,7 @@
 import fnmatch
 import json
 import uuid
-from uuid import uuid4, uuid1
+from uuid import uuid4
 
 import allure
 import requests
@@ -16,12 +16,12 @@ from tests.kafka_session import Kafka
 from useful_functions import get_period, get_access_token_for_platform_two, is_it_uuid, prepared_fs_oc_id, \
     prepared_cp_id, prepared_pn_oc_id, get_new_classification_id, get_value_from_classification_cpv_dictionary_xls, \
     get_value_from_cpvs_dictionary_csv, get_value_from_classification_unit_dictionary_csv, get_contract_period, \
-    get_human_date_in_utc_format, create_enquiry_and_tender_period, get_timestamp_from_human_date, prepared_cn_oc_id, \
-    time_at_now, get_auction_date
+    get_human_date_in_utc_format, create_enquiry_and_tender_period, prepared_cn_oc_id, \
+    time_at_now, get_auction_date, get_timestamp_from_human_date, get_period_for_amendment
 
 
-class CN:
-    def __init__(self, payload, instance, cassandra_username, cassandra_password, pmd, country='MD',
+class CancelTender:
+    def __init__(self, instance, cassandra_username, cassandra_password, pmd, country='MD',
                  lang='ro', tender_classification_id="45100000-8",
                  tender_item_classification_id="45100000-8", planning_budget_id="45100000-8",
                  platform="platform_one", amount=9000.00, currency="EUR",
@@ -74,7 +74,9 @@ class CN:
                  procuring_entity_address_address_details_country_id="MD",
                  procuring_entity_address_address_details_region_id="1700000",
                  procuring_entity_address_address_details_locality_id="1701000", document_one_id=None,
-                 document_two_id=None, document_three_id=None):
+                 document_two_id=None, document_three_id=None, document_four_id=None, document_five_id=None):
+        self.amendment_token = f"{uuid4()}"
+        self.amendment_id = f"{uuid4()}"
         self.procuring_entity_address_address_details_country_id = procuring_entity_address_address_details_country_id
         self.procuring_entity_address_address_details_region_id = procuring_entity_address_address_details_region_id
         self.procuring_entity_address_address_details_locality_id = procuring_entity_address_address_details_locality_id
@@ -121,7 +123,6 @@ class CN:
         self.payer_identifier_scheme = payer_identifier_scheme
         self.amount = amount
         self.currency = currency
-        self.payload = payload
         self.tender_items_id = tender_items_id
         self.tender_items_unit_name = tender_items_unit_name
         self.tender_items_unit_id = tender_items_unit_id
@@ -215,47 +216,39 @@ class CN:
             self.document_three_was_uploaded = document.uploading_document()[0]["data"]["id"]
         else:
             self.document_three_was_uploaded = document_three_id
+        if document_four_id is None:
+            document = Document(instance=instance)
+            self.document_four_was_uploaded = document.uploading_document()[0]["data"]["id"]
+        else:
+            self.document_four_was_uploaded = document_four_id
+        if document_five_id is None:
+            document = Document(instance=instance)
+            self.document_five_was_uploaded = document.uploading_document()[0]["data"]["id"]
+        else:
+            self.document_five_was_uploaded = document_four_id
 
-    @allure.step('Create CN')
-    def create_cn(self, cp_id, pn_id, pn_token):
+    @allure.step('Confirm tender cancellation')
+    def confirm_tender_cancellation(self, cp_id, ev_id):
         tender = requests.post(
-            url=self.host_of_request + f"/do/cn/{cp_id}/{pn_id}",
+            url=self.host_of_request + f"/confirm/amendment/{cp_id}/{ev_id}/{self.amendment_id}",
             headers={
                 'Authorization': 'Bearer ' + self.access_token,
                 'X-OPERATION-ID': self.x_operation_id,
                 'Content-Type': 'application/json',
-                'X-TOKEN': f'{pn_token}'},
-            json=self.payload)
-        allure.attach(self.host_of_request + "/do/cn/", 'URL')
-        allure.attach(json.dumps(self.payload), 'Prepared payload')
+                'X-TOKEN': f'{self.amendment_token}'})
+        allure.attach(self.host_of_request + "/confirm/amendment/", 'URL')
         return tender
 
-    @allure.step('Update CN')
-    def update_cn(self, cp_id, ev_id, pn_token):
+    @allure.step('Cancel tender cancellation')
+    def tender_amendment_cancellation(self, cp_id, ev_id):
         tender = requests.post(
-            url=self.host_of_request + f"/do/cn/{cp_id}/{ev_id}",
+            url=self.host_of_request + f"/cancel/amendment/{cp_id}/{ev_id}/{self.amendment_id}",
             headers={
                 'Authorization': 'Bearer ' + self.access_token,
                 'X-OPERATION-ID': self.x_operation_id,
                 'Content-Type': 'application/json',
-                'X-TOKEN': f'{pn_token}'},
-            json=self.payload)
-        allure.attach(self.host_of_request + "/do/cn/", 'URL')
-        allure.attach(json.dumps(self.payload), 'Prepared payload')
-        return tender
-
-    @allure.step('Cancel tender')
-    def cancel_tender(self, cp_id, ev_id, pn_token):
-        tender = requests.post(
-            url=self.host_of_request + f"/cancel/tender/{cp_id}/{ev_id}",
-            headers={
-                'Authorization': 'Bearer ' + self.access_token,
-                'X-OPERATION-ID': self.x_operation_id,
-                'Content-Type': 'application/json',
-                'X-TOKEN': f'{pn_token}'},
-            json=self.payload)
-        allure.attach(self.host_of_request + "/cancel/tender/", 'URL')
-        allure.attach(json.dumps(self.payload), 'Prepared payload')
+                'X-TOKEN': f'{self.amendment_token}'})
+        allure.attach(self.host_of_request + "/cancel/amendment/", 'URL')
         return tender
 
     @allure.step('Receive message in feed-point')
@@ -264,42 +257,7 @@ class CN:
         allure.attach(json.dumps(message_from_kafka), 'Message in feed-point')
         return message_from_kafka
 
-    def check_on_that_message_is_successfully_create_cn(self):
-        message = get_message_from_kafka(self.x_operation_id)
-        check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
-        check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
-        check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
-        check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
-        check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/tenders/{message['data']['ocid']}")
-        check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
-        check_ev_id = fnmatch.fnmatch(message["data"]["outcomes"]["ev"][0]["id"], f"{message['data']['ocid']}-EV-*")
-        for i in message["data"]["outcomes"]["ev"][0].keys():
-            if i == "X-TOKEN":
-                raise Exception("ev_token must missing")
-        if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
-                check_oc_id is True and check_url is True and check_operation_date is True and check_ev_id is True:
-            return True
-        else:
-            return False
-
-    def check_on_that_message_is_successfully_update_cn(self, cp_id, ev_id):
-        message = get_message_from_kafka(self.x_operation_id)
-        check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
-        check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
-        check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
-        check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], f"{ev_id}")
-        check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{ev_id}")
-        check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
-        check_amendments = is_it_uuid(message["data"]['outcomes']['amendments'][0]['id'], 4)
-        if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
-                check_oc_id is True and check_url is True and check_operation_date is True and check_amendments is True:
-            return True
-        else:
-            return False
-
-    def check_on_that_message_is_successfully_cancel_tender(self, cp_id, ev_id):
+    def check_on_that_message_is_successfully_tender_amendment_confirmation(self, cp_id, ev_id):
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 4)
@@ -308,3845 +266,25 @@ class CN:
         check_url = fnmatch.fnmatch(message["data"]["url"],
                                     f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{ev_id}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
-        check_amendments = is_it_uuid(message["data"]['outcomes']['amendments'][0]['id'], 4)
-        check_amendments_token = is_it_uuid(message["data"]['outcomes']['amendments'][0]["X-TOKEN"], 4)
+        for i in message["data"]:
+            if i == 'outcomes':
+                raise Exception("Check message in kafka topic")
         if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
-                check_oc_id is True and check_url is True and check_operation_date is True and \
-                check_amendments is True and check_amendments_token is True:
+                check_oc_id is True and check_url is True and check_operation_date is True:
             return True
         else:
             return False
 
-    @allure.step('Insert PN: based on FS: own - full, based on EI: with items - full')
-    def insert_pn_full_(self, first_lot_id, second_lot_id, first_item_id, second_item_id):
-        auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
-        cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
-        session = cluster.connect('ocds')
-        owner = "445f6851-c908-407d-9b45-14b92f3e964b"
-        ei_id = prepared_cp_id()
-        ei_token = uuid4()
-        cp_id = prepared_cp_id()
-        fs_id = prepared_fs_oc_id(ei_id)
-        fs_token = uuid4()
-        pn_id = prepared_pn_oc_id(cp_id)
-        pn_token = uuid4()
-        period = get_period()
-        contract_period = get_contract_period()
-        calculate_new_cpv_code = get_new_classification_id(
-            self.first_item_cpv,
-            self.second_item_cpv
-        )
-        get_value_by_new_cpv_code = get_value_from_classification_cpv_dictionary_xls(
-            calculate_new_cpv_code,
-            self.lang
-        )
-        get_value_by_first_item_cpv_code = get_value_from_classification_cpv_dictionary_xls(
-            self.first_item_cpv,
-            self.lang
-        )
-        get_value_by_second_item_cpv_code = get_value_from_classification_cpv_dictionary_xls(
-            self.second_item_cpv,
-            self.lang
-        )
-        get_value_by_first_item_cpvs_code = get_value_from_cpvs_dictionary_csv(
-            self.first_item_additional_classifications,
-            self.lang
-        )
-        get_value_by_second_item_cpvs_code = get_value_from_cpvs_dictionary_csv(
-            self.second_item_additional_classifications,
-            self.lang
-        )
-        get_value_by_first_item_unit_id = get_value_from_classification_unit_dictionary_csv(
-            self.first_item_unit_id,
-            self.lang
-        )
-        get_value_by_second_item_unit_id = get_value_from_classification_unit_dictionary_csv(
-            self.second_item_unit_id,
-            self.lang
-        )
-
-        mdm = MdmService(
-            instance=self.instance
-        )
-
-        data_ei = mdm.process_ei_data().json()
-        data_fs = mdm.process_fs_data(ei_id).json()
-        data_pn = mdm.process_tender_data(self.pmd).json()
-        submission_method_details = data_pn["data"]["tender"]["submissionMethodDetails"]
-        submission_method_rationale = data_pn["data"]["tender"]["submissionMethodRationale"]
-
-        procurement_method_details_from_mdm = data_pn["data"]["tender"]["procurementMethodDetails"]
-        eligibility_criteria_from_mdm = data_pn["data"]["tender"]["eligibilityCriteria"]
-
-        json_orchestrator_context = {
-            "operationId": f"{uuid4()}",
-            "requestId": f"{uuid4()}",
-            "cpid": cp_id,
-            "ocid": pn_id,
-            "stage": "PN",
-            "processType": "createPN",
-            "operationType": "createPN",
-            "phase": "planning",
-            "owner": owner,
-            "country": self.country,
-            "language": self.lang,
-            "pmd": self.pmd,
-            "token": f"{pn_token}",
-            "startDate": period[0],
-            "timeStamp": period[2],
-            "isAuction": False,
-            "testMode": False
-        }
-
-        json_budget_ei = {
-            "ocid": ei_id,
-            "tender": {
-                "id": "2cc5a0b7-b1b7-4ed3-9210-1ca6d0af3261",
-                "title": self.tender_title,
-                "description": self.tender_description,
-                "status": "planning",
-                "statusDetails": "empty",
-                "classification": {
-                    "id": data_ei['data']['tender']['classification']['id'],
-                    "scheme": data_ei['data']['tender']['classification']['scheme'],
-                    "description": data_ei['data']['tender']['classification']['description']
-                },
-                "mainProcurementCategory": "works",
-                "items": [
-                    {
-                        "id": "56db9b8d-0306-41d4-8fb1-a525b42720a6",
-                        "description": self.tender_items_description,
-                        "classification": {
-                            "scheme": data_ei['data']['tender']['items'][0]['classification']['scheme'],
-                            "id": data_ei['data']['tender']['items'][0]['classification']['id'],
-                            "description": data_ei['data']['tender']['items'][0]['classification']['description']
-                        },
-                        "additionalClassifications": [
-                            {
-                                "scheme": data_ei['data']['tender']['items'][0]['additionalClassifications'][0][
-                                    'scheme'],
-                                "id": data_ei['data']['tender']['items'][0]['additionalClassifications'][0]['id'],
-                                "description": data_ei['data']['tender']['items'][0]['additionalClassifications'][0][
-                                    'description']
-                            }],
-                        "deliveryAddress": {
-                            "streetAddress": "street",
-                            "postalCode": "postal",
-                            "addressDetails": {
-                                "country": {
-                                    "id": data_ei['data']['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                                        'country']['id'],
-                                    "description": data_ei['data']['tender']['items'][0]['deliveryAddress'][
-                                        'addressDetails']['country']['description'],
-                                    "scheme": data_ei['data']['tender']['items'][0]['deliveryAddress'][
-                                        'addressDetails']['country']['scheme'],
-                                    "uri": data_ei['data']['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                                        'country']['uri']
-                                },
-                                "region": {
-                                    "id": data_ei['data']['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                                        'region']['id'],
-                                    "description": data_ei['data']['tender']['items'][0]['deliveryAddress'][
-                                        'addressDetails']['region']['description'],
-                                    "scheme": data_ei['data']['tender']['items'][0]['deliveryAddress'][
-                                        'addressDetails']['region']['scheme'],
-                                    "uri": data_ei['data']['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                                        'region']['uri']
-                                },
-                                "locality": {
-                                    "scheme": data_ei['data']['tender']['items'][0]['deliveryAddress'][
-                                        'addressDetails']['locality']['scheme'],
-                                    "id": data_ei['data']['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                                        'locality']['id'],
-                                    "description": data_ei['data']['tender']['items'][0]['deliveryAddress'][
-                                        'addressDetails']['locality']['description'],
-                                    "uri": data_ei['data']['tender']['items'][0]['deliveryAddress']['addressDetails'][
-                                        'locality']['uri']
-
-                                }
-                            }
-                        },
-                        "quantity": 1.000,
-                        "unit": {
-                            "name": data_ei['data']['tender']['items'][0]['unit']['name'],
-                            "id": data_ei['data']['tender']['items'][0]['unit']['id']
-                        }
-                    }],
-            },
-            "planning": {
-                "budget": {
-                    "id": self.planning_budget_id,
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    }
-                },
-                "rationale": self.planning_rationale
-            },
-            "buyer": {
-                "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                "name": self.buyer_name,
-                "identifier": {
-                    "id": self.buyer_identifier_id,
-                    "scheme": self.buyer_identifier_scheme,
-                    "legalName": self.buyer_identifier_legal_name,
-                    "uri": self.buyer_identifier_uri
-                },
-                "address": {
-                    "streetAddress": self.buyer_address_street_address,
-                    "postalCode": self.buyer_address_postal_code,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": data_ei['data']['buyer']['address']['addressDetails']['country']['scheme'],
-                            "id": data_ei['data']['buyer']['address']['addressDetails']['country']['id'],
-                            "description": data_ei['data']['buyer']['address']['addressDetails']['country'][
-                                'description'],
-                            "uri": data_ei['data']['buyer']['address']['addressDetails']['country']['uri']
-                        },
-                        "region": {
-                            "scheme": data_ei['data']['buyer']['address']['addressDetails']['region']['scheme'],
-                            "id": data_ei['data']['buyer']['address']['addressDetails']['country']['id'],
-                            "description": data_ei['data']['buyer']['address']['addressDetails']['country'][
-                                'description'],
-                            "uri": data_ei['data']['buyer']['address']['addressDetails']['country']['uri']
-                        },
-                        "locality": {
-                            "scheme": data_ei['data']['buyer']['address']['addressDetails']['locality']['scheme'],
-                            "id": data_ei['data']['buyer']['address']['addressDetails']['locality']['id'],
-                            "description": data_ei['data']['buyer']['address']['addressDetails']['locality'][
-                                'description'],
-                            "uri": data_ei['data']['buyer']['address']['addressDetails']['locality']['uri']
-                        }
-                    }
-                },
-                "contactPoint": {
-                    "name": self.buyer_contact_point_name,
-                    "email": self.buyer_contact_point_email,
-                    "telephone": self.buyer_contact_point_telephone,
-                    "faxNumber": self.buyer_contact_point_fax_number,
-                    "url": self.buyer_contact_point_url
-                },
-                "additionalIdentifiers": [
-                    {
-                        "id": "string",
-                        "scheme": "MD-IDNO",
-                        "legalName": "380935103469",
-                        "uri": "http://petrusenko.com/svetlana"
-                    }],
-                "details": {
-                    "typeOfBuyer": "NATIONAL_AGENCY",
-                    "mainGeneralActivity": "HEALTH",
-                    "mainSectoralActivity": "WATER"
-                }
-            }
-        }
-
-        json_budget_fs = {
-            "ocid": fs_id,
-            "tender": {
-                "id": "195cf37f-99cc-4729-8374-596f2fba1810",
-                "status": "active",
-                "statusDetails": "empty"
-            },
-            "planning": {
-                "budget": {
-                    "id": self.planning_budget_id,
-                    "description": "description",
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    },
-                    "europeanUnionFunding": {
-                        "projectName": "Name of this project",
-                        "projectIdentifier": "projectIdentifier",
-                        "uri": "http://uriuri.th"
-                    },
-                    "isEuropeanUnionFunded": True,
-                    "verified": True,
-                    "sourceEntity": {
-                        "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                        "name": self.funder_name,
-                    },
-                    "verificationDetails": None,
-                    "project": "project",
-                    "projectID": "projectID",
-                    "uri": "http://uri.ur"
-                },
-                "rationale": self.planning_rationale
-            },
-            "funder": {
-                "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                "name": self.funder_name,
-                "identifier": {
-                    "id": self.funder_identifier_id,
-                    "scheme": self.funder_identifier_scheme,
-                    "legalName": self.funder_identifier_legal_name,
-                    "uri": self.funder_identifier_uri
-                },
-                "address": {
-                    "streetAddress": self.funder_address_street,
-                    "postalCode": self.funder_address_postal_code,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": data_fs['data']['buyer']['address']['addressDetails']['country']['scheme'],
-                            "id": data_fs['data']['buyer']['address']['addressDetails']['country']['id'],
-                            "description": data_fs['data']['buyer']['address']['addressDetails']['country'][
-                                'description'],
-                            "uri": data_fs['data']['buyer']['address']['addressDetails']['country']['uri']
-                        },
-                        "region": {
-                            "scheme": data_fs['data']['buyer']['address']['addressDetails']['region']['scheme'],
-                            "id": data_fs['data']['buyer']['address']['addressDetails']['region']['id'],
-                            "description": data_fs['data']['buyer']['address']['addressDetails']['region'][
-                                'description'],
-                            "uri": data_fs['data']['buyer']['address']['addressDetails']['region']['uri']
-                        },
-                        "locality": {
-                            "scheme": data_fs['data']['buyer']['address']['addressDetails']['locality']['scheme'],
-                            "id": data_fs['data']['buyer']['address']['addressDetails']['locality']['id'],
-                            "description": data_fs['data']['buyer']['address']['addressDetails']['locality'][
-                                'description'],
-                            "uri": data_fs['data']['buyer']['address']['addressDetails']['locality']['uri']
-                        }
-                    }
-                },
-                "additionalIdentifiers": [
-                    {
-                        "id": "additional identifier",
-                        "scheme": "scheme",
-                        "legalName": "legal name",
-                        "uri": "http://addtIdent.com"
-                    }],
-                "contactPoint": {
-                    "name": self.funder_contact_point_name,
-                    "email": self.funder_contact_point_email,
-                    "telephone": self.funder_contact_point_telephone,
-                    "faxNumber": self.funder_contact_point_fax,
-                    "url": self.funder_contact_point_url
-                }
-            },
-            "payer": {
-                "id": f"{self.payer_identifier_scheme}-{self.payer_identifier_id}",
-                "name": self.payer_name,
-                "identifier": {
-                    "id": self.payer_identifier_id,
-                    "scheme": self.payer_identifier_scheme,
-                    "legalName": self.payer_identifier_legal_name,
-                    "uri": self.payer_identifier_uri
-                },
-                "address": {
-                    "streetAddress": self.payer_address_street,
-                    "postalCode": self.payer_address_postal_code,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'country']['scheme'],
-                            "id": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'country']['id'],
-                            "description": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'country']['description'],
-                            "uri": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'country']['uri']
-                        },
-                        "region": {
-                            "scheme": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'region']['scheme'],
-                            "id": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'region']['id'],
-                            "description": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'region']['description'],
-                            "uri": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'region']['uri']
-                        },
-                        "locality": {
-                            "scheme": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'locality']['scheme'],
-                            "id": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'locality']['id'],
-                            "description": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'locality']['description'],
-                            "uri": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'locality']['uri']
-                        }
-                    }
-                },
-                "additionalIdentifiers": [
-                    {
-                        "id": "additional identifier",
-                        "scheme": "MD-K",
-                        "legalName": "legalname",
-                        "uri": "http://k.to"
-                    }],
-                "contactPoint": {
-                    "name": self.payer_contact_point_name,
-                    "email": self.payer_contact_point_email,
-                    "telephone": self.payer_contact_point_telephone,
-                    "faxNumber": self.payer_contact_point_fax_number,
-                    "url": self.payer_contact_point_url
-                }
-            }
-        }
-
-        json_access_tender = {
-            "ocid": cp_id,
-            "planning": {
-                "rationale": "reason for budget",
-                "budget": {
-                    "description": "description of budget",
-                    "amount": {
-                        "amount": 1650.00,
-                        "currency": "EUR"
-                    },
-                    "isEuropeanUnionFunded": True,
-                    "budgetBreakdown": [{
-                        "id": fs_id,
-                        "description": "description",
-                        "amount": {
-                            "amount": 1650.00,
-                            "currency": "EUR"
-                        },
-                        "period": {
-                            "startDate": period[0],
-                            "endDate": period[1]
-                        },
-                        "sourceParty": {
-                            "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                            "name": self.funder_name,
-                        },
-                        "europeanUnionFunding": {
-                            "projectIdentifier": "projectIdentifier",
-                            "projectName": "Name of this project",
-                            "uri": "http://uriuri.th"
-                        }
-                    }]
-                }
-            },
-            "tender": {
-                "id": "bf029021-aeb7-403d-b301-b8823855f42a",
-                "status": "planning",
-                "statusDetails": "planning",
-                "title": "title of tender",
-                "description": "desription of tender",
-                "classification": {
-                    "scheme": "CPV",
-                    "id": get_value_by_new_cpv_code[0],
-                    "description": get_value_by_new_cpv_code[1]
-                },
-                "mainProcurementCategory": "works",
-                "acceleratedProcedure": {
-                    "isAcceleratedProcedure": False
-                },
-                "designContest": {
-                    "serviceContractAward": False
-                },
-                "electronicWorkflows": {
-                    "useOrdering": False,
-                    "usePayment": False,
-                    "acceptInvoicing": False
-                },
-                "jointProcurement": {
-                    "isJointProcurement": False
-                },
-                "procedureOutsourcing": {
-                    "procedureOutsourced": False
-                },
-                "framework": {
-                    "isAFramework": False
-                },
-                "dynamicPurchasingSystem": {
-                    "hasDynamicPurchasingSystem": False
-                },
-                "legalBasis": "DIRECTIVE_2014_25_EU",
-                "procurementMethod": "open",
-                "procurementMethodDetails": procurement_method_details_from_mdm,
-                "procurementMethodRationale": "procurementMethodRationale",
-                "procurementMethodAdditionalInfo": "procurementMethodAdditionalInfo",
-                "eligibilityCriteria": eligibility_criteria_from_mdm,
-                "tenderPeriod": {
-                    "startDate": period[4]
-                },
-                "contractPeriod": {
-                    "startDate": contract_period[0],
-                    "endDate": contract_period[1]
-                },
-                "procuringEntity": {
-                    "id": "MD-IDNO-4",
-                    "name": "procuring",
-                    "identifier": {
-                        "scheme": "MD-IDNO",
-                        "id": "4",
-                        "legalName": "legal name",
-                        "uri": "uri"
-                    },
-                    "additionalIdentifiers": [{
-                        "scheme": "md-idno",
-                        "id": "445521",
-                        "legalName": "legalName",
-                        "uri": "uri"
-                    }],
-                    "address": {
-                        "streetAddress": "street address",
-                        "postalCode": "02232",
-                        "addressDetails": {
-                            "country": {
-                                "scheme": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "country"]['scheme'],
-                                "id": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "country"]['id'],
-                                "description": data_pn["data"]["tender"]["procuringEntity"]["address"][
-                                    "addressDetails"]["country"]['description'],
-                                "uri": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "country"]['uri']
-                            },
-                            "region": {
-                                "scheme": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "region"]['scheme'],
-                                "id": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "region"]['id'],
-                                "description": data_pn["data"]["tender"]["procuringEntity"]["address"][
-                                    "addressDetails"]["region"]['description'],
-                                "uri": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "region"]['uri']
-                            },
-                            "locality": {
-                                "scheme": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "locality"]['scheme'],
-                                "id": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "locality"]['id'],
-                                "description": data_pn["data"]["tender"]["procuringEntity"]["address"][
-                                    "addressDetails"]["locality"]['description'],
-                                "uri": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "locality"]['uri']
-
-                            }
-                        }
-                    },
-                    "contactPoint": {
-                        "name": "name",
-                        "email": "email",
-                        "telephone": "456-95-96",
-                        "faxNumber": "fax-number",
-                        "url": "url"
-                    }
-                },
-                "value": {
-                    "amount": 1650.00,
-                    "currency": "EUR"
-                },
-                "lotGroups": [{
-                    "optionToCombine": False
-                }],
-                "lots": [{
-                    "id": first_lot_id,
-                    "internalId": "lot 1",
-                    "title": "title",
-                    "description": "description",
-                    "status": "planning",
-                    "statusDetails": "empty",
-                    "value": {
-                        "amount": 1500.00,
-                        "currency": "EUR"
-                    },
-                    "options": [{
-                        "hasOptions": False
-                    }],
-                    "variants": [{
-                        "hasVariants": False
-                    }],
-                    "renewals": [{
-                        "hasRenewals": False
-                    }],
-                    "recurrentProcurement": [{
-                        "isRecurrent": False
-                    }],
-                    "contractPeriod": {
-                        "startDate": contract_period[0],
-                        "endDate": contract_period[1]
-                    },
-                    "placeOfPerformance": {
-                        "address": {
-                            "streetAddress": "street",
-                            "postalCode": "150009",
-                            "addressDetails": {
-                                "country": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["country"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['uri']
-                                },
-                                "region": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['uri']
-                                },
-                                "locality": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["locality"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['uri']
-                                }
-                            }
-                        },
-                        "description": "description of lot"
-                    }
-                }, {
-                    "id": second_lot_id,
-                    "internalId": "lot 2",
-                    "title": "title",
-                    "description": "description",
-                    "status": "planning",
-                    "statusDetails": "empty",
-                    "value": {
-                        "amount": 150.00,
-                        "currency": "EUR"
-                    },
-                    "options": [{
-                        "hasOptions": False
-                    }],
-                    "variants": [{
-                        "hasVariants": False
-                    }],
-                    "renewals": [{
-                        "hasRenewals": False
-                    }],
-                    "recurrentProcurement": [{
-                        "isRecurrent": False
-                    }],
-                    "contractPeriod": {
-                        "startDate": contract_period[0],
-                        "endDate": contract_period[1]
-                    },
-                    "placeOfPerformance": {
-                        "address": {
-                            "streetAddress": "street",
-                            "postalCode": "150009",
-                            "addressDetails": {
-                                "country": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["country"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['uri']
-                                },
-                                "region": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['uri']
-                                },
-                                "locality": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["locality"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['uri']
-                                }
-                            }
-                        },
-                        "description": "description of lot"
-                    }
-                }],
-                "items": [{
-                    "id": first_item_id,
-                    "internalId": "item 1",
-                    "classification": {
-                        "scheme": "CPV",
-                        "id": get_value_by_first_item_cpv_code[0],
-                        "description": get_value_by_first_item_cpv_code[1]
-                    },
-                    "additionalClassifications": [{
-                        "scheme": "CPVS",
-                        "id": get_value_by_first_item_cpvs_code[0],
-                        "description": get_value_by_first_item_cpvs_code[2]
-                    }],
-                    "quantity": 0.010,
-                    "unit": {
-                        "id": get_value_by_first_item_unit_id[0],
-                        "name": get_value_by_first_item_unit_id[1]
-                    },
-                    "description": "description",
-                    "relatedLot": first_lot_id
-                }, {
-                    "id": second_item_id,
-                    "internalId": "item 2",
-                    "classification": {
-                        "scheme": "CPV",
-                        "id": get_value_by_second_item_cpv_code[0],
-                        "description": get_value_by_second_item_cpv_code[1]
-                    },
-                    "additionalClassifications": [{
-                        "scheme": "CPVS",
-                        "id": get_value_by_second_item_cpvs_code[0],
-                        "description": get_value_by_second_item_cpvs_code[2]
-                    }],
-                    "quantity": 0.010,
-                    "unit": {
-                        "id": get_value_by_second_item_unit_id[0],
-                        "name": get_value_by_second_item_unit_id[1]
-                    },
-                    "description": "description",
-                    "relatedLot": second_lot_id
-                }],
-                "requiresElectronicCatalogue": False,
-                "submissionMethod": ["electronicSubmission"],
-                "submissionMethodRationale": submission_method_rationale,
-                "submissionMethodDetails": submission_method_details,
-                "documents": [
-                    {
-                        "id": self.document_one_was_uploaded,
-                        "documentType": "contractArrangements",
-                        "title": "title of document",
-                        "description": "descrition of document",
-                        "relatedLots": [
-                            first_lot_id]
-                    },
-                    {
-                        "id": self.document_two_was_uploaded,
-                        "documentType": "contractArrangements",
-                        "title": "title of document",
-                        "description": "descrition of document",
-                        "relatedLots": [
-                            second_lot_id]
-                    }]
-            }
-        }
-
-        json_notice_budget_release_ei = {
-            "ocid": ei_id,
-            "id": ei_id + "-" + f"{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": [
-                "compiled"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "tender": {
-                "id": "2cc5a0b7-b1b7-4ed3-9210-1ca6d0af3261",
-                "title": self.tender_title,
-                "description": self.tender_description,
-                "status": "planning",
-                "statusDetails": "empty",
-                "items": [
-                    {
-                        "id": "56db9b8d-0306-41d4-8fb1-a525b42720a6",
-                        "description": self.tender_items_description,
-                        "classification": {
-                            "scheme": "CPV",
-                            "id": self.tender_item_classification_id,
-                            "description": "Servicii de reparare şi de întreţinere a vehiculelor şi a echipamentelor "
-                                           "aferente şi servicii conexe"
-                        },
-                        "additionalClassifications": [
-                            {
-                                "scheme": "CPVS",
-                                "id": "AA12-4",
-                                "description": "Oţel carbon"
-                            }],
-                        "quantity": 1.000,
-                        "unit": {
-                            "name": "Parsec",
-                            "id": "10"
-                        },
-                        "deliveryAddress": {
-                            "streetAddress": "street",
-                            "postalCode": "postal",
-                            "addressDetails": {
-                                "country": {
-                                    "id": self.tender_items_delivery_details_country_id,
-                                    "description": self.tender_items_delivery_details_country_description,
-                                    "scheme": self.tender_items_delivery_details_country_scheme,
-                                    "uri": self.tender_items_delivery_details_country_uri
-                                },
-                                "region": {
-                                    "id": self.tender_items_delivery_details_region_id,
-                                    "description": self.tender_items_delivery_details_region_description,
-                                    "scheme": self.tender_items_delivery_details_region_scheme,
-                                    "uri": self.tender_items_delivery_details_region_uri
-                                },
-                                "locality": {
-                                    "scheme": self.tender_items_delivery_details_locality_scheme,
-                                    "id": self.tender_items_delivery_details_locality_id,
-                                    "description": self.tender_items_delivery_details_locality_description,
-                                    "uri": self.tender_items_delivery_details_locality_uri
-                                }
-                            }
-                        }
-                    }],
-                "mainProcurementCategory": "works",
-                "classification": {
-                    "scheme": self.tender_classification_scheme,
-                    "id": self.tender_classification_id,
-                    "description": self.tender_classification_description
-                }
-            },
-            "buyer": {
-                "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                "name": self.buyer_name,
-            },
-            "parties": [
-                {
-                    "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                    "name": self.buyer_name,
-                    "identifier": {
-                        "scheme": self.buyer_identifier_scheme,
-                        "id": self.buyer_identifier_id,
-                        "legalName": self.buyer_identifier_legal_name,
-                        "uri": self.buyer_identifier_uri
-                    },
-                    "address": {
-                        "streetAddress": self.buyer_address_street_address,
-                        "postalCode": self.buyer_address_postal_code,
-                        "addressDetails": {
-                            "country": {
-                                "scheme": "iso-alpha2",
-                                "id": self.buyer_address_address_details_country_id,
-                                "description": "Moldova, Republica",
-                                "uri": "http://reference.iatistandard.org"
-                            },
-                            "region": {
-                                "scheme": "CUATM",
-                                "id": self.buyer_address_address_details_region_id,
-                                "description": "Cahul",
-                                "uri": "http://statistica.md"
-                            },
-                            "locality": {
-                                "scheme": self.buyer_address_address_details_locality_scheme,
-                                "id": self.buyer_address_address_details_locality_id,
-                                "description": self.buyer_address_address_details_locality_description,
-                                "uri": "http://statistica.md"
-                            }
-                        }
-                    },
-                    "additionalIdentifiers": [
-                        {
-                            "scheme": "MD-IDNO",
-                            "id": "string",
-                            "legalName": "380935103469",
-                            "uri": "http://petrusenko.com/svetlana"
-                        }],
-                    "contactPoint": {
-                        "name": self.buyer_contact_point_name,
-                        "email": self.buyer_contact_point_email,
-                        "telephone": self.buyer_contact_point_telephone,
-                        "faxNumber": self.buyer_contact_point_fax_number,
-                        "url": self.buyer_contact_point_url
-                    },
-                    "details": {
-                        "typeOfBuyer": "NATIONAL_AGENCY",
-                        "mainGeneralActivity": "HEALTH",
-                        "mainSectoralActivity": "WATER"
-                    },
-                    "roles": [
-                        "buyer"]
-                }],
-            "planning": {
-                "budget": {
-                    "id": self.planning_budget_id,
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    }
-                },
-                "rationale": self.planning_rationale
-            },
-            "relatedProcesses": [
-                {
-                    "id": "412ee2c0-b194-11eb-8505-35fcd4e9bc47",
-                    "relationship": [
-                        "x_fundingSource"],
-                    "scheme": "ocid",
-                    "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
-                },
-                {
-                    "id": "31bd7be0-c23c-11eb-ab87-09e4e5e94b2a",
-                    "relationship": [
-                        "x_execution"],
-                    "scheme": "ocid",
-                    "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-                }
-            ]
-        }
-
-        json_notice_budget_release_fs = {
-            "ocid": fs_id,
-            "id": fs_id + "-" + f"{pn_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": [
-                "planningUpdate"],
-            "initiationType": "tender",
-            "tender": {
-                "id": "195cf37f-99cc-4729-8374-596f2fba1810",
-                "status": "active",
-                "statusDetails": "empty"
-            },
-            "parties": [
-                {
-                    "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                    "name": self.funder_name,
-                    "identifier": {
-                        "scheme": self.funder_identifier_scheme,
-                        "id": self.funder_identifier_id,
-                        "legalName": self.funder_identifier_legal_name,
-                        "uri": self.funder_identifier_uri
-                    },
-                    "address": {
-                        "streetAddress": self.funder_address_street,
-                        "postalCode": self.funder_address_postal_code,
-                        "addressDetails": {
-                            "country": {
-                                "scheme": "iso-alpha2",
-                                "id": self.funder_address_address_details_country_id,
-                                "description": "Moldova, Republica",
-                                "uri": "https://www.iso.org"
-                            },
-                            "region": {
-                                "scheme": "CUATM",
-                                "id": self.funder_address_address_details_region_id,
-                                "description": "Cahul",
-                                "uri": "http://statistica.md"
-                            },
-                            "locality": {
-                                "scheme": self.funder_address_address_details_locality_scheme,
-                                "id": self.funder_address_address_details_locality_id,
-                                "description": self.funder_address_address_details_locality_description,
-                                "uri": "http://statistica.md"
-                            }
-                        }
-                    },
-                    "additionalIdentifiers": [
-                        {
-                            "scheme": "scheme",
-                            "id": "additional identifier",
-                            "legalName": "legal name",
-                            "uri": "http://addtIdent.com"
-                        }],
-                    "contactPoint": {
-                        "name": self.funder_contact_point_name,
-                        "email": self.funder_contact_point_email,
-                        "telephone": self.funder_contact_point_telephone,
-                        "faxNumber": self.funder_contact_point_fax,
-                        "url": self.funder_contact_point_url,
-                    },
-                    "roles": [
-                        "funder"]
-                },
-                {
-                    "id": f"{self.payer_identifier_scheme}-{self.payer_identifier_id}",
-                    "name": self.payer_name,
-                    "identifier": {
-                        "scheme": self.payer_identifier_scheme,
-                        "id": self.payer_identifier_id,
-                        "legalName": self.payer_identifier_legal_name,
-                        "uri": self.payer_identifier_uri
-                    },
-                    "address": {
-                        "streetAddress": self.payer_address_street,
-                        "postalCode": self.payer_address_postal_code,
-                        "addressDetails": {
-                            "country": {
-                                "scheme": "iso-alpha2",
-                                "id": self.payer_address_address_details_country_id,
-                                "description": "MOLDOVA",
-                                "uri": "http://reference.iatistandard.org"
-                            },
-                            "region": {
-                                "scheme": "CUATM",
-                                "id": self.payer_address_address_details_region_id,
-                                "description": "Cahul",
-                                "uri": "http://statistica.md"
-                            },
-                            "locality": {
-                                "scheme": self.payer_address_address_details_locality_scheme,
-                                "id": self.payer_address_address_details_locality_id,
-                                "description": self.payer_address_address_details_locality_description,
-                                "uri": "http://statistica.md"
-                            }
-                        }
-                    },
-                    "additionalIdentifiers": [
-                        {
-                            "scheme": "MD-K",
-                            "id": "additional identifier",
-                            "legalName": "legalname",
-                            "uri": "http://k.to"
-                        }],
-                    "contactPoint": {
-                        "name": self.payer_contact_point_name,
-                        "email": self.payer_contact_point_email,
-                        "telephone": self.payer_contact_point_telephone,
-                        "faxNumber": self.payer_contact_point_fax_number,
-                        "url": self.payer_contact_point_url
-                    },
-                    "roles": ["payer"]
-                }],
-            "planning": {
-                "budget": {
-                    "id": self.planning_budget_id,
-                    "description": "description",
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    },
-                    "europeanUnionFunding": {
-                        "projectIdentifier": "projectIdentifier",
-                        "projectName": "Name of this project",
-                        "uri": "http://uriuri.th"
-                    },
-                    "isEuropeanUnionFunded": True,
-                    "verified": True,
-                    "sourceEntity": {
-                        "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                        "name": self.funder_name
-                    },
-                    "project": "project",
-                    "projectID": "projectID",
-                    "uri": "http://uri.ur"
-                },
-                "rationale": "reason for the budget"
-            },
-            "relatedProcesses": [
-                {
-                    "id": "412d5c20-b194-11eb-8505-35fcd4e9bc47",
-                    "relationship": [
-                        "parent"],
-                    "scheme": "ocid",
-                    "identifier": ei_id,
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
-                },
-                {
-                    "id": "31bda2f0-c23c-11eb-ab87-09e4e5e94b2a",
-                    "relationship": [
-                        "x_execution"],
-                    "scheme": "ocid",
-                    "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-                }
-            ]
-        }
-
-        json_notice_budget_compiled_release_ei = {
-            "ocid": ei_id,
-            "id": f"{ei_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": [
-                "compiled"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "tender": {
-                "id": "2cc5a0b7-b1b7-4ed3-9210-1ca6d0af3261",
-                "title": self.tender_title,
-                "description": self.tender_description,
-                "status": "planning",
-                "statusDetails": "empty",
-                "items": [
-                    {
-                        "id": "56db9b8d-0306-41d4-8fb1-a525b42720a6",
-                        "description": self.tender_items_description,
-                        "classification": {
-                            "scheme": "CPV",
-                            "id": self.tender_item_classification_id,
-                            "description": "Servicii de reparare şi de întreţinere a vehiculelor şi a "
-                                           "echipamentelor aferente şi servicii conexe"
-                        },
-                        "additionalClassifications": [
-                            {
-                                "scheme": "CPVS",
-                                "id": "AA12-4",
-                                "description": "Oţel carbon"
-                            }],
-                        "quantity": 1.000,
-                        "unit": {
-                            "name": "Parsec",
-                            "id": "10"
-                        },
-                        "deliveryAddress": {
-                            "streetAddress": "street",
-                            "postalCode": "postal",
-                            "addressDetails": {
-                                "country": {
-                                    "id": self.tender_items_delivery_details_country_id,
-                                    "description": self.tender_items_delivery_details_country_description,
-                                    "scheme": self.tender_items_delivery_details_country_scheme,
-                                    "uri": self.tender_items_delivery_details_country_uri
-                                },
-                                "region": {
-                                    "id": self.tender_items_delivery_details_region_id,
-                                    "description": self.tender_items_delivery_details_region_description,
-                                    "scheme": self.tender_items_delivery_details_region_scheme,
-                                    "uri": self.tender_items_delivery_details_region_uri
-                                },
-                                "locality": {
-                                    "scheme": self.tender_items_delivery_details_locality_scheme,
-                                    "id": self.tender_items_delivery_details_locality_id,
-                                    "description": self.tender_items_delivery_details_locality_description,
-                                    "uri": self.tender_items_delivery_details_locality_uri
-                                }
-                            }
-                        }
-                    }],
-                "mainProcurementCategory": "works",
-                "classification": {
-                    "scheme": self.tender_classification_scheme,
-                    "id": self.tender_classification_id,
-                    "description": self.tender_classification_description
-                }
-            },
-            "buyer": {
-                "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                "name": self.buyer_name
-            },
-            "parties": [
-                {
-                    "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                    "name": self.buyer_name,
-                    "identifier": {
-                        "scheme": self.buyer_identifier_scheme,
-                        "id": self.buyer_identifier_id,
-                        "legalName": self.buyer_identifier_legal_name,
-                        "uri": self.buyer_identifier_uri
-                    },
-                    "address": {
-                        "streetAddress": self.buyer_address_street_address,
-                        "postalCode": self.buyer_address_postal_code,
-                        "addressDetails": {
-                            "country": {
-                                "scheme": "iso-alpha2",
-                                "id": self.buyer_address_address_details_country_id,
-                                "description": "MOLDOVA",
-                                "uri": "http://reference.iatistandard.org"
-                            },
-                            "region": {
-                                "scheme": "CUATM",
-                                "id": self.buyer_address_address_details_region_id,
-                                "description": "Cahul",
-                                "uri": "http://statistica.md"
-                            },
-                            "locality": {
-                                "scheme": self.buyer_address_address_details_locality_scheme,
-                                "id": self.buyer_address_address_details_locality_id,
-                                "description": self.buyer_address_address_details_locality_description,
-                                "uri": "http://statistica.md"
-                            }
-                        }
-                    },
-                    "additionalIdentifiers": [
-                        {
-                            "scheme": "MD-IDNO",
-                            "id": "string",
-                            "legalName": "380935103469",
-                            "uri": "http://petrusenko.com/svetlana"
-                        }],
-                    "contactPoint": {
-                        "name": self.buyer_contact_point_name,
-                        "email": self.buyer_contact_point_email,
-                        "telephone": self.buyer_contact_point_telephone,
-                        "faxNumber": self.buyer_contact_point_fax_number,
-                        "url": self.buyer_contact_point_url
-                    },
-                    "details": {
-                        "typeOfBuyer": "NATIONAL_AGENCY",
-                        "mainGeneralActivity": "HEALTH",
-                        "mainSectoralActivity": "WATER"
-                    },
-                    "roles": [
-                        "buyer"]
-                }],
-            "planning": {
-                "budget": {
-                    "id": self.tender_classification_id,
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    }
-                },
-                "rationale": self.planning_rationale
-            },
-            "relatedProcesses": [
-                {
-                    "id": "412ee2c0-b194-11eb-8505-35fcd4e9bc47",
-                    "relationship": [
-                        "x_fundingSource"],
-                    "scheme": "ocid",
-                    "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
-                },
-                {
-                    "id": "ce7f5070-c057-11eb-ab87-09e4e5e94b2a",
-                    "relationship": ["x_execution"],
-                    "scheme": "ocid",
-                    "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-                }
-            ]
-        }
-
-        json_notice_budget_compiled_release_fs = {
-            "ocid": fs_id,
-            "id": f"{fs_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": [
-                "planningUpdate"],
-            "initiationType": "tender",
-            "tender": {
-                "id": "195cf37f-99cc-4729-8374-596f2fba1810",
-                "status": "active",
-                "statusDetails": "empty"
-            },
-            "parties": [
-                {
-                    "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                    "name": self.funder_name,
-                    "identifier": {
-                        "scheme": self.funder_identifier_scheme,
-                        "id": self.funder_identifier_id,
-                        "legalName": self.funder_identifier_legal_name,
-                        "uri": self.funder_identifier_uri
-                    },
-                    "address": {
-                        "streetAddress": self.funder_address_street,
-                        "postalCode": self.funder_address_postal_code,
-                        "addressDetails": {
-                            "country": {
-                                "scheme": "iso-alpha2",
-                                "id": self.funder_address_address_details_country_id,
-                                "description": "MOLDOVA",
-                                "uri": "http://reference.iatistandard.org"
-                            },
-                            "region": {
-                                "scheme": "CUATM",
-                                "id": self.funder_address_address_details_region_id,
-                                "description": "Cahul",
-                                "uri": "http://statistica.md"
-                            },
-                            "locality": {
-                                "scheme": self.funder_address_address_details_locality_scheme,
-                                "id": self.funder_address_address_details_locality_id,
-                                "description": self.funder_address_address_details_locality_description,
-                                "uri": "http://statistica.md"
-                            }
-                        }
-                    },
-                    "additionalIdentifiers": [
-                        {
-                            "scheme": "scheme",
-                            "id": "additional identifier",
-                            "legalName": "legal name",
-                            "uri": "http://addtIdent.com"
-                        }],
-                    "contactPoint": {
-                        "name": self.funder_contact_point_name,
-                        "email": self.funder_contact_point_email,
-                        "telephone": self.funder_contact_point_telephone,
-                        "faxNumber": self.funder_contact_point_fax,
-                        "url": self.funder_contact_point_url
-                    },
-                    "roles": [
-                        "funder"]
-                },
-                {
-                    "id": f"{self.payer_identifier_scheme}-{self.payer_identifier_id}",
-                    "name": self.payer_name,
-                    "identifier": {
-                        "scheme": self.payer_identifier_scheme,
-                        "id": self.payer_identifier_id,
-                        "legalName": self.payer_identifier_legal_name,
-                        "uri": self.payer_identifier_uri
-                    },
-                    "address": {
-                        "streetAddress": self.payer_address_street,
-                        "postalCode": self.payer_address_postal_code,
-                        "addressDetails": {
-                            "country": {
-                                "scheme": "iso-alpha2",
-                                "id": self.payer_address_address_details_country_id,
-                                "description": "MOLDOVA",
-                                "uri": "http://reference.iatistandard.org"
-                            },
-                            "region": {
-                                "scheme": "CUATM",
-                                "id": self.payer_address_address_details_region_id,
-                                "description": "Cahul",
-                                "uri": "http://statistica.md"
-                            },
-                            "locality": {
-                                "scheme": self.payer_address_address_details_locality_scheme,
-                                "id": self.payer_address_address_details_locality_id,
-                                "description": self.payer_address_address_details_locality_description,
-                                "uri": "http://statistica.md"
-                            }
-                        }
-                    },
-                    "additionalIdentifiers": [
-                        {
-                            "scheme": "MD-K",
-                            "id": "additional identifier",
-                            "legalName": "legalname",
-                            "uri": "http://k.to"
-                        }],
-                    "contactPoint": {
-                        "name": self.payer_contact_point_name,
-                        "email": self.payer_contact_point_email,
-                        "telephone": self.payer_contact_point_telephone,
-                        "faxNumber": self.payer_contact_point_fax_number,
-                        "url": self.payer_contact_point_url
-                    },
-                    "roles": ["payer"]
-                }
-            ],
-            "planning": {
-                "budget": {
-                    "id": self.tender_classification_id,
-                    "description": "description",
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    },
-                    "europeanUnionFunding": {
-                        "projectIdentifier": "projectIdentifier",
-                        "projectName": "Name of this project",
-                        "uri": "http://uriuri.th"
-                    },
-                    "isEuropeanUnionFunded": True,
-                    "verified": True,
-                    "sourceEntity": {
-                        "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                        "name": self.funder_name
-                    },
-                    "project": "project",
-                    "projectID": "projectID",
-                    "uri": "http://uri.ur"
-                },
-                "rationale": "reason for the budget"
-            },
-            "relatedProcesses": [
-                {
-                    "id": "412d5c20-b194-11eb-8505-35fcd4e9bc47",
-                    "relationship": [
-                        "parent"],
-                    "scheme": "ocid",
-                    "identifier": f"{ei_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
-                },
-                {
-                    "id": "ce7f7780-c057-11eb-ab87-09e4e5e94b2a",
-                    "relationship": ["x_execution"],
-                    "scheme": "ocid",
-                    "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-                }
-            ]
-        }
-
-        json_notice_release_ms = {
-            "ocid": cp_id,
-            "id": f"{cp_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": ["compiled"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "planning": {
-                "budget": {
-                    "description": "description of budget",
-                    "amount": {
-                        "amount": 1650.00,
-                        "currency": "EUR"
-                    },
-                    "isEuropeanUnionFunded": True,
-                    "budgetBreakdown": [{
-                        "id": fs_id,
-                        "description": "description",
-                        "amount": {
-                            "amount": 1650.00,
-                            "currency": "EUR"
-                        },
-                        "period": {
-                            "startDate": period[0],
-                            "endDate": period[1]
-                        },
-                        "sourceParty": {
-                            "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                            "name": self.funder_name,
-                        },
-                        "europeanUnionFunding": {
-                            "projectIdentifier": "projectIdentifier",
-                            "projectName": "Name of this project",
-                            "uri": "http://uriuri.th"
-                        }
-                    }]
-                },
-                "rationale": "reason for budget"
-            },
-            "tender": {
-                "id": "bf029021-aeb7-403d-b301-b8823855f42a",
-                "title": "title of tender",
-                "description": "desription of tender",
-                "status": "planning",
-                "statusDetails": "planning notice",
-                "value": {
-                    "amount": 1650.00,
-                    "currency": "EUR"
-                },
-                "procurementMethod": "open",
-                "procurementMethodDetails": procurement_method_details_from_mdm,
-                "procurementMethodRationale": "procurementMethodRationale",
-                "mainProcurementCategory": "works",
-                "hasEnquiries": False,
-                "eligibilityCriteria": eligibility_criteria_from_mdm,
-                "contractPeriod": {
-                    "startDate": contract_period[0],
-                    "endDate": contract_period[1]
-                },
-                "procuringEntity": {
-                    "id": "MD-IDNO-4",
-                    "name": "procuring"
-                },
-                "acceleratedProcedure": {
-                    "isAcceleratedProcedure": False
-                },
-                "classification": {
-                    "scheme": "CPV",
-                    "id": get_value_by_new_cpv_code[0],
-                    "description": get_value_by_new_cpv_code[1]
-                },
-                "designContest": {
-                    "serviceContractAward": False
-                },
-                "electronicWorkflows": {
-                    "useOrdering": False,
-                    "usePayment": False,
-                    "acceptInvoicing": False
-                },
-                "jointProcurement": {
-                    "isJointProcurement": False
-                },
-                "legalBasis": "DIRECTIVE_2014_25_EU",
-                "procedureOutsourcing": {
-                    "procedureOutsourced": False
-                },
-                "procurementMethodAdditionalInfo": "procurementMethodAdditionalInfo",
-                "dynamicPurchasingSystem": {
-                    "hasDynamicPurchasingSystem": False
-                },
-                "framework": {
-                    "isAFramework": False
-                }
-            },
-            "parties": [{
-                "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                "name": self.buyer_name,
-                "identifier": {
-                    "scheme": self.buyer_identifier_scheme,
-                    "id": self.buyer_identifier_id,
-                    "legalName": self.buyer_identifier_legal_name,
-                    "uri": self.buyer_identifier_uri
-                },
-                "address": {
-                    "streetAddress": self.buyer_address_street_address,
-                    "postalCode": self.buyer_address_postal_code,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": self.buyer_address_address_details_country_id,
-                            "description": "MOLDOVA",
-                            "uri": "http://reference.iatistandard.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": self.buyer_address_address_details_region_id,
-                            "description": "Cahul",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": self.buyer_address_address_details_locality_scheme,
-                            "id": self.buyer_address_address_details_locality_id,
-                            "description": self.buyer_address_address_details_locality_description,
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "additionalIdentifiers": [
-                    {
-                        "scheme": "MD-IDNO",
-                        "id": "string",
-                        "legalName": "380935103469",
-                        "uri": "http://petrusenko.com/svetlana"
-                    }],
-                "contactPoint": {
-                    "name": self.buyer_contact_point_name,
-                    "email": self.buyer_contact_point_email,
-                    "telephone": self.buyer_contact_point_telephone,
-                    "faxNumber": self.buyer_contact_point_fax_number,
-                    "url": self.buyer_contact_point_url
-                },
-                "details": {
-                    "typeOfBuyer": "NATIONAL_AGENCY",
-                    "mainGeneralActivity": "HEALTH",
-                    "mainSectoralActivity": "WATER"
-                },
-                "roles": [
-                    "buyer"]
-            }, {
-                "id": f"{self.payer_identifier_scheme}-{self.payer_identifier_id}",
-                "name": self.payer_name,
-                "identifier": {
-                    "scheme": self.payer_identifier_scheme,
-                    "id": self.payer_identifier_id,
-                    "legalName": self.payer_identifier_legal_name,
-                    "uri": self.payer_identifier_uri
-                },
-                "address": {
-                    "streetAddress": self.payer_address_street,
-                    "postalCode": self.payer_address_postal_code,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": self.payer_address_address_details_country_id,
-                            "description": "MOLDOVA",
-                            "uri": "http://reference.iatistandard.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": self.payer_address_address_details_region_id,
-                            "description": "Cahul",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": self.payer_address_address_details_locality_scheme,
-                            "id": self.payer_address_address_details_locality_id,
-                            "description": self.payer_address_address_details_locality_description,
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "additionalIdentifiers": [
-                    {
-                        "scheme": "MD-K",
-                        "id": "additional identifier",
-                        "legalName": "legalname",
-                        "uri": "http://k.to"
-                    }],
-                "contactPoint": {
-                    "name": self.payer_contact_point_name,
-                    "email": self.payer_contact_point_email,
-                    "telephone": self.payer_contact_point_telephone,
-                    "faxNumber": self.payer_contact_point_fax_number,
-                    "url": self.payer_contact_point_url
-                },
-                "roles": ["payer"]
-            }, {
-                "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                "name": self.funder_name,
-                "identifier": {
-                    "scheme": self.funder_identifier_scheme,
-                    "id": self.funder_identifier_id,
-                    "legalName": self.funder_identifier_legal_name,
-                    "uri": self.funder_identifier_uri
-                },
-                "address": {
-                    "streetAddress": self.funder_address_street,
-                    "postalCode": self.funder_address_postal_code,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": self.funder_address_address_details_country_id,
-                            "description": "MOLDOVA",
-                            "uri": "http://reference.iatistandard.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": self.funder_address_address_details_region_id,
-                            "description": "Cahul",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": self.funder_address_address_details_locality_scheme,
-                            "id": self.funder_address_address_details_locality_id,
-                            "description": self.funder_address_address_details_locality_description,
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "additionalIdentifiers": [
-                    {
-                        "scheme": "scheme",
-                        "id": "additional identifier",
-                        "legalName": "legal name",
-                        "uri": "http://addtIdent.com"
-                    }],
-                "contactPoint": {
-                    "name": self.funder_contact_point_name,
-                    "email": self.funder_contact_point_email,
-                    "telephone": self.funder_contact_point_telephone,
-                    "faxNumber": self.funder_contact_point_fax,
-                    "url": self.funder_contact_point_url
-                },
-                "roles": [
-                    "funder"]
-            }, {
-                "id": "MD-IDNO-4",
-                "name": "procuring",
-                "identifier": {
-                    "scheme": "MD-IDNO",
-                    "id": "4",
-                    "legalName": "legal name",
-                    "uri": "uri"
-                },
-                "address": {
-                    "streetAddress": "street address",
-                    "postalCode": "02232",
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": "MD",
-                            "description": "Moldova, Republica",
-                            "uri": "https://www.iso.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": "3400000",
-                            "description": "Donduşeni",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": "CUATM",
-                            "id": "3401000",
-                            "description": "or.Donduşeni (r-l Donduşeni)",
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "additionalIdentifiers": [{
-                    "scheme": "md-idno",
-                    "id": "445521",
-                    "legalName": "legalName",
-                    "uri": "uri"
-                }],
-                "contactPoint": {
-                    "name": "name",
-                    "email": "email",
-                    "telephone": "456-95-96",
-                    "faxNumber": "fax-number",
-                    "url": "url"
-                },
-                "roles": ["procuringEntity"]
-            }],
-            "relatedProcesses": [{
-                "id": "36b553f0-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["planning"],
-                "scheme": "ocid",
-                "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/o{pn_id}"
-            }, {
-                "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["x_expenditureItem"],
-                "scheme": "ocid",
-                "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/o{ei_id}"
-            }, {
-                "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["x_fundingSource"],
-                "scheme": "ocid",
-                "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
-            }]
-        }
-
-        json_notice_release_pn = {
-            "ocid": pn_id,
-            "id": f"{pn_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": ["planning"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "tender": {
-                "id": "bf029021-aeb7-403d-b301-b8823855f42a",
-                "title": "Planning Notice",
-                "description": "Contracting process is planned",
-                "status": "planning",
-                "statusDetails": "planning",
-                "items": [{
-                    "id": first_item_id,
-                    "internalId": "item 1",
-                    "description": "description",
-                    "classification": {
-                        "scheme": "CPV",
-                        "id": get_value_by_first_item_cpv_code[0],
-                        "description": get_value_by_first_item_cpv_code[1]
-                    },
-                    "additionalClassifications": [{
-                        "scheme": "CPVS",
-                        "id": get_value_by_first_item_cpvs_code[0],
-                        "description": get_value_by_first_item_cpvs_code[2]
-                    }],
-                    "quantity": 0.010,
-                    "unit": {
-                        "id": get_value_by_first_item_unit_id[0],
-                        "name": get_value_by_first_item_unit_id[1]
-                    },
-                    "relatedLot": first_lot_id
-                }, {
-                    "id": second_item_id,
-                    "internalId": "item 2",
-                    "description": "description",
-                    "classification": {
-                        "scheme": "CPV",
-                        "id": get_value_by_second_item_cpv_code[0],
-                        "description": get_value_by_second_item_cpv_code[1]
-                    },
-                    "additionalClassifications": [{
-                        "scheme": "CPVS",
-                        "id": get_value_by_second_item_cpvs_code[0],
-                        "description": get_value_by_second_item_cpvs_code[2]
-                    }],
-                    "quantity": 0.010,
-                    "unit": {
-                        "id": get_value_by_second_item_unit_id[0],
-                        "name": get_value_by_second_item_unit_id[1]
-                    },
-                    "relatedLot": second_lot_id
-                }],
-                "lots": [{
-                    "id": first_lot_id,
-                    "internalId": "lot 1",
-                    "title": "title",
-                    "description": "description",
-                    "status": "planning",
-                    "statusDetails": "empty",
-                    "value": {
-                        "amount": 1500.00,
-                        "currency": "EUR"
-                    },
-                    "recurrentProcurement": [{
-                        "isRecurrent": False
-                    }],
-                    "renewals": [{
-                        "hasRenewals": False
-                    }],
-                    "variants": [{
-                        "hasVariants": False
-                    }],
-                    "contractPeriod": {
-                        "startDate": contract_period[0],
-                        "endDate": contract_period[1]
-                    },
-                    "placeOfPerformance": {
-                        "address": {
-                            "streetAddress": "street",
-                            "postalCode": "150009",
-                            "addressDetails": {
-                                "country": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["country"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['uri']
-                                },
-                                "region": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['uri']
-                                },
-                                "locality": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["locality"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['uri']
-                                }
-                            }
-                        },
-                        "description": "description of lot"
-                    },
-                    "options": [{
-                        "hasOptions": False
-                    }]
-                }, {
-                    "id": second_lot_id,
-                    "internalId": "lot 2",
-                    "title": "title",
-                    "description": "description",
-                    "status": "planning",
-                    "statusDetails": "empty",
-                    "value": {
-                        "amount": 150.00,
-                        "currency": "EUR"
-                    },
-                    "recurrentProcurement": [{
-                        "isRecurrent": False
-                    }],
-                    "renewals": [{
-                        "hasRenewals": False
-                    }],
-                    "variants": [{
-                        "hasVariants": False
-                    }],
-                    "contractPeriod": {
-                        "startDate": contract_period[0],
-                        "endDate": contract_period[1]
-                    },
-                    "placeOfPerformance": {
-                        "address": {
-                            "streetAddress": "street",
-                            "postalCode": "150009",
-                            "addressDetails": {
-                                "country": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["country"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['uri']
-                                },
-                                "region": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['uri']
-                                },
-                                "locality": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["locality"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['uri']
-                                }
-                            }
-                        },
-                        "description": "description of lot"
-                    },
-                    "options": [{
-                        "hasOptions": False
-                    }]
-                }],
-                "lotGroups": [{
-                    "optionToCombine": False
-                }],
-                "tenderPeriod": {
-                    "startDate": period[3]
-                },
-                "hasEnquiries": False,
-                "documents": [
-                    {
-                        "id": self.document_one_was_uploaded,
-                        "documentType": "contractArrangements",
-                        "title": "title of document",
-                        "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
-                               f"{self.document_one_was_uploaded}",
-                        "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-                        "relatedLots": [first_lot_id]
-                    },
-                    {
-                        "id": self.document_two_was_uploaded,
-                        "documentType": "contractArrangements",
-                        "title": "title of document",
-                        "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
-                               f"{self.document_two_was_uploaded}",
-                        "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-                        "relatedLots": [second_lot_id]
-                    }],
-                "submissionMethod": ["electronicSubmission"],
-                "submissionMethodDetails": submission_method_details,
-                "submissionMethodRationale": submission_method_rationale,
-                "requiresElectronicCatalogue": False,
-                "procurementMethodRationale": "procurementMethodRationale",
-                "classification": {
-                    "scheme": "CPV",
-                    "id": get_value_by_new_cpv_code[0],
-                    "description": get_value_by_new_cpv_code[1]
-                },
-                "value": {
-                    "amount": 1650.00,
-                    "currency": "EUR"
-                }
-            },
-            "hasPreviousNotice": False,
-            "purposeOfNotice": {
-                "isACallForCompetition": False
-            },
-            "relatedProcesses": [{
-                "id": "36b553f3-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["parent"],
-                "scheme": "ocid",
-                "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-            }]
-        }
-
-        json_notice_compiled_release_ms = {
-            "ocid": cp_id,
-            "id": f"{cp_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": ["compiled"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "planning": {
-                "budget": {
-                    "description": "description of budget",
-                    "amount": {
-                        "amount": 1650.00,
-                        "currency": "EUR"
-                    },
-                    "isEuropeanUnionFunded": True,
-                    "budgetBreakdown": [{
-                        "id": fs_id,
-                        "description": "description",
-                        "amount": {
-                            "amount": 1650.00,
-                            "currency": "EUR"
-                        },
-                        "period": {
-                            "startDate": period[0],
-                            "endDate": period[1]
-                        },
-                        "sourceParty": {
-                            "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                            "name": self.funder_name,
-                        },
-                        "europeanUnionFunding": {
-                            "projectIdentifier": "projectIdentifier",
-                            "projectName": "Name of this project",
-                            "uri": "http://uriuri.th"
-                        }
-                    }]
-                },
-                "rationale": "reason for budget"
-            },
-            "tender": {
-                "id": "bf029021-aeb7-403d-b301-b8823855f42a",
-                "title": "title of tender",
-                "description": "desription of tender",
-                "status": "planning",
-                "statusDetails": "planning notice",
-                "value": {
-                    "amount": 1650.00,
-                    "currency": "EUR"
-                },
-                "procurementMethod": "open",
-                "procurementMethodDetails": procurement_method_details_from_mdm,
-                "procurementMethodRationale": "procurementMethodRationale",
-                "mainProcurementCategory": "works",
-                "hasEnquiries": False,
-                "eligibilityCriteria": eligibility_criteria_from_mdm,
-                "contractPeriod": {
-                    "startDate": contract_period[0],
-                    "endDate": contract_period[1]
-                },
-                "procuringEntity": {
-                    "id": "MD-IDNO-4",
-                    "name": "procuring"
-                },
-                "acceleratedProcedure": {
-                    "isAcceleratedProcedure": False
-                },
-                "classification": {
-                    "scheme": "CPV",
-                    "id": get_value_by_new_cpv_code[0],
-                    "description": get_value_by_new_cpv_code[1]
-                },
-                "designContest": {
-                    "serviceContractAward": False
-                },
-                "electronicWorkflows": {
-                    "useOrdering": False,
-                    "usePayment": False,
-                    "acceptInvoicing": False
-                },
-                "jointProcurement": {
-                    "isJointProcurement": False
-                },
-                "legalBasis": "DIRECTIVE_2014_25_EU",
-                "procedureOutsourcing": {
-                    "procedureOutsourced": False
-                },
-                "procurementMethodAdditionalInfo": "procurementMethodAdditionalInfo",
-                "dynamicPurchasingSystem": {
-                    "hasDynamicPurchasingSystem": False
-                },
-                "framework": {
-                    "isAFramework": False
-                }
-            },
-            "parties": [{
-                "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                "name": self.buyer_name,
-                "identifier": {
-                    "scheme": self.buyer_identifier_scheme,
-                    "id": self.buyer_identifier_id,
-                    "legalName": self.buyer_identifier_legal_name,
-                    "uri": self.buyer_identifier_uri
-                },
-                "address": {
-                    "streetAddress": self.buyer_address_street_address,
-                    "postalCode": self.buyer_address_postal_code,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": self.buyer_address_address_details_country_id,
-                            "description": "Moldova, Republica",
-                            "uri": "https://www.iso.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": self.buyer_address_address_details_region_id,
-                            "description": "mun.Chişinău",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": self.buyer_address_address_details_locality_scheme,
-                            "id": self.buyer_address_address_details_locality_id,
-                            "description": self.buyer_address_address_details_locality_description,
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "additionalIdentifiers": [{
-                    "scheme": "MD-K",
-                    "id": "additional identifier",
-                    "legalName": "legalname",
-                    "uri": "http://k.to"
-                }],
-                "contactPoint": {
-                    "name": self.buyer_contact_point_name,
-                    "email": self.buyer_contact_point_email,
-                    "telephone": self.buyer_contact_point_telephone,
-                    "faxNumber": self.buyer_contact_point_fax_number,
-                    "url": self.buyer_contact_point_url
-                },
-                "details": {
-                    "typeOfBuyer": "NATIONAL_AGENCY",
-                    "mainGeneralActivity": "HEALTH",
-                    "mainSectoralActivity": "WATER"
-                },
-                "roles": ["buyer"]
-            }, {
-                "id": f"{self.payer_identifier_scheme}-{self.payer_identifier_id}",
-                "name": self.payer_name,
-                "identifier": {
-                    "scheme": self.payer_identifier_scheme,
-                    "id": self.payer_identifier_id,
-                    "legalName": self.payer_identifier_legal_name,
-                    "uri": self.payer_identifier_uri
-                },
-                "address": {
-                    "streetAddress": self.payer_address_street,
-                    "postalCode": self.payer_address_postal_code,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": self.payer_address_postal_code,
-                            "description": "Moldova, Republica",
-                            "uri": "https://www.iso.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": self.payer_address_address_details_region_id,
-                            "description": "Donduşeni",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": self.payer_address_address_details_locality_scheme,
-                            "id": self.payer_address_address_details_locality_id,
-                            "description": self.payer_address_address_details_locality_description,
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "additionalIdentifiers": [{
-                    "scheme": "MD-K",
-                    "id": "additional identifier",
-                    "legalName": "legalname",
-                    "uri": "http://k.to"
-                }],
-                "contactPoint": {
-                    "name": self.payer_contact_point_name,
-                    "email": self.payer_contact_point_email,
-                    "telephone": self.payer_contact_point_telephone,
-                    "faxNumber": self.payer_contact_point_fax_number,
-                    "url": self.payer_contact_point_url
-                },
-                "roles": ["payer"]
-            }, {
-                "id": f"{self.funder_identifier_scheme}-{self.funder_identifier_id}",
-                "name": self.funder_name,
-                "identifier": {
-                    "scheme": self.funder_identifier_scheme,
-                    "id": self.funder_identifier_id,
-                    "legalName": self.funder_identifier_legal_name,
-                    "uri": self.funder_identifier_uri
-                },
-                "address": {
-                    "streetAddress": self.funder_address_street,
-                    "postalCode": self.funder_address_postal_code,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": self.funder_address_address_details_country_id,
-                            "description": "Moldova, Republica",
-                            "uri": "https://www.iso.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": self.funder_address_address_details_region_id,
-                            "description": "Cahul",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": self.funder_address_address_details_locality_scheme,
-                            "id": self.funder_address_address_details_locality_id,
-                            "description": self.funder_address_address_details_locality_description,
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "additionalIdentifiers": [{
-                    "scheme": "scheme",
-                    "id": "additional identifier",
-                    "legalName": "legal name",
-                    "uri": "http://addtIdent.com"
-                }],
-                "contactPoint": {
-                    "name": self.funder_contact_point_name,
-                    "email": self.funder_contact_point_email,
-                    "telephone": self.funder_contact_point_telephone,
-                    "faxNumber": self.funder_contact_point_fax,
-                    "url": self.funder_contact_point_url
-                },
-                "roles": ["funder"]
-            }, {
-                "id": "MD-IDNO-4",
-                "name": "procuring",
-                "identifier": {
-                    "scheme": "MD-IDNO",
-                    "id": "4",
-                    "legalName": "legal name",
-                    "uri": "uri"
-                },
-                "address": {
-                    "streetAddress": "street address",
-                    "postalCode": "02232",
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": "MD",
-                            "description": "Moldova, Republica",
-                            "uri": "https://www.iso.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": "3400000",
-                            "description": "Donduşeni",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": "CUATM",
-                            "id": "3401000",
-                            "description": "or.Donduşeni (r-l Donduşeni)",
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "additionalIdentifiers": [{
-                    "scheme": "md-idno",
-                    "id": "445521",
-                    "legalName": "legalName",
-                    "uri": "uri"
-                }],
-                "contactPoint": {
-                    "name": "name",
-                    "email": "email",
-                    "telephone": "456-95-96",
-                    "faxNumber": "fax-number",
-                    "url": "url"
-                },
-                "roles": ["procuringEntity"]
-            }],
-            "relatedProcesses": [{
-                "id": "36b553f0-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["planning"],
-                "scheme": "ocid",
-                "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
-            }, {
-                "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["x_expenditureItem"],
-                "scheme": "ocid",
-                "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
-            }, {
-                "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["x_fundingSource"],
-                "scheme": "ocid",
-                "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
-            }]
-
-        }
-
-        json_notice_compiled_release_pn = {
-            "ocid": pn_id,
-            "id": f"{pn_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": ["planning"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "tender": {
-                "id": "bf029021-aeb7-403d-b301-b8823855f42a",
-                "title": "Planning Notice",
-                "description": "Contracting process is planned",
-                "status": "planning",
-                "statusDetails": "planning",
-                "items": [{
-                    "id": first_item_id,
-                    "internalId": "item 1",
-                    "description": "description",
-                    "classification": {
-                        "scheme": "CPV",
-                        "id": get_value_by_first_item_cpv_code[0],
-                        "description": get_value_by_first_item_cpv_code[1]
-                    },
-                    "additionalClassifications": [{
-                        "scheme": "CPVS",
-                        "id": get_value_by_first_item_cpvs_code[0],
-                        "description": get_value_by_first_item_cpvs_code[2]
-                    }],
-                    "quantity": 0.010,
-                    "unit": {
-                        "id": get_value_by_first_item_unit_id[0],
-                        "name": get_value_by_first_item_unit_id[1]
-                    },
-                    "relatedLot": first_lot_id
-                }, {
-                    "id": second_item_id,
-                    "internalId": "item 2",
-                    "description": "description",
-                    "classification": {
-                        "scheme": "CPV",
-                        "id": get_value_by_second_item_cpv_code[0],
-                        "description": get_value_by_second_item_cpv_code[1]
-                    },
-                    "additionalClassifications": [{
-                        "scheme": "CPVS",
-                        "id": get_value_by_second_item_cpvs_code[0],
-                        "description": get_value_by_second_item_cpvs_code[2]
-                    }],
-                    "quantity": 0.010,
-                    "unit": {
-                        "id": get_value_by_first_item_unit_id[0],
-                        "name": get_value_by_first_item_unit_id[1]
-                    },
-                    "relatedLot": second_lot_id
-                }],
-                "lots": [{
-                    "id": first_lot_id,
-                    "internalId": "lot 1",
-                    "title": "title",
-                    "description": "description",
-                    "status": "planning",
-                    "statusDetails": "empty",
-                    "value": {
-                        "amount": 1500.00,
-                        "currency": "EUR"
-                    },
-                    "recurrentProcurement": [{
-                        "isRecurrent": False
-                    }],
-                    "renewals": [{
-                        "hasRenewals": False
-                    }],
-                    "variants": [{
-                        "hasVariants": False
-                    }],
-                    "contractPeriod": {
-                        "startDate": contract_period[0],
-                        "endDate": contract_period[1]
-                    },
-                    "placeOfPerformance": {
-                        "address": {
-                            "streetAddress": "street",
-                            "postalCode": "150009",
-                            "addressDetails": {
-                                "country": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["country"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['uri']
-                                },
-                                "region": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['uri']
-                                },
-                                "locality": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["locality"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][0]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['uri']
-                                }
-                            }
-                        },
-                        "description": "description of lot"
-                    },
-                    "options": [{
-                        "hasOptions": False
-                    }]
-                }, {
-                    "id": second_lot_id,
-                    "internalId": "lot 2",
-                    "title": "title",
-                    "description": "description",
-                    "status": "planning",
-                    "statusDetails": "empty",
-                    "value": {
-                        "amount": 150.00,
-                        "currency": "EUR"
-                    },
-                    "recurrentProcurement": [{
-                        "isRecurrent": False
-                    }],
-                    "renewals": [{
-                        "hasRenewals": False
-                    }],
-                    "variants": [{
-                        "hasVariants": False
-                    }],
-                    "contractPeriod": {
-                        "startDate": contract_period[0],
-                        "endDate": contract_period[1]
-                    },
-                    "placeOfPerformance": {
-                        "address": {
-                            "streetAddress": "street",
-                            "postalCode": "150009",
-                            "addressDetails": {
-                                "country": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["country"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["country"]['uri']
-                                },
-                                "region": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["region"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["region"]['uri']
-                                },
-                                "locality": {
-                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['scheme'],
-                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['id'],
-                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
-                                        "address"]["addressDetails"]["locality"]['description'],
-                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
-                                        "addressDetails"]["locality"]['uri']
-                                }
-                            }
-                        },
-                        "description": "description of lot"
-                    },
-                    "options": [{
-                        "hasOptions": False
-                    }]
-                }],
-                "lotGroups": [{
-                    "optionToCombine": False
-                }],
-                "tenderPeriod": {
-                    "startDate": period[3]
-                },
-                "hasEnquiries": False,
-                "documents": [
-                    {
-                        "id": self.document_one_was_uploaded,
-                        "documentType": "contractArrangements",
-                        "title": "title of document",
-                        "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
-                               f"{self.document_one_was_uploaded}",
-                        "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-                        "relatedLots": [first_lot_id]
-                    },
-                    {
-                        "id": self.document_two_was_uploaded,
-                        "documentType": "contractArrangements",
-                        "title": "title of document",
-                        "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
-                               f"{self.document_two_was_uploaded}",
-                        "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-                        "relatedLots": [second_lot_id]
-                    }],
-                "submissionMethod": ["electronicSubmission"],
-                "submissionMethodDetails": submission_method_details,
-                "submissionMethodRationale": submission_method_rationale,
-                "requiresElectronicCatalogue": False,
-                "procurementMethodRationale": "procurementMethodRationale",
-                "classification": {
-                    "scheme": "CPV",
-                    "id": get_value_by_new_cpv_code[0],
-                    "description": get_value_by_new_cpv_code[1]
-                },
-                "value": {
-                    "amount": 1650.00,
-                    "currency": "EUR"
-                }
-            },
-            "hasPreviousNotice": False,
-            "purposeOfNotice": {
-                "isACallForCompetition": False
-            },
-            "relatedProcesses": [{
-                "id": "36b553f3-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["parent"],
-                "scheme": "ocid",
-                "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-            }]
-        }
-
-        session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{pn_id}','{json.dumps(json_orchestrator_context)}');").one()
-        session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
-                        f"'{ei_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
-        session.execute(
-            f"INSERT INTO budget_fs (cp_id,token_entity,amount,amount_reserved,created_date,json_data,oc_id,owner) "
-            f"VALUES ('{ei_id}',{fs_token},{self.amount},0,{period[2]},'{json.dumps(json_budget_fs)}',"
-            f"'{fs_id}','{owner}');").one()
-        session.execute(f"INSERT INTO notice_budget_release ("
-                        f"cp_id,oc_id,release_id,json_data,release_date,stage) VALUES("
-                        f"'{ei_id}','{ei_id}','{cp_id + str(period[2])}',"
-                        f"'{json.dumps(json_notice_budget_release_ei)}',{period[2]},'EI');").one()
-        session.execute(
-            f"INSERT INTO notice_budget_release (cp_id,oc_id,release_id,json_data,release_date,stage) "
-            f"VALUES ('{ei_id}','{ei_id}','{fs_id + '-' + str(period[2])}',"
-            f"'{json.dumps(json_notice_budget_release_fs)}',{period[2]},'FS');").one()
-        session.execute(f"INSERT INTO notice_budget_compiled_release ("
-                        f"cp_id,oc_id,amount,json_data,publish_date,release_date,"
-                        f"release_id,stage) VALUES('{ei_id}','{ei_id}', 0.0, "
-                        f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
-                        f"{period[2]},{pn_id[32:45]},'{ei_id + '-' + f'{pn_id[32:45]}'}',"
-                        f"'EI');").one()
-        session.execute(
-            f"INSERT INTO notice_budget_compiled_release (cp_id,oc_id,amount,json_data,publish_date,release_date,"
-            f"release_id,stage) VALUES ('{ei_id}','{fs_id}',{self.amount},"
-            f"'{json.dumps(json_notice_budget_compiled_release_fs)}',{period[2]},{pn_id[32:45]},"
-            f"'{fs_id + '-' + str(pn_id[32:45])}','FS');").one()
-        session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
-                        f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
-        session.execute(
-            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
-            f"'{json.dumps(json_access_tender)}','{owner}');").one()
-        session.execute(
-            f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
-            f"VALUES ('{cp_id}', '{cp_id}', '{cp_id + '-' + pn_id[32:45]}' ,'{json.dumps(json_notice_release_ms)}',"
-            f"{pn_id[32:45]},'');").one()
-        session.execute(
-            f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
-            f"VALUES ('{cp_id}', '{pn_id}', '{pn_id + '-' + pn_id[32:45]}' ,'{json.dumps(json_notice_release_pn)}',"
-            f"{pn_id[32:45]},'PN');").one()
-        session.execute(
-            f"INSERT INTO notice_compiled_release (cp_id,oc_id, json_data, publish_date, release_date, "
-            f"release_id, stage, status) VALUES ('{cp_id}', '{cp_id}', '{json.dumps(json_notice_compiled_release_ms)}',"
-            f"{pn_id[32:45]},{pn_id[32:45]}, '{cp_id + '-' + pn_id[32:45]}','', 'planning');").one()
-        session.execute(
-            f"INSERT INTO notice_compiled_release (cp_id,oc_id, json_data, publish_date, release_date, "
-            f"release_id, stage, status) VALUES ('{cp_id}', '{pn_id}', '{json.dumps(json_notice_compiled_release_pn)}',"
-            f"{pn_id[32:45]},{pn_id[32:45]}, '{pn_id + '-' + pn_id[32:45]}','PN', 'planning');").one()
-
-        session.execute(f"INSERT INTO notice_offset (cp_id,release_date, stage, status) "
-                        f"VALUES ('{cp_id}', {pn_id[32:45]}, 'PN', 'planning');").one()
-        pn_record = f"http://dev.public.eprocurement.systems/tenders/{cp_id}"
-        ms_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-        pn_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
-        return ei_id, ei_token, fs_id, fs_token, cp_id, pn_id, pn_token, pn_record, ms_release, pn_release
-
-    @allure.step('Insert PN: based on FS: treasury - obligatory, based on EI: without items - obligatory')
-    def insert_pn_obligatory_(self):
-        auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
-        cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
-        session = cluster.connect('ocds')
-        owner = "445f6851-c908-407d-9b45-14b92f3e964b"
-        ei_id = prepared_cp_id()
-        ei_token = uuid4()
-        cp_id = prepared_cp_id()
-        fs_id = prepared_fs_oc_id(ei_id)
-        fs_token = uuid4()
-        pn_id = prepared_pn_oc_id(cp_id)
-        pn_token = uuid4()
-        period = get_period()
-
-        mdm = MdmService(
-            instance=self.instance,
-            ei_tender_classification_id=self.tender_classification_id,
-            pn_tender_classification_id=self.tender_classification_id,
-        )
-
-        data_ei = mdm.process_ei_data().json()
-        data_fs = mdm.process_fs_data(ei_id).json()
-        data_pn = mdm.process_tender_data(self.pmd).json()
-        submission_method_details = data_pn["data"]["tender"]["submissionMethodDetails"]
-        submission_method_rationale = data_pn["data"]["tender"]["submissionMethodRationale"]
-        procurement_method_details_from_mdm = data_pn["data"]["tender"]["procurementMethodDetails"]
-        eligibility_criteria_from_mdm = data_pn["data"]["tender"]["eligibilityCriteria"]
-
-        json_orchestrator_context = {
-            "operationId": f"{uuid4()}",
-            "requestId": f"{uuid4()}",
-            "cpid": cp_id,
-            "ocid": pn_id,
-            "stage": "PN",
-            "processType": "createPN",
-            "operationType": "createPN",
-            "phase": "planning",
-            "owner": owner,
-            "country": self.country,
-            "language": self.lang,
-            "pmd": self.pmd,
-            "token": f"{pn_token}",
-            "startDate": period[0],
-            "timeStamp": period[2],
-            "isAuction": False,
-            "testMode": False
-        }
-
-        json_budget_ei = {
-            "ocid": ei_id,
-            "tender": {
-                "id": "2cc5a0b7-b1b7-4ed3-9210-1ca6d0af3261",
-                "title": self.tender_title,
-                "status": "planning",
-                "statusDetails": "empty",
-                "classification": {
-                    "id": data_ei['data']['tender']['classification']['id'],
-                    "scheme": data_ei['data']['tender']['classification']['scheme'],
-                    "description": data_ei['data']['tender']['classification']['description']
-                },
-                "mainProcurementCategory": "works",
-            },
-            "planning": {
-                "budget": {
-                    "id": self.planning_budget_id,
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    }
-                }
-            },
-            "buyer": {
-                "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                "name": self.buyer_name,
-                "identifier": {
-                    "id": self.buyer_identifier_id,
-                    "scheme": self.buyer_identifier_scheme,
-                    "legalName": self.buyer_identifier_legal_name,
-                },
-                "address": {
-                    "streetAddress": self.buyer_address_street_address,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": data_ei['data']['buyer']['address']['addressDetails']['country']['scheme'],
-                            "id": data_ei['data']['buyer']['address']['addressDetails']['country']['id'],
-                            "description": data_ei['data']['buyer']['address']['addressDetails']['country'][
-                                'description'],
-                            "uri": data_ei['data']['buyer']['address']['addressDetails']['country']['uri']
-                        },
-                        "region": {
-                            "scheme": data_ei['data']['buyer']['address']['addressDetails']['region']['scheme'],
-                            "id": data_ei['data']['buyer']['address']['addressDetails']['country']['id'],
-                            "description": data_ei['data']['buyer']['address']['addressDetails']['country'][
-                                'description'],
-                            "uri": data_ei['data']['buyer']['address']['addressDetails']['country']['uri']
-                        },
-                        "locality": {
-                            "scheme": data_ei['data']['buyer']['address']['addressDetails']['locality']['scheme'],
-                            "id": data_ei['data']['buyer']['address']['addressDetails']['locality']['id'],
-                            "description": data_ei['data']['buyer']['address']['addressDetails']['locality'][
-                                'description'],
-                            "uri": data_ei['data']['buyer']['address']['addressDetails']['locality']['uri']
-                        }
-                    }
-                },
-                "contactPoint": {
-                    "name": self.buyer_contact_point_name,
-                    "email": self.buyer_contact_point_email,
-                    "telephone": self.buyer_contact_point_telephone
-                }
-            }
-        }
-
-        json_budget_fs = {
-            "ocid": fs_id,
-            "tender": {
-                "id": "195cf37f-99cc-4729-8374-596f2fba1810",
-                "status": "active",
-                "statusDetails": "empty"
-            },
-            "planning": {
-                "budget": {
-                    "id": None,
-                    "description": None,
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    },
-                    "europeanUnionFunding": None,
-                    "isEuropeanUnionFunded": False,
-                    "verified": False,
-                    "sourceEntity": {
-                        "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                        "name": self.buyer_name,
-                    },
-                    "verificationDetails": None,
-                    "project": None,
-                    "projectID": None,
-                    "uri": None
-                }
-            },
-            "payer": {
-                "id": f"{self.payer_identifier_scheme}-{self.payer_identifier_id}",
-                "name": self.payer_name,
-                "identifier": {
-                    "id": self.payer_identifier_id,
-                    "scheme": self.payer_identifier_scheme,
-                    "legalName": self.payer_identifier_legal_name
-                },
-                "address": {
-                    "streetAddress": self.payer_address_street,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'country']['scheme'],
-                            "id": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'country']['id'],
-                            "description": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'country']['description'],
-                            "uri": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'country']['uri']
-                        },
-                        "region": {
-                            "scheme": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'region']['scheme'],
-                            "id": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'region']['id'],
-                            "description": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'region']['description'],
-                            "uri": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'region']['uri']
-                        },
-                        "locality": {
-                            "scheme": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'locality']['scheme'],
-                            "id": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'locality']['id'],
-                            "description": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'locality']['description'],
-                            "uri": data_fs['data']['tender']['procuringEntity']['address']['addressDetails'][
-                                'locality']['uri']
-                        }
-                    }
-                },
-                "contactPoint": {
-                    "name": self.payer_contact_point_name,
-                    "email": self.payer_contact_point_email,
-                    "telephone": self.payer_contact_point_telephone
-                }
-            }
-        }
-
-        json_access_tender = {
-            "ocid": cp_id,
-            "planning": {
-                "budget": {
-                    "amount": {
-                        "amount": 1650.00,
-                        "currency": "EUR"
-                    },
-                    "isEuropeanUnionFunded": False,
-                    "budgetBreakdown": [{
-                        "id": fs_id,
-                        "amount": {
-                            "amount": 1650.00,
-                            "currency": "EUR"
-                        },
-                        "period": {
-                            "startDate": period[0],
-                            "endDate": period[1]
-                        },
-                        "sourceParty": {
-                            "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                            "name": self.buyer_name,
-                        }
-                    }]
-                }
-            },
-            "tender": {
-                "id": "bf029021-aeb7-403d-b301-b8823855f42a",
-                "status": "planning",
-                "statusDetails": "planning",
-                "title": "title of tender",
-                "description": "desription of tender",
-                "classification": {
-                    "id": data_pn['data']['tender']['classification']['id'],
-                    "scheme": data_pn['data']['tender']['classification']['scheme'],
-                    "description": data_pn['data']['tender']['classification']['description']
-                },
-                "mainProcurementCategory": "works",
-                "acceleratedProcedure": {
-                    "isAcceleratedProcedure": False
-                },
-                "designContest": {
-                    "serviceContractAward": False
-                },
-                "electronicWorkflows": {
-                    "useOrdering": False,
-                    "usePayment": False,
-                    "acceptInvoicing": False
-                },
-                "jointProcurement": {
-                    "isJointProcurement": False
-                },
-                "procedureOutsourcing": {
-                    "procedureOutsourced": False
-                },
-                "framework": {
-                    "isAFramework": False
-                },
-                "dynamicPurchasingSystem": {
-                    "hasDynamicPurchasingSystem": False
-                },
-                "legalBasis": "DIRECTIVE_2014_25_EU",
-                "procurementMethod": "open",
-                "procurementMethodDetails": procurement_method_details_from_mdm,
-                "eligibilityCriteria": eligibility_criteria_from_mdm,
-                "tenderPeriod": {
-                    "startDate": period[4]
-                },
-                "procuringEntity": {
-                    "id": "MD-IDNO-4",
-                    "name": "procuring",
-                    "identifier": {
-                        "scheme": "MD-IDNO",
-                        "id": "4",
-                        "legalName": "legal name"
-                    },
-                    "address": {
-                        "streetAddress": "street address",
-                        "addressDetails": {
-                            "country": {
-                                "scheme": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "country"]['scheme'],
-                                "id": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "country"]['id'],
-                                "description": data_pn["data"]["tender"]["procuringEntity"]["address"][
-                                    "addressDetails"]["country"]['description'],
-                                "uri": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "country"]['uri']
-                            },
-                            "region": {
-                                "scheme": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "region"]['scheme'],
-                                "id": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "region"]['id'],
-                                "description": data_pn["data"]["tender"]["procuringEntity"]["address"][
-                                    "addressDetails"]["region"]['description'],
-                                "uri": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "region"]['uri']
-                            },
-                            "locality": {
-                                "scheme": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "locality"]['scheme'],
-                                "id": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "locality"]['id'],
-                                "description": data_pn["data"]["tender"]["procuringEntity"]["address"][
-                                    "addressDetails"]["locality"]['description'],
-                                "uri": data_pn["data"]["tender"]["procuringEntity"]["address"]["addressDetails"][
-                                    "locality"]['uri']
-
-                            }
-                        }
-                    },
-                    "contactPoint": {
-                        "name": "name",
-                        "email": "email",
-                        "telephone": "456-95-96"
-                    }
-                },
-                "value": {
-                    "amount": 1650.00,
-                    "currency": "EUR"
-                },
-                "lotGroups": [{
-                    "optionToCombine": False
-                }],
-                "lots": [],
-                "items": [],
-                "requiresElectronicCatalogue": False,
-                "submissionMethod": ["electronicSubmission"],
-                "submissionMethodRationale": submission_method_rationale,
-                "submissionMethodDetails": submission_method_details
-            }
-        }
-
-        json_notice_budget_release_ei = {
-            "ocid": ei_id,
-            "id": ei_id + "-" + f"{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": [
-                "compiled"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "tender": {
-                "id": "2cc5a0b7-b1b7-4ed3-9210-1ca6d0af3261",
-                "title": self.tender_title,
-                "status": "planning",
-                "statusDetails": "empty",
-                "mainProcurementCategory": "works",
-                "classification": {
-                    "id": data_pn['data']['tender']['classification']['id'],
-                    "scheme": data_pn['data']['tender']['classification']['scheme'],
-                    "description": data_pn['data']['tender']['classification']['description']
-                }
-            },
-            "buyer": {
-                "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                "name": self.buyer_name,
-            },
-            "parties": [
-                {
-                    "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                    "name": self.buyer_name,
-                    "identifier": {
-                        "scheme": self.buyer_identifier_scheme,
-                        "id": self.buyer_identifier_id,
-                        "legalName": self.buyer_identifier_legal_name
-                    },
-                    "address": {
-                        "streetAddress": self.buyer_address_street_address,
-                        "addressDetails": {
-                            "country": {
-                                "scheme": "iso-alpha2",
-                                "id": self.buyer_address_address_details_country_id,
-                                "description": "Moldova, Republica",
-                                "uri": "http://reference.iatistandard.org"
-                            },
-                            "region": {
-                                "scheme": "CUATM",
-                                "id": self.buyer_address_address_details_region_id,
-                                "description": "Cahul",
-                                "uri": "http://statistica.md"
-                            },
-                            "locality": {
-                                "scheme": self.buyer_address_address_details_locality_scheme,
-                                "id": self.buyer_address_address_details_locality_id,
-                                "description": self.buyer_address_address_details_locality_description,
-                                "uri": "http://statistica.md"
-                            }
-                        }
-                    },
-                    "contactPoint": {
-                        "name": self.buyer_contact_point_name,
-                        "email": self.buyer_contact_point_email,
-                        "telephone": self.buyer_contact_point_telephone
-                    },
-                    "roles": [
-                        "buyer"]
-                }],
-            "planning": {
-                "budget": {
-                    "id": self.planning_budget_id,
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    }
-                }
-            },
-            "relatedProcesses": [
-                {
-                    "id": "412ee2c0-b194-11eb-8505-35fcd4e9bc47",
-                    "relationship": [
-                        "x_fundingSource"],
-                    "scheme": "ocid",
-                    "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
-                },
-                {
-                    "id": "31bd7be0-c23c-11eb-ab87-09e4e5e94b2a",
-                    "relationship": [
-                        "x_execution"],
-                    "scheme": "ocid",
-                    "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-                }
-            ]
-        }
-
-        json_notice_budget_release_fs = {
-            "ocid": fs_id,
-            "id": fs_id + "-" + f"{pn_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": [
-                "planningUpdate"],
-            "initiationType": "tender",
-            "tender": {
-                "id": "195cf37f-99cc-4729-8374-596f2fba1810",
-                "status": "active",
-                "statusDetails": "empty"
-            },
-            "parties": [
-                {
-                    "id": f"{self.payer_identifier_scheme}-{self.payer_identifier_id}",
-                    "name": self.payer_name,
-                    "identifier": {
-                        "scheme": self.payer_identifier_scheme,
-                        "id": self.payer_identifier_id,
-                        "legalName": self.payer_identifier_legal_name
-                    },
-                    "address": {
-                        "streetAddress": self.payer_address_street,
-                        "addressDetails": {
-                            "country": {
-                                "scheme": "iso-alpha2",
-                                "id": self.payer_address_address_details_country_id,
-                                "description": "MOLDOVA",
-                                "uri": "http://reference.iatistandard.org"
-                            },
-                            "region": {
-                                "scheme": "CUATM",
-                                "id": self.payer_address_address_details_region_id,
-                                "description": "Cahul",
-                                "uri": "http://statistica.md"
-                            },
-                            "locality": {
-                                "scheme": self.payer_address_address_details_locality_scheme,
-                                "id": self.payer_address_address_details_locality_id,
-                                "description": self.payer_address_address_details_locality_description,
-                                "uri": "http://statistica.md"
-                            }
-                        }
-                    },
-                    "contactPoint": {
-                        "name": self.payer_contact_point_name,
-                        "email": self.payer_contact_point_email,
-                        "telephone": self.payer_contact_point_telephone
-                    },
-                    "roles": ["payer"]
-                }],
-            "planning": {
-                "budget": {
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    },
-                    "isEuropeanUnionFunded": False,
-                    "verified": False,
-                    "sourceEntity": {
-                        "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                        "name": self.buyer_name
-                    }
-                }
-            },
-            "relatedProcesses": [
-                {
-                    "id": "412d5c20-b194-11eb-8505-35fcd4e9bc47",
-                    "relationship": [
-                        "parent"],
-                    "scheme": "ocid",
-                    "identifier": ei_id,
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
-                },
-                {
-                    "id": "31bda2f0-c23c-11eb-ab87-09e4e5e94b2a",
-                    "relationship": [
-                        "x_execution"],
-                    "scheme": "ocid",
-                    "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-                }
-            ]
-        }
-
-        json_notice_budget_compiled_release_ei = {
-            "ocid": ei_id,
-            "id": f"{ei_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": [
-                "compiled"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "tender": {
-                "id": "2cc5a0b7-b1b7-4ed3-9210-1ca6d0af3261",
-                "title": self.tender_title,
-                "status": "planning",
-                "statusDetails": "empty",
-                "mainProcurementCategory": "works",
-                "classification": {
-                    "id": data_pn['data']['tender']['classification']['id'],
-                    "scheme": data_pn['data']['tender']['classification']['scheme'],
-                    "description": data_pn['data']['tender']['classification']['description']
-                }
-            },
-            "buyer": {
-                "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                "name": self.buyer_name
-            },
-            "parties": [
-                {
-                    "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                    "name": self.buyer_name,
-                    "identifier": {
-                        "scheme": self.buyer_identifier_scheme,
-                        "id": self.buyer_identifier_id,
-                        "legalName": self.buyer_identifier_legal_name
-                    },
-                    "address": {
-                        "streetAddress": self.buyer_address_street_address,
-                        "addressDetails": {
-                            "country": {
-                                "scheme": "iso-alpha2",
-                                "id": self.buyer_address_address_details_country_id,
-                                "description": "MOLDOVA",
-                                "uri": "http://reference.iatistandard.org"
-                            },
-                            "region": {
-                                "scheme": "CUATM",
-                                "id": self.buyer_address_address_details_region_id,
-                                "description": "Cahul",
-                                "uri": "http://statistica.md"
-                            },
-                            "locality": {
-                                "scheme": self.buyer_address_address_details_locality_scheme,
-                                "id": self.buyer_address_address_details_locality_id,
-                                "description": self.buyer_address_address_details_locality_description,
-                                "uri": "http://statistica.md"
-                            }
-                        }
-                    },
-                    "contactPoint": {
-                        "name": self.buyer_contact_point_name,
-                        "email": self.buyer_contact_point_email,
-                        "telephone": self.buyer_contact_point_telephone
-                    },
-                    "roles": [
-                        "buyer"]
-                }],
-            "planning": {
-                "budget": {
-                    "id": self.tender_classification_id,
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    }
-                }
-            },
-            "relatedProcesses": [
-                {
-                    "id": "412ee2c0-b194-11eb-8505-35fcd4e9bc47",
-                    "relationship": [
-                        "x_fundingSource"],
-                    "scheme": "ocid",
-                    "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
-                },
-                {
-                    "id": "ce7f5070-c057-11eb-ab87-09e4e5e94b2a",
-                    "relationship": ["x_execution"],
-                    "scheme": "ocid",
-                    "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-                }
-            ]
-        }
-
-        json_notice_budget_compiled_release_fs = {
-            "ocid": fs_id,
-            "id": f"{fs_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": [
-                "planningUpdate"],
-            "initiationType": "tender",
-            "tender": {
-                "id": "195cf37f-99cc-4729-8374-596f2fba1810",
-                "status": "active",
-                "statusDetails": "empty"
-            },
-            "parties": [
-                {
-                    "id": f"{self.payer_identifier_scheme}-{self.payer_identifier_id}",
-                    "name": self.payer_name,
-                    "identifier": {
-                        "scheme": self.payer_identifier_scheme,
-                        "id": self.payer_identifier_id,
-                        "legalName": self.payer_identifier_legal_name
-                    },
-                    "address": {
-                        "streetAddress": self.payer_address_street,
-                        "addressDetails": {
-                            "country": {
-                                "scheme": "iso-alpha2",
-                                "id": self.payer_address_address_details_country_id,
-                                "description": "MOLDOVA",
-                                "uri": "http://reference.iatistandard.org"
-                            },
-                            "region": {
-                                "scheme": "CUATM",
-                                "id": self.payer_address_address_details_region_id,
-                                "description": "Cahul",
-                                "uri": "http://statistica.md"
-                            },
-                            "locality": {
-                                "scheme": self.payer_address_address_details_locality_scheme,
-                                "id": self.payer_address_address_details_locality_id,
-                                "description": self.payer_address_address_details_locality_description,
-                                "uri": "http://statistica.md"
-                            }
-                        }
-                    },
-                    "contactPoint": {
-                        "name": self.payer_contact_point_name,
-                        "email": self.payer_contact_point_email,
-                        "telephone": self.payer_contact_point_telephone
-                    },
-                    "roles": ["payer"]
-                }
-            ],
-            "planning": {
-                "budget": {
-                    "period": {
-                        "startDate": self.planning_budget_period_start_date,
-                        "endDate": self.planning_budget_period_end_date
-                    },
-                    "amount": {
-                        "amount": self.amount,
-                        "currency": self.currency
-                    },
-                    "isEuropeanUnionFunded": False,
-                    "verified": False,
-                    "sourceEntity": {
-                        "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                        "name": self.buyer_name
-                    }
-                }
-            },
-            "relatedProcesses": [
-                {
-                    "id": "412d5c20-b194-11eb-8505-35fcd4e9bc47",
-                    "relationship": [
-                        "parent"],
-                    "scheme": "ocid",
-                    "identifier": f"{ei_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
-                },
-                {
-                    "id": "ce7f7780-c057-11eb-ab87-09e4e5e94b2a",
-                    "relationship": ["x_execution"],
-                    "scheme": "ocid",
-                    "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-                }
-            ]
-        }
-
-        json_notice_release_ms = {
-            "ocid": cp_id,
-            "id": f"{cp_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": ["compiled"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "planning": {
-                "budget": {
-                    "amount": {
-                        "amount": 1650.00,
-                        "currency": "EUR"
-                    },
-                    "isEuropeanUnionFunded": False,
-                    "budgetBreakdown": [{
-                        "id": fs_id,
-                        "amount": {
-                            "amount": 1650.00,
-                            "currency": "EUR"
-                        },
-                        "period": {
-                            "startDate": period[0],
-                            "endDate": period[1]
-                        },
-                        "sourceParty": {
-                            "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                            "name": self.buyer_name,
-                        }
-                    }]
-                }
-            },
-            "tender": {
-                "id": "bf029021-aeb7-403d-b301-b8823855f42a",
-                "title": "title of tender",
-                "description": "desription of tender",
-                "status": "planning",
-                "statusDetails": "planning notice",
-                "value": {
-                    "amount": 1650.00,
-                    "currency": "EUR"
-                },
-                "procurementMethod": "open",
-                "procurementMethodDetails": procurement_method_details_from_mdm,
-                "mainProcurementCategory": "works",
-                "hasEnquiries": False,
-                "eligibilityCriteria": eligibility_criteria_from_mdm,
-                "procuringEntity": {
-                    "id": "MD-IDNO-4",
-                    "name": "procuring"
-                },
-                "acceleratedProcedure": {
-                    "isAcceleratedProcedure": False
-                },
-                "classification": {
-                    "id": data_pn['data']['tender']['classification']['id'],
-                    "scheme": data_pn['data']['tender']['classification']['scheme'],
-                    "description": data_pn['data']['tender']['classification']['description']
-                },
-                "designContest": {
-                    "serviceContractAward": False
-                },
-                "electronicWorkflows": {
-                    "useOrdering": False,
-                    "usePayment": False,
-                    "acceptInvoicing": False
-                },
-                "jointProcurement": {
-                    "isJointProcurement": False
-                },
-                "legalBasis": "DIRECTIVE_2014_25_EU",
-                "procedureOutsourcing": {
-                    "procedureOutsourced": False
-                },
-                "dynamicPurchasingSystem": {
-                    "hasDynamicPurchasingSystem": False
-                },
-                "framework": {
-                    "isAFramework": False
-                }
-            },
-            "parties": [{
-                "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                "name": self.buyer_name,
-                "identifier": {
-                    "scheme": self.buyer_identifier_scheme,
-                    "id": self.buyer_identifier_id,
-                    "legalName": self.buyer_identifier_legal_name
-                },
-                "address": {
-                    "streetAddress": self.buyer_address_street_address,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": self.buyer_address_address_details_country_id,
-                            "description": "MOLDOVA",
-                            "uri": "http://reference.iatistandard.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": self.buyer_address_address_details_region_id,
-                            "description": "Cahul",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": self.buyer_address_address_details_locality_scheme,
-                            "id": self.buyer_address_address_details_locality_id,
-                            "description": self.buyer_address_address_details_locality_description,
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "contactPoint": {
-                    "name": self.buyer_contact_point_name,
-                    "email": self.buyer_contact_point_email,
-                    "telephone": self.buyer_contact_point_telephone
-                },
-                "roles": [
-                    "buyer"]
-            }, {
-                "id": f"{self.payer_identifier_scheme}-{self.payer_identifier_id}",
-                "name": self.payer_name,
-                "identifier": {
-                    "scheme": self.payer_identifier_scheme,
-                    "id": self.payer_identifier_id,
-                    "legalName": self.payer_identifier_legal_name
-                },
-                "address": {
-                    "streetAddress": self.payer_address_street,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": self.payer_address_address_details_country_id,
-                            "description": "MOLDOVA",
-                            "uri": "http://reference.iatistandard.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": self.payer_address_address_details_region_id,
-                            "description": "Cahul",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": self.payer_address_address_details_locality_scheme,
-                            "id": self.payer_address_address_details_locality_id,
-                            "description": self.payer_address_address_details_locality_description,
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "contactPoint": {
-                    "name": self.payer_contact_point_name,
-                    "email": self.payer_contact_point_email,
-                    "telephone": self.payer_contact_point_telephone
-                },
-                "roles": ["payer"]
-            }, {
-                "id": "MD-IDNO-4",
-                "name": "procuring",
-                "identifier": {
-                    "scheme": "MD-IDNO",
-                    "id": "4",
-                    "legalName": "legal name"
-                },
-                "address": {
-                    "streetAddress": "street address",
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": "MD",
-                            "description": "Moldova, Republica",
-                            "uri": "https://www.iso.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": "3400000",
-                            "description": "Donduşeni",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": "CUATM",
-                            "id": "3401000",
-                            "description": "or.Donduşeni (r-l Donduşeni)",
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "contactPoint": {
-                    "name": "name",
-                    "email": "email",
-                    "telephone": "456-95-96"
-                },
-                "roles": ["procuringEntity"]
-            }],
-            "relatedProcesses": [{
-                "id": "36b553f0-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["planning"],
-                "scheme": "ocid",
-                "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/o{pn_id}"
-            }, {
-                "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["x_expenditureItem"],
-                "scheme": "ocid",
-                "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/o{ei_id}"
-            }, {
-                "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["x_fundingSource"],
-                "scheme": "ocid",
-                "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
-            }]
-        }
-
-        json_notice_release_pn = {
-            "ocid": pn_id,
-            "id": f"{pn_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": ["planning"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "tender": {
-                "id": "bf029021-aeb7-403d-b301-b8823855f42a",
-                "title": "Planning Notice",
-                "description": "Contracting process is planned",
-                "status": "planning",
-                "statusDetails": "planning",
-                "lotGroups": [{
-                    "optionToCombine": False
-                }],
-                "tenderPeriod": {
-                    "startDate": period[3]
-                },
-                "hasEnquiries": False,
-                "submissionMethod": ["electronicSubmission"],
-                "submissionMethodDetails": submission_method_details,
-                "submissionMethodRationale": submission_method_rationale,
-                "requiresElectronicCatalogue": False,
-                "classification": {
-                    "id": data_pn['data']['tender']['classification']['id'],
-                    "scheme": data_pn['data']['tender']['classification']['scheme'],
-                    "description": data_pn['data']['tender']['classification']['description']
-                },
-                "value": {
-                    "amount": 1650.00,
-                    "currency": "EUR"
-                }
-            },
-            "hasPreviousNotice": False,
-            "purposeOfNotice": {
-                "isACallForCompetition": False
-            },
-            "relatedProcesses": [{
-                "id": "36b553f3-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["parent"],
-                "scheme": "ocid",
-                "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-            }]
-        }
-
-        json_notice_compiled_release_ms = {
-            "ocid": cp_id,
-            "id": f"{cp_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": ["compiled"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "planning": {
-                "budget": {
-                    "amount": {
-                        "amount": 1650.00,
-                        "currency": "EUR"
-                    },
-                    "isEuropeanUnionFunded": False,
-                    "budgetBreakdown": [{
-                        "id": fs_id,
-                        "amount": {
-                            "amount": 1650.00,
-                            "currency": "EUR"
-                        },
-                        "period": {
-                            "startDate": period[0],
-                            "endDate": period[1]
-                        },
-                        "sourceParty": {
-                            "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                            "name": self.buyer_name,
-                        }
-                    }]
-                }
-            },
-            "tender": {
-                "id": "bf029021-aeb7-403d-b301-b8823855f42a",
-                "title": "title of tender",
-                "description": "desription of tender",
-                "status": "planning",
-                "statusDetails": "planning notice",
-                "value": {
-                    "amount": 1650.00,
-                    "currency": "EUR"
-                },
-                "procurementMethod": "open",
-                "procurementMethodDetails": procurement_method_details_from_mdm,
-                "mainProcurementCategory": "works",
-                "hasEnquiries": False,
-                "eligibilityCriteria": eligibility_criteria_from_mdm,
-                "procuringEntity": {
-                    "id": "MD-IDNO-4",
-                    "name": "procuring"
-                },
-                "acceleratedProcedure": {
-                    "isAcceleratedProcedure": False
-                },
-                "classification": {
-                    "id": data_pn['data']['tender']['classification']['id'],
-                    "scheme": data_pn['data']['tender']['classification']['scheme'],
-                    "description": data_pn['data']['tender']['classification']['description']
-                },
-                "designContest": {
-                    "serviceContractAward": False
-                },
-                "electronicWorkflows": {
-                    "useOrdering": False,
-                    "usePayment": False,
-                    "acceptInvoicing": False
-                },
-                "jointProcurement": {
-                    "isJointProcurement": False
-                },
-                "legalBasis": "DIRECTIVE_2014_25_EU",
-                "procedureOutsourcing": {
-                    "procedureOutsourced": False
-                },
-                "dynamicPurchasingSystem": {
-                    "hasDynamicPurchasingSystem": False
-                },
-                "framework": {
-                    "isAFramework": False
-                }
-            },
-            "parties": [{
-                "id": f"{self.buyer_identifier_scheme}-{self.buyer_identifier_id}",
-                "name": self.buyer_name,
-                "identifier": {
-                    "scheme": self.buyer_identifier_scheme,
-                    "id": self.buyer_identifier_id,
-                    "legalName": self.buyer_identifier_legal_name
-                },
-                "address": {
-                    "streetAddress": self.buyer_address_street_address,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": self.buyer_address_address_details_country_id,
-                            "description": "Moldova, Republica",
-                            "uri": "https://www.iso.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": self.buyer_address_address_details_region_id,
-                            "description": "mun.Chişinău",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": self.buyer_address_address_details_locality_scheme,
-                            "id": self.buyer_address_address_details_locality_id,
-                            "description": self.buyer_address_address_details_locality_description,
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "contactPoint": {
-                    "name": self.buyer_contact_point_name,
-                    "email": self.buyer_contact_point_email,
-                    "telephone": self.buyer_contact_point_telephone
-                },
-                "roles": ["buyer"]
-            }, {
-                "id": f"{self.payer_identifier_scheme}-{self.payer_identifier_id}",
-                "name": self.payer_name,
-                "identifier": {
-                    "scheme": self.payer_identifier_scheme,
-                    "id": self.payer_identifier_id,
-                    "legalName": self.payer_identifier_legal_name
-                },
-                "address": {
-                    "streetAddress": self.payer_address_street,
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": self.payer_address_postal_code,
-                            "description": "Moldova, Republica",
-                            "uri": "https://www.iso.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": self.payer_address_address_details_region_id,
-                            "description": "Donduşeni",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": self.payer_address_address_details_locality_scheme,
-                            "id": self.payer_address_address_details_locality_id,
-                            "description": self.payer_address_address_details_locality_description,
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "contactPoint": {
-                    "name": self.payer_contact_point_name,
-                    "email": self.payer_contact_point_email,
-                    "telephone": self.payer_contact_point_telephone
-                },
-                "roles": ["payer"]
-            }, {
-                "id": "MD-IDNO-4",
-                "name": "procuring",
-                "identifier": {
-                    "scheme": "MD-IDNO",
-                    "id": "4",
-                    "legalName": "legal name"
-                },
-                "address": {
-                    "streetAddress": "street address",
-                    "addressDetails": {
-                        "country": {
-                            "scheme": "iso-alpha2",
-                            "id": "MD",
-                            "description": "Moldova, Republica",
-                            "uri": "https://www.iso.org"
-                        },
-                        "region": {
-                            "scheme": "CUATM",
-                            "id": "3400000",
-                            "description": "Donduşeni",
-                            "uri": "http://statistica.md"
-                        },
-                        "locality": {
-                            "scheme": "CUATM",
-                            "id": "3401000",
-                            "description": "or.Donduşeni (r-l Donduşeni)",
-                            "uri": "http://statistica.md"
-                        }
-                    }
-                },
-                "contactPoint": {
-                    "name": "name",
-                    "email": "email",
-                    "telephone": "456-95-96"
-                },
-                "roles": ["procuringEntity"]
-            }],
-            "relatedProcesses": [{
-                "id": "36b553f0-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["planning"],
-                "scheme": "ocid",
-                "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
-            }, {
-                "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["x_expenditureItem"],
-                "scheme": "ocid",
-                "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
-            }, {
-                "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["x_fundingSource"],
-                "scheme": "ocid",
-                "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
-            }]
-
-        }
-
-        json_notice_compiled_release_pn = {
-            "ocid": pn_id,
-            "id": f"{pn_id}-{pn_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
-            "tag": ["planning"],
-            "language": self.lang,
-            "initiationType": "tender",
-            "tender": {
-                "id": "bf029021-aeb7-403d-b301-b8823855f42a",
-                "title": "Planning Notice",
-                "description": "Contracting process is planned",
-                "status": "planning",
-                "statusDetails": "planning",
-                "lotGroups": [{
-                    "optionToCombine": False
-                }],
-                "tenderPeriod": {
-                    "startDate": period[3]
-                },
-                "hasEnquiries": False,
-                "submissionMethod": ["electronicSubmission"],
-                "submissionMethodDetails": submission_method_details,
-                "submissionMethodRationale": submission_method_rationale,
-                "requiresElectronicCatalogue": False,
-                "classification": {
-                    "id": data_pn['data']['tender']['classification']['id'],
-                    "scheme": data_pn['data']['tender']['classification']['scheme'],
-                    "description": data_pn['data']['tender']['classification']['description']
-                },
-                "value": {
-                    "amount": 1650.00,
-                    "currency": "EUR"
-                }
-            },
-            "hasPreviousNotice": False,
-            "purposeOfNotice": {
-                "isACallForCompetition": False
-            },
-            "relatedProcesses": [{
-                "id": "36b553f3-c072-11eb-ab87-09e4e5e94b2a",
-                "relationship": ["parent"],
-                "scheme": "ocid",
-                "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-            }]
-        }
-
-        session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{pn_id}','{json.dumps(json_orchestrator_context)}');").one()
-        session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
-                        f"'{ei_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
-        session.execute(
-            f"INSERT INTO budget_fs (cp_id,token_entity,amount,amount_reserved,created_date,json_data,oc_id,owner) "
-            f"VALUES ('{ei_id}',{fs_token},{self.amount},0,{period[2]},'{json.dumps(json_budget_fs)}',"
-            f"'{fs_id}','{owner}');").one()
-        session.execute(f"INSERT INTO notice_budget_release ("
-                        f"cp_id,oc_id,release_id,json_data,release_date,stage) VALUES("
-                        f"'{ei_id}','{ei_id}','{cp_id + str(period[2])}',"
-                        f"'{json.dumps(json_notice_budget_release_ei)}',{period[2]},'EI');").one()
-        session.execute(
-            f"INSERT INTO notice_budget_release (cp_id,oc_id,release_id,json_data,release_date,stage) "
-            f"VALUES ('{ei_id}','{ei_id}','{fs_id + '-' + str(period[2])}',"
-            f"'{json.dumps(json_notice_budget_release_fs)}',{period[2]},'FS');").one()
-        session.execute(f"INSERT INTO notice_budget_compiled_release ("
-                        f"cp_id,oc_id,amount,json_data,publish_date,release_date,"
-                        f"release_id,stage) VALUES('{ei_id}','{ei_id}', 0.0, "
-                        f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
-                        f"{period[2]},{pn_id[32:45]},'{ei_id + '-' + f'{pn_id[32:45]}'}',"
-                        f"'EI');").one()
-        session.execute(
-            f"INSERT INTO notice_budget_compiled_release (cp_id,oc_id,amount,json_data,publish_date,release_date,"
-            f"release_id,stage) VALUES ('{ei_id}','{fs_id}',{self.amount},"
-            f"'{json.dumps(json_notice_budget_compiled_release_fs)}',{period[2]},{pn_id[32:45]},"
-            f"'{fs_id + '-' + str(pn_id[32:45])}','FS');").one()
-        session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
-                        f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
-        session.execute(
-            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
-            f"'{json.dumps(json_access_tender)}','{owner}');").one()
-        session.execute(
-            f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
-            f"VALUES ('{cp_id}', '{cp_id}', '{cp_id + '-' + pn_id[32:45]}' ,'{json.dumps(json_notice_release_ms)}',"
-            f"{pn_id[32:45]},'');").one()
-        session.execute(
-            f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
-            f"VALUES ('{cp_id}', '{pn_id}', '{pn_id + '-' + pn_id[32:45]}' ,'{json.dumps(json_notice_release_pn)}',"
-            f"{pn_id[32:45]},'PN');").one()
-        session.execute(
-            f"INSERT INTO notice_compiled_release (cp_id,oc_id, json_data, publish_date, release_date, "
-            f"release_id, stage, status) VALUES ('{cp_id}', '{cp_id}', '{json.dumps(json_notice_compiled_release_ms)}',"
-            f"{pn_id[32:45]},{pn_id[32:45]}, '{cp_id + '-' + pn_id[32:45]}','', 'planning');").one()
-        session.execute(
-            f"INSERT INTO notice_compiled_release (cp_id,oc_id, json_data, publish_date, release_date, "
-            f"release_id, stage, status) VALUES ('{cp_id}', '{pn_id}', '{json.dumps(json_notice_compiled_release_pn)}',"
-            f"{pn_id[32:45]},{pn_id[32:45]}, '{pn_id + '-' + pn_id[32:45]}','PN', 'planning');").one()
-
-        session.execute(f"INSERT INTO notice_offset (cp_id,release_date, stage, status) "
-                        f"VALUES ('{cp_id}', {pn_id[32:45]}, 'PN', 'planning');").one()
-
-        pn_record = f"http://dev.public.eprocurement.systems/tenders/{cp_id}"
-        ms_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-        pn_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
-        return ei_id, ei_token, fs_id, fs_token, cp_id, pn_id, pn_token, pn_record, ms_release, pn_release
-
     @allure.step('Insert CnOnPn: based on FS: own - full, based on EI: with items - full')
-    def insert_cnonpn_full(self, first_lot_id, second_lot_id, first_item_id, second_item_id,
-                           second_tender, second_enquiry):
+    def insert_cancel_tender_full(self, first_lot_id, second_lot_id, first_item_id, second_item_id,
+                                  second_tender, second_enquiry):
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         key_space_ocds = cluster.connect('ocds')
         key_space_clarification = cluster.connect('clarification')
         key_space_submission = cluster.connect('submission')
         key_space_auctions = cluster.connect('auctions')
+        key_space_revision = cluster.connect('revision')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         ei_id = prepared_cp_id()
         fs_id = prepared_fs_oc_id(ei_id)
@@ -4155,6 +293,7 @@ class CN:
         pn_token = uuid4()
         ev_id = prepared_cn_oc_id(cp_id)
         period = get_period()
+        period_for_amendment = get_period_for_amendment()
         auction_date = get_auction_date()
         contract_period = get_contract_period()
         enquiry_and_tender_period = create_enquiry_and_tender_period(
@@ -4206,23 +345,21 @@ class CN:
         procurement_method_details_from_mdm = data_pn["data"]["tender"]["procurementMethodDetails"]
         eligibility_criteria_from_mdm = data_pn["data"]["tender"]["eligibilityCriteria"]
         json_orchestrator_context = {
-            "operationId": f"{uuid4()}",
-            "requestId": f"{uuid1()}",
             "cpid": cp_id,
             "ocid": ev_id,
-            "ocidCn": ev_id,
-            "stage": "EV",
-            "prevStage": "PN",
-            "processType": "updateCN",
-            "operationType": "createCNonPN",
-            "phase": "clarification",
+            "operationId": f"{uuid4()}",
+            "requestId": f"{uuid4()}",
             "owner": owner,
+            "stage": "EV",
+            "prevStage": "EV",
+            "phase": "clarification",
+            "processType": "cancelTender",
+            "operationType": "tenderCancellation",
             "country": self.country,
             "language": self.lang,
             "pmd": self.pmd,
-            "token": f"{pn_token}",
-            "startDate": period[0],
-            "timeStamp": period[2],
+            "startDate": period_for_amendment[0],
+            "timeStamp": period_for_amendment[1],
             "isAuction": True
         }
 
@@ -4949,6 +1086,24 @@ class CN:
                         "currency": "EUR"
                     }
                 }]
+            }]
+        }
+        json_amendments = {
+            "id": self.amendment_id,
+            "date": period_for_amendment[0],
+            "rationale": "cancel_tender: amendments[0].rationale",
+            "description": "cancel_tender: amendments[0].description",
+            "status": "pending",
+            "type": "cancellation",
+            "relatesTo": "tender",
+            "relatedItem": ev_id,
+            "token": self.amendment_token,
+            "owner": "445f6851-c908-407d-9b45-14b92f3e964b",
+            "documents": [{
+                "documentType": "cancellationDetails",
+                "id": self.document_five_was_uploaded,
+                "title": "cancel_tender: amendments[0].documents[0].title",
+                "description": "cancel_tender: amendments[0].documents[0].description"
             }]
         }
         json_notice_release_ms = {
@@ -6115,6 +2270,588 @@ class CN:
                 "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
             }]
         }
+
+        json_notice_release_ev_new = {
+            "ocid": ev_id,
+            "id": f"{ev_id}-{period_for_amendment[1]}",
+            "date": period_for_amendment[0],
+            "tag": ["tender"],
+            "initiationType": "tender",
+            "language": self.lang,
+            "tender": {
+                "id": "c36f9952-06d5-41ef-9fe6-36722f1da414",
+                "title": "Evaluation",
+                "description": "Evaluation stage of contracting process",
+                "status": "active",
+                "statusDetails": "clarification",
+                "criteria": [{
+                    "id": "9b62d854-acd3-479f-b0a9-402fe8081480",
+                    "title": "create CNonPN: tender.criteria[0].title =Bankruptcy",
+                    "source": "tenderer",
+                    "description": "create CNonPN: tender.criteria[0].description =Is the economic operator bankrupt? "
+                                   "This information needs not be given if exclusion of economic operators in this "
+                                   "case has been made mandatory under the applicable national law without any "
+                                   "possibility of derogation where the economic operator is nevertheless able to "
+                                   "perform the contract.",
+                    "requirementGroups": [{
+                        "id": "f83633d5-6d4e-4b9f-9bc2-8770f8bfb9b6",
+                        "description": "create CNonPN: tender.criteria[0].requirementGroups[0].description =approve "
+                                       "that Bankruptcy requirement group",
+                        "requirements": [{
+                            "id": "d5366584-8e57-445f-b1f6-55063bb29ea2",
+                            "title": "create CNonPN: tender.criteria[0].requirementGroups[0].requirements.title",
+                            "dataType": "boolean",
+                            "status": "active",
+                            "datePublished": operation_date,
+                            "description": "create CNonPN: tender.criteria[0].requirementGroups[0].requirements."
+                                           "description",
+                            "eligibleEvidences": [{
+                                "id": "1",
+                                "title": "create CNonPN: tender.criteria[0].requirementGroups[0].requirements[0]."
+                                         "eligibleEvidences[0].title",
+                                "type": "document",
+                                "description": "create CNonPN: tender.criteria[0].requirementGroups[0]."
+                                               "requirements[0].eligibleEvidences[0].description",
+                                "relatedDocument": {
+                                    "id": self.document_three_was_uploaded
+                                }
+                            }, {
+                                "id": "2",
+                                "title": "create CNonPN: tender.criteria[0].requirementGroups[0].requirements[0]."
+                                         "eligibleEvidences[1].title",
+                                "type": "document",
+                                "description": "create CNonPN: tender.criteria[0].requirementGroups[0]."
+                                               "requirements[0].eligibleEvidences[1].description",
+                                "relatedDocument": {
+                                    "id": self.document_three_was_uploaded
+                                }
+                            }],
+                            "expectedValue": False
+                        }]
+                    }],
+                    "relatesTo": "tender",
+                    "classification": {
+                        "scheme": "ESPD",
+                        "id": "CRITERION.EXCLUSION.CONVICTIONS.PARTICIPATION_IN_CRIMINAL_ORGANISATION"
+                    }
+                }, {
+                    "id": "0b607a5e-e432-4d60-bcff-40c4de9ee04b",
+                    "title": "create CNonPN: tender.criteria[1].title",
+                    "source": "tenderer",
+                    "description": "create CNonPN: tender.criteria[1].description",
+                    "requirementGroups": [{
+                        "id": "437c395a-7a92-48c3-94bd-fcd3fb238304",
+                        "description": "create CNonPN: tender.criteria[1].requirementGroups[0].description",
+                        "requirements": [{
+                            "id": "7bcf3819-a328-4560-b256-24c89b70d436",
+                            "title": "create CNonPN: tender.criteria[1].requirementGroups[0].requirements[0].title",
+                            "dataType": "boolean",
+                            "status": "active",
+                            "datePublished": operation_date,
+                            "description": "create CNonPN: tender.criteria[1].requirementGroups[0].requirements."
+                                           "description",
+                            "expectedValue": True
+                        }, {
+                            "id": "5b761cae-5c26-4266-b81d-9178232e931e",
+                            "title": "create CNonPN: tender.criteria[1].requirementGroups[0].requirements[1]."
+                                     "title =The number of years for proposed product warranty",
+                            "dataType": "number",
+                            "status": "active",
+                            "datePublished": operation_date,
+                            "description": "create CNonPN: tender.criteria[1].requirementGroups[0].requirements[1]."
+                                           "description",
+                            "period": {
+                                "startDate": period[0],
+                                "endDate": period[1]
+                            },
+                            "eligibleEvidences": [{
+                                "id": "3",
+                                "title": "create CNonPN: tender.criteria[1].requirementGroups[0].requirements[1]."
+                                         "eligibleEvidences[0].title",
+                                "type": "document",
+                                "description": "create CNonPN: tender.criteria[1].requirementGroups[0]."
+                                               "requirements[1].eligibleEvidences[0].description",
+                                "relatedDocument": {
+                                    "id": self.document_three_was_uploaded
+                                }
+                            }],
+                            "minValue": 1.000,
+                            "maxValue": 3.000
+                        }]
+                    }],
+                    "relatesTo": "lot",
+                    "relatedItem": first_lot_id,
+                    "classification": {
+                        "scheme": "ESPD",
+                        "id": "CRITERION.SELECTION.ECONOMIC_FINANCIAL_STANDING.TURNOVER.GENERAL_YEARLY"
+                    }
+                }, {
+                    "id": "11a3595b-4327-4382-a72f-e663f937a206",
+                    "title": "create CNonPN: tender.criteria[2].title",
+                    "source": "tenderer",
+                    "description": "create CNonPN: tender.criteria[2].description",
+                    "requirementGroups": [{
+                        "id": "779894eb-41c2-4db0-825c-27d3dbd522a6",
+                        "description": "create CNonPN: tender.criteria[2].requirementGroups[0].description",
+                        "requirements": [{
+                            "id": "e30b1213-f94d-4364-9a75-e9532d7c98ed",
+                            "title": "create CNonPN: tender.criteria[2].requirementGroups[0].requirements[0]."
+                                     "title =Product has to be manufactured in the EU",
+                            "dataType": "boolean",
+                            "status": "active",
+                            "datePublished": operation_date,
+                            "expectedValue": True
+                        }, {
+                            "id": "e95d0bce-acf6-4873-867f-7a26a6935146",
+                            "title": "create CNonPN: tender.criteria[2].requirementGroups[0]..requirements[1]."
+                                     "title =Country of origin",
+                            "dataType": "string",
+                            "status": "active",
+                            "datePublished": operation_date
+                        }]
+                    }, {
+                        "id": "c1021836-1fe1-49e1-8286-42badf1b62aa",
+                        "description": "create CNonPN: tender.criteria[2].requirementGroups[1].description",
+                        "requirements": [{
+                            "id": "0cef779c-9039-4a87-838d-1f8775a14f57",
+                            "title": "create CNonPN: tender.criteria[2].requirementGroups[1].requirements[0]."
+                                     "title =Product has to be manufactured in the EU",
+                            "dataType": "boolean",
+                            "status": "active",
+                            "datePublished": operation_date,
+                            "expectedValue": True
+                        }, {
+                            "id": "53cade1e-112a-441e-a2d0-64c2bc547f43",
+                            "title": "create CNonPN: tender.criteria[2].requirementGroups[1]..requirements[1]."
+                                     "title =Country of origin",
+                            "dataType": "string",
+                            "status": "active",
+                            "datePublished": operation_date
+                        }]
+                    }],
+                    "relatesTo": "tenderer",
+                    "classification": {
+                        "scheme": "ESPD",
+                        "id": "CRITERION.EXCLUSION.NATIONAL.OTHER"
+                    }
+                }, {
+                    "id": "a8168d9a-34c8-44b7-8a59-d126d770ffa2",
+                    "title": "create CNonPN: tender.criteria[3].title",
+                    "source": "tenderer",
+                    "description": "create CNonPN: tender.criteria[3].description =A minimum product warranty "
+                                   "of 1 year is required for all bids 2",
+                    "requirementGroups": [{
+                        "id": "1992b2ca-4ac2-43c2-b1ef-90d41860c718",
+                        "description": "create CNonPN: tender.criteria[3].requirementGroups[0].description",
+                        "requirements": [{
+                            "id": "aaa2e373-2fee-4da4-a153-16c89127a633",
+                            "title": "create CNonPN: tender.criteria[3].requirementGroups[0].requirements[0]."
+                                     "title = The number of years for proposed product warranty",
+                            "dataType": "number",
+                            "status": "active",
+                            "datePublished": operation_date,
+                            "period": {
+                                "startDate": period[0],
+                                "endDate": period[1]
+                            },
+                            "minValue": 1.000,
+                            "maxValue": 3.000
+                        }]
+                    }],
+                    "relatesTo": "item",
+                    "relatedItem": first_item_id,
+                    "classification": {
+                        "scheme": "ESPD",
+                        "id": "CRITERION.OTHER.EO_DATA.RELIES_ON_OTHER_CAPACITIES"
+                    }
+                }, {
+                    "id": "a5569789-616d-407b-844e-8974611db63d",
+                    "title": "create CNonPN: tender.criteria[4].title",
+                    "source": "tenderer",
+                    "description": "create CNonPN: tender.criteria[4].description",
+                    "requirementGroups": [{
+                        "id": "e2e4291b-7e9c-401c-b9a6-2ec6bee0c85c",
+                        "description": "create CNonPN: tender.criteria[4].requirementGroups[0].description",
+                        "requirements": [{
+                            "id": "4d104276-47fc-4d93-a694-444457b825e4",
+                            "title": "create CNonPN: tender.criteria[4].requirementGroups[0].requirements[0]."
+                                     "title =Country of origin",
+                            "dataType": "string",
+                            "status": "active",
+                            "datePublished": operation_date
+                        }]
+                    }],
+                    "relatesTo": "tender",
+                    "classification": {
+                        "scheme": "ESPD",
+                        "id": "CRITERION.EXCLUSION.NATIONAL.OTHER"
+                    }
+                }, {
+                    "id": "dd056608-225f-4e1b-9e22-e8b927f50678",
+                    "title": "create CNonPN: tender.criteria[4].title",
+                    "source": "tenderer",
+                    "description": "create CNonPN: tender.criteria[4].description",
+                    "requirementGroups": [{
+                        "id": "c6f455a8-dcd3-40ae-8518-c07bc68603c0",
+                        "description": "create CNonPN: tender.criteria[4].requirementGroups[0].description",
+                        "requirements": [{
+                            "id": "9529530c-bdeb-45db-b559-aa9f5fba7b05",
+                            "title": "create CNonPN: tender.criteria[4].requirementGroups[0].requirements[0]."
+                                     "title =Country of origin",
+                            "dataType": "string",
+                            "status": "active",
+                            "datePublished": operation_date
+                        }]
+                    }],
+                    "relatesTo": "tender",
+                    "classification": {
+                        "scheme": "ESPD",
+                        "id": "CRITERION.OTHER.EO_DATA.RELIES_ON_OTHER_CAPACITIES"
+                    }
+                }],
+                "conversions": [{
+                    "id": "1e49348e-1a13-409e-95f8-371cb7430a6a",
+                    "relatesTo": "requirement",
+                    "relatedItem": "7bcf3819-a328-4560-b256-24c89b70d436",
+                    "rationale": "create CNonPN: tender.conversions[1].rationale",
+                    "description": "create CNonPN: tender.conversions[1].description",
+                    "coefficients": [{
+                        "id": "3344c418-c0cb-40f5-86bd-2e7aab5d5e19",
+                        "value": False,
+                        "coefficient": 1
+                    }]
+                }, {
+                    "id": "b61c8d3f-54cb-48cf-94d3-6547db1b6584",
+                    "relatesTo": "requirement",
+                    "relatedItem": "5b761cae-5c26-4266-b81d-9178232e931e",
+                    "rationale": "create CNonPN: tender.conversions[3].rationale",
+                    "description": "create CNonPN: tender.conversions[3].description",
+                    "coefficients": [{
+                        "id": "8e1c5c9d-9fd5-4524-8ee7-1dc69c392e25",
+                        "value": 1.000,
+                        "coefficient": 1
+                    }, {
+                        "id": "eea59dc3-cf39-43e4-85ae-c25f4207c378",
+                        "value": 2.000,
+                        "coefficient": 1
+                    }, {
+                        "id": "2ef0e48a-5359-4c2b-b4a7-e2e209239173",
+                        "value": 3.000,
+                        "coefficient": 0.93
+                    }]
+                }, {
+                    "id": "602f52cb-6257-479b-b637-85bd1b94a3cf",
+                    "relatesTo": "requirement",
+                    "relatedItem": "aaa2e373-2fee-4da4-a153-16c89127a633",
+                    "rationale": "create CNonPN: tender.conversions[6].rationale",
+                    "description": "create CNonPN: tender.conversions[6].description",
+                    "coefficients": [{
+                        "id": "0b1fd4bc-dcb9-460d-89fa-ce44387b76ef",
+                        "value": 1.000,
+                        "coefficient": 1
+                    }, {
+                        "id": "c9bcba0e-f235-40c4-9023-1c4e7813e7a0",
+                        "value": 2.000,
+                        "coefficient": 1
+                    }, {
+                        "id": "998f9ae4-86a0-4c80-8973-f7d7cdc78351",
+                        "value": 3.000,
+                        "coefficient": 0.93
+                    }]
+                }, {
+                    "id": "df048f38-c201-4aae-a529-a721a7687430",
+                    "relatesTo": "requirement",
+                    "relatedItem": "9529530c-bdeb-45db-b559-aa9f5fba7b05",
+                    "rationale": "create CNonPN: tender.conversions[6].rationale",
+                    "description": "create CNonPN: tender.conversions[6].description",
+                    "coefficients": [{
+                        "id": "49f34ab3-c0ad-4509-b77f-ead756c50419",
+                        "value": "option_1",
+                        "coefficient": 1
+                    }, {
+                        "id": "39819b5c-2c5c-40db-af46-2e6b6b2f0dcb",
+                        "value": "option_2",
+                        "coefficient": 1
+                    }, {
+                        "id": "0cda7c91-e74d-4f57-91bd-cae195078dda",
+                        "value": "option_3",
+                        "coefficient": 0.93
+                    }]
+                }],
+                "items": [{
+                    "id": first_item_id,
+                    "internalId": "create Pn: tender.items[0].internalId",
+                    "description": "create Pn: tender.items[0].description",
+                    "classification": {
+                        "scheme": "CPV",
+                        "id": get_value_by_first_item_cpv_code[0],
+                        "description": get_value_by_first_item_cpv_code[1]
+                    },
+                    "additionalClassifications": [{
+                        "scheme": "CPVS",
+                        "id": get_value_by_first_item_cpvs_code[0],
+                        "description": get_value_by_first_item_cpvs_code[2]
+                    }],
+                    "quantity": 0.010,
+                    "unit": {
+                        "name": get_value_by_first_item_unit_id[1],
+                        "id": get_value_by_first_item_unit_id[0]
+                    },
+                    "relatedLot": first_lot_id
+                }, {
+                    "id": second_item_id,
+                    "internalId": "create Pn: tender.items[1].internalId",
+                    "description": "create Pn: tender.items[1].description",
+                    "classification": {
+                        "scheme": "CPV",
+                        "id": get_value_by_second_item_cpv_code[0],
+                        "description": get_value_by_second_item_cpv_code[1]
+                    },
+                    "additionalClassifications": [{
+                        "scheme": "CPVS",
+                        "id": get_value_by_second_item_cpvs_code[0],
+                        "description": get_value_by_second_item_cpvs_code[2]
+                    }],
+                    "quantity": 0.010,
+                    "unit": {
+                        "id": get_value_by_first_item_unit_id[0],
+                        "name": get_value_by_first_item_unit_id[1]
+                    },
+                    "relatedLot": second_lot_id
+                }],
+                "lots": [{
+                    "id": first_lot_id,
+                    "internalId": "create Pn: tender.lots[0].internalId",
+                    "title": "create Pn: tender.lots[0].title",
+                    "description": "create Pn: tender.lots[0].internalId.description",
+                    "status": "active",
+                    "statusDetails": "empty",
+                    "value": {
+                        "amount": 1500.00,
+                        "currency": "EUR"
+                    },
+                    "contractPeriod": {
+                        "startDate": contract_period[0],
+                        "endDate": contract_period[1]
+                    },
+                    "placeOfPerformance": {
+                        "address": {
+                            "streetAddress": "create Pn: tender.lots[0].placeOfPerformance.address.streetAddress",
+                            "postalCode": "create Pn: tender.lots[0].placeOfPerformance.address.postalCode",
+                            "addressDetails": {
+                                "country": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["country"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['uri']
+                                },
+                                "region": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["region"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['uri']
+                                },
+                                "locality": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["locality"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['uri']
+                                }
+                            }
+                        },
+                        "description": "create Pn: tender.lots[0].placeOfPerformance.description"
+                    },
+                    "hasOptions": False,
+                    "hasRecurrence": False,
+                    "hasRenewal": False
+                }, {
+                    "id": second_lot_id,
+                    "internalId": "create Pn: tender.lots[1].internalId",
+                    "title": "create Pn: tender.lots[1].title",
+                    "description": "create Pn: tender.lots[1].internalId.description",
+                    "status": "active",
+                    "statusDetails": "empty",
+                    "value": {
+                        "amount": 150.00,
+                        "currency": "EUR"
+                    },
+                    "contractPeriod": {
+                        "startDate": contract_period[0],
+                        "endDate": contract_period[1]
+                    },
+                    "placeOfPerformance": {
+                        "address": {
+                            "streetAddress": "create Pn: tender.lots[1].placeOfPerformance.address.streetAddress",
+                            "postalCode": "create Pn: tender.lots[1].placeOfPerformance.address.postalCode",
+                            "addressDetails": {
+                                "country": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["country"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['uri']
+                                },
+                                "region": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["region"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['uri']
+                                },
+                                "locality": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["locality"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['uri']
+                                }
+                            }
+                        },
+                        "description": "create Pn: tender.lots[1].placeOfPerformance.description"
+                    },
+                    "hasOptions": False,
+                    "hasRecurrence": False,
+                    "hasRenewal": False
+                }],
+                "lotGroups": [{
+                    "optionToCombine": False
+                }],
+                "tenderPeriod": {
+                    "startDate": enquiry_and_tender_period[2],
+                    "endDate": enquiry_and_tender_period[3]
+                },
+                "enquiryPeriod": {
+                    "startDate": enquiry_and_tender_period[0],
+                    "endDate": enquiry_and_tender_period[1]
+                },
+                "auctionPeriod": {
+                    "startDate": auction_date
+                },
+                "hasEnquiries": False,
+                "amendments": [{
+                    "id": self.amendment_id,
+                    "type": "cancellation",
+                    "status": "pending",
+                    "relatesTo": "tender",
+                    "relatedItem": ev_id,
+                    "date": period[0],
+                    "description": "cancel_tender: amendments[0].description",
+                    "rationale": "cancel_tender: amendments[0].rationale",
+                    "documents": [{
+                        "documentType": "cancellationDetails",
+                        "id": self.document_five_was_uploaded,
+                        "title": "cancel_tender: amendments[0].documents[0].title",
+                        "description": "cancel_tender: amendments[0].documents[0].description",
+                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                               f"{self.document_five_was_uploaded}",
+                        "datePublished": period[0]
+                    }]
+                }],
+                "documents": [{
+                    "id": self.document_one_was_uploaded,
+                    "documentType": "contractArrangements",
+                    "title": "create Pn: tender.documents[0].title",
+                    "description": "create Pn: tender.documents[0].description",
+                    "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/{self.document_one_was_uploaded}",
+                    "datePublished": operation_date,
+                    "relatedLots": [first_lot_id]
+                }, {
+                    "id": self.document_two_was_uploaded,
+                    "documentType": "contractArrangements",
+                    "title": "create Pn: tender.documents[1].title",
+                    "description": "create Pn: tender.documents[1].description",
+                    "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                           f"{self.document_two_was_uploaded}",
+                    "datePublished": operation_date,
+                    "relatedLots": [second_lot_id]
+                }, {
+                    "id": self.document_three_was_uploaded,
+                    "documentType": "illustration",
+                    "title": "create CNonPN: tender.documents[2].title",
+                    "description": "create CNonPN: tender.documents[2].description",
+                    "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                           f"{self.document_three_was_uploaded}",
+                    "datePublished": operation_date,
+                    "relatedLots": [first_lot_id]
+                }],
+                "awardCriteria": "ratedCriteria",
+                "awardCriteriaDetails": "automated",
+                "submissionMethod": ["electronicSubmission"],
+                "submissionMethodDetails": submission_method_details,
+                "submissionMethodRationale": submission_method_rationale,
+                "requiresElectronicCatalogue": False,
+                "procurementMethodModalities": ["electronicAuction"],
+                "electronicAuctions": {
+                    "details": [{
+                        "id": "2cbf1162-4e8b-48d7-b64b-680b5fa6b350",
+                        "relatedLot": first_lot_id,
+                        "auctionPeriod": {
+                            "startDate": auction_date
+                        },
+                        "electronicAuctionModalities": [{
+                            "url": f"http://auction.eprocurement.systems/auctions/{ev_id}/{first_lot_id}",
+                            "eligibleMinimumDifference": {
+                                "amount": 100.00,
+                                "currency": "EUR"
+                            }
+                        }]
+                    }, {
+                        "id": "c19b09d5-3dcb-43a8-a1fc-096948abb403",
+                        "relatedLot": second_lot_id,
+                        "auctionPeriod": {
+                            "startDate": auction_date
+                        },
+                        "electronicAuctionModalities": [{
+                            "url": f"http://auction.eprocurement.systems/auctions/{ev_id}/{second_lot_id}",
+                            "eligibleMinimumDifference": {
+                                "amount": 10.00,
+                                "currency": "EUR"
+                            }
+                        }]
+                    }]
+                },
+                "procurementMethodRationale": "create CNonPN: tender.procurementMethodRationale"
+            },
+            "hasPreviousNotice": True,
+            "purposeOfNotice": {
+                "isACallForCompetition": True
+            },
+            "relatedProcesses": [{
+                "id": "12a3ea63-ceca-11eb-8aed-69d06bed4d57",
+                "relationship": ["parent"],
+                "scheme": "ocid",
+                "identifier": cp_id,
+                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+            }, {
+                "id": "164cf531-ceca-11eb-8aed-69d06bed4d57",
+                "relationship": ["planning"],
+                "scheme": "ocid",
+                "identifier": pn_id,
+                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
+            }]
+        }
+
         json_notice_compiled_release_ms = {
             "ocid": cp_id,
             "id": f"{cp_id}-{ev_id[32:45]}",
@@ -6716,11 +3453,11 @@ class CN:
         }
         json_notice_compiled_release_ev = {
             "ocid": ev_id,
-            "id": f"{ev_id}-{ev_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(ev_id[32:45]))[0]}",
+            "id": f"{ev_id}-{period_for_amendment[1]}",
+            "date": period_for_amendment[0],
             "tag": ["tender"],
-            "language": self.lang,
             "initiationType": "tender",
+            "language": self.lang,
             "tender": {
                 "id": "bf029021-aeb7-403d-b301-b8823855f42a",
                 "title": "Evaluation",
@@ -7192,6 +3929,25 @@ class CN:
                     "startDate": auction_date
                 },
                 "hasEnquiries": False,
+                "amendments": [{
+                    "id": self.amendment_id,
+                    "type": "cancellation",
+                    "status": "pending",
+                    "relatesTo": "tender",
+                    "relatedItem": ev_id,
+                    "date": period[0],
+                    "description": "cancel_tender: amendments[0].description",
+                    "rationale": "cancel_tender: amendments[0].rationale",
+                    "documents": [{
+                        "documentType": "cancellationDetails",
+                        "id": self.document_five_was_uploaded,
+                        "title": "cancel_tender: amendments[0].documents[0].title",
+                        "description": "cancel_tender: amendments[0].documents[0].description",
+                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                               f"{self.document_five_was_uploaded}",
+                        "datePublished": period[0]
+                    }]
+                }],
                 "documents": [{
                     "id": self.document_one_was_uploaded,
                     "documentType": "contractArrangements",
@@ -7205,7 +3961,8 @@ class CN:
                     "documentType": "contractArrangements",
                     "title": "create Pn: tender.documents[1].title",
                     "description": "create Pn: tender.documents[1].description",
-                    "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/{self.document_two_was_uploaded}",
+                    "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                           f"{self.document_two_was_uploaded}",
                     "datePublished": operation_date,
                     "relatedLots": [second_lot_id]
                 }, {
@@ -7319,6 +4076,12 @@ class CN:
             f"VALUES ('{cp_id}', '{ev_id}', '{ev_id + '-' + ev_id[32:45]}','{json.dumps(json_notice_release_ev)}',"
             f"{ev_id[32:45]},'EV');").one()
         key_space_ocds.execute(
+            f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
+            f"VALUES ('{cp_id}', '{ev_id}', '{ev_id + '-' + str(period_for_amendment[1])}',"
+            f"'{json.dumps(json_notice_release_ev_new)}',"
+            f"{period_for_amendment[1]},'EV');").one()
+
+        key_space_ocds.execute(
             f"INSERT INTO notice_compiled_release (cp_id,oc_id, json_data, publish_date, release_date, "
             f"release_id, stage, status) VALUES ('{cp_id}', '{cp_id}', '{json.dumps(json_notice_compiled_release_ms)}',"
             f"{ev_id[32:45]},{ev_id[32:45]}, '{cp_id + '-' + ev_id[32:45]}','', 'active');").one()
@@ -7326,24 +4089,35 @@ class CN:
             f"INSERT INTO notice_compiled_release (cp_id,oc_id, json_data, publish_date, release_date, "
             f"release_id, stage, status) VALUES ('{cp_id}', '{pn_id}', '{json.dumps(json_notice_compiled_release_pn)}',"
             f"{ev_id[32:45]},{ev_id[32:45]}, '{pn_id + '-' + ev_id[32:45]}','PN', 'active');").one()
+        key_space_revision.execute(f"INSERT INTO amendments (cpid, ocid, id, data) "
+                                   f"VALUES ('{cp_id}', '{ev_id}', {self.amendment_id}, "
+                                   f"'{json.dumps(json_amendments)}');").one()
+
+        key_space_ocds.execute(f"INSERT INTO notice_offset (cp_id,release_date, stage, status) "
+                               f"VALUES ('{cp_id}', {period_for_amendment[1]}, 'EV', 'active');").one()
+
         key_space_ocds.execute(
             f"INSERT INTO notice_compiled_release (cp_id,oc_id, json_data, publish_date, release_date, "
             f"release_id, stage, status) VALUES ('{cp_id}', '{ev_id}', '{json.dumps(json_notice_compiled_release_ev)}',"
-            f"{ev_id[32:45]},{ev_id[32:45]}, '{ev_id + '-' + ev_id[32:45]}','EV', 'active');").one()
+            f"{period[2]},{period_for_amendment[1]}, '{ev_id + '-' + str(period_for_amendment[1])}','EV', "
+            f"'active');").one()
         record = f"http://dev.public.eprocurement.systems/tenders/{cp_id}"
         ms_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
         pn_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
         ev_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{ev_id}"
-        return cp_id, pn_id, pn_token, ev_id, record, ms_release, pn_release, ev_release
+        return cp_id, pn_id, pn_token, ev_id, record, ms_release, pn_release, ev_release, self.amendment_id, \
+               self.amendment_token
+
 
     @allure.step('Insert CnOnPn: based on FS: treasury - obligatory, based on EI: without items - obligatory')
-    def insert_cnonpn_obligatory(self, first_lot_id, second_lot_id, first_item_id, second_item_id,
-                                 second_tender, second_enquiry):
+    def insert_cancel_tender_obligatory(self, first_lot_id, second_lot_id, first_item_id, second_item_id,
+                                        second_tender, second_enquiry):
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         key_space_ocds = cluster.connect('ocds')
         key_space_clarification = cluster.connect('clarification')
         key_space_submission = cluster.connect('submission')
+        key_space_revision = cluster.connect('revision')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         ei_id = prepared_cp_id()
         fs_id = prepared_fs_oc_id(ei_id)
@@ -7352,6 +4126,7 @@ class CN:
         pn_token = uuid4()
         ev_id = prepared_cn_oc_id(cp_id)
         period = get_period()
+        period_for_amendment = get_period_for_amendment()
         contract_period = get_contract_period()
         enquiry_and_tender_period = create_enquiry_and_tender_period(
             second_enquiry=second_enquiry,
@@ -7402,23 +4177,21 @@ class CN:
         procurement_method_details_from_mdm = data_pn["data"]["tender"]["procurementMethodDetails"]
         eligibility_criteria_from_mdm = data_pn["data"]["tender"]["eligibilityCriteria"]
         json_orchestrator_context = {
-            "operationId": f"{uuid4()}",
-            "requestId": f"{uuid1()}",
             "cpid": cp_id,
             "ocid": ev_id,
-            "ocidCn": ev_id,
-            "stage": "EV",
-            "prevStage": "PN",
-            "processType": "updateCN",
-            "operationType": "createCNonPN",
-            "phase": "clarification",
+            "operationId": f"{uuid4()}",
+            "requestId": f"{uuid4()}",
             "owner": owner,
+            "stage": "EV",
+            "prevStage": "EV",
+            "phase": "clarification",
+            "processType": "cancelTender",
+            "operationType": "tenderCancellation",
             "country": self.country,
             "language": self.lang,
             "pmd": self.pmd,
-            "token": f"{pn_token}",
-            "startDate": period[0],
-            "timeStamp": period[2],
+            "startDate": period_for_amendment[0],
+            "timeStamp": period_for_amendment[1],
             "isAuction": False
         }
 
@@ -7719,7 +4492,17 @@ class CN:
                 ]
             }
         }
-
+        json_amendments = {
+            "id": self.amendment_id,
+            "date": period_for_amendment[0],
+            "rationale": "cancel_tender: amendments[0].rationale",
+            "status": "pending",
+            "type": "cancellation",
+            "relatesTo": "tender",
+            "relatedItem": ev_id,
+            "token": self.amendment_token,
+            "owner": "445f6851-c908-407d-9b45-14b92f3e964b"
+        }
         json_notice_release_ms = {
             "ocid": cp_id,
             "id": f"{cp_id}-{ev_id[32:45]}",
@@ -8211,6 +4994,223 @@ class CN:
                 "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
             }]
         }
+        json_notice_release_ev_new = {
+            "ocid": ev_id,
+            "id": f"{ev_id}-{period_for_amendment[1]}",
+            "date": period_for_amendment[0],
+            "tag": ["tender"],
+            "initiationType": "tender",
+            "language": self.lang,
+            "tender": {
+                "id": "c36f9952-06d5-41ef-9fe6-36722f1da414",
+                "title": "Evaluation",
+                "description": "Evaluation stage of contracting process",
+                "status": "active",
+                "statusDetails": "clarification",
+                "items": [{
+                    "id": first_item_id,
+                    "description": "create Pn: tender.items[0].description",
+                    "classification": {
+                        "scheme": "CPV",
+                        "id": get_value_by_first_item_cpv_code[0],
+                        "description": get_value_by_first_item_cpv_code[1]
+                    },
+                    "additionalClassifications": [{
+                        "scheme": "CPVS",
+                        "id": get_value_by_first_item_cpvs_code[0],
+                        "description": get_value_by_first_item_cpvs_code[2]
+                    }],
+                    "quantity": 0.010,
+                    "unit": {
+                        "name": get_value_by_first_item_unit_id[1],
+                        "id": get_value_by_first_item_unit_id[0]
+                    },
+                    "relatedLot": first_lot_id
+                }, {
+                    "id": second_item_id,
+                    "internalId": "create Pn: tender.items[1].internalId",
+                    "description": "create Pn: tender.items[1].description",
+                    "classification": {
+                        "scheme": "CPV",
+                        "id": get_value_by_second_item_cpv_code[0],
+                        "description": get_value_by_second_item_cpv_code[1]
+                    },
+                    "additionalClassifications": [{
+                        "scheme": "CPVS",
+                        "id": get_value_by_second_item_cpvs_code[0],
+                        "description": get_value_by_second_item_cpvs_code[2]
+                    }],
+                    "quantity": 0.010,
+                    "unit": {
+                        "id": get_value_by_first_item_unit_id[0],
+                        "name": get_value_by_first_item_unit_id[1]
+                    },
+                    "relatedLot": second_lot_id
+                }],
+                "lots": [{
+                    "id": first_lot_id,
+                    "title": "create Pn: tender.lots[0].title",
+                    "description": "create Pn: tender.lots[0].internalId.description",
+                    "status": "active",
+                    "statusDetails": "empty",
+                    "value": {
+                        "amount": 1500.00,
+                        "currency": "EUR"
+                    },
+                    "contractPeriod": {
+                        "startDate": contract_period[0],
+                        "endDate": contract_period[1]
+                    },
+                    "placeOfPerformance": {
+                        "address": {
+                            "streetAddress": "create Pn: tender.lots[0].placeOfPerformance.address.streetAddress",
+                            "addressDetails": {
+                                "country": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["country"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['uri']
+                                },
+                                "region": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["region"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['uri']
+                                },
+                                "locality": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["locality"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['uri']
+                                }
+                            }
+                        }
+                    },
+                    "hasOptions": False,
+                    "hasRecurrence": False,
+                    "hasRenewal": False
+                }, {
+                    "id": second_lot_id,
+                    "title": "create Pn: tender.lots[1].title",
+                    "description": "create Pn: tender.lots[1].internalId.description",
+                    "status": "active",
+                    "statusDetails": "empty",
+                    "value": {
+                        "amount": 150.00,
+                        "currency": "EUR"
+                    },
+                    "contractPeriod": {
+                        "startDate": contract_period[0],
+                        "endDate": contract_period[1]
+                    },
+                    "placeOfPerformance": {
+                        "address": {
+                            "streetAddress": "create Pn: tender.lots[1].placeOfPerformance.address.streetAddress",
+                            "addressDetails": {
+                                "country": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["country"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["country"]['uri']
+                                },
+                                "region": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["region"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["region"]['uri']
+                                },
+                                "locality": {
+                                    "scheme": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['scheme'],
+                                    "id": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['id'],
+                                    "description": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance'][
+                                        "address"]["addressDetails"]["locality"]['description'],
+                                    "uri": data_pn["data"]["tender"]["lots"][1]['placeOfPerformance']["address"][
+                                        "addressDetails"]["locality"]['uri']
+                                }
+                            }
+                        }
+                    },
+                    "hasOptions": False,
+                    "hasRecurrence": False,
+                    "hasRenewal": False
+                }],
+                "lotGroups": [{
+                    "optionToCombine": False
+                }],
+                "tenderPeriod": {
+                    "startDate": enquiry_and_tender_period[2],
+                    "endDate": enquiry_and_tender_period[3]
+                },
+                "enquiryPeriod": {
+                    "startDate": enquiry_and_tender_period[0],
+                    "endDate": enquiry_and_tender_period[1]
+                },
+                "hasEnquiries": False,
+                "amendments": [{
+                    "id": self.amendment_id,
+                    "type": "cancellation",
+                    "status": "pending",
+                    "relatesTo": "tender",
+                    "relatedItem": ev_id,
+                    "date": period[0],
+                    "rationale": "cancel_tender: amendments[0].rationale"
+                }],
+                "documents": [{
+                    "id": self.document_one_was_uploaded,
+                    "documentType": "contractArrangements",
+                    "title": "create Pn: tender.documents[0].title",
+                    "description": "create Pn: tender.documents[0].description",
+                    "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/{self.document_one_was_uploaded}",
+                    "datePublished": operation_date,
+                    "relatedLots": [first_lot_id]
+                }],
+                "awardCriteria": "ratedCriteria",
+                "awardCriteriaDetails": "automated",
+                "submissionMethod": ["electronicSubmission"],
+                "submissionMethodDetails": submission_method_details,
+                "submissionMethodRationale": submission_method_rationale,
+                "requiresElectronicCatalogue": False
+            },
+            "hasPreviousNotice": True,
+            "purposeOfNotice": {
+                "isACallForCompetition": True
+            },
+            "relatedProcesses": [{
+                "id": "12a3ea63-ceca-11eb-8aed-69d06bed4d57",
+                "relationship": ["parent"],
+                "scheme": "ocid",
+                "identifier": cp_id,
+                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+            }, {
+                "id": "164cf531-ceca-11eb-8aed-69d06bed4d57",
+                "relationship": ["planning"],
+                "scheme": "ocid",
+                "identifier": pn_id,
+                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
+            }]
+        }
         json_notice_compiled_release_ms = {
             "ocid": cp_id,
             "id": f"{cp_id}-{ev_id[32:45]}",
@@ -8496,11 +5496,11 @@ class CN:
         }
         json_notice_compiled_release_ev = {
             "ocid": ev_id,
-            "id": f"{ev_id}-{ev_id[32:45]}",
-            "date": f"{get_human_date_in_utc_format(int(ev_id[32:45]))[0]}",
+            "id": f"{ev_id}-{period_for_amendment[1]}",
+            "date": period_for_amendment[0],
             "tag": ["tender"],
-            "language": self.lang,
             "initiationType": "tender",
+            "language": self.lang,
             "tender": {
                 "id": "bf029021-aeb7-403d-b301-b8823855f42a",
                 "title": "Evaluation",
@@ -8667,12 +5667,20 @@ class CN:
                     "endDate": enquiry_and_tender_period[1]
                 },
                 "hasEnquiries": False,
+                "amendments": [{
+                    "id": self.amendment_id,
+                    "type": "cancellation",
+                    "status": "pending",
+                    "relatesTo": "tender",
+                    "relatedItem": ev_id,
+                    "date": period[0],
+                    "rationale": "cancel_tender: amendments[0].rationale"
+                }],
                 "documents": [{
-                    "id": self.document_three_was_uploaded,
-                    "documentType": "illustration",
-                    "title": "create CNonPN: tender.documents[2].title",
-                    "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
-                           f"{self.document_three_was_uploaded}",
+                    "id": self.document_one_was_uploaded,
+                    "documentType": "contractArrangements",
+                    "title": "create Pn: tender.documents[0].title",
+                    "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/{self.document_one_was_uploaded}",
                     "datePublished": operation_date
                 }],
                 "awardCriteria": "ratedCriteria",
@@ -8741,6 +5749,12 @@ class CN:
             f"VALUES ('{cp_id}', '{ev_id}', '{ev_id + '-' + ev_id[32:45]}','{json.dumps(json_notice_release_ev)}',"
             f"{ev_id[32:45]},'EV');").one()
         key_space_ocds.execute(
+            f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
+            f"VALUES ('{cp_id}', '{ev_id}', '{ev_id + '-' + str(period_for_amendment[1])}',"
+            f"'{json.dumps(json_notice_release_ev_new)}',"
+            f"{period_for_amendment[1]},'EV');").one()
+
+        key_space_ocds.execute(
             f"INSERT INTO notice_compiled_release (cp_id,oc_id, json_data, publish_date, release_date, "
             f"release_id, stage, status) VALUES ('{cp_id}', '{cp_id}', '{json.dumps(json_notice_compiled_release_ms)}',"
             f"{ev_id[32:45]},{ev_id[32:45]}, '{cp_id + '-' + ev_id[32:45]}','', 'active');").one()
@@ -8748,12 +5762,21 @@ class CN:
             f"INSERT INTO notice_compiled_release (cp_id,oc_id, json_data, publish_date, release_date, "
             f"release_id, stage, status) VALUES ('{cp_id}', '{pn_id}', '{json.dumps(json_notice_compiled_release_pn)}',"
             f"{ev_id[32:45]},{ev_id[32:45]}, '{pn_id + '-' + ev_id[32:45]}','PN', 'active');").one()
+        key_space_revision.execute(f"INSERT INTO amendments (cpid, ocid, id, data) "
+                                   f"VALUES ('{cp_id}', '{ev_id}', {self.amendment_id}, "
+                                   f"'{json.dumps(json_amendments)}');").one()
+
+        key_space_ocds.execute(f"INSERT INTO notice_offset (cp_id,release_date, stage, status) "
+                               f"VALUES ('{cp_id}', {period_for_amendment[1]}, 'EV', 'active');").one()
+
         key_space_ocds.execute(
             f"INSERT INTO notice_compiled_release (cp_id,oc_id, json_data, publish_date, release_date, "
             f"release_id, stage, status) VALUES ('{cp_id}', '{ev_id}', '{json.dumps(json_notice_compiled_release_ev)}',"
-            f"{ev_id[32:45]},{ev_id[32:45]}, '{ev_id + '-' + ev_id[32:45]}','EV', 'active');").one()
+            f"{period[2]},{period_for_amendment[1]}, '{ev_id + '-' + str(period_for_amendment[1])}','EV', "
+            f"'active');").one()
         record = f"http://dev.public.eprocurement.systems/tenders/{cp_id}"
         ms_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
         pn_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
         ev_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{ev_id}"
-        return cp_id, pn_id, pn_token, ev_id, record, ms_release, pn_release, ev_release
+        return cp_id, pn_id, pn_token, ev_id, record, ms_release, pn_release, ev_release, self.amendment_id, \
+               self.amendment_token
