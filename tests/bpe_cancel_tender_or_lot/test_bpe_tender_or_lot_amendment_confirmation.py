@@ -1,4 +1,3 @@
-import json
 from uuid import uuid4
 import requests
 from deepdiff import DeepDiff
@@ -48,11 +47,11 @@ class TestCheckOnThePossibilityOfTenderAmendmentConfirmationForTenderInActiveCla
             ev_id=cancel_tender_response[3]
         )
         ConfirmTenderAmendment.message_from_kafka = cancel_tender.get_message_from_kafka()
-        ConfirmTenderAmendment.successfully_tender_amendment_confirmation = cancel_tender. \
+        ConfirmTenderAmendment.successfully_tender_amendment_confirmation = cancel_tender.\
             check_on_that_message_is_successfully_tender_amendment_confirmation(
-            cp_id=cancel_tender_response[0],
-            ev_id=cancel_tender_response[3]
-        )
+                cp_id=cancel_tender_response[0],
+                ev_id=cancel_tender_response[3]
+            )
         ConfirmTenderAmendment.cp_id = cancel_tender_response[0]
         ConfirmTenderAmendment.ev_id = cancel_tender_response[3]
         ConfirmTenderAmendment.pn_id = cancel_tender_response[1]
@@ -220,9 +219,9 @@ class TestCheckOnThePossibilityOfTenderAmendmentConfirmationForTenderInActiveCla
         ConfirmTenderAmendment.message_from_kafka = cancel_tender.get_message_from_kafka()
         ConfirmTenderAmendment.successfully_tender_amendment_confirmation = cancel_tender. \
             check_on_that_message_is_successfully_tender_amendment_confirmation(
-            cp_id=cancel_tender_response[0],
-            ev_id=cancel_tender_response[3]
-        )
+                cp_id=cancel_tender_response[0],
+                ev_id=cancel_tender_response[3]
+            )
         ConfirmTenderAmendment.cp_id = cancel_tender_response[0]
         ConfirmTenderAmendment.ev_id = cancel_tender_response[3]
         ConfirmTenderAmendment.pn_id = cancel_tender_response[1]
@@ -475,6 +474,7 @@ class TestCheckOnThePossibilityOfLotAmendmentConfirmationForTenderInActiveClarif
             expected_result=str(expected_result),
             actual_result=str(actual_result)
         )
+
 
 class TestCheckOnThePossibilityOfLotAmendmentConfirmationForTenderInActiveClarificationTenderStatus2(object):
     # Check on the possibility of lot amendment confirmation  for tender in active clarification tender state,
