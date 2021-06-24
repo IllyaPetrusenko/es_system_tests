@@ -1,6 +1,6 @@
 import uuid
 
-cancel_tender_payload_full_data_model = {
+cancel_tender_or_lot_payload_full_data_model = {
     "amendments": [
         {
             "rationale": "cancel_tender: amendments[0].rationale",
@@ -18,7 +18,7 @@ cancel_tender_payload_full_data_model = {
     ]
 }
 
-cancel_tender_payload_obligatory_data_model = {
+cancel_tender_or_lot_payload_obligatory_data_model = {
     "amendments": [
         {
             "rationale": "cancel_tender: amendments[0].rationale",
@@ -26,3 +26,6 @@ cancel_tender_payload_obligatory_data_model = {
         }
     ]
 }
+
+
+

@@ -4,10 +4,10 @@ import requests
 from deepdiff import DeepDiff
 from pytest_testrail.plugin import pytestrail
 from tests.conftest import CancelCn
-from tests.essences.cn import CN
+from tests.essences.cancel_tender import CancelTender
 from tests.iStorage import Document
-from tests.payloads.cancel_tender import cancel_tender_payload_full_data_model, \
-    cancel_tender_payload_obligatory_data_model
+from tests.payloads.cancel_tender import cancel_tender_or_lot_payload_obligatory_data_model, \
+    cancel_tender_or_lot_payload_full_data_model
 from useful_functions import compare_actual_result_and_expected_result
 
 
@@ -24,9 +24,9 @@ class TestCheckOnThePossibilityOfTenderCancellationWithFullDataModelInRequestBas
         second_item_id = f"{uuid4()}"
         document = Document(instance=instance)
         document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
-        payload = copy.deepcopy(cancel_tender_payload_full_data_model)
+        payload = copy.deepcopy(cancel_tender_or_lot_payload_full_data_model)
         payload['amendments'][0]['documents'][0]['id'] = document_one_was_uploaded
-        cn = CN(
+        cancel_tender = CancelTender(
             payload=payload,
             lang=language,
             country=country,
@@ -35,7 +35,7 @@ class TestCheckOnThePossibilityOfTenderCancellationWithFullDataModelInRequestBas
             cassandra_password=cassandra_password,
             pmd=pmd
         )
-        create_ev_response = cn.insert_cnonpn_full(
+        create_ev_response = cancel_tender.insert_cnonpn_full(
             first_lot_id=first_lot_id,
             second_lot_id=second_lot_id,
             first_item_id=first_item_id,
@@ -46,13 +46,13 @@ class TestCheckOnThePossibilityOfTenderCancellationWithFullDataModelInRequestBas
         CancelCn.ms_release_before_tender_cancelling = requests.get(url=create_ev_response[5]).json()
         CancelCn.pn_release_before_tender_cancelling = requests.get(url=create_ev_response[6]).json()
         CancelCn.ev_release_before_tender_cancelling = requests.get(url=create_ev_response[7]).json()
-        cancel_cn_response = cn.cancel_tender(
+        cancel_tender_response = cancel_tender.cancel_tender(
             cp_id=create_ev_response[0],
             ev_id=create_ev_response[3],
             pn_token=create_ev_response[2]
         )
-        CancelCn.message_from_kafka = cn.get_message_from_kafka()
-        CancelCn.successfully_cancel_tender = cn.check_on_that_message_is_successfully_cancel_tender(
+        CancelCn.message_from_kafka = cancel_tender.get_message_from_kafka()
+        CancelCn.successfully_cancel_tender = cancel_tender.check_on_that_message_is_successfully_cancel_tender(
             cp_id=create_ev_response[0],
             ev_id=create_ev_response[3]
         )
@@ -62,7 +62,7 @@ class TestCheckOnThePossibilityOfTenderCancellationWithFullDataModelInRequestBas
         CancelCn.pn_id = create_ev_response[1]
         assert compare_actual_result_and_expected_result(
             expected_result=str(202),
-            actual_result=str(cancel_cn_response.status_code)
+            actual_result=str(cancel_tender_response.status_code)
         )
 
     @pytestrail.case('27600')
@@ -147,8 +147,8 @@ class TestCheckOnThePossibilityOfTenderCancellationWithObligatoryDataModelInRequ
         second_lot_id = f"{uuid4()}"
         first_item_id = f"{uuid4()}"
         second_item_id = f"{uuid4()}"
-        payload = copy.deepcopy(cancel_tender_payload_obligatory_data_model)
-        cn = CN(
+        payload = copy.deepcopy(cancel_tender_or_lot_payload_obligatory_data_model)
+        cancel_tender = CancelTender(
             payload=payload,
             lang=language,
             country=country,
@@ -157,7 +157,7 @@ class TestCheckOnThePossibilityOfTenderCancellationWithObligatoryDataModelInRequ
             cassandra_password=cassandra_password,
             pmd=pmd
         )
-        create_ev_response = cn.insert_cnonpn_obligatory(
+        create_ev_response = cancel_tender.insert_cnonpn_obligatory(
             first_lot_id=first_lot_id,
             second_lot_id=second_lot_id,
             first_item_id=first_item_id,
@@ -168,13 +168,13 @@ class TestCheckOnThePossibilityOfTenderCancellationWithObligatoryDataModelInRequ
         CancelCn.ms_release_before_tender_cancelling = requests.get(url=create_ev_response[5]).json()
         CancelCn.pn_release_before_tender_cancelling = requests.get(url=create_ev_response[6]).json()
         CancelCn.ev_release_before_tender_cancelling = requests.get(url=create_ev_response[7]).json()
-        cancel_cn_response = cn.cancel_tender(
+        cancel_cn_response = cancel_tender.cancel_tender(
             cp_id=create_ev_response[0],
             ev_id=create_ev_response[3],
             pn_token=create_ev_response[2]
         )
-        CancelCn.message_from_kafka = cn.get_message_from_kafka()
-        CancelCn.successfully_cancel_tender = cn.check_on_that_message_is_successfully_cancel_tender(
+        CancelCn.message_from_kafka = cancel_tender.get_message_from_kafka()
+        CancelCn.successfully_cancel_tender = cancel_tender.check_on_that_message_is_successfully_cancel_tender(
             cp_id=create_ev_response[0],
             ev_id=create_ev_response[3]
         )

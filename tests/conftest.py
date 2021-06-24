@@ -139,12 +139,39 @@ class CancelCn:
     pn_id = None
 
 
+class CancelLot:
+    ms_release_before_lot_cancelling = None
+    pn_release_before_lot_cancelling = None
+    ev_release_before_lot_cancelling = None
+    message_from_kafka = None
+    successfully_cancel_lot = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    lot_id = None
+
+
 class ConfirmTenderAmendment:
     ms_release_before_tender_amendment_confirmation = None
     pn_release_before_tender_amendment_confirmation = None
     ev_release_before_tender_amendment_confirmation = None
     message_from_kafka = None
     successfully_tender_amendment_confirmation = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    amendment_id = None
+    amendment_token = None
+
+
+class ConfirmLotAmendment:
+    ms_release_before_lot_amendment_confirmation = None
+    pn_release_before_lot_amendment_confirmation = None
+    ev_release_before_lot_amendment_confirmation = None
+    message_from_kafka = None
+    successfully_lot_amendment_confirmation = None
     payload = None
     cp_id = None
     ev_id = None
@@ -163,5 +190,20 @@ class CancelTenderAmendment:
     cp_id = None
     ev_id = None
     pn_id = None
+    amendment_id = None
+    amendment_token = None
+
+
+class CancelLotAmendment:
+    ms_release_before_lot_amendment_cancellation = None
+    pn_release_before_lot_amendment_cancellation = None
+    ev_release_before_lot_amendment_cancellation = None
+    message_from_kafka = None
+    successfully_lot_amendment_cancellation = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    lot_id = None
     amendment_id = None
     amendment_token = None
