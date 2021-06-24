@@ -79,8 +79,6 @@ class TestCheckOnThePossibilityOfLotCancellationForTenderInActiveClarificationTe
     def test_compare_ev_release_before_updating_and_after_updating_27607_3(self):
         ev_release_after_cancelling = requests.get(
             url=f"{CancelLot.message_from_kafka['data']['url']}").json()
-
-
         expected_result = {
             'dictionary_item_added': "['releases'][0]['tender']['amendments']",
             'values_changed': {
