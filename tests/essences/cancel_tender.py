@@ -4101,6 +4101,7 @@ class CancelTender:
         kafka.connect_kafka_producer()
         kafka.publish_message_into_chronograph_in_clarification(
             cp_id=cp_id,
+            ev_id=ev_id,
             enquiry_end=enquiry_and_tender_period[1]
         )
         kafka.publish_message_into_chronograph_in_submission(
@@ -5777,6 +5778,7 @@ class CancelTender:
         kafka.connect_kafka_producer()
         kafka.publish_message_into_chronograph_in_clarification(
             cp_id=cp_id,
+            ev_id=ev_id,
             enquiry_end=enquiry_and_tender_period[1]
         )
         kafka.publish_message_into_chronograph_in_submission(
@@ -8986,6 +8988,7 @@ class CancelTender:
         kafka.connect_kafka_producer()
         kafka.publish_message_into_chronograph_in_clarification(
             cp_id=cp_id,
+            ev_id=ev_id,
             enquiry_end=enquiry_and_tender_period[1]
         )
         kafka.publish_message_into_chronograph_in_submission(
@@ -10412,6 +10415,7 @@ class CancelTender:
         kafka.connect_kafka_producer()
         kafka.publish_message_into_chronograph_in_clarification(
             cp_id=cp_id,
+            ev_id=ev_id,
             enquiry_end=enquiry_and_tender_period[1]
         )
         kafka.publish_message_into_chronograph_in_submission(
@@ -14226,6 +14230,7 @@ class CancelTender:
         kafka.connect_kafka_producer()
         kafka.publish_message_into_chronograph_in_clarification(
             cp_id=cp_id,
+            ev_id=ev_id,
             enquiry_end=enquiry_and_tender_period[1]
         )
         kafka.publish_message_into_chronograph_in_submission(
@@ -15902,6 +15907,7 @@ class CancelTender:
         kafka.connect_kafka_producer()
         kafka.publish_message_into_chronograph_in_clarification(
             cp_id=cp_id,
+            ev_id=ev_id,
             enquiry_end=enquiry_and_tender_period[1]
         )
         kafka.publish_message_into_chronograph_in_submission(

@@ -164,6 +164,12 @@ def get_timestamp_from_human_date(human_date):
     return time_stamp
 
 
+def get_timestamp_from_human_date_in_gmt_format(human_date, gep_hour=3):
+    date = datetime.datetime.strptime(human_date, "%Y-%m-%dT%H:%M:%SZ")
+    date_in_gmt_format = date + datetime.timedelta(hours=gep_hour)
+    time_stamp_in_gmt_format = int(time.mktime(date_in_gmt_format.timetuple())) * 1000
+    return time_stamp_in_gmt_format
+
 # This function removes attributes with the * value from a dictionary:
 # ====================================================================
 def get_clear_dict(d, v):
@@ -240,8 +246,9 @@ def get_new_classification_id(classification_1, classification_2):
 
 def create_enquiry_and_tender_period(second_enquiry=121, second_tender=300, hours=3):
     date = datetime.datetime.now()
-    duration_enquiry_end_date = date - datetime.timedelta(hours=hours) + datetime.timedelta(seconds=second_enquiry)
-    enquiry_start_date = date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    duration_enquiry_start_date = date - datetime.timedelta(hours=hours)
+    duration_enquiry_end_date = duration_enquiry_start_date + datetime.timedelta(seconds=second_enquiry)
+    enquiry_start_date = duration_enquiry_start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     enquiry_end_date = duration_enquiry_end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     duration_tender_end_date = date - datetime.timedelta(hours=hours) + datetime.timedelta(seconds=second_tender)
@@ -335,5 +342,28 @@ def get_auction_date():
     duration_date_start = date + datetime.timedelta(minutes=5)
     auction_date = duration_date_start.strftime('%Y-%m-%dT%H:%M:%SZ')
     return auction_date
+
+
+def calculated_new_date_for_request_sending(human_date, value):
+    old_date = datetime.datetime.strptime(human_date, "%Y-%m-%dT%H:%M:%SZ")
+    new_date_as_date = old_date - datetime.timedelta(seconds=value)
+    new_date_as_human_view = new_date_as_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+    return new_date_as_date, new_date_as_human_view
+
+
+def time_bot(expected_time, gep_hour=3):
+    date = datetime.datetime.now() - datetime.timedelta(hours=gep_hour)
+    while date < expected_time:
+        date_new = datetime.datetime.now() - datetime.timedelta(hours=gep_hour)
+        if date_new >= expected_time:
+            time.sleep(5)
+            break
+    print("Время наступило")
+
+
+
+
+
+
 
 

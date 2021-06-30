@@ -22,7 +22,7 @@ class Kafka:
         finally:
             return self.producer
 
-    def publish_message_into_chronograph_in_clarification(self, cp_id, enquiry_end):
+    def publish_message_into_chronograph_in_clarification(self, cp_id, ev_id, enquiry_end):
         try:
             topic_name = 'chronograph-in'
             value = json.dumps({
@@ -32,7 +32,7 @@ class Kafka:
                 "launchTime": enquiry_end,
                 "metaData": "{\"operationId\":\""+f"{uuid.uuid1()}" + "\","
                             "\"requestId\":\""+f"{uuid.uuid1()}" + "\","
-                            f"\"cpid\":\"{cp_id}\","
+                            f"\"cpid\":\"{cp_id}\", \"ocid\":\"{ev_id}\","
                             "\"processType\":\"enquiryPeriodEnd\","
                             "\"isAuction\":true}"
             })

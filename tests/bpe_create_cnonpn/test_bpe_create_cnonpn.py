@@ -53,7 +53,6 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
         payload['tender']['documents'][2]['relatedLots'][0] = CreateCn.first_lot_id
 
         cn = CN(
-            payload=payload,
             lang=language,
             country=country,
             instance=instance,
@@ -74,7 +73,8 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
         create_cn_response = cn.create_cn(
             cp_id=create_pn_response[4],
             pn_id=create_pn_response[5],
-            pn_token=create_pn_response[6]
+            pn_token=create_pn_response[6],
+            payload=payload
         )
         cn.get_message_from_kafka()
 
@@ -1526,7 +1526,6 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
         payload['tender']['documents'][2]['id'] = document_three_was_uploaded
 
         cn = CN(
-            payload=payload,
             lang=language,
             country=country,
             instance=instance,
@@ -1540,7 +1539,8 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
         create_cn_response = cn.create_cn(
             cp_id=create_pn_response[4],
             pn_id=create_pn_response[5],
-            pn_token=create_pn_response[6]
+            pn_token=create_pn_response[6],
+            payload=payload
         )
         cn.get_message_from_kafka()
 
@@ -2833,7 +2833,6 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
         payload['tender']['documents'][0]['id'] = document_one_was_uploaded
 
         cn = CN(
-            payload=payload,
             lang=language,
             country=country,
             instance=instance,
@@ -2847,7 +2846,8 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
         create_cn_response = cn.create_cn(
             cp_id=create_pn_response[4],
             pn_id=create_pn_response[5],
-            pn_token=create_pn_response[6]
+            pn_token=create_pn_response[6],
+            payload=payload
         )
         cn.get_message_from_kafka()
 

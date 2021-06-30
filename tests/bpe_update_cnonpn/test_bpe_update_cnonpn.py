@@ -1,5 +1,4 @@
 import copy
-import json
 from uuid import uuid4
 import requests
 from deepdiff import DeepDiff
@@ -28,6 +27,28 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
         document_two_was_uploaded = document.uploading_document()[0]["data"]["id"]
         document_three_was_uploaded = document.uploading_document()[0]["data"]["id"]
         document_four_was_uploaded = document.uploading_document()[0]["data"]["id"]
+        cn = CN(
+            lang=language,
+            country=country,
+            instance=instance,
+            cassandra_username=cassandra_username,
+            cassandra_password=cassandra_password,
+            pmd=pmd,
+            document_one_id=document_one_was_uploaded,
+            document_two_id=document_two_was_uploaded,
+            document_three_id=document_three_was_uploaded
+        )
+        create_ev_response = cn.insert_cnonpn_full(
+            first_lot_id=first_lot_id,
+            second_lot_id=second_lot_id,
+            first_item_id=first_item_id,
+            second_item_id=second_item_id,
+            second_enquiry=121,
+            second_tender=300
+        )
+        UpdateCn.ms_release_before_cn_updating = requests.get(url=create_ev_response[5]).json()
+        UpdateCn.pn_release_before_cn_updating = requests.get(url=create_ev_response[6]).json()
+        UpdateCn.ev_release_before_cn_updating = requests.get(url=create_ev_response[7]).json()
         payload = copy.deepcopy(update_cn_on_pn_payload_full_data_model_with_auction)
         payload['tender']['tenderPeriod']['endDate'] = enquiry_and_tender_period[3]
         payload['tender']['enquiryPeriod']['endDate'] = enquiry_and_tender_period[1]
@@ -59,33 +80,11 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
         payload['tender']['documents'][1]['relatedLots'][0] = second_lot_id
         payload['tender']['documents'][2]['relatedLots'][0] = first_lot_id
         payload['tender']['documents'][3]['relatedLots'][0] = first_lot_id
-        cn = CN(
-            payload=payload,
-            lang=language,
-            country=country,
-            instance=instance,
-            cassandra_username=cassandra_username,
-            cassandra_password=cassandra_password,
-            pmd=pmd,
-            document_one_id=document_one_was_uploaded,
-            document_two_id=document_two_was_uploaded,
-            document_three_id=document_three_was_uploaded
-        )
-        create_ev_response = cn.insert_cnonpn_full(
-            first_lot_id=first_lot_id,
-            second_lot_id=second_lot_id,
-            first_item_id=first_item_id,
-            second_item_id=second_item_id,
-            second_enquiry=121,
-            second_tender=300
-        )
-        UpdateCn.ms_release_before_cn_updating = requests.get(url=create_ev_response[5]).json()
-        UpdateCn.pn_release_before_cn_updating = requests.get(url=create_ev_response[6]).json()
-        UpdateCn.ev_release_before_cn_updating = requests.get(url=create_ev_response[7]).json()
         update_cn_response = cn.update_cn(
             cp_id=create_ev_response[0],
             ev_id=create_ev_response[3],
-            pn_token=create_ev_response[2]
+            pn_token=create_ev_response[2],
+            payload=payload
         )
         UpdateCn.message_from_kafka = cn.get_message_from_kafka()
         UpdateCn.successfully_update_cn = cn.check_on_that_message_is_successfully_update_cn(
@@ -772,7 +771,7 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
         )
 
     @pytestrail.case('27598')
-    def test_compare_ms_release_before_updating_and_after_updating_27598_5(self):
+    def test_compare_pn_release_before_updating_and_after_updating_27598_5(self):
         pn_release_after_updating = requests.get(
             url=f"http://dev.public.eprocurement.systems/tenders/{UpdateCn.cp_id}/{UpdateCn.pn_id}").json()
 
@@ -796,19 +795,7 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithObligatoryDataModel(object):
         second_item_id = f"{uuid4()}"
         document = Document(instance=instance)
         document_one_was_uploaded = document.uploading_document()[0]["data"]["id"]
-        payload = copy.deepcopy(update_cn_on_pn_payload_obligatory_data_model)
-        payload['tender']['tenderPeriod']['endDate'] = enquiry_and_tender_period[3]
-        payload['tender']['enquiryPeriod']['endDate'] = enquiry_and_tender_period[1]
-        payload['tender']['lots'][0]['id'] = first_lot_id
-        payload['tender']['lots'][1]['id'] = second_lot_id
-        payload['tender']['items'][0]['id'] = first_item_id
-        payload['tender']['items'][1]['id'] = second_item_id
-        payload['tender']['items'][0]['relatedLot'] = first_lot_id
-        payload['tender']['items'][1]['relatedLot'] = second_lot_id
-        payload['tender']['documents'][0]['id'] = document_one_was_uploaded
-
         cn = CN(
-            payload=payload,
             lang=language,
             country=country,
             instance=instance,
@@ -828,10 +815,21 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithObligatoryDataModel(object):
         UpdateCn.ms_release_before_cn_updating = requests.get(url=create_ev_response[5]).json()
         UpdateCn.pn_release_before_cn_updating = requests.get(url=create_ev_response[6]).json()
         UpdateCn.ev_release_before_cn_updating = requests.get(url=create_ev_response[7]).json()
+        payload = copy.deepcopy(update_cn_on_pn_payload_obligatory_data_model)
+        payload['tender']['tenderPeriod']['endDate'] = enquiry_and_tender_period[3]
+        payload['tender']['enquiryPeriod']['endDate'] = enquiry_and_tender_period[1]
+        payload['tender']['lots'][0]['id'] = first_lot_id
+        payload['tender']['lots'][1]['id'] = second_lot_id
+        payload['tender']['items'][0]['id'] = first_item_id
+        payload['tender']['items'][1]['id'] = second_item_id
+        payload['tender']['items'][0]['relatedLot'] = first_lot_id
+        payload['tender']['items'][1]['relatedLot'] = second_lot_id
+        payload['tender']['documents'][0]['id'] = document_one_was_uploaded
         update_cn_response = cn.update_cn(
             cp_id=create_ev_response[0],
             ev_id=create_ev_response[3],
-            pn_token=create_ev_response[2]
+            pn_token=create_ev_response[2],
+            payload=payload
         )
         UpdateCn.message_from_kafka = cn.get_message_from_kafka()
         UpdateCn.successfully_update_cn = cn.check_on_that_message_is_successfully_update_cn(
@@ -1106,10 +1104,6 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithObligatoryDataModel(object):
         actual_result = DeepDiff(UpdateCn.ev_release_before_cn_updating, ev_release_after_updating)
         dictionary_item_added_was_cleaned = str(actual_result['dictionary_item_added']).replace('root', '')[1:-1]
         actual_result['dictionary_item_added'] = dictionary_item_added_was_cleaned
-        print(json.dumps(expected_result))
-        print("///////////////////////////")
-        print(json.dumps(actual_result))
-        print("++++++++++++++++++++++++")
         assert compare_actual_result_and_expected_result(
             expected_result=str(expected_result),
             actual_result=str(actual_result)
@@ -1172,7 +1166,7 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithObligatoryDataModel(object):
         )
 
     @pytestrail.case('27599')
-    def test_compare_ms_release_before_updating_and_after_updating_27599_5(self):
+    def test_compare_pn_release_before_updating_and_after_updating_27599_5(self):
         pn_release_after_updating = requests.get(
             url=f"http://dev.public.eprocurement.systems/tenders/{UpdateCn.cp_id}/{UpdateCn.pn_id}").json()
 

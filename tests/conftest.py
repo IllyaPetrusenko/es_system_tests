@@ -116,6 +116,7 @@ class CreateCn:
 
 
 class UpdateCn:
+    cn_class = None
     ms_release_before_cn_updating = None
     pn_release_before_cn_updating = None
     ev_release_before_cn_updating = None
@@ -125,6 +126,24 @@ class UpdateCn:
     cp_id = None
     ev_id = None
     pn_id = None
+    enquiry_period_start_date = None
+    enquiry_period_end_date = None
+
+
+class EnquiryGlobal:
+    enquiry_class = None
+    ms_release_before_enquiry_creating = None
+    pn_release_before_enquiry_creating = None
+    ev_release_before_enquiry_creating = None
+    message_from_kafka = None
+    successfully_enquiry_creating = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    enquiry_period_start_date = None
+    enquiry_period_end_date = None
+    tender_period_start_date = None
+    tender_period_end_date = None
 
 
 class CancelCn:
