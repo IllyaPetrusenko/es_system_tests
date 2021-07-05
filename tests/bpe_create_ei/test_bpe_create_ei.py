@@ -2407,7 +2407,7 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfully_create_ei())
+        actual_result = str(ei.check_on_that_message_is_successfully_create_ei(instance))
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
