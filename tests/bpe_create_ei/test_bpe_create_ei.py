@@ -2817,7 +2817,7 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         assert compare_actual_result_and_expected_result(
             expected_result=f"{instance_url}{cpid}/{cpid}",
             actual_result=ei_release["uri"])
-        assert compare_actual_result_and_expected_result(expected_result="666", actual_result=ei_release["version"])
+        assert compare_actual_result_and_expected_result(expected_result="1.1", actual_result=ei_release["version"])
         assert compare_actual_result_and_expected_result(
             expected_result="https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/"
                             "extension.json", actual_result=ei_release["extensions"][0])
