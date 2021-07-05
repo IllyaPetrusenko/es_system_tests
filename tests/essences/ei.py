@@ -1255,7 +1255,7 @@ class EI:
     def check_on_that_message_is_successfully_create_ei(self, instance):
         if instance == "dev":
             instance_url = "http://dev.public.eprocurement.systems/budgets/"
-        if instance == "sandbox":
+        if instance == "dev":
             instance_url = "http://public.eprocurement.systems/budgets/"
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
