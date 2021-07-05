@@ -2429,6 +2429,12 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         ei_release_timestamp = int(ei_release["releases"][0]["id"][29:42])
         convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
         keys_list = list()
+
+        if instance == 'dev':
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if instance == 'sandbox':
+            instance_url = "http://public.eprocurement.systems/budgets/"
+
         for i in ei_release.keys():
             if i == "uri":
                 keys_list.append(i)
@@ -2809,7 +2815,7 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         assert compare_actual_result_and_expected_result(expected_result="endDate", actual_result=keys_list[109])
 
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{cpid}/{cpid}",
+            expected_result=f"{instance_url}{cpid}/{cpid}",
             actual_result=ei_release["uri"])
         assert compare_actual_result_and_expected_result(expected_result="666", actual_result=ei_release["version"])
         assert compare_actual_result_and_expected_result(
