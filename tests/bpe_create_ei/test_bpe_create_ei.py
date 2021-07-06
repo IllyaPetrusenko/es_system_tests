@@ -2429,7 +2429,6 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         ei_release_timestamp = int(ei_release["releases"][0]["id"][29:42])
         convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
         keys_list = list()
-
         if instance == 'dev':
             instance_url = "http://dev.public.eprocurement.systems/budgets/"
         if instance == 'sandbox':
@@ -2825,7 +2824,7 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
             expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
                             "extension.js", actual_result=ei_release["extensions"][1])
         assert compare_actual_result_and_expected_result(
-            expected_result=instance.upper() + "-ENV", actual_result=ei_release["publisher"]["name"])
+            expected_result='M-Tender', actual_result=ei_release["publisher"]["name"])
         assert compare_actual_result_and_expected_result(
             expected_result="https://www.ustudio.com", actual_result=ei_release["publisher"]["uri"])
         assert compare_actual_result_and_expected_result(
