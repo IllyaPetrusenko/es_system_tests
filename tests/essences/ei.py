@@ -1253,6 +1253,7 @@ class EI:
         return message_from_kafka
 
     def check_on_that_message_is_successfully_create_ei(self, instance):
+        instance_url = ""
         if instance == "dev":
             instance_url = "http://dev.public.eprocurement.systems/budgets/"
         if instance == "dev":
