@@ -2680,6 +2680,11 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
                 keys_list.append(i)
             if i == "endDate":
                 keys_list.append(i)
+        instance_url = None
+        if instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[0])
         assert compare_actual_result_and_expected_result(expected_result="version", actual_result=keys_list[1])
         assert compare_actual_result_and_expected_result(expected_result="extensions", actual_result=keys_list[2])
@@ -2809,7 +2814,7 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         assert compare_actual_result_and_expected_result(expected_result="endDate", actual_result=keys_list[109])
 
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{cpid}/{cpid}",
+            expected_result=f"{instance_url}{cpid}/{cpid}",
             actual_result=ei_release["uri"])
         assert compare_actual_result_and_expected_result(expected_result="1.1", actual_result=ei_release["version"])
         assert compare_actual_result_and_expected_result(

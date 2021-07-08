@@ -1253,13 +1253,18 @@ class EI:
         return message_from_kafka
 
     def check_on_that_message_is_successfully_create_ei(self):
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
         check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
         check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/budgets/{message['data']['ocid']}")
+                                    f"{instance_url}{message['data']['ocid']}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         check_ei_id = fnmatch.fnmatch(message["data"]["outcomes"]["ei"][0]["id"], "ocds-t1s2t3-MD-*")
         check_ei_token = is_it_uuid(message["data"]["outcomes"]["ei"][0]["X-TOKEN"], 4)
@@ -1271,13 +1276,18 @@ class EI:
             return False
 
     def check_on_that_message_is_successfully_update_ei(self):
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
         check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
         check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/budgets/{message['data']['ocid']}/"
+                                    f"{instance_url}{message['data']['ocid']}/"
                                     f"{message['data']['ocid']}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
