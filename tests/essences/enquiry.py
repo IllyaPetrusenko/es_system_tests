@@ -235,13 +235,18 @@ class Enquiry:
         return message_from_kafka
 
     def check_on_that_message_is_successfully_create_enquiry_without_token(self, cp_id, ev_id):
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/tenders/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/tenders/"
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
         check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
         check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{ev_id}")
+                                    f"{instance_url}{cp_id}/{ev_id}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         check_enquiry_id = is_it_uuid(message["data"]["outcomes"]["enquiries"][0]["id"], 1)
         for i in message["data"]["outcomes"]["enquiries"][0].keys():
@@ -254,13 +259,18 @@ class Enquiry:
             return False
 
     def check_on_that_message_is_successfully_create_enquiry_with_token(self, cp_id, ev_id):
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/tenders/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/tenders/"
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "bpe")
         check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], ev_id)
         check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{ev_id}")
+                                    f"{instance_url}{cp_id}/{ev_id}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         check_enquiry_id = is_it_uuid(message["data"]["outcomes"]["enquiries"][0]["id"], 4)
         check_enquiry_token = is_it_uuid(message["data"]["outcomes"]["enquiries"][0]["X-TOKEN"], 4)
