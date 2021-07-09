@@ -2685,6 +2685,11 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
                 keys_list.append(i)
             if i == "endDate":
                 keys_list.append(i)
+        instance_url = None
+        if instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         assert compare_actual_result_and_expected_result(expected_result="uri", actual_result=keys_list[0])
         assert compare_actual_result_and_expected_result(expected_result="version", actual_result=keys_list[1])
         assert compare_actual_result_and_expected_result(expected_result="extensions", actual_result=keys_list[2])
@@ -2824,7 +2829,7 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
             expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
                             "extension.js", actual_result=ei_release["extensions"][1])
         assert compare_actual_result_and_expected_result(
-            expected_result='M-Tender', actual_result=ei_release["publisher"]["name"])
+            expected_result="M-Tender", actual_result=ei_release["publisher"]["name"])
         assert compare_actual_result_and_expected_result(
             expected_result="https://www.mtender.gov.md", actual_result=ei_release["publisher"]["uri"])
         assert compare_actual_result_and_expected_result(

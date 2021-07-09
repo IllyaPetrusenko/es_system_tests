@@ -736,7 +736,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -1305,7 +1305,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -1868,7 +1868,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -2529,7 +2529,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -3157,7 +3157,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -3898,7 +3898,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -4726,7 +4726,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -5653,7 +5653,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -5692,13 +5692,18 @@ class PN:
         return message_from_kafka
 
     def check_on_that_message_is_successfully_create_pn(self):
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/tenders/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/tenders/"
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
         check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
         check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/tenders/{message['data']['ocid']}")
+                                    f"{instance_url}{message['data']['ocid']}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         check_fs_id = fnmatch.fnmatch(message["data"]["outcomes"]["pn"][0]["id"], f"{message['data']['ocid']}-PN-*")
         check_fs_token = is_it_uuid(message["data"]["outcomes"]["pn"][0]["X-TOKEN"], 4)
@@ -5710,13 +5715,18 @@ class PN:
             return False
 
     def check_on_that_message_is_successfully_update_pn(self, cp_id, pn_id):
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/tenders/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/tenders/"
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
         check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], f"{pn_id}")
         check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}")
+                                    f"{instance_url}{cp_id}/{pn_id}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
                 check_oc_id is True and check_url is True and check_operation_date is True:
@@ -5725,13 +5735,18 @@ class PN:
             return False
 
     def check_on_that_message_is_successfully_cancel_pn(self, cp_id):
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/tenders/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/tenders/"
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
         check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], f"{cp_id}")
         check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/tenders/{cp_id}")
+                                    f"{instance_url}{cp_id}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
                 check_oc_id is True and check_url is True and check_operation_date is True:
@@ -8218,7 +8233,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{pn_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{ei_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -8247,8 +8262,8 @@ class PN:
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
         session.execute(
-            f"INSERT INTO access_tender (cp_id,stage,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', 'PN', {pn_token}, {pn_id[32:45]}, "
+            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -9503,7 +9518,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{pn_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{ei_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -9532,8 +9547,8 @@ class PN:
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
         session.execute(
-            f"INSERT INTO access_tender (cp_id,stage,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', 'PN', {pn_token}, {pn_id[32:45]}, "
+            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -12040,7 +12055,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{pn_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{ei_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -12069,8 +12084,8 @@ class PN:
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
         session.execute(
-            f"INSERT INTO access_tender (cp_id,stage,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', 'PN', {pn_token}, {pn_id[32:45]}, "
+            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -13327,7 +13342,7 @@ class PN:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{pn_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{ei_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -13356,8 +13371,8 @@ class PN:
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
         session.execute(
-            f"INSERT INTO access_tender (cp_id,stage,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', 'PN', {pn_token}, {pn_id[32:45]}, "
+            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "

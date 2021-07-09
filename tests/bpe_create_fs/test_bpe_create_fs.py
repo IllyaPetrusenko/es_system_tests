@@ -95,13 +95,13 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
-            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["region"]["id"],
-            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["scheme"],
-            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_fs_data(cp_id).json()
@@ -668,7 +668,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
             actual_result=fs_release["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="666",
+            expected_result="1.1",
             actual_result=fs_release["version"]
         )
         assert compare_actual_result_and_expected_result(
@@ -678,23 +678,24 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
         )
         assert compare_actual_result_and_expected_result(
             expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
-                            "extension.js222",
+                            "extension.js",
             actual_result=fs_release["extensions"][1]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=instance.upper() + "-ENV",
+            # expected_result=instance.upper() + "-ENV",
+            expected_result="M-Tender",
             actual_result=fs_release["publisher"]["name"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="https://www.ustudio.com",
+            expected_result="https://www.mtender.gov.md",
             actual_result=fs_release["publisher"]["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="http://opendefinition.org/licenses/222",
+            expected_result="http://opendefinition.org/licenses/",
             actual_result=fs_release["license"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="http://opendefinition.org/licenses/222",
+            expected_result="http://opendefinition.org/licenses/",
             actual_result=fs_release["publicationPolicy"]
         )
         assert compare_actual_result_and_expected_result(
@@ -2277,13 +2278,13 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
         mdm = MdmService(
             instance=instance,
             lang=language,
-            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
-            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["region"]["id"],
-            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["scheme"],
-            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_fs_data(cp_id).json()
@@ -2734,7 +2735,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
             actual_result=fs_release["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="666",
+            expected_result="1.1",
             actual_result=fs_release["version"]
         )
         assert compare_actual_result_and_expected_result(
@@ -2744,23 +2745,24 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
         )
         assert compare_actual_result_and_expected_result(
             expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
-                            "extension.js222",
+                            "extension.js",
             actual_result=fs_release["extensions"][1]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=instance.upper() + "-ENV",
+            # expected_result=instance.upper() + "-ENV",
+            expected_result="M-Tender",
             actual_result=fs_release["publisher"]["name"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="https://www.ustudio.com",
+            expected_result="https://www.mtender.gov.md",
             actual_result=fs_release["publisher"]["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="http://opendefinition.org/licenses/222",
+            expected_result="http://opendefinition.org/licenses/",
             actual_result=fs_release["license"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="http://opendefinition.org/licenses/222",
+            expected_result="http://opendefinition.org/licenses/",
             actual_result=fs_release["publicationPolicy"]
         )
         assert compare_actual_result_and_expected_result(
@@ -3034,13 +3036,13 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
-            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["region"]["id"],
-            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["scheme"],
-            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_fs_data(cp_id).json()
@@ -3846,7 +3848,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
             actual_result=fs_release["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="666",
+            expected_result="1.1",
             actual_result=fs_release["version"]
         )
         assert compare_actual_result_and_expected_result(
@@ -3856,23 +3858,24 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
         )
         assert compare_actual_result_and_expected_result(
             expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
-                            "extension.js222",
+                            "extension.js",
             actual_result=fs_release["extensions"][1]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=instance.upper() + "-ENV",
+            # expected_result=instance.upper() + "-ENV",
+            expected_result="M-Tender",
             actual_result=fs_release["publisher"]["name"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="https://www.ustudio.com",
+            expected_result="https://www.mtender.gov.md",
             actual_result=fs_release["publisher"]["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="http://opendefinition.org/licenses/222",
+            expected_result="http://opendefinition.org/licenses/",
             actual_result=fs_release["license"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="http://opendefinition.org/licenses/222",
+            expected_result="http://opendefinition.org/licenses/",
             actual_result=fs_release["publicationPolicy"]
         )
         assert compare_actual_result_and_expected_result(
@@ -6375,13 +6378,13 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
-            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["region"]["id"],
-            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["scheme"],
-            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_fs_data(cp_id).json()
@@ -7015,7 +7018,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
             actual_result=fs_release["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="666",
+            expected_result="1.1",
             actual_result=fs_release["version"]
         )
         assert compare_actual_result_and_expected_result(
@@ -7025,23 +7028,24 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
         )
         assert compare_actual_result_and_expected_result(
             expected_result="https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/"
-                            "extension.js222",
+                            "extension.js",
             actual_result=fs_release["extensions"][1]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=instance.upper() + "-ENV",
+            # expected_result=instance.upper() + "-ENV",
+            expected_result="M-Tender",
             actual_result=fs_release["publisher"]["name"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="https://www.ustudio.com",
+            expected_result="https://www.mtender.gov.md",
             actual_result=fs_release["publisher"]["uri"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="http://opendefinition.org/licenses/222",
+            expected_result="http://opendefinition.org/licenses/",
             actual_result=fs_release["license"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result="http://opendefinition.org/licenses/222",
+            expected_result="http://opendefinition.org/licenses/",
             actual_result=fs_release["publicationPolicy"]
         )
         assert compare_actual_result_and_expected_result(
@@ -8947,54 +8951,54 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
             actual_result=str(message_from_kafka['errors'])
         )
 
-    @pytestrail.case('27557')
-    def test_tender_procuring_entity_address_details_locality_description_is_empty_str_27557_14(self, country,
-                                                                                                language, instance,
-                                                                                                cassandra_username,
-                                                                                                cassandra_password):
-        cp_id = prepared_cp_id()
-        ei_token = str(uuid4())
-        payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
-        payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = ""
-        fs = FS(
-            payload=payload,
-            lang=language,
-            country=country,
-            instance=instance,
-            cassandra_username=cassandra_username,
-            cassandra_password=cassandra_password
-        )
-        fs.insert_ei_full_data_model(cp_id, ei_token)
-        create_fs_response = fs.create_fs(cp_id)
-        message_from_kafka = fs.get_message_from_kafka()
-        url_create = message_from_kafka['data']['url'] + '/' + message_from_kafka['data']['outcomes']['fs'][0]['id']
-        fs_release = requests.get(url=url_create).json()
-        procuring_entity_obj = list()
-        for p in fs_release["releases"][0]["parties"]:
-            if p["roles"] == ["payer"]:
-                procuring_entity_obj.append(p)
-        mdm = MdmService(
-            instance=instance,
-            lang=language,
-            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
-                "addressDetails"]["country"]["id"],
-            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
-                "addressDetails"]["region"]["id"],
-            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
-                "addressDetails"]["locality"]["scheme"],
-            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
-                "addressDetails"]["locality"]["id"]
-        )
-        data = mdm.process_fs_data(cp_id).json()
-        locality_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]
-        assert compare_actual_result_and_expected_result(
-            expected_result=str(202),
-            actual_result=str(create_fs_response.status_code)
-        )
-        assert compare_actual_result_and_expected_result(
-            expected_result=str(locality_from_mdm["description"]),
-            actual_result=str(procuring_entity_obj[0]["address"]["addressDetails"]["locality"]["description"])
-        )
+    # @pytestrail.case('27557')
+    # def test_tender_procuring_entity_address_details_locality_description_is_empty_str_27557_14(self, country,
+    #                                                                                             language, instance,
+    #                                                                                             cassandra_username,
+    #                                                                                             cassandra_password):
+    #     cp_id = prepared_cp_id()
+    #     ei_token = str(uuid4())
+    #     payload = copy.deepcopy(create_fs_payload_fs_full_data_model_own_money)
+    #     payload["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]["description"] = ""
+    #     fs = FS(
+    #         payload=payload,
+    #         lang=language,
+    #         country=country,
+    #         instance=instance,
+    #         cassandra_username=cassandra_username,
+    #         cassandra_password=cassandra_password
+    #     )
+    #     fs.insert_ei_full_data_model(cp_id, ei_token)
+    #     create_fs_response = fs.create_fs(cp_id)
+    #     message_from_kafka = fs.get_message_from_kafka()
+    #     url_create = message_from_kafka['data']['url'] + '/' + message_from_kafka['data']['outcomes']['fs'][0]['id']
+    #     fs_release = requests.get(url=url_create).json()
+    #     procuring_entity_obj = list()
+    #     for p in fs_release["releases"][0]["parties"]:
+    #         if p["roles"] == ["payer"]:
+    #             procuring_entity_obj.append(p)
+    #     mdm = MdmService(
+    #         instance=instance,
+    #         lang=language,
+    #         procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+    #             "addressDetails"]["country"]["id"],
+    #         procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+    #             "addressDetails"]["region"]["id"],
+    #         procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+    #             "addressDetails"]["locality"]["scheme"],
+    #         procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+    #             "addressDetails"]["locality"]["id"]
+    #     )
+    #     data = mdm.process_fs_data(cp_id).json()
+    #     locality_from_mdm = data["data"]["tender"]["procuringEntity"]["address"]["addressDetails"]["locality"]
+    #     assert compare_actual_result_and_expected_result(
+    #         expected_result=str(202),
+    #         actual_result=str(create_fs_response.status_code)
+    #     )
+    #     assert compare_actual_result_and_expected_result(
+    #         expected_result=str(locality_from_mdm["description"]),
+    #         actual_result=str(procuring_entity_obj[0]["address"]["addressDetails"]["locality"]["description"])
+    #     )
 
     @pytestrail.case('27557')
     def test_tender_procur_entity_address_address_details_locality_descr_is_empty_str_27557_14(self, country,
@@ -9025,13 +9029,13 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
-            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["region"]["id"],
-            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["scheme"],
-            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_fs_data(cp_id).json()
@@ -9698,13 +9702,13 @@ class TestCheckOnImpossibilityOfCreatingFsWithEmptyOrBlankStrings(object):
         mdm = MdmService(
             instance=instance,
             lang=language,
-            procuring_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_country_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["country"]["id"],
-            procuring_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_region_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["region"]["id"],
-            procuring_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_scheme=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["scheme"],
-            procuring_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
+            payer_address_details_locality_id=payload["tender"]["procuringEntity"]["address"][
                 "addressDetails"]["locality"]["id"]
         )
         data = mdm.process_fs_data(cp_id).json()

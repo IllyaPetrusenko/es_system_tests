@@ -53,7 +53,17 @@ class Cassandra:
         step_date = rows_2.step_date.strftime("%Y-%m-%dT%H:%M:%SZ")
         context = json.loads(rows_2.context)
 
-        return request_data, response_data, step_date, context
+    def execute_cql_from_clarification_rules_by_country_pmd_parameter(self, country, pmd, parameter):
+        auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
+        cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
+        session = cluster.connect('clarification')
+
+        row = session.execute(
+            f"SELECT * FROM rules WHERE country = '{country}' and pmd = '{pmd}' and operation_type = 'all' and"
+            f" parameter = '{parameter}';").one()
+
+        value = json.loads(row.value)
+        return value
 
 # def get_date_execute_cql_from_orchestrator_operation_step_by_oper_id(operation_id, task_id):
 #     auth_provider = PlainTextAuthProvider(username=username, password=password)

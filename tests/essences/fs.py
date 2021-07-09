@@ -1787,7 +1787,7 @@ class FS:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -2356,7 +2356,7 @@ class FS:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -2919,7 +2919,7 @@ class FS:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -3580,7 +3580,7 @@ class FS:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -4208,7 +4208,7 @@ class FS:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -4949,7 +4949,7 @@ class FS:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -5777,7 +5777,7 @@ class FS:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -6704,7 +6704,7 @@ class FS:
         }
 
         session.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
-                        f"'{cp_id}','{json.dumps(json_orchestrator_context)}');").one()
+                        f"'{fs_id}','{json.dumps(json_orchestrator_context)}');").one()
         session.execute(f"INSERT INTO budget_ei (cp_id,token_entity,created_date,json_data,owner) VALUES("
                         f"'{cp_id}',{ei_token},{period[2]},'{json.dumps(json_budget_ei)}','{owner}');").one()
         session.execute(
@@ -6744,13 +6744,18 @@ class FS:
         return message_from_kafka
 
     def check_on_that_message_is_successfully_create_fs(self):
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
         check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], "ocds-t1s2t3-MD-*")
         check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/budgets/{message['data']['ocid']}")
+                                    f"{instance_url}{message['data']['ocid']}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         check_fs_id = fnmatch.fnmatch(message["data"]["outcomes"]["fs"][0]["id"], f"{message['data']['ocid']}-FS-*")
         check_fs_token = is_it_uuid(message["data"]["outcomes"]["fs"][0]["X-TOKEN"], 4)
@@ -6762,13 +6767,18 @@ class FS:
             return False
 
     def check_on_that_message_is_successfully_update_fs(self, cp_id, fs_id):
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         message = get_message_from_kafka(self.x_operation_id)
         check_x_operation_id = is_it_uuid(message["X-OPERATION-ID"], 4)
         check_x_response_id = is_it_uuid(message["X-RESPONSE-ID"], 1)
         check_initiator = fnmatch.fnmatch(message["initiator"], "platform")
         check_oc_id = fnmatch.fnmatch(message["data"]["ocid"], f"{fs_id}")
         check_url = fnmatch.fnmatch(message["data"]["url"],
-                                    f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}")
+                                    f"{instance_url}{cp_id}/{fs_id}")
         check_operation_date = fnmatch.fnmatch(message["data"]["operationDate"], "202*-*-*T*:*:*Z")
         if check_x_operation_id is True and check_x_response_id is True and check_initiator is True and \
                 check_oc_id is True and check_url is True and check_operation_date is True:

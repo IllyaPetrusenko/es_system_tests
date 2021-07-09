@@ -97,3 +97,132 @@ class CreatePn:
     ei_id = None
     fs_id = None
 
+
+class CreateCn:
+    message_from_kafka = None
+    payload = None
+    cp_id = None
+    pn_id = None
+    successfully_create_cn = None
+    pn_release_before_cn_creation = None
+    ms_release_before_cn_creation = None
+    document_one_was_uploaded = None
+    document_two_was_uploaded = None
+    document_three_was_uploaded = None
+    first_lot_id = None
+    second_lot_id = None
+    first_item_id = None
+    second_item_id = None
+
+
+class UpdateCn:
+    cn_class = None
+    ms_release_before_cn_updating = None
+    pn_release_before_cn_updating = None
+    ev_release_before_cn_updating = None
+    message_from_kafka = None
+    successfully_update_cn = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    enquiry_period_start_date = None
+    enquiry_period_end_date = None
+
+
+class EnquiryGlobal:
+    enquiry_class = None
+    ms_release_before_enquiry_creating = None
+    pn_release_before_enquiry_creating = None
+    ev_release_before_enquiry_creating = None
+    message_from_kafka = None
+    successfully_enquiry_creating = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    enquiry_period_start_date = None
+    enquiry_period_end_date = None
+    tender_period_start_date = None
+    tender_period_end_date = None
+
+
+class CancelCn:
+    ms_release_before_tender_cancelling = None
+    pn_release_before_tender_cancelling = None
+    ev_release_before_tender_cancelling = None
+    message_from_kafka = None
+    successfully_cancel_tender = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+
+
+class CancelLot:
+    ms_release_before_lot_cancelling = None
+    pn_release_before_lot_cancelling = None
+    ev_release_before_lot_cancelling = None
+    message_from_kafka = None
+    successfully_cancel_lot = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    lot_id = None
+
+
+class ConfirmTenderAmendment:
+    ms_release_before_tender_amendment_confirmation = None
+    pn_release_before_tender_amendment_confirmation = None
+    ev_release_before_tender_amendment_confirmation = None
+    message_from_kafka = None
+    successfully_tender_amendment_confirmation = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    amendment_id = None
+    amendment_token = None
+
+
+class ConfirmLotAmendment:
+    ms_release_before_lot_amendment_confirmation = None
+    pn_release_before_lot_amendment_confirmation = None
+    ev_release_before_lot_amendment_confirmation = None
+    message_from_kafka = None
+    successfully_lot_amendment_confirmation = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    amendment_id = None
+    amendment_token = None
+
+
+class CancelTenderAmendment:
+    ms_release_before_tender_amendment_cancellation = None
+    pn_release_before_tender_amendment_cancellation = None
+    ev_release_before_tender_amendment_cancellation = None
+    message_from_kafka = None
+    successfully_tender_amendment_cancellation = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    amendment_id = None
+    amendment_token = None
+
+
+class CancelLotAmendment:
+    ms_release_before_lot_amendment_cancellation = None
+    pn_release_before_lot_amendment_cancellation = None
+    ev_release_before_lot_amendment_cancellation = None
+    message_from_kafka = None
+    successfully_lot_amendment_cancellation = None
+    payload = None
+    cp_id = None
+    ev_id = None
+    pn_id = None
+    lot_id = None
+    amendment_id = None
+    amendment_token = None
