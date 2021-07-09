@@ -1191,7 +1191,7 @@ class TestCheckThePossibilityToCreateEiOnObligatoryDataModelAddItems(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfully_create_ei())
+        actual_result = str(ei.check_on_that_message_is_successfully_create_ei(instance))
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -1311,7 +1311,7 @@ class TestCheckTheCpIdOfEIisFormedCorrectly(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfully_create_ei())
+        actual_result = str(ei.check_on_that_message_is_successfully_create_ei(instance))
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -1356,7 +1356,7 @@ class TestCheckTheTimestampOfEiOcidOfCoincidesWithRequestSentDate(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfully_create_ei())
+        actual_result = str(ei.check_on_that_message_is_successfully_create_ei(instance))
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -1404,7 +1404,7 @@ class TestCheckTheReleaseDateCoincidesWithRequestSentDate(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfully_create_ei())
+        actual_result = str(ei.check_on_that_message_is_successfully_create_ei(instance))
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -1449,7 +1449,7 @@ class TestCheckTheIdentificationOfTenderEqualsTheOCIDofTheEI(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfully_create_ei())
+        actual_result = str(ei.check_on_that_message_is_successfully_create_ei(instance))
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -1497,7 +1497,7 @@ class TestCheckTheIdInCompiledReleaseHasAnAppropriateValueInTheEiRecord(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfully_create_ei())
+        actual_result = str(ei.check_on_that_message_is_successfully_create_ei(instance))
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -2277,7 +2277,7 @@ class TestCheckThePossibilityToGetXtokenAndCpidAfterEiCreation(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfully_create_ei())
+        actual_result = str(ei.check_on_that_message_is_successfully_create_ei(instance))
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -2407,7 +2407,7 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfully_create_ei())
+        actual_result = str(ei.check_on_that_message_is_successfully_create_ei(instance))
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -2429,6 +2429,11 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         ei_release_timestamp = int(ei_release["releases"][0]["id"][29:42])
         convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
         keys_list = list()
+        if instance == 'dev':
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if instance == 'sandbox':
+            instance_url = "http://public.eprocurement.systems/budgets/"
+
         for i in ei_release.keys():
             if i == "uri":
                 keys_list.append(i)
@@ -3144,7 +3149,7 @@ class TestCheckOnTenderItemsInRelease(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.create_ei()
         ei.get_message_from_kafka()
-        actual_result = str(ei.check_on_that_message_is_successfully_create_ei())
+        actual_result = str(ei.check_on_that_message_is_successfully_create_ei(instance))
         expected_result = str(True)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
