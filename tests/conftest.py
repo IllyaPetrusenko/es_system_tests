@@ -96,6 +96,9 @@ class CreatePn:
     payload = None
     ei_id = None
     fs_id = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None
 
 
 class CreateCn:

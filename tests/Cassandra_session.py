@@ -26,7 +26,7 @@ class Cassandra:
         if instance == "dev":
             self.cassandra_cluster = "10.0.20.104"
         elif instance == "sandbox":
-            self.cassandra_cluster = "10.0.10.106"
+            self.cassandra_cluster = "10.0.10.104"
 
     def execute_cql_from_orchestrator_operation_step(self, task_id):
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
@@ -48,10 +48,9 @@ class Cassandra:
         rows_2 = session.execute(
             f"SELECT * FROM orchestrator_operation_step WHERE process_id = '{process_id}' AND "
             f"task_id='{task_id}';").one()
-        request_data = json.loads(rows_2.request_data)
         response_data = json.loads(rows_2.response_data)
-        step_date = rows_2.step_date.strftime("%Y-%m-%dT%H:%M:%SZ")
-        context = json.loads(rows_2.context)
+        request_data = json.loads(rows_2.request_data)
+        return response_data, request_data
 
     def execute_cql_from_clarification_rules_by_country_pmd_parameter(self, country, pmd, parameter):
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)

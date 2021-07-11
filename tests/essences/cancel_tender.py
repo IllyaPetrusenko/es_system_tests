@@ -361,6 +361,7 @@ class CancelTender:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         key_space_ocds = cluster.connect('ocds')
+        key_space_access = cluster.connect('access')
         key_space_clarification = cluster.connect('clarification')
         key_space_submission = cluster.connect('submission')
         key_space_auctions = cluster.connect('auctions')
@@ -4127,9 +4128,9 @@ class CancelTender:
 
         key_space_ocds.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
                                f"'{ev_id}','{json.dumps(json_orchestrator_context)}');").one()
-        key_space_ocds.execute(f"INSERT INTO access_tender (cpid, ocid, token_entity,created_date,json_data, owner) "
-                               f"VALUES ('{cp_id}', '{ev_id}', {pn_token}, {ev_id[32:45]}, "
-                               f"'{json.dumps(json_access_tender)}','{owner}');").one()
+        key_space_access.execute(f"INSERT INTO tenders (cpid, ocid, token_entity,created_date,json_data, owner) "
+                                 f"VALUES ('{cp_id}', '{ev_id}', '{pn_token}', {ev_id[32:45]}, "
+                                 f"'{json.dumps(json_access_tender)}','{owner}');").one()
         key_space_auctions.execute(
             f"INSERT INTO auctions (cpid, ocid, api_version, country, data, operation_id, row_version, status ) "
             f"VALUES ('{cp_id}', '{ev_id}', '1.0.0', '{self.country}', '{json.dumps(json_auction_auctions)}', "
@@ -4195,6 +4196,7 @@ class CancelTender:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         key_space_ocds = cluster.connect('ocds')
+        key_space_access = cluster.connect('access')
         key_space_clarification = cluster.connect('clarification')
         key_space_submission = cluster.connect('submission')
         key_space_revision = cluster.connect('revision')
@@ -5804,9 +5806,9 @@ class CancelTender:
 
         key_space_ocds.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
                                f"'{ev_id}','{json.dumps(json_orchestrator_context)}');").one()
-        key_space_ocds.execute(f"INSERT INTO access_tender (cpid, ocid, token_entity,created_date,json_data, owner) "
-                               f"VALUES ('{cp_id}', '{ev_id}', {pn_token}, {ev_id[32:45]}, "
-                               f"'{json.dumps(json_access_tender)}','{owner}');").one()
+        key_space_access.execute(f"INSERT INTO tenders (cpid, ocid, token_entity,created_date,json_data, owner) "
+                                 f"VALUES ('{cp_id}', '{ev_id}', '{pn_token}', {ev_id[32:45]}, "
+                                 f"'{json.dumps(json_access_tender)}','{owner}');").one()
         key_space_clarification.execute(
             f"INSERT INTO periods (cpid, ocid, end_date, owner, start_date) "
             f"VALUES ('{cp_id}', '{ev_id}', {get_timestamp_from_human_date(enquiry_and_tender_period[1])}, '{owner}', "
@@ -5868,6 +5870,7 @@ class CancelTender:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         key_space_ocds = cluster.connect('ocds')
+        key_space_access = cluster.connect('access')
         key_space_clarification = cluster.connect('clarification')
         key_space_submission = cluster.connect('submission')
         key_space_auctions = cluster.connect('auctions')
@@ -9014,9 +9017,9 @@ class CancelTender:
 
         key_space_ocds.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
                                f"'{ev_id}','{json.dumps(json_orchestrator_context)}');").one()
-        key_space_ocds.execute(f"INSERT INTO access_tender (cpid, ocid, token_entity,created_date,json_data, owner) "
-                               f"VALUES ('{cp_id}', '{ev_id}', {pn_token}, {ev_id[32:45]}, "
-                               f"'{json.dumps(json_access_tender)}','{owner}');").one()
+        key_space_access.execute(f"INSERT INTO tenders (cpid, ocid, token_entity,created_date,json_data, owner) "
+                                 f"VALUES ('{cp_id}', '{ev_id}', '{pn_token}', {ev_id[32:45]}, "
+                                 f"'{json.dumps(json_access_tender)}','{owner}');").one()
         key_space_auctions.execute(
             f"INSERT INTO auctions (cpid, ocid, api_version, country, data, operation_id, row_version, status ) "
             f"VALUES ('{cp_id}', '{ev_id}', '1.0.0', '{self.country}', '{json.dumps(json_auction_auctions)}', "
@@ -9067,6 +9070,7 @@ class CancelTender:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         key_space_ocds = cluster.connect('ocds')
+        key_space_access = cluster.connect('access')
         key_space_clarification = cluster.connect('clarification')
         key_space_submission = cluster.connect('submission')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
@@ -10441,9 +10445,9 @@ class CancelTender:
 
         key_space_ocds.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
                                f"'{ev_id}','{json.dumps(json_orchestrator_context)}');").one()
-        key_space_ocds.execute(f"INSERT INTO access_tender (cpid, ocid, token_entity,created_date,json_data, owner) "
-                               f"VALUES ('{cp_id}', '{ev_id}', {pn_token}, {ev_id[32:45]}, "
-                               f"'{json.dumps(json_access_tender)}','{owner}');").one()
+        key_space_access.execute(f"INSERT INTO tenders (cpid, ocid, token_entity,created_date,json_data, owner) "
+                                 f"VALUES ('{cp_id}', '{ev_id}', '{pn_token}', {ev_id[32:45]}, "
+                                 f"'{json.dumps(json_access_tender)}','{owner}');").one()
         key_space_clarification.execute(
             f"INSERT INTO periods (cpid, ocid, end_date, owner, start_date) "
             f"VALUES ('{cp_id}', '{ev_id}', {get_timestamp_from_human_date(enquiry_and_tender_period[1])}, '{owner}', "
@@ -10490,6 +10494,7 @@ class CancelTender:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         key_space_ocds = cluster.connect('ocds')
+        key_space_access = cluster.connect('access')
         key_space_clarification = cluster.connect('clarification')
         key_space_submission = cluster.connect('submission')
         key_space_auctions = cluster.connect('auctions')
@@ -14256,9 +14261,9 @@ class CancelTender:
 
         key_space_ocds.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
                                f"'{ev_id}','{json.dumps(json_orchestrator_context)}');").one()
-        key_space_ocds.execute(f"INSERT INTO access_tender (cpid, ocid, token_entity,created_date,json_data, owner) "
-                               f"VALUES ('{cp_id}', '{ev_id}', {pn_token}, {ev_id[32:45]}, "
-                               f"'{json.dumps(json_access_tender)}','{owner}');").one()
+        key_space_access.execute(f"INSERT INTO tenders (cpid, ocid, token_entity,created_date,json_data, owner) "
+                                 f"VALUES ('{cp_id}', '{ev_id}', '{pn_token}', {ev_id[32:45]}, "
+                                 f"'{json.dumps(json_access_tender)}','{owner}');").one()
         key_space_auctions.execute(
             f"INSERT INTO auctions (cpid, ocid, api_version, country, data, operation_id, row_version, status ) "
             f"VALUES ('{cp_id}', '{ev_id}', '1.0.0', '{self.country}', '{json.dumps(json_auction_auctions)}', "
@@ -14324,6 +14329,7 @@ class CancelTender:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         key_space_ocds = cluster.connect('ocds')
+        key_space_access = cluster.connect('access')
         key_space_clarification = cluster.connect('clarification')
         key_space_submission = cluster.connect('submission')
         key_space_revision = cluster.connect('revision')
@@ -15933,9 +15939,9 @@ class CancelTender:
 
         key_space_ocds.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
                                f"'{ev_id}','{json.dumps(json_orchestrator_context)}');").one()
-        key_space_ocds.execute(f"INSERT INTO access_tender (cpid, ocid, token_entity,created_date,json_data, owner) "
-                               f"VALUES ('{cp_id}', '{ev_id}', {pn_token}, {ev_id[32:45]}, "
-                               f"'{json.dumps(json_access_tender)}','{owner}');").one()
+        key_space_access.execute(f"INSERT INTO tenders (cpid, ocid, token_entity,created_date,json_data, owner) "
+                                 f"VALUES ('{cp_id}', '{ev_id}', '{pn_token}', {ev_id[32:45]}, "
+                                 f"'{json.dumps(json_access_tender)}','{owner}');").one()
         key_space_clarification.execute(
             f"INSERT INTO periods (cpid, ocid, end_date, owner, start_date) "
             f"VALUES ('{cp_id}', '{ev_id}', {get_timestamp_from_human_date(enquiry_and_tender_period[1])}, '{owner}', "

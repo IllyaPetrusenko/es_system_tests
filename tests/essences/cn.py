@@ -13,10 +13,11 @@ from tests.iMDM_service.get_information import MdmService
 from tests.iStorage import Document
 from tests.kafka_messages import get_message_from_kafka
 from tests.kafka_session import Kafka
+
 from useful_functions import get_period, get_access_token_for_platform_two, is_it_uuid, prepared_fs_oc_id, \
     prepared_cp_id, prepared_pn_oc_id, get_new_classification_id, get_value_from_classification_cpv_dictionary_xls, \
     get_value_from_cpvs_dictionary_csv, get_value_from_classification_unit_dictionary_csv, get_contract_period, \
-    get_human_date_in_utc_format, create_enquiry_and_tender_period, get_timestamp_from_human_date, prepared_cn_oc_id, \
+    get_human_date_in_utc_format, create_enquiry_and_tender_period, prepared_cn_oc_id, \
     time_at_now, get_auction_date, get_timestamp_from_human_date_in_gmt_format
 
 
@@ -313,6 +314,7 @@ class CN:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
+        key_space_access = cluster.connect('access')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         ei_id = prepared_cp_id()
         ei_token = uuid4()
@@ -2815,9 +2817,9 @@ class CN:
             f"'{fs_id + '-' + str(pn_id[32:45])}','FS');").one()
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
-        session.execute(
-            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
+        key_space_access.execute(
+            f"INSERT INTO tenders (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', '{pn_token}', {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -2848,6 +2850,7 @@ class CN:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
+        key_space_access = cluster.connect('access')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         ei_id = prepared_cp_id()
         ei_token = uuid4()
@@ -4100,9 +4103,9 @@ class CN:
             f"'{fs_id + '-' + str(pn_id[32:45])}','FS');").one()
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
-        session.execute(
-            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
+        key_space_access.execute(
+            f"INSERT INTO tenders (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', '{pn_token}', {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -4135,6 +4138,7 @@ class CN:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         key_space_ocds = cluster.connect('ocds')
+        key_space_access = cluster.connect('ocds')
         key_space_clarification = cluster.connect('clarification')
         key_space_submission = cluster.connect('submission')
         key_space_auctions = cluster.connect('auctions')
@@ -7281,16 +7285,17 @@ class CN:
 
         key_space_ocds.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
                                f"'{ev_id}','{json.dumps(json_orchestrator_context)}');").one()
-        key_space_ocds.execute(f"INSERT INTO access_tender (cpid, ocid, token_entity,created_date,json_data, owner) "
-                               f"VALUES ('{cp_id}', '{ev_id}', {pn_token}, {ev_id[32:45]}, "
-                               f"'{json.dumps(json_access_tender)}','{owner}');").one()
+        key_space_access.execute(f"INSERT INTO tenders (cpid, ocid, token_entity,created_date,json_data, owner) "
+                                 f"VALUES ('{cp_id}', '{ev_id}', '{pn_token}', {ev_id[32:45]}, "
+                                 f"'{json.dumps(json_access_tender)}','{owner}');").one()
         key_space_auctions.execute(
             f"INSERT INTO auctions (cpid, ocid, api_version, country, data, operation_id, row_version, status ) "
             f"VALUES ('{cp_id}', '{ev_id}', '1.0.0', '{self.country}', '{json.dumps(json_auction_auctions)}', "
             f"'{uuid.uuid1()}',{0}, {1});").one()
         key_space_clarification.execute(
             f"INSERT INTO periods (cpid, ocid, end_date, owner, start_date) "
-            f"VALUES ('{cp_id}', '{ev_id}', {get_timestamp_from_human_date_in_gmt_format(enquiry_and_tender_period[1])}, '{owner}', "
+            f"VALUES ('{cp_id}', '{ev_id}', "
+            f"{get_timestamp_from_human_date_in_gmt_format(enquiry_and_tender_period[1])}, '{owner}', "
             f"{ev_id[32:45]});").one()
         key_space_submission.execute(
             f"INSERT INTO periods (cpid, ocid, end_date, start_date) "
@@ -7336,6 +7341,7 @@ class CN:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         key_space_ocds = cluster.connect('ocds')
+        key_space_access = cluster.connect('access')
         key_space_clarification = cluster.connect('clarification')
         key_space_submission = cluster.connect('submission')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
@@ -8710,16 +8716,18 @@ class CN:
 
         key_space_ocds.execute(f"INSERT INTO orchestrator_context (cp_id,context) VALUES ("
                                f"'{ev_id}','{json.dumps(json_orchestrator_context)}');").one()
-        key_space_ocds.execute(f"INSERT INTO access_tender (cpid, ocid, token_entity,created_date,json_data, owner) "
-                               f"VALUES ('{cp_id}', '{ev_id}', {pn_token}, {ev_id[32:45]}, "
-                               f"'{json.dumps(json_access_tender)}','{owner}');").one()
+        key_space_access.execute(f"INSERT INTO tenders (cpid, ocid, token_entity,created_date,json_data, owner) "
+                                 f"VALUES ('{cp_id}', '{ev_id}', '{pn_token}', {ev_id[32:45]}, "
+                                 f"'{json.dumps(json_access_tender)}','{owner}');").one()
         key_space_clarification.execute(
             f"INSERT INTO periods (cpid, ocid, end_date, owner, start_date) "
-            f"VALUES ('{cp_id}', '{ev_id}', {get_timestamp_from_human_date_in_gmt_format(enquiry_and_tender_period[1])}, '{owner}', "
+            f"VALUES ('{cp_id}', '{ev_id}', "
+            f"{get_timestamp_from_human_date_in_gmt_format(enquiry_and_tender_period[1])}, '{owner}', "
             f"{ev_id[32:45]});").one()
         key_space_submission.execute(
             f"INSERT INTO periods (cpid, ocid, end_date, start_date) "
-            f"VALUES ('{cp_id}', '{ev_id}', {get_timestamp_from_human_date_in_gmt_format(enquiry_and_tender_period[3])}, "
+            f"VALUES ('{cp_id}', '{ev_id}', "
+            f"{get_timestamp_from_human_date_in_gmt_format(enquiry_and_tender_period[3])}, "
             f"{get_timestamp_from_human_date_in_gmt_format(enquiry_and_tender_period[1])});").one()
         key_space_ocds.execute(f"INSERT INTO notice_offset (cp_id,release_date, stage, status) "
                                f"VALUES ('{cp_id}', {ev_id[32:45]}, 'EV', 'active');").one()

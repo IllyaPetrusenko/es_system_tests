@@ -20,8 +20,9 @@ class TestCheckOnPossibilityUpdateEiWithObligatoryFieldsInPayloadWithoutTenderIt
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
         update_ei_response = ei.update_ei(cp_id=cp_id, ei_token=ei_token)
-        actual_result = str(update_ei_response.status_code)
+        actual_result = str(update_ei_response[0].status_code)
         expected_result = str(202)
+        print(actual_result)
         assert compare_actual_result_and_expected_result(expected_result=expected_result, actual_result=actual_result)
 
     @pytestrail.case("23890")
@@ -52,7 +53,7 @@ class TestCheckOnPossibilityUpdateEiWithObligatoryFieldsInPayloadWithTenderItems
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
         update_ei_response = ei.update_ei(cp_id=cp_id, ei_token=ei_token)
-        actual_result = str(update_ei_response.status_code)
+        actual_result = str(update_ei_response[0].status_code)
         expected_result = str(202)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -85,7 +86,7 @@ class TestCheckOnPossibilityUpdateEiWithFullDataInPayload(object):
                 cassandra_username=cassandra_username, cassandra_password=cassandra_password)
         ei.insert_ei_obligatory_data_model(cp_id=cp_id, ei_token=ei_token)
         update_ei_response = ei.update_ei(cp_id=cp_id, ei_token=ei_token)
-        actual_result = str(update_ei_response.status_code)
+        actual_result = str(update_ei_response[0].status_code)
         expected_result = str(202)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
@@ -120,7 +121,7 @@ class TestCheckOnImpossibilityUpdateEiIfTokenFromRequestNotEqualTokenFromDB(obje
         ei.insert_ei_full_data_model(cp_id=cp_id, ei_token=ei_token)
         update_ei_response = ei.update_ei(cp_id=cp_id, ei_token=str(uuid4()))
         expected_result = str(202)
-        actual_result = str(update_ei_response.status_code)
+        actual_result = str(update_ei_response[0].status_code)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
@@ -168,7 +169,7 @@ class TestCheckOnImpossibilityUpdateEiIfOwnerFromRequestNotEqualOwnerFromDB(obje
             ei_token=ei_token
         )
         expected_result = str(202)
-        actual_result = str(update_ei_response.status_code)
+        actual_result = str(update_ei_response[0].status_code)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
 
@@ -191,7 +192,7 @@ class TestCheckOnImpossibilityUpdateEiIfOwnerFromRequestNotEqualOwnerFromDB(obje
             cp_id=cp_id,
             ei_token=ei_token
         )
-        ei.update_ei(
+        update_ei_response = ei.update_ei(
             cp_id=cp_id,
             ei_token=ei_token
         )
@@ -201,14 +202,13 @@ class TestCheckOnImpossibilityUpdateEiIfOwnerFromRequestNotEqualOwnerFromDB(obje
             cassandra_username=cassandra_username,
             cassandra_password=cassandra_password
         )
-
-        ei_budget_update_ei_task = database.execute_cql_from_orchestrator_operation_step(
+        ei_budget_update_ei_task = (database.execute_cql_from_orchestrator_operation_step_by_oper_id(
+            operation_id=update_ei_response[1],
             task_id='BudgetUpdateEiTask'
-        )
-        print(ei_budget_update_ei_task)
+        ))[0]
         assert compare_actual_result_and_expected_result(
-            expected_result=str([{'code': '400.10.00.03', 'description': 'Invalid owner.'}]),
-            actual_result=str(ei_budget_update_ei_task["errors"])
+            expected_result=str({"errors": [{"code": "400.10.00.03", "description": "Invalid owner."}]}),
+            actual_result=str(ei_budget_update_ei_task)
         )
 
 
@@ -304,7 +304,7 @@ class TestCheckOnImpossibilityUpdateEiIfTenderClassificationIdNotEqualTenderItem
                 cassandra_password=cassandra_password)
         ei.insert_ei_obligatory_data_model(cp_id=cp_id, ei_token=ei_token)
         update_ei_response = ei.update_ei(cp_id=cp_id, ei_token=ei_token)
-        actual_result = str(update_ei_response.status_code)
+        actual_result = str(update_ei_response[0].status_code)
         expected_result = str(202)
         assert compare_actual_result_and_expected_result(expected_result=expected_result,
                                                          actual_result=actual_result)
