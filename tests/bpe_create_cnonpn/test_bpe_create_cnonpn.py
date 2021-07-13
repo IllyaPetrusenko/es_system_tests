@@ -77,13 +77,25 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
             payload=payload
         )
         cn.get_message_from_kafka()
-
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
         CreateCn.message_from_kafka = cn.get_message_from_kafka()
         CreateCn.successfully_create_cn = cn.check_on_that_message_is_successfully_create_cn()
         CreateCn.payload = payload
         CreateCn.cp_id = create_pn_response[4]
         CreateCn.pn_id = create_pn_response[5]
-
+        CreateCn.instance_tender_url = instance_tender_url
+        CreateCn.instance_budget_url = instance_budget_url
+        CreateCn.instance_storage_url = instance_storage_url
         assert compare_actual_result_and_expected_result(
             expected_result=str(202),
             actual_result=str(create_cn_response.status_code)
@@ -104,7 +116,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
                 f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}").json()
         actual_result = ev_release
         expected_result = {
-            "uri": f"http://dev.public.eprocurement.systems/tenders/{CreateCn.message_from_kafka['data']['ocid']}/"
+            "uri": f"{CreateCn.instance_tender_url}{CreateCn.message_from_kafka['data']['ocid']}/"
                    f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}",
             "version": "1.1",
             "extensions": [
@@ -776,7 +788,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
                             'documentType'],
                         "title": CreateCn.payload['tender']['documents'][0]['title'],
                         "description": CreateCn.payload['tender']['documents'][0]['description'],
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{CreateCn.instance_storage_url}"
                                f"{CreateCn.document_one_was_uploaded}",
                         "datePublished": CreateCn.message_from_kafka['data']['operationDate'],
                         "relatedLots": actual_result['releases'][0]['tender']['documents'][0]['relatedLots']
@@ -786,8 +798,8 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
                             'documentType'],
                         "title": CreateCn.payload['tender']['documents'][1]['title'],
                         "description": CreateCn.payload['tender']['documents'][1]['description'],
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
-                               f"{CreateCn.document_one_was_uploaded}",
+                        "url": f"{CreateCn.instance_storage_url}"
+                               f"{CreateCn.document_two_was_uploaded}",
                         "datePublished": CreateCn.message_from_kafka['data']['operationDate'],
                         "relatedLots": actual_result['releases'][0]['tender']['documents'][1]['relatedLots']
                     }, {
@@ -795,7 +807,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
                         "documentType": CreateCn.payload['tender']['documents'][2]['documentType'],
                         "title": CreateCn.payload['tender']['documents'][2]['title'],
                         "description": CreateCn.payload['tender']['documents'][2]['description'],
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{CreateCn.instance_storage_url}"
                                f"{CreateCn.payload['tender']['documents'][2]['id']}",
                         "datePublished": CreateCn.message_from_kafka['data']['operationDate'],
                         "relatedLots": actual_result['releases'][0]['tender']['documents'][2]['relatedLots']
@@ -821,7 +833,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
                                     'auctionPeriod']['startDate']
                             },
                             "electronicAuctionModalities": [{
-                                "url": f"http://auction.eprocurement.systems/auctions/"
+                                "url": f"https://eauction.eprocurement.systems/auctions/"
                                        f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}/"
                                        f"{CreateCn.first_lot_id}",
                                 "eligibleMinimumDifference": {
@@ -840,7 +852,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
                                     'auctionPeriod']['startDate']
                             },
                             "electronicAuctionModalities": [{
-                                "url": f"http://auction.eprocurement.systems/auctions/"
+                                "url": f"https://eauction.eprocurement.systems/auctions/"
                                        f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}/"
                                        f"{CreateCn.second_lot_id}",
                                 "eligibleMinimumDifference": {
@@ -863,7 +875,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
                     "relationship": ["parent"],
                     "scheme": "ocid",
                     "identifier": CreateCn.message_from_kafka['data']['ocid'],
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                    "uri": f"{CreateCn.instance_tender_url}"
                            f"{CreateCn.message_from_kafka['data']['ocid']}/"
                            f"{CreateCn.message_from_kafka['data']['ocid']}"
                 }, {
@@ -871,7 +883,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
                     "relationship": ["planning"],
                     "scheme": "ocid",
                     "identifier": CreateCn.pn_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                    "uri": f"{CreateCn.instance_tender_url}"
                            f"{CreateCn.message_from_kafka['data']['ocid']}/"
                            f"{CreateCn.pn_id}"
                 }]
@@ -1420,7 +1432,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
                                     CreateCn.payload['tender']['procuringEntity']['persones'][0]['businessFunctions'][
                                         0]['documents'][0]['description'],
                                 "url":
-                                    f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                                    f"{CreateCn.instance_storage_url}"
                                     f"{persone_document}",
                                 "datePublished": CreateCn.message_from_kafka['data']['operationDate']
                             }]
@@ -1454,7 +1466,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnFullDataModelAndC
                     "relationship": ["x_evaluation"],
                     "scheme": "ocid",
                     "identifier": CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id'],
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                    "uri": f"{CreateCn.instance_tender_url}"
                            f"{CreateCn.message_from_kafka['data']['ocid']}/"
                            f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}"
                 }]
@@ -1543,12 +1555,25 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
             payload=payload
         )
         cn.get_message_from_kafka()
-
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
         CreateCn.message_from_kafka = cn.get_message_from_kafka()
         CreateCn.successfully_create_cn = cn.check_on_that_message_is_successfully_create_cn()
         CreateCn.payload = payload
         CreateCn.cp_id = create_pn_response[4]
         CreateCn.pn_id = create_pn_response[5]
+        CreateCn.instance_tender_url = instance_tender_url
+        CreateCn.instance_budget_url = instance_budget_url
+        CreateCn.instance_storage_url = instance_storage_url
         assert compare_actual_result_and_expected_result(
             expected_result=str(202),
             actual_result=str(create_cn_response.status_code)
@@ -1618,7 +1643,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
             data["data"]["tender"]["lots"][1]['placeOfPerformance']['address']['addressDetails']['locality']
         actual_result = ev_release
         expected_result = {
-            "uri": f"http://dev.public.eprocurement.systems/tenders/{CreateCn.message_from_kafka['data']['ocid']}/"
+            "uri": f"{CreateCn.instance_tender_url}{CreateCn.message_from_kafka['data']['ocid']}/"
                    f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}",
             "version": "1.1",
             "extensions": [
@@ -2235,7 +2260,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                         "documentType": CreateCn.payload['tender']['documents'][0]['documentType'],
                         "title": CreateCn.payload['tender']['documents'][0]['title'],
                         "description": CreateCn.payload['tender']['documents'][0]['description'],
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{CreateCn.instance_storage_url}"
                                f"{CreateCn.payload['tender']['documents'][0]['id']}",
                         "datePublished": CreateCn.message_from_kafka['data']['operationDate'],
                         "relatedLots": actual_result['releases'][0]['tender']['documents'][0]['relatedLots']
@@ -2244,7 +2269,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                         "documentType": CreateCn.payload['tender']['documents'][1]['documentType'],
                         "title": CreateCn.payload['tender']['documents'][1]['title'],
                         "description": CreateCn.payload['tender']['documents'][1]['description'],
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{CreateCn.instance_storage_url}"
                                f"{CreateCn.payload['tender']['documents'][1]['id']}",
                         "datePublished": CreateCn.message_from_kafka['data']['operationDate'],
                         "relatedLots": actual_result['releases'][0]['tender']['documents'][1]['relatedLots']
@@ -2253,7 +2278,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                         "documentType": CreateCn.payload['tender']['documents'][2]['documentType'],
                         "title": CreateCn.payload['tender']['documents'][2]['title'],
                         "description": CreateCn.payload['tender']['documents'][2]['description'],
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{CreateCn.instance_storage_url}"
                                f"{CreateCn.payload['tender']['documents'][2]['id']}",
                         "datePublished": CreateCn.message_from_kafka['data']['operationDate'],
                         "relatedLots": actual_result['releases'][0]['tender']['documents'][2]['relatedLots']
@@ -2277,7 +2302,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                                     'auctionPeriod']['startDate']
                             },
                             "electronicAuctionModalities": [{
-                                "url": f"http://auction.eprocurement.systems/auctions/"
+                                "url": f"https://eauction.eprocurement.systems/auctions/"
                                        f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}/"
                                        f"{actual_result['releases'][0]['tender']['lots'][0]['id']}",
                                 "eligibleMinimumDifference": {
@@ -2295,7 +2320,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                                     'auctionPeriod']['startDate']
                             },
                             "electronicAuctionModalities": [{
-                                "url": f"http://auction.eprocurement.systems/auctions/"
+                                "url": f"https://eauction.eprocurement.systems/auctions/"
                                        f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}/"
                                        f"{actual_result['releases'][0]['tender']['lots'][1]['id']}",
                                 "eligibleMinimumDifference": {
@@ -2318,7 +2343,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                     "relationship": ["parent"],
                     "scheme": "ocid",
                     "identifier": CreateCn.message_from_kafka['data']['ocid'],
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                    "uri": f"{CreateCn.instance_tender_url}"
                            f"{CreateCn.message_from_kafka['data']['ocid']}/"
                            f"{CreateCn.message_from_kafka['data']['ocid']}"
                 }, {
@@ -2326,7 +2351,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                     "relationship": ["planning"],
                     "scheme": "ocid",
                     "identifier": CreateCn.pn_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                    "uri": f"{CreateCn.instance_tender_url}"
                            f"{CreateCn.message_from_kafka['data']['ocid']}/"
                            f"{CreateCn.pn_id}"
                 }]
@@ -2738,7 +2763,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                                     CreateCn.payload['tender']['procuringEntity']['persones'][0]['businessFunctions'][
                                         0]['documents'][0]['description'],
                                 "url":
-                                    f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                                    f"{CreateCn.instance_storage_url}"
                                     f"{persone_document}",
                                 "datePublished": CreateCn.message_from_kafka['data']['operationDate']
                             }]
@@ -2772,7 +2797,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                     "relationship": ["x_evaluation"],
                     "scheme": "ocid",
                     "identifier": CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id'],
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                    "uri": f"{CreateCn.instance_tender_url}"
                            f"{CreateCn.message_from_kafka['data']['ocid']}/"
                            f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}"
                 }]
@@ -2850,12 +2875,25 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
             payload=payload
         )
         cn.get_message_from_kafka()
-
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
         CreateCn.message_from_kafka = cn.get_message_from_kafka()
         CreateCn.successfully_create_cn = cn.check_on_that_message_is_successfully_create_cn()
         CreateCn.payload = payload
         CreateCn.cp_id = create_pn_response[4]
         CreateCn.pn_id = create_pn_response[5]
+        CreateCn.instance_tender_url = instance_tender_url
+        CreateCn.instance_budget_url = instance_budget_url
+        CreateCn.instance_storage_url = instance_storage_url
         assert compare_actual_result_and_expected_result(
             expected_result=str(202),
             actual_result=str(create_cn_response.status_code)
@@ -2904,7 +2942,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
 
         actual_result = ev_release
         expected_result = {
-            "uri": f"http://dev.public.eprocurement.systems/tenders/{CreateCn.message_from_kafka['data']['ocid']}/"
+            "uri": f"{CreateCn.instance_tender_url}{CreateCn.message_from_kafka['data']['ocid']}/"
                    f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}",
             "version": "1.1",
             "extensions": [
@@ -3015,7 +3053,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                         "id": CreateCn.payload['tender']['documents'][0]['id'],
                         "documentType": CreateCn.payload['tender']['documents'][0]['documentType'],
                         "title": CreateCn.payload['tender']['documents'][0]['title'],
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{CreateCn.instance_storage_url}"
                                f"{CreateCn.payload['tender']['documents'][0]['id']}",
                         "datePublished": CreateCn.message_from_kafka['data']['operationDate']
                     }],
@@ -3038,7 +3076,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                     "relationship": ["parent"],
                     "scheme": "ocid",
                     "identifier": CreateCn.message_from_kafka['data']['ocid'],
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                    "uri": f"{CreateCn.instance_tender_url}"
                            f"{CreateCn.message_from_kafka['data']['ocid']}/"
                            f"{CreateCn.message_from_kafka['data']['ocid']}"
                 }, {
@@ -3046,7 +3084,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                     "relationship": ["planning"],
                     "scheme": "ocid",
                     "identifier": CreateCn.pn_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                    "uri": f"{CreateCn.instance_tender_url}"
                            f"{CreateCn.message_from_kafka['data']['ocid']}/"
                            f"{CreateCn.pn_id}"
                 }]
@@ -3421,7 +3459,7 @@ class TestCheckOnCorrectnessOfPublishingEvMsPnReleasesBasedOnPnObligatoryDataMod
                     "relationship": ["x_evaluation"],
                     "scheme": "ocid",
                     "identifier": CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id'],
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/"
+                    "uri": f"{CreateCn.instance_tender_url}"
                            f"{CreateCn.message_from_kafka['data']['ocid']}/"
                            f"{CreateCn.message_from_kafka['data']['outcomes']['ev'][0]['id']}"
                 }]

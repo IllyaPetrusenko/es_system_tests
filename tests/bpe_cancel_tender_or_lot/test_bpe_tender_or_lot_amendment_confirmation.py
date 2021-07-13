@@ -52,6 +52,20 @@ class TestCheckOnThePossibilityOfTenderAmendmentConfirmationForTenderInActiveCla
                 cp_id=cancel_tender_response[0],
                 ev_id=cancel_tender_response[3]
             )
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
+        ConfirmTenderAmendment.instance_tender_url = instance_tender_url
+        ConfirmTenderAmendment.instance_budget_url = instance_budget_url
+        ConfirmTenderAmendment.instance_storage_url = instance_storage_url
         ConfirmTenderAmendment.cp_id = cancel_tender_response[0]
         ConfirmTenderAmendment.ev_id = cancel_tender_response[3]
         ConfirmTenderAmendment.pn_id = cancel_tender_response[1]
@@ -144,7 +158,7 @@ class TestCheckOnThePossibilityOfTenderAmendmentConfirmationForTenderInActiveCla
     def test_compare_ev_release_before_updating_and_after_updating_27602_4(self):
         before_amendment_confirmation = ConfirmTenderAmendment.ms_release_before_tender_amendment_confirmation
         ms_release_after_tender_amendment_confirmation = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders/{ConfirmTenderAmendment.cp_id}/"
+            url=f"{ConfirmTenderAmendment.instance_tender_url}{ConfirmTenderAmendment.cp_id}/"
                 f"{ConfirmTenderAmendment.cp_id}").json()
 
         expected_result = {
@@ -222,6 +236,20 @@ class TestCheckOnThePossibilityOfTenderAmendmentConfirmationForTenderInActiveCla
                 cp_id=cancel_tender_response[0],
                 ev_id=cancel_tender_response[3]
             )
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
+        ConfirmTenderAmendment.instance_tender_url = instance_tender_url
+        ConfirmTenderAmendment.instance_budget_url = instance_budget_url
+        ConfirmTenderAmendment.instance_storage_url = instance_storage_url
         ConfirmTenderAmendment.cp_id = cancel_tender_response[0]
         ConfirmTenderAmendment.ev_id = cancel_tender_response[3]
         ConfirmTenderAmendment.pn_id = cancel_tender_response[1]
@@ -314,7 +342,7 @@ class TestCheckOnThePossibilityOfTenderAmendmentConfirmationForTenderInActiveCla
     def test_compare_ev_release_before_updating_and_after_updating_27603_4(self):
         before_amendment_confirmation = ConfirmTenderAmendment.ms_release_before_tender_amendment_confirmation
         ms_release_after_tender_amendment_confirmation = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders/{ConfirmTenderAmendment.cp_id}/"
+            url=f"{ConfirmTenderAmendment.instance_tender_url}{ConfirmTenderAmendment.cp_id}/"
                 f"{ConfirmTenderAmendment.cp_id}").json()
 
         expected_result = {
@@ -393,6 +421,20 @@ class TestCheckOnThePossibilityOfLotAmendmentConfirmationForTenderInActiveClarif
                 cp_id=cancel_lot_response[0],
                 ev_id=cancel_lot_response[3]
             )
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
+        ConfirmLotAmendment.instance_tender_url = instance_tender_url
+        ConfirmLotAmendment.instance_budget_url = instance_budget_url
+        ConfirmLotAmendment.instance_storage_url = instance_storage_url
         ConfirmLotAmendment.cp_id = cancel_lot_response[0]
         ConfirmLotAmendment.ev_id = cancel_lot_response[3]
         ConfirmLotAmendment.pn_id = cancel_lot_response[1]
@@ -464,7 +506,7 @@ class TestCheckOnThePossibilityOfLotAmendmentConfirmationForTenderInActiveClarif
     @pytestrail.case('27611')
     def test_compare_ev_release_before_updating_and_after_updating_27611_4(self):
         ms_release_after_lot_amendment_confirmation = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders/{ConfirmLotAmendment.cp_id}/"
+            url=f"{ConfirmLotAmendment.instance_tender_url}{ConfirmLotAmendment.cp_id}/"
                 f"{ConfirmLotAmendment.cp_id}").json()
 
         expected_result = {}
@@ -522,6 +564,20 @@ class TestCheckOnThePossibilityOfLotAmendmentConfirmationForTenderInActiveClarif
                 cp_id=cancel_lot_response[0],
                 ev_id=cancel_lot_response[3]
             )
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
+        ConfirmLotAmendment.instance_tender_url = instance_tender_url
+        ConfirmLotAmendment.instance_budget_url = instance_budget_url
+        ConfirmLotAmendment.instance_storage_url = instance_storage_url
         ConfirmLotAmendment.cp_id = cancel_lot_response[0]
         ConfirmLotAmendment.ev_id = cancel_lot_response[3]
         ConfirmLotAmendment.pn_id = cancel_lot_response[1]
@@ -593,7 +649,7 @@ class TestCheckOnThePossibilityOfLotAmendmentConfirmationForTenderInActiveClarif
     @pytestrail.case('27611')
     def test_compare_ev_release_before_updating_and_after_updating_27612_4(self):
         ms_release_after_lot_amendment_confirmation = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders/{ConfirmLotAmendment.cp_id}/"
+            url=f"{ConfirmLotAmendment.instance_tender_url}{ConfirmLotAmendment.cp_id}/"
                 f"{ConfirmLotAmendment.cp_id}").json()
 
         expected_result = {}

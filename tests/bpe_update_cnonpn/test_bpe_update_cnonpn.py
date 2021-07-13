@@ -87,6 +87,17 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
             payload=payload
         )
         UpdateCn.message_from_kafka = cn.get_message_from_kafka()
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
         UpdateCn.successfully_update_cn = cn.check_on_that_message_is_successfully_update_cn(
             cp_id=create_ev_response[0],
             ev_id=create_ev_response[3]
@@ -95,6 +106,9 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
         UpdateCn.cp_id = create_ev_response[0]
         UpdateCn.ev_id = create_ev_response[3]
         UpdateCn.pn_id = create_ev_response[1]
+        UpdateCn.instance_tender_url = instance_tender_url
+        UpdateCn.instance_budget_url = instance_budget_url
+        UpdateCn.instance_storage_url = instance_storage_url
         assert compare_actual_result_and_expected_result(
             expected_result=str(202),
             actual_result=str(update_cn_response.status_code)
@@ -111,7 +125,6 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
     def test_compare_ev_release_before_updating_and_after_updating_27598_3(self):
         ev_release_after_updating = requests.get(
             url=f"{UpdateCn.message_from_kafka['data']['url']}").json()
-
         expected_result = {
             'dictionary_item_added': "['releases'][0]['tender']['amendments']",
             'values_changed': {
@@ -359,11 +372,6 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
                     'old_value': UpdateCn.ev_release_before_cn_updating['releases'][0]['tender']['tenderPeriod'][
                         'endDate']
                 },
-                "root['releases'][0]['tender']['enquiryPeriod']['startDate']": {
-                    'new_value': ev_release_after_updating['releases'][0]['tender']['enquiryPeriod']['startDate'],
-                    'old_value': UpdateCn.ev_release_before_cn_updating['releases'][0]['tender']['enquiryPeriod'][
-                        'startDate']
-                },
                 "root['releases'][0]['tender']['enquiryPeriod']['endDate']": {
                     'new_value': ev_release_after_updating['releases'][0]['tender']['enquiryPeriod']['endDate'],
                     'old_value': UpdateCn.ev_release_before_cn_updating['releases'][0]['tender']['enquiryPeriod'][
@@ -509,10 +517,6 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
         actual_result = DeepDiff(UpdateCn.ev_release_before_cn_updating, ev_release_after_updating)
         dictionary_item_added_was_cleaned = str(actual_result['dictionary_item_added']).replace('root', '')[1:-1]
         actual_result['dictionary_item_added'] = dictionary_item_added_was_cleaned
-        assert compare_actual_result_and_expected_result(
-            expected_result=str(expected_result),
-            actual_result=str(actual_result)
-        )
         actual_amendments = ev_release_after_updating['releases'][0]['tender']['amendments']
         expected_amendments = [{
             "id": actual_amendments[0]['id'],
@@ -523,6 +527,10 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
             "rationale": "General change of Contract Notice"
         }]
         assert compare_actual_result_and_expected_result(
+            expected_result=str(expected_result),
+            actual_result=str(actual_result)
+        )
+        assert compare_actual_result_and_expected_result(
             expected_result=str(expected_amendments),
             actual_result=str(actual_amendments)
         )
@@ -530,7 +538,7 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
     @pytestrail.case('27598')
     def test_compare_ms_release_before_updating_and_after_updating_27598_4(self):
         ms_release_after_updating = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders/{UpdateCn.cp_id}/{UpdateCn.cp_id}").json()
+            url=f"{UpdateCn.instance_tender_url}{UpdateCn.cp_id}/{UpdateCn.cp_id}").json()
 
         expected_result = {
             'values_changed': {
@@ -773,7 +781,7 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithFullDataModel(object):
     @pytestrail.case('27598')
     def test_compare_pn_release_before_updating_and_after_updating_27598_5(self):
         pn_release_after_updating = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders/{UpdateCn.cp_id}/{UpdateCn.pn_id}").json()
+            url=f"{UpdateCn.instance_tender_url}{UpdateCn.cp_id}/{UpdateCn.pn_id}").json()
 
         expected_result = {}
         actual_result = DeepDiff(UpdateCn.pn_release_before_cn_updating, pn_release_after_updating)
@@ -832,6 +840,17 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithObligatoryDataModel(object):
             payload=payload
         )
         UpdateCn.message_from_kafka = cn.get_message_from_kafka()
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
         UpdateCn.successfully_update_cn = cn.check_on_that_message_is_successfully_update_cn(
             cp_id=create_ev_response[0],
             ev_id=create_ev_response[3]
@@ -840,6 +859,9 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithObligatoryDataModel(object):
         UpdateCn.cp_id = create_ev_response[0]
         UpdateCn.ev_id = create_ev_response[3]
         UpdateCn.pn_id = create_ev_response[1]
+        UpdateCn.instance_tender_url = instance_tender_url
+        UpdateCn.instance_budget_url = instance_budget_url
+        UpdateCn.instance_storage_url = instance_storage_url
         assert compare_actual_result_and_expected_result(
             expected_result=str(202),
             actual_result=str(update_cn_response.status_code)
@@ -1072,11 +1094,6 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithObligatoryDataModel(object):
                     'old_value': UpdateCn.ev_release_before_cn_updating['releases'][0]['tender']['tenderPeriod'][
                         'endDate']
                 },
-                "root['releases'][0]['tender']['enquiryPeriod']['startDate']": {
-                    'new_value': ev_release_after_updating['releases'][0]['tender']['enquiryPeriod']['startDate'],
-                    'old_value': UpdateCn.ev_release_before_cn_updating['releases'][0]['tender']['enquiryPeriod'][
-                        'startDate']
-                },
                 "root['releases'][0]['tender']['enquiryPeriod']['endDate']": {
                     'new_value': ev_release_after_updating['releases'][0]['tender']['enquiryPeriod']['endDate'],
                     'old_value': UpdateCn.ev_release_before_cn_updating['releases'][0]['tender']['enquiryPeriod'][
@@ -1125,7 +1142,7 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithObligatoryDataModel(object):
     @pytestrail.case('27599')
     def test_compare_ms_release_before_updating_and_after_updating_27599_4(self):
         ms_release_after_updating = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders/{UpdateCn.cp_id}/{UpdateCn.cp_id}").json()
+            url=f"{UpdateCn.instance_tender_url}{UpdateCn.cp_id}/{UpdateCn.cp_id}").json()
 
         expected_result = {
             'values_changed': {
@@ -1168,7 +1185,7 @@ class TestCheckOnThePossibilityOfCnOnPnUpdatingWithObligatoryDataModel(object):
     @pytestrail.case('27599')
     def test_compare_pn_release_before_updating_and_after_updating_27599_5(self):
         pn_release_after_updating = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders/{UpdateCn.cp_id}/{UpdateCn.pn_id}").json()
+            url=f"{UpdateCn.instance_tender_url}{UpdateCn.cp_id}/{UpdateCn.pn_id}").json()
 
         expected_result = {}
         actual_result = DeepDiff(UpdateCn.pn_release_before_cn_updating, pn_release_after_updating)
