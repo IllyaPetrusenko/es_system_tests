@@ -58,6 +58,20 @@ class TestCheckOnThePossibilityOfLotCancellationForTenderInActiveClarificationTe
             cp_id=create_ev_response[0],
             ev_id=create_ev_response[3]
         )
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
+        CancelLot.instance_tender_url = instance_tender_url
+        CancelLot.instance_budget_url = instance_budget_url
+        CancelLot.instance_storage_url = instance_storage_url
         CancelLot.payload = payload
         CancelLot.cp_id = create_ev_response[0]
         CancelLot.ev_id = create_ev_response[3]
@@ -112,7 +126,7 @@ class TestCheckOnThePossibilityOfLotCancellationForTenderInActiveClarificationTe
                 "documentType": CancelLot.payload['amendments'][0]['documents'][0]['documentType'],
                 "title": CancelLot.payload['amendments'][0]['documents'][0]['title'],
                 "description": CancelLot.payload['amendments'][0]['documents'][0]['description'],
-                "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                "url": f"{CancelLot.instance_storage_url}"
                        f"{CancelLot.payload['amendments'][0]['documents'][0]['id']}",
                 "datePublished": CancelLot.message_from_kafka['data']['operationDate']
             }]
@@ -129,7 +143,7 @@ class TestCheckOnThePossibilityOfLotCancellationForTenderInActiveClarificationTe
     @pytestrail.case('27607')
     def test_compare_ev_release_before_updating_and_after_updating_27607_4(self):
         ms_release_after_cancelling = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders/{CancelLot.cp_id}/{CancelLot.cp_id}").json()
+            url=f"{CancelLot.instance_tender_url}{CancelLot.cp_id}/{CancelLot.cp_id}").json()
 
         expected_result = {}
         actual_result = DeepDiff(CancelLot.ms_release_before_lot_cancelling, ms_release_after_cancelling)
@@ -181,6 +195,20 @@ class TestCheckOnThePossibilityOfLotCancellationForTenderInActiveClarificationTe
             cp_id=create_ev_response[0],
             ev_id=create_ev_response[3]
         )
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
+        CancelLot.instance_tender_url = instance_tender_url
+        CancelLot.instance_budget_url = instance_budget_url
+        CancelLot.instance_storage_url = instance_storage_url
         CancelLot.payload = payload
         CancelLot.cp_id = create_ev_response[0]
         CancelLot.ev_id = create_ev_response[3]
@@ -243,7 +271,7 @@ class TestCheckOnThePossibilityOfLotCancellationForTenderInActiveClarificationTe
     @pytestrail.case('27608')
     def test_compare_ev_release_before_updating_and_after_updating_27608_4(self):
         ms_release_after_cancelling = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders/{CancelLot.cp_id}/{CancelLot.cp_id}").json()
+            url=f"{CancelLot.instance_tender_url}{CancelLot.cp_id}/{CancelLot.cp_id}").json()
         expected_result = {}
         actual_result = DeepDiff(CancelLot.ms_release_before_lot_cancelling, ms_release_after_cancelling)
         assert compare_actual_result_and_expected_result(

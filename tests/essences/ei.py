@@ -157,7 +157,7 @@ class EI:
             json=self.payload)
         allure.attach(self.host_of_request + "/do/ei", 'URL')
         allure.attach(json.dumps(self.payload), 'Prepared payload')
-        return ei
+        return ei, self.x_operation_id
 
     @allure.step('Insert EI')
     def insert_ei_full_data_model(self, cp_id, ei_token):

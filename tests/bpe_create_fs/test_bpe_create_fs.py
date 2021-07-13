@@ -314,6 +314,11 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
                 keys_list.append(i)
         procuring_entity_scheme = payload["tender"]["procuringEntity"]["identifier"]["scheme"]
         procuring_entity_id = payload["tender"]["procuringEntity"]["identifier"]["id"]
+        instance_url = None
+        if instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         assert compare_actual_result_and_expected_result(
             expected_result="uri",
             actual_result=keys_list[0]
@@ -663,7 +668,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
         )
 
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{message_from_kafka['data']['ocid']}/"
+            expected_result=f"{instance_url}{message_from_kafka['data']['ocid']}/"
                             f"{message_from_kafka['data']['outcomes']['fs'][0]['id']}",
             actual_result=fs_release["uri"]
         )
@@ -946,7 +951,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelTreasuryMoney(object):
             actual_result=fs_release["releases"][0]["relatedProcesses"][0]["identifier"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}",
+            expected_result=f"{instance_url}{cp_id}/{cp_id}",
             actual_result=fs_release["releases"][0]["relatedProcesses"][0]["uri"]
         )
 
@@ -2457,6 +2462,11 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
                 keys_list.append(i)
         procuring_entity_scheme = payload["tender"]["procuringEntity"]["identifier"]["scheme"]
         procuring_entity_id = payload["tender"]["procuringEntity"]["identifier"]["id"]
+        instance_url = None
+        if instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         assert compare_actual_result_and_expected_result(
             expected_result="uri",
             actual_result=keys_list[0]
@@ -2730,7 +2740,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
         )
 
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{message_from_kafka['data']['ocid']}/"
+            expected_result=f"{instance_url}{message_from_kafka['data']['ocid']}/"
                             f"{message_from_kafka['data']['outcomes']['fs'][0]['id']}",
             actual_result=fs_release["uri"]
         )
@@ -2944,7 +2954,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelTreasuryMoney(obj
             actual_result=fs_release["releases"][0]["relatedProcesses"][0]["identifier"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}",
+            expected_result=f"{instance_url}{cp_id}/{cp_id}",
             actual_result=fs_release["releases"][0]["relatedProcesses"][0]["uri"]
         )
 
@@ -3342,6 +3352,11 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
                 keys_list.append(i)
         procuring_entity_scheme = payload["tender"]["procuringEntity"]["identifier"]["scheme"]
         procuring_entity_id = payload["tender"]["procuringEntity"]["identifier"]["id"]
+        instance_url = None
+        if instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         assert compare_actual_result_and_expected_result(
             expected_result="uri",
             actual_result=keys_list[0]
@@ -3843,7 +3858,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
         )
 
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{message_from_kafka['data']['ocid']}/"
+            expected_result=f"{instance_url}{message_from_kafka['data']['ocid']}/"
                             f"{message_from_kafka['data']['outcomes']['fs'][0]['id']}",
             actual_result=fs_release["uri"]
         )
@@ -4247,7 +4262,7 @@ class TestCheckOnPossibilityOfCreatingFsWithFullDataModelOwnMoney(object):
             actual_result=fs_release["releases"][0]["relatedProcesses"][0]["identifier"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}",
+            expected_result=f"{instance_url}{cp_id}/{cp_id}",
             actual_result=fs_release["releases"][0]["relatedProcesses"][0]["uri"]
         )
 
@@ -6625,6 +6640,11 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
                 keys_list.append(i)
         procuring_entity_scheme = payload["tender"]["procuringEntity"]["identifier"]["scheme"]
         procuring_entity_id = payload["tender"]["procuringEntity"]["identifier"]["id"]
+        instance_url = None
+        if instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         assert compare_actual_result_and_expected_result(
             expected_result="uri",
             actual_result=keys_list[0]
@@ -7013,7 +7033,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
             actual_result=keys_list[96]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{message_from_kafka['data']['ocid']}/"
+            expected_result=f"{instance_url}{message_from_kafka['data']['ocid']}/"
                             f"{message_from_kafka['data']['outcomes']['fs'][0]['id']}",
             actual_result=fs_release["uri"]
         )
@@ -7314,7 +7334,7 @@ class TestCheckOnPossibilityOfCreatingFsWithObligatoryDataModelOwnMoney(object):
             actual_result=fs_release["releases"][0]["relatedProcesses"][0]["identifier"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}",
+            expected_result=f"{instance_url}{cp_id}/{cp_id}",
             actual_result=fs_release["releases"][0]["relatedProcesses"][0]["uri"]
         )
 
@@ -7386,10 +7406,10 @@ class TestCheckTheCorrectSettingOfTheReleaseDateValueInTheFsRelease(object):
             cassandra_username=cassandra_username,
             cassandra_password=cassandra_password
         )
-        start_date = database.execute_cql_from_orchestrator_operation_step_by_oper_id(
+        start_date = (database.execute_cql_from_orchestrator_operation_step_by_oper_id(
             operation_id=message_from_kafka["X-OPERATION-ID"],
             task_id="NoticeCreateReleaseTask",
-        )[3]["startDate"]
+        ))[1]['context']['startDate']
         print(start_date)
 
     @pytestrail.case('27552')
@@ -7424,7 +7444,7 @@ class TestCheckTheCorrectSettingOfTheReleaseDateValueInTheFsRelease(object):
         start_date = database.execute_cql_from_orchestrator_operation_step_by_oper_id(
             operation_id=message_from_kafka["X-OPERATION-ID"],
             task_id="NoticeCreateReleaseTask",
-        )[3]["startDate"]
+        )[1]['context']['startDate']
         assert compare_actual_result_and_expected_result(
             expected_result=start_date,
             actual_result=fs_release["releases"][0]["date"]

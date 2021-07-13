@@ -1,4 +1,5 @@
 import copy
+import json
 from uuid import uuid4
 import requests
 from deepdiff import DeepDiff
@@ -45,10 +46,24 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         )
         pn.create_pn(fs_id=create_fs_response[1])
         pn.get_message_from_kafka()
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
         CreatePn.message_from_kafka = pn.get_message_from_kafka()
         CreatePn.payload = payload
         CreatePn.ei_id = ei_id
         CreatePn.fs_id = create_fs_response[1]
+        CreatePn.instance_tender_url = instance_tender_url
+        CreatePn.instance_budget_url = instance_budget_url
+        CreatePn.instance_storage_url = instance_storage_url
         assert compare_actual_result_and_expected_result(
             expected_result=str(True),
             actual_result=str(pn.check_on_that_message_is_successfully_create_pn())
@@ -62,7 +77,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         cp_id = CreatePn.message_from_kafka['data']['ocid']
         pn_id = CreatePn.message_from_kafka['data']['outcomes']['pn'][0]['id']
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}",
+            expected_result=f"{CreatePn.instance_tender_url}{cp_id}/{pn_id}",
             actual_result=pn_release["uri"]
         )
 
@@ -526,7 +541,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
                      CreatePn.message_from_kafka['data']['ocid']
         ms_release = requests.get(url=url_create).json()
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/tenders/"
+            expected_result=f"{CreatePn.instance_tender_url}"
                             f"{CreatePn.message_from_kafka['data']['ocid']}/"
                             f"{CreatePn.message_from_kafka['data']['ocid']}",
             actual_result=ms_release["uri"]
@@ -2613,7 +2628,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
             if p["relationship"] == ["x_expenditureItem"]:
                 related_processes_with_relationship_x_expenditure_item.append(p)
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{CreatePn.ei_id}/{CreatePn.ei_id}",
+            expected_result=f"{CreatePn.instance_budget_url}{CreatePn.ei_id}/{CreatePn.ei_id}",
             actual_result=related_processes_with_relationship_x_expenditure_item[0]['uri']
         )
 
@@ -2686,7 +2701,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
             if p["relationship"] == ["x_fundingSource"]:
                 related_processes_with_relationship_x_funding_source.append(p)
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{CreatePn.ei_id}/{CreatePn.fs_id}",
+            expected_result=f"{CreatePn.instance_budget_url}{CreatePn.ei_id}/{CreatePn.fs_id}",
             actual_result=related_processes_with_relationship_x_funding_source[0]['uri']
         )
 
@@ -2740,7 +2755,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
                 raise Exception("Treasury money model was used -> BR-10.3.15")
         actual_result = ms_release
         expected_result = {
-            "uri": f"http://dev.public.eprocurement.systems/tenders/"
+            "uri": f"{CreatePn.instance_tender_url}"
                    f"{message_from_kafka['data']['ocid']}/{message_from_kafka['data']['ocid']}",
             "version": "1.1",
             "extensions": [
@@ -2756,7 +2771,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
             "releases": [{
                 "ocid": message_from_kafka['data']['ocid'],
                 "id": f"{message_from_kafka['data']['ocid']}-"
-                      f"{message_from_kafka['data']['outcomes']['pn'][0]['id'][32:45]}",
+                      f"{actual_result['releases'][0]['id'][29:42]}",
                 "date": message_from_kafka['data']['operationDate'],
                 "tag": ["compiled"],
                 "language": language,
@@ -2979,13 +2994,13 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
                     "relationship": ["x_expenditureItem"],
                     "scheme": "ocid",
                     "identifier": ei_id,
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                    "uri": f"{CreatePn.instance_budget_url}{ei_id}/{ei_id}"
                 }, {
                     "id": actual_result['releases'][0]['relatedProcesses'][2]['id'],
                     "relationship": ["x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": payload["planning"]["budget"]["budgetBreakdown"][0]['id'],
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/"
+                    "uri": f"{CreatePn.instance_budget_url}{ei_id}/"
                            f"{payload['planning']['budget']['budgetBreakdown'][0]['id']}"
                 }]
             }]
@@ -3028,7 +3043,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
         submissionMethodRationale = data["data"]["tender"]["submissionMethodRationale"]
         actual_result = pn_release
         expected_result = {
-            "uri": f"http://dev.public.eprocurement.systems/tenders/{message_from_kafka['data']['ocid']}/"
+            "uri": f"{CreatePn.instance_tender_url}{message_from_kafka['data']['ocid']}/"
                    f"{message_from_kafka['data']['outcomes']['pn'][0]['id']}",
             "version": "1.1",
             "extensions": [
@@ -3044,7 +3059,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
             "releases": [{
                 "ocid": message_from_kafka['data']['outcomes']['pn'][0]['id'],
                 "id": f"{message_from_kafka['data']['outcomes']['pn'][0]['id']}-"
-                      f"{message_from_kafka['data']['outcomes']['pn'][0]['id'][32:45]}",
+                      f"{actual_result['releases'][0]['id'][46:59]}",
                 "date": message_from_kafka['data']['operationDate'],
                 "tag": ["planning"],
                 "language": language,
@@ -3085,7 +3100,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithoutOptionalFields(objec
                     "relationship": ["parent"],
                     "scheme": "ocid",
                     "identifier": message_from_kafka['data']['ocid'],
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{message_from_kafka['data']['ocid']}/"
+                    "uri": f"{CreatePn.instance_tender_url}{message_from_kafka['data']['ocid']}/"
                            f"{message_from_kafka['data']['ocid']}"
                 }]
             }]
@@ -3130,10 +3145,24 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         )
         pn.create_pn(fs_id=create_fs_response[1])
         pn.get_message_from_kafka()
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
         CreatePn.message_from_kafka = pn.get_message_from_kafka()
         CreatePn.payload = payload
         CreatePn.ei_id = ei_id
         CreatePn.fs_id = create_fs_response[1]
+        CreatePn.instance_tender_url = instance_tender_url
+        CreatePn.instance_budget_url = instance_budget_url
+        CreatePn.instance_storage_url = instance_storage_url
         assert compare_actual_result_and_expected_result(
             expected_result=str(True),
             actual_result=str(pn.check_on_that_message_is_successfully_create_pn())
@@ -3145,7 +3174,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
                      CreatePn.message_from_kafka['data']['ocid']
         ms_release = requests.get(url=url_create).json()
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/tenders/"
+            expected_result=f"{CreatePn.instance_tender_url}"
                             f"{CreatePn.message_from_kafka['data']['ocid']}/"
                             f"{CreatePn.message_from_kafka['data']['ocid']}",
             actual_result=ms_release["uri"]
@@ -6721,7 +6750,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
             if p["relationship"] == ["x_expenditureItem"]:
                 related_processes_with_relationship_x_expenditure_item.append(p)
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{CreatePn.ei_id}/{CreatePn.ei_id}",
+            expected_result=f"{CreatePn.instance_budget_url}{CreatePn.ei_id}/{CreatePn.ei_id}",
             actual_result=related_processes_with_relationship_x_expenditure_item[0]['uri']
         )
 
@@ -6794,7 +6823,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
             if p["relationship"] == ["x_fundingSource"]:
                 related_processes_with_relationship_x_funding_source.append(p)
         assert compare_actual_result_and_expected_result(
-            expected_result=f"http://dev.public.eprocurement.systems/budgets/{CreatePn.ei_id}/{CreatePn.fs_id}",
+            expected_result=f"{CreatePn.instance_budget_url}{CreatePn.ei_id}/{CreatePn.fs_id}",
             actual_result=related_processes_with_relationship_x_funding_source[0]['uri']
         )
 
@@ -6888,7 +6917,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
 
         actual_result = ms_release
         expected_result = {
-            "uri": f"http://dev.public.eprocurement.systems/tenders/"
+            "uri": f"{CreatePn.instance_tender_url}"
                    f"{message_from_kafka['data']['ocid']}/{message_from_kafka['data']['ocid']}",
             "version": "1.1",
             "extensions": [
@@ -6904,7 +6933,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
             "releases": [{
                 "ocid": message_from_kafka['data']['ocid'],
                 "id": f"{message_from_kafka['data']['ocid']}-"
-                      f"{message_from_kafka['data']['outcomes']['pn'][0]['id'][32:45]}",
+                      f"{actual_result['releases'][0]['id'][29:42]}",
                 "date": message_from_kafka['data']['operationDate'],
                 "tag": ["compiled"],
                 "language": language,
@@ -7232,13 +7261,13 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
                     "relationship": ["x_expenditureItem"],
                     "scheme": "ocid",
                     "identifier": ei_id,
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                    "uri": f"{CreatePn.instance_budget_url}{ei_id}/{ei_id}"
                 }, {
                     "id": actual_result['releases'][0]['relatedProcesses'][2]['id'],
                     "relationship": ["x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": payload["planning"]["budget"]["budgetBreakdown"][0]['id'],
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/"
+                    "uri": f"{CreatePn.instance_budget_url}{ei_id}/"
                            f"{payload['planning']['budget']['budgetBreakdown'][0]['id']}"
                 }]
             }]
@@ -7326,7 +7355,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
         )
         actual_result = pn_release
         expected_result = {
-            "uri": f"http://dev.public.eprocurement.systems/tenders/{message_from_kafka['data']['ocid']}/"
+            "uri": f"{CreatePn.instance_tender_url}{message_from_kafka['data']['ocid']}/"
                    f"{message_from_kafka['data']['outcomes']['pn'][0]['id']}",
             "version": "1.1",
             "extensions": [
@@ -7342,7 +7371,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
             "releases": [{
                 "ocid": message_from_kafka['data']['outcomes']['pn'][0]['id'],
                 "id": f"{message_from_kafka['data']['outcomes']['pn'][0]['id']}-"
-                      f"{message_from_kafka['data']['outcomes']['pn'][0]['id'][32:45]}",
+                      f"{actual_result['releases'][0]['id'][46:59]}",
                 "date": message_from_kafka['data']['operationDate'],
                 "tag": ["planning"],
                 "language": language,
@@ -7364,7 +7393,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
                         },
                         "additionalClassifications": [{
                             "scheme": "CPVS",
-                            "id":get_value_by_first_item_cpvs_code[0],
+                            "id": get_value_by_first_item_cpvs_code[0],
                             "description": get_value_by_first_item_cpvs_code[2]
                         }],
                         "quantity": payload['tender']['items'][0]['quantity'],
@@ -7527,7 +7556,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
                         "documentType": payload['tender']['documents'][0]['documentType'],
                         "title": payload['tender']['documents'][0]['title'],
                         "description": payload['tender']['documents'][0]['description'],
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{CreatePn.instance_storage_url}"
                                f"{payload['tender']['documents'][0]['id']}",
                         "datePublished": message_from_kafka['data']['operationDate'],
                         "relatedLots": [actual_result['releases'][0]['tender']['lots'][0]['id']]
@@ -7536,7 +7565,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
                         "documentType": payload['tender']['documents'][1]['documentType'],
                         "title": payload['tender']['documents'][1]['title'],
                         "description": payload['tender']['documents'][1]['description'],
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{CreatePn.instance_storage_url}"
                                f"{payload['tender']['documents'][1]['id']}",
                         "datePublished": message_from_kafka['data']['operationDate'],
                         "relatedLots": [actual_result['releases'][0]['tender']['lots'][1]['id']]
@@ -7566,7 +7595,7 @@ class TestCheckThePossibilityOfPlanningNoticeCreationWithFullDataModel(object):
                     "relationship": ["parent"],
                     "scheme": "ocid",
                     "identifier": message_from_kafka['data']['ocid'],
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{message_from_kafka['data']['ocid']}/"
+                    "uri": f"{CreatePn.instance_tender_url}{message_from_kafka['data']['ocid']}/"
                            f"{message_from_kafka['data']['ocid']}"
                 }]
             }]

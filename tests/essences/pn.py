@@ -263,6 +263,11 @@ class PN:
         fs_id = prepared_fs_oc_id(cp_id)
         fs_token = uuid4()
         period = get_period()
+        instance_budget_url = None
+        if self.instance == "dev":
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
@@ -496,7 +501,7 @@ class PN:
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": f"{fs_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
             }]
         }
 
@@ -572,7 +577,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -655,7 +660,7 @@ class PN:
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": f"{fs_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
             }]
         }
 
@@ -731,7 +736,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": f"{cp_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -764,7 +769,7 @@ class PN:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        return f"{instance_budget_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Treasury - full, based on EI: without items - obligatory')
     def insert_fs_treasury_full_ei_obligatory_without_items(self, cp_id, ei_token):
@@ -775,6 +780,11 @@ class PN:
         fs_id = prepared_fs_oc_id(cp_id)
         fs_token = uuid4()
         period = get_period()
+        instance_budget_url = None
+        if self.instance == "dev":
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
@@ -1023,7 +1033,7 @@ class PN:
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": f"{fs_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
             }]
         }
 
@@ -1120,7 +1130,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -1203,7 +1213,7 @@ class PN:
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": f"{fs_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
             }]
         }
 
@@ -1300,7 +1310,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": f"{cp_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -1333,7 +1343,7 @@ class PN:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        return f"{instance_budget_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Treasury - obligatory, based on EI: without items - full')
     def insert_fs_treasury_obligatory_ei_full_without_items(self, cp_id, ei_token):
@@ -1344,6 +1354,11 @@ class PN:
         fs_id = prepared_fs_oc_id(cp_id)
         fs_token = uuid4()
         period = get_period()
+        instance_budget_url = None
+        if self.instance == "dev":
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
@@ -1611,7 +1626,7 @@ class PN:
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": f"{fs_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
             }]
         }
 
@@ -1687,7 +1702,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -1787,7 +1802,7 @@ class PN:
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": f"{fs_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
             }]
         }
 
@@ -1863,7 +1878,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": f"{cp_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -1896,7 +1911,7 @@ class PN:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        return f"{instance_budget_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Treasury - full, based on EI: with items - obligatory')
     def insert_fs_treasury_full_ei_obligatory_with_items(self, cp_id, ei_token):
@@ -1907,6 +1922,11 @@ class PN:
         fs_id = prepared_fs_oc_id(cp_id)
         fs_token = uuid4()
         period = get_period()
+        instance_budget_url = None
+        if self.instance == "dev":
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
@@ -2216,7 +2236,7 @@ class PN:
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": f"{fs_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
             }]
         }
 
@@ -2313,7 +2333,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -2427,7 +2447,7 @@ class PN:
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": f"{fs_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
             }]
         }
 
@@ -2524,7 +2544,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": f"{cp_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -2557,7 +2577,7 @@ class PN:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        return f"{instance_budget_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Own - obligatory, based on EI: without items - obligatory')
     def insert_fs_own_obligatory_ei_obligatory_without_items(self, cp_id, ei_token):
@@ -2568,6 +2588,11 @@ class PN:
         fs_id = prepared_fs_oc_id(cp_id)
         fs_token = uuid4()
         period = get_period()
+        instance_budget_url = None
+        if self.instance == "dev":
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
@@ -2840,7 +2865,7 @@ class PN:
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": f"{fs_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
             }]
         }
 
@@ -2954,7 +2979,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -3037,7 +3062,7 @@ class PN:
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": f"{fs_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
             }]
         }
 
@@ -3152,7 +3177,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": f"{cp_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -3185,7 +3210,7 @@ class PN:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        return f"{instance_budget_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Own - full, based on EI: without items - obligatory')
     def insert_fs_own_full_ei_obligatory_without_items(self, cp_id, ei_token):
@@ -3196,6 +3221,11 @@ class PN:
         fs_id = prepared_fs_oc_id(cp_id)
         fs_token = uuid4()
         period = get_period()
+        instance_budget_url = None
+        if self.instance == "dev":
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
@@ -3498,7 +3528,7 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
                 }]
         }
 
@@ -3651,7 +3681,7 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                    "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
                 }]
         }
 
@@ -3739,7 +3769,7 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
                 }]
         }
 
@@ -3893,7 +3923,7 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": f"{cp_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                    "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
                 }]
         }
 
@@ -3928,7 +3958,7 @@ class PN:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        return f"{instance_budget_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Own - obligatory, based on EI: with items - full')
     def insert_fs_own_obligatory_ei_full_with_items(self, cp_id, ei_token):
@@ -3939,6 +3969,11 @@ class PN:
         fs_id = prepared_fs_oc_id(cp_id)
         fs_token = uuid4()
         period = get_period()
+        instance_budget_url = None
+        if self.instance == "dev":
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
@@ -4340,7 +4375,7 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
                 }]
         }
 
@@ -4455,7 +4490,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -4606,7 +4641,7 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
                 }]
         }
 
@@ -4721,7 +4756,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": f"{cp_id}",
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -4754,7 +4789,7 @@ class PN:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        return f"{instance_budget_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Own - full, based on EI: with items - full')
     def insert_fs_own_full_ei_full_with_items(self, cp_id, ei_token):
@@ -4765,6 +4800,11 @@ class PN:
         fs_id = prepared_fs_oc_id(cp_id)
         fs_token = uuid4()
         period = get_period()
+        instance_budget_url = None
+        if self.instance == "dev":
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
@@ -5193,7 +5233,7 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
                 }]
         }
 
@@ -5344,7 +5384,7 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                    "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
                 }]
         }
 
@@ -5495,7 +5535,7 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{cp_id}/{fs_id}"
                 }]
         }
 
@@ -5648,7 +5688,7 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": f"{cp_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}"
+                    "uri": f"{instance_budget_url}{cp_id}/{cp_id}"
                 }]
         }
 
@@ -5683,7 +5723,7 @@ class PN:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        return f"{instance_budget_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Receive message in feed-point')
     def get_message_from_kafka(self):
@@ -5759,6 +5799,7 @@ class PN:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
+        session_access = cluster.connect('access')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         ei_id = prepared_cp_id()
         ei_token = uuid4()
@@ -5815,6 +5856,17 @@ class PN:
         procurement_method_details_from_mdm = data_pn["data"]["tender"]["procurementMethodDetails"]
         eligibility_criteria_from_mdm = data_pn["data"]["tender"]["eligibilityCriteria"]
 
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if self.instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if self.instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
@@ -6627,7 +6679,7 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
                 },
                 {
                     "id": "31bd7be0-c23c-11eb-ab87-09e4e5e94b2a",
@@ -6635,7 +6687,7 @@ class PN:
                         "x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -6788,7 +6840,7 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": ei_id,
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
                 },
                 {
                     "id": "31bda2f0-c23c-11eb-ab87-09e4e5e94b2a",
@@ -6796,7 +6848,7 @@ class PN:
                         "x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -6949,14 +7001,14 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
                 },
                 {
                     "id": "ce7f5070-c057-11eb-ab87-09e4e5e94b2a",
                     "relationship": ["x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -7110,14 +7162,14 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": f"{ei_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
                 },
                 {
                     "id": "ce7f7780-c057-11eb-ab87-09e4e5e94b2a",
                     "relationship": ["x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -7420,19 +7472,19 @@ class PN:
                 "relationship": ["planning"],
                 "scheme": "ocid",
                 "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/o{pn_id}"
+                "uri": f"{instance_tender_url}{cp_id}/o{pn_id}"
             }, {
                 "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_expenditureItem"],
                 "scheme": "ocid",
                 "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/o{ei_id}"
+                "uri": f"{instance_budget_url}{ei_id}/o{ei_id}"
             }, {
                 "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                "uri": f"{instance_tender_url}{ei_id}/{fs_id}"
             }]
         }
 
@@ -7636,7 +7688,7 @@ class PN:
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{instance_storage_url}"
                                f"{self.document_one_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [first_lot_id]
@@ -7646,7 +7698,7 @@ class PN:
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{instance_storage_url}"
                                f"{self.document_two_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [second_lot_id]
@@ -7675,7 +7727,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -7972,19 +8024,19 @@ class PN:
                 "relationship": ["planning"],
                 "scheme": "ocid",
                 "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{pn_id}"
             }, {
                 "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_expenditureItem"],
                 "scheme": "ocid",
                 "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
             }, {
                 "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
             }]
 
         }
@@ -8189,7 +8241,7 @@ class PN:
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{instance_storage_url}"
                                f"{self.document_one_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [first_lot_id]
@@ -8199,7 +8251,7 @@ class PN:
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{instance_storage_url}"
                                f"{self.document_two_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [second_lot_id]
@@ -8228,7 +8280,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -8261,9 +8313,9 @@ class PN:
             f"'{fs_id + '-' + str(pn_id[32:45])}','FS');").one()
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
-        session.execute(
-            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
+        session_access.execute(
+            f"INSERT INTO tenders (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', '{pn_token}', {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -8284,9 +8336,9 @@ class PN:
 
         session.execute(f"INSERT INTO notice_offset (cp_id,release_date, stage, status) "
                         f"VALUES ('{cp_id}', {pn_id[32:45]}, 'PN', 'planning');").one()
-        pn_record = f"http://dev.public.eprocurement.systems/tenders/{cp_id}"
-        ms_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-        pn_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
+        pn_record = f"{instance_tender_url}{cp_id}"
+        ms_release = f"{instance_tender_url}{cp_id}/{cp_id}"
+        pn_release = f"{instance_tender_url}{cp_id}/{pn_id}"
         return ei_id, ei_token, fs_id, fs_token, cp_id, pn_id, pn_token, pn_record, ms_release, pn_release
 
     @allure.step('Insert PN: based on FS: treasury - obligatory, based on EI: without items - obligatory')
@@ -8294,6 +8346,7 @@ class PN:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
+        session_access = cluster.connect('access')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         ei_id = prepared_cp_id()
         ei_token = uuid4()
@@ -8317,6 +8370,17 @@ class PN:
         submission_method_rationale = data_pn["data"]["tender"]["submissionMethodRationale"]
         procurement_method_details_from_mdm = data_pn["data"]["tender"]["procurementMethodDetails"]
         eligibility_criteria_from_mdm = data_pn["data"]["tender"]["eligibilityCriteria"]
+
+        instance_tender_url = None
+        instance_budget_url = None
+
+        if self.instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+
+        if self.instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
 
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
@@ -8708,7 +8772,7 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
                 },
                 {
                     "id": "31bd7be0-c23c-11eb-ab87-09e4e5e94b2a",
@@ -8716,7 +8780,7 @@ class PN:
                         "x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -8797,7 +8861,7 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": ei_id,
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
                 },
                 {
                     "id": "31bda2f0-c23c-11eb-ab87-09e4e5e94b2a",
@@ -8805,7 +8869,7 @@ class PN:
                         "x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -8894,14 +8958,14 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
                 },
                 {
                     "id": "ce7f5070-c057-11eb-ab87-09e4e5e94b2a",
                     "relationship": ["x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -8983,14 +9047,14 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": f"{ei_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
                 },
                 {
                     "id": "ce7f7780-c057-11eb-ab87-09e4e5e94b2a",
                     "relationship": ["x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -9193,19 +9257,19 @@ class PN:
                 "relationship": ["planning"],
                 "scheme": "ocid",
                 "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/o{pn_id}"
+                "uri": f"{instance_tender_url}{cp_id}/o{pn_id}"
             }, {
                 "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_expenditureItem"],
                 "scheme": "ocid",
                 "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/o{ei_id}"
+                "uri": f"{instance_budget_url}{ei_id}/o{ei_id}"
             }, {
                 "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
             }]
         }
 
@@ -9252,7 +9316,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -9453,19 +9517,19 @@ class PN:
                 "relationship": ["planning"],
                 "scheme": "ocid",
                 "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{pn_id}"
             }, {
                 "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_expenditureItem"],
                 "scheme": "ocid",
                 "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
             }, {
                 "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
             }]
 
         }
@@ -9513,7 +9577,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -9546,9 +9610,9 @@ class PN:
             f"'{fs_id + '-' + str(pn_id[32:45])}','FS');").one()
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
-        session.execute(
-            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
+        session_access.execute(
+            f"INSERT INTO tenders (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', '{pn_token}', {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -9569,10 +9633,9 @@ class PN:
 
         session.execute(f"INSERT INTO notice_offset (cp_id,release_date, stage, status) "
                         f"VALUES ('{cp_id}', {pn_id[32:45]}, 'PN', 'planning');").one()
-
-        pn_record = f"http://dev.public.eprocurement.systems/tenders/{cp_id}"
-        ms_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-        pn_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
+        pn_record = f"{instance_tender_url}{cp_id}"
+        ms_release = f"{instance_tender_url}{cp_id}/{cp_id}"
+        pn_release = f"{instance_tender_url}{cp_id}/{pn_id}"
         return ei_id, ei_token, fs_id, fs_token, cp_id, pn_id, pn_token, pn_record, ms_release, pn_release
 
     # ---------------------------------------------------------------------------------------
@@ -9581,6 +9644,7 @@ class PN:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
+        session_access = cluster.connect('access')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         ei_id = prepared_cp_id()
         ei_token = uuid4()
@@ -9637,6 +9701,17 @@ class PN:
         procurement_method_details_from_mdm = data_pn["data"]["tender"]["procurementMethodDetails"]
         eligibility_criteria_from_mdm = data_pn["data"]["tender"]["eligibilityCriteria"]
 
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if self.instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if self.instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
             "requestId": f"{uuid4()}",
@@ -10449,7 +10524,7 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
                 },
                 {
                     "id": "31bd7be0-c23c-11eb-ab87-09e4e5e94b2a",
@@ -10457,7 +10532,7 @@ class PN:
                         "x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -10610,7 +10685,7 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": ei_id,
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
                 },
                 {
                     "id": "31bda2f0-c23c-11eb-ab87-09e4e5e94b2a",
@@ -10618,7 +10693,7 @@ class PN:
                         "x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -10771,14 +10846,14 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
                 },
                 {
                     "id": "ce7f5070-c057-11eb-ab87-09e4e5e94b2a",
                     "relationship": ["x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -10932,14 +11007,14 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": f"{ei_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
                 },
                 {
                     "id": "ce7f7780-c057-11eb-ab87-09e4e5e94b2a",
                     "relationship": ["x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -11242,19 +11317,19 @@ class PN:
                 "relationship": ["planning"],
                 "scheme": "ocid",
                 "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/o{pn_id}"
+                "uri": f"{instance_tender_url}{cp_id}/o{pn_id}"
             }, {
                 "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_expenditureItem"],
                 "scheme": "ocid",
                 "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/o{ei_id}"
+                "uri": f"{instance_budget_url}{ei_id}/o{ei_id}"
             }, {
                 "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
             }]
         }
 
@@ -11458,7 +11533,7 @@ class PN:
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{instance_storage_url}"
                                f"{self.document_one_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [first_lot_id]
@@ -11468,7 +11543,7 @@ class PN:
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{instance_storage_url}"
                                f"{self.document_two_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [second_lot_id]
@@ -11497,7 +11572,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -11794,19 +11869,19 @@ class PN:
                 "relationship": ["planning"],
                 "scheme": "ocid",
                 "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{pn_id}"
             }, {
                 "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_expenditureItem"],
                 "scheme": "ocid",
                 "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
             }, {
                 "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
             }]
 
         }
@@ -12011,7 +12086,7 @@ class PN:
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{instance_storage_url}"
                                f"{self.document_one_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [first_lot_id]
@@ -12021,7 +12096,7 @@ class PN:
                         "documentType": "contractArrangements",
                         "title": "title of document",
                         "description": "descrition of document",
-                        "url": f"https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+                        "url": f"{instance_storage_url}"
                                f"{self.document_two_was_uploaded}",
                         "datePublished": f"{get_human_date_in_utc_format(int(pn_id[32:45]))[0]}",
                         "relatedLots": [second_lot_id]
@@ -12050,7 +12125,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -12083,9 +12158,9 @@ class PN:
             f"'{fs_id + '-' + str(pn_id[32:45])}','FS');").one()
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
-        session.execute(
-            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
+        session_access.execute(
+            f"INSERT INTO tenders (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', '{pn_token}', {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -12106,9 +12181,9 @@ class PN:
 
         session.execute(f"INSERT INTO notice_offset (cp_id,release_date, stage, status) "
                         f"VALUES ('{cp_id}', {pn_id[32:45]}, 'PN', 'planning');").one()
-        pn_record = f"http://dev.public.eprocurement.systems/tenders/{cp_id}"
-        ms_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-        pn_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
+        pn_record = f"{instance_tender_url}{cp_id}"
+        ms_release = f"{instance_tender_url}{cp_id}/{cp_id}"
+        pn_release = f"{instance_tender_url}{cp_id}/{pn_id}"
         return ei_id, ei_token, fs_id, fs_token, cp_id, pn_id, pn_token, pn_record, ms_release, pn_release
 
     # ==================================
@@ -12118,6 +12193,7 @@ class PN:
         auth_provider = PlainTextAuthProvider(username=self.cassandra_username, password=self.cassandra_password)
         cluster = Cluster([self.cassandra_cluster], auth_provider=auth_provider)
         session = cluster.connect('ocds')
+        session_access = cluster.connect('access')
         owner = "445f6851-c908-407d-9b45-14b92f3e964b"
         ei_id = prepared_cp_id()
         ei_token = uuid4()
@@ -12141,6 +12217,17 @@ class PN:
         submission_method_rationale = data_pn["data"]["tender"]["submissionMethodRationale"]
         procurement_method_details_from_mdm = data_pn["data"]["tender"]["procurementMethodDetails"]
         eligibility_criteria_from_mdm = data_pn["data"]["tender"]["eligibilityCriteria"]
+
+        instance_tender_url = None
+        instance_budget_url = None
+
+        if self.instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+
+        if self.instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
 
         json_orchestrator_context = {
             "operationId": f"{uuid4()}",
@@ -12532,7 +12619,7 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
                 },
                 {
                     "id": "31bd7be0-c23c-11eb-ab87-09e4e5e94b2a",
@@ -12540,7 +12627,7 @@ class PN:
                         "x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -12621,7 +12708,7 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": ei_id,
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
                 },
                 {
                     "id": "31bda2f0-c23c-11eb-ab87-09e4e5e94b2a",
@@ -12629,7 +12716,7 @@ class PN:
                         "x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -12718,14 +12805,14 @@ class PN:
                         "x_fundingSource"],
                     "scheme": "ocid",
                     "identifier": f"{fs_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{fs_id}"
                 },
                 {
                     "id": "ce7f5070-c057-11eb-ab87-09e4e5e94b2a",
                     "relationship": ["x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -12807,14 +12894,14 @@ class PN:
                         "parent"],
                     "scheme": "ocid",
                     "identifier": f"{ei_id}",
-                    "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                    "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
                 },
                 {
                     "id": "ce7f7780-c057-11eb-ab87-09e4e5e94b2a",
                     "relationship": ["x_execution"],
                     "scheme": "ocid",
                     "identifier": cp_id,
-                    "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                    "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
                 }
             ]
         }
@@ -13017,19 +13104,19 @@ class PN:
                 "relationship": ["planning"],
                 "scheme": "ocid",
                 "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/o{pn_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{pn_id}"
             }, {
                 "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_expenditureItem"],
                 "scheme": "ocid",
                 "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/o{ei_id}"
+                "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
             }, {
                 "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                "uri": f"{instance_tender_url}{ei_id}/{fs_id}"
             }]
         }
 
@@ -13076,7 +13163,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -13277,19 +13364,19 @@ class PN:
                 "relationship": ["planning"],
                 "scheme": "ocid",
                 "identifier": pn_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{pn_id}"
             }, {
                 "id": "36b553f1-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_expenditureItem"],
                 "scheme": "ocid",
                 "identifier": ei_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{ei_id}"
+                "uri": f"{instance_budget_url}{ei_id}/{ei_id}"
             }, {
                 "id": "36b553f2-c072-11eb-ab87-09e4e5e94b2a",
                 "relationship": ["x_fundingSource"],
                 "scheme": "ocid",
                 "identifier": fs_id,
-                "uri": f"http://dev.public.eprocurement.systems/budgets/{ei_id}/{fs_id}"
+                "uri": f"{instance_tender_url}{ei_id}/{fs_id}"
             }]
 
         }
@@ -13337,7 +13424,7 @@ class PN:
                 "relationship": ["parent"],
                 "scheme": "ocid",
                 "identifier": cp_id,
-                "uri": f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
+                "uri": f"{instance_tender_url}{cp_id}/{cp_id}"
             }]
         }
 
@@ -13370,9 +13457,9 @@ class PN:
             f"'{fs_id + '-' + str(pn_id[32:45])}','FS');").one()
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{ei_id}', {pn_id[32:45]});").one()
-        session.execute(
-            f"INSERT INTO access_tender (cpid,ocid,token_entity,created_date,json_data, owner) "
-            f"VALUES ('{cp_id}', '{pn_id}', {pn_token}, {pn_id[32:45]}, "
+        session_access.execute(
+            f"INSERT INTO tenders (cpid,ocid,token_entity,created_date,json_data, owner) "
+            f"VALUES ('{cp_id}', '{pn_id}', '{pn_token}', {pn_id[32:45]}, "
             f"'{json.dumps(json_access_tender)}','{owner}');").one()
         session.execute(
             f"INSERT INTO notice_release (cp_id,oc_id, release_id, json_data, release_date, stage) "
@@ -13393,8 +13480,7 @@ class PN:
 
         session.execute(f"INSERT INTO notice_offset (cp_id,release_date, stage, status) "
                         f"VALUES ('{cp_id}', {pn_id[32:45]}, 'PN', 'planning');").one()
-
-        pn_record = f"http://dev.public.eprocurement.systems/tenders/{cp_id}"
-        ms_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{cp_id}"
-        pn_release = f"http://dev.public.eprocurement.systems/tenders/{cp_id}/{pn_id}"
+        pn_record = f"{instance_tender_url}{cp_id}"
+        ms_release = f"{instance_tender_url}{cp_id}/{cp_id}"
+        pn_release = f"{instance_tender_url}{cp_id}/{pn_id}"
         return ei_id, ei_token, fs_id, fs_token, cp_id, pn_id, pn_token, pn_record, ms_release, pn_release

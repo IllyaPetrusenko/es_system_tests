@@ -1,5 +1,6 @@
 import copy
 import datetime
+import json
 from uuid import uuid4
 import requests
 from deepdiff import DeepDiff
@@ -110,7 +111,20 @@ class TestCheckOnThePossibilityOfEnquiryPeriodReschedulingForTenderInActiveClari
             payload=payload
         )
         UpdateCn.message_from_kafka = UpdateCn.cn_class.get_message_from_kafka()
-
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
+        UpdateCn.instance_tender_url = instance_tender_url
+        UpdateCn.instance_budget_url = instance_budget_url
+        UpdateCn.instance_storage_url = instance_storage_url
         UpdateCn.payload = payload
         UpdateCn.cp_id = create_ev_response[0]
         UpdateCn.ev_id = create_ev_response[3]
@@ -420,7 +434,20 @@ class TestCheckOnTheImpossibilityOfEnquiryPeriodReschedulingForTenderInActiveCla
             payload=payload
         )
         UpdateCn.message_from_kafka = UpdateCn.cn_class.get_message_from_kafka()
-
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
+        UpdateCn.instance_tender_url = instance_tender_url
+        UpdateCn.instance_budget_url = instance_budget_url
+        UpdateCn.instance_storage_url = instance_storage_url
         UpdateCn.payload = payload
         UpdateCn.cp_id = create_ev_response[0]
         UpdateCn.ev_id = create_ev_response[3]
@@ -548,7 +575,20 @@ class TestCheckOnThePossibilityOfEnquiryPeriodReschedulingForTenderInActiveClari
             payload=payload
         )
         UpdateCn.message_from_kafka = UpdateCn.cn_class.get_message_from_kafka()
-
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
+        UpdateCn.instance_tender_url = instance_tender_url
+        UpdateCn.instance_budget_url = instance_budget_url
+        UpdateCn.instance_storage_url = instance_storage_url
         UpdateCn.payload = payload
         UpdateCn.cp_id = create_ev_response[0]
         UpdateCn.ev_id = create_ev_response[3]
@@ -650,8 +690,8 @@ class TestCheckOnThePossibilityOfSuspendingTender(object):
             second_lot_id=second_lot_id,
             first_item_id=first_item_id,
             second_item_id=second_item_id,
-            second_enquiry=121,
-            second_tender=302
+            second_enquiry=300,
+            second_tender=602
         )
         EnquiryGlobal.ms_release_before_enquiry_creating = requests.get(url=create_ev_response[5]).json()
         EnquiryGlobal.pn_release_before_enquiry_creating = requests.get(url=create_ev_response[6]).json()
@@ -668,6 +708,20 @@ class TestCheckOnThePossibilityOfSuspendingTender(object):
             payload=payload
         )
         EnquiryGlobal.message_from_kafka = EnquiryGlobal.enquiry_class.get_message_from_kafka()
+        instance_tender_url = None
+        instance_budget_url = None
+        instance_storage_url = None
+        if instance == "dev":
+            instance_tender_url = "http://dev.public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://dev.public.eprocurement.systems/budgets/"
+            instance_storage_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get/"
+        if instance == "sandbox":
+            instance_tender_url = "http://public.eprocurement.systems/tenders/"
+            instance_budget_url = "http://public.eprocurement.systems/budgets/"
+            instance_storage_url = "http://storage.eprocurement.systems/get/"
+        EnquiryGlobal.instance_tender_url = instance_tender_url
+        EnquiryGlobal.instance_budget_url = instance_budget_url
+        EnquiryGlobal.instance_storage_url = instance_storage_url
         EnquiryGlobal.payload = payload
         EnquiryGlobal.cp_id = create_ev_response[0]
         EnquiryGlobal.ev_id = create_ev_response[3]
@@ -746,7 +800,7 @@ class TestCheckOnThePossibilityOfSuspendingTender(object):
         date_transformation = datetime.datetime.strptime(EnquiryGlobal.enquiry_period_end_date, "%Y-%m-%dT%H:%M:%SZ")
         time_bot(expected_time=date_transformation)
         ms_release_after_enquiry = requests.get(
-            url=f"http://dev.public.eprocurement.systems/tenders"
+            url=f"{EnquiryGlobal.instance_tender_url}"
                 f"/{EnquiryGlobal.cp_id}/{EnquiryGlobal.cp_id}").json()
         expected_result = {
             'values_changed': {

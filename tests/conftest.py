@@ -96,6 +96,9 @@ class CreatePn:
     payload = None
     ei_id = None
     fs_id = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None
 
 
 class CreateCn:
@@ -113,6 +116,9 @@ class CreateCn:
     second_lot_id = None
     first_item_id = None
     second_item_id = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None
 
 
 class UpdateCn:
@@ -128,6 +134,9 @@ class UpdateCn:
     pn_id = None
     enquiry_period_start_date = None
     enquiry_period_end_date = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None
 
 
 class EnquiryGlobal:
@@ -144,6 +153,9 @@ class EnquiryGlobal:
     enquiry_period_end_date = None
     tender_period_start_date = None
     tender_period_end_date = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None
 
 
 class CancelCn:
@@ -156,6 +168,9 @@ class CancelCn:
     cp_id = None
     ev_id = None
     pn_id = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None
 
 
 class CancelLot:
@@ -169,6 +184,9 @@ class CancelLot:
     ev_id = None
     pn_id = None
     lot_id = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None
 
 
 class ConfirmTenderAmendment:
@@ -183,6 +201,9 @@ class ConfirmTenderAmendment:
     pn_id = None
     amendment_id = None
     amendment_token = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None
 
 
 class ConfirmLotAmendment:
@@ -197,6 +218,9 @@ class ConfirmLotAmendment:
     pn_id = None
     amendment_id = None
     amendment_token = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None
 
 
 class CancelTenderAmendment:
@@ -211,6 +235,9 @@ class CancelTenderAmendment:
     pn_id = None
     amendment_id = None
     amendment_token = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None
 
 
 class CancelLotAmendment:
@@ -226,3 +253,6 @@ class CancelLotAmendment:
     lot_id = None
     amendment_id = None
     amendment_token = None
+    instance_tender_url = None
+    instance_budget_url = None
+    instance_storage_url = None

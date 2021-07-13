@@ -648,11 +648,16 @@ class FS:
                         f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
                         f"1609943491271,1609943491271,'{cp_id + '-' + f'{period[2]}'}',"
                         f"'EI');").one()
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         allure.attach(owner, 'OWNER')
         allure.attach(cp_id, 'CPID')
         allure.attach(ei_token, 'X-TOKEN')
-        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{cp_id}", 'URL')
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", ei_token, cp_id
+        allure.attach(f"{instance_url}{cp_id}", 'URL')
+        return f"{instance_url}{cp_id}", ei_token, cp_id
 
     @allure.step('Insert EI')
     def insert_ei_obligatory_data_model(self, cp_id, ei_token):
@@ -993,11 +998,16 @@ class FS:
                         f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
                         f"1609943491271,1609943491271,'{cp_id + '-' + f'{period[2]}'}',"
                         f"'EI');").one()
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         allure.attach(owner, 'OWNER')
         allure.attach(cp_id, 'CPID')
         allure.attach(ei_token, 'X-TOKEN')
-        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{cp_id}", 'URL')
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}/{cp_id}", ei_token, cp_id
+        allure.attach(f"{instance_url}{cp_id}", 'URL')
+        return f"{instance_url}{cp_id}/{cp_id}", ei_token, cp_id
 
     @allure.step('Insert EI')
     def insert_ei_full_data_model_without_item(self, cp_id, ei_token):
@@ -1299,11 +1309,16 @@ class FS:
                         f"'{json.dumps(json_notice_budget_compiled_release_ei)}',"
                         f"1609943491271,1609943491271,'{cp_id + '-' + f'{period[2]}'}',"
                         f"'EI');").one()
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
         allure.attach(owner, 'OWNER')
         allure.attach(cp_id, 'CPID')
         allure.attach(ei_token, 'X-TOKEN')
-        allure.attach(f"http://dev.public.eprocurement.systems/budgets/{cp_id}", 'URL')
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", ei_token, cp_id
+        allure.attach(f"{instance_url}{cp_id}", 'URL')
+        return f"{instance_url}{cp_id}", ei_token, cp_id
 
     @allure.step('Insert FS: Treasury - obligatory, based on EI: without items - obligatory')
     def insert_fs_treasury_obligatory_ei_obligatory_without_items(self, cp_id, ei_token):
@@ -1815,7 +1830,12 @@ class FS:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
+        return f"{instance_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Treasury - full, based on EI: without items - obligatory')
     def insert_fs_treasury_full_ei_obligatory_without_items(self, cp_id, ei_token):
@@ -2384,7 +2404,12 @@ class FS:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
+        return f"{instance_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Treasury - obligatory, based on EI: without items - full')
     def insert_fs_treasury_obligatory_ei_full_without_items(self, cp_id, ei_token):
@@ -2947,7 +2972,12 @@ class FS:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
+        return f"{instance_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Treasury - full, based on EI: with items - obligatory')
     def insert_fs_treasury_full_ei_obligatory_with_items(self, cp_id, ei_token):
@@ -3608,7 +3638,12 @@ class FS:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
+        return f"{instance_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Own - obligatory, based on EI: without items - obligatory')
     def insert_fs_own_obligatory_ei_obligatory_without_items(self, cp_id, ei_token):
@@ -4236,7 +4271,12 @@ class FS:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
+        return f"{instance_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Own - full, based on EI: without items - obligatory')
     def insert_fs_own_full_ei_obligatory_without_items(self, cp_id, ei_token):
@@ -4979,7 +5019,12 @@ class FS:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
+        return f"{instance_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Own - obligatory, based on EI: with items - full')
     def insert_fs_own_obligatory_ei_full_with_items(self, cp_id, ei_token):
@@ -5805,7 +5850,12 @@ class FS:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
+        return f"{instance_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Insert FS: Own - full, based on EI: with items - full')
     def insert_fs_own_full_ei_full_with_items(self, cp_id, ei_token):
@@ -6734,7 +6784,12 @@ class FS:
             f"'{fs_id + '-' + str(period[2])}','FS');")
         session.execute(f"INSERT INTO notice_budget_offset (cp_id,release_date) "
                         f"VALUES ('{cp_id}',{period[2]});").one()
-        return f"http://dev.public.eprocurement.systems/budgets/{cp_id}", fs_id, fs_token
+        instance_url = None
+        if self.instance == "dev":
+            instance_url = "http://dev.public.eprocurement.systems/budgets/"
+        if self.instance == "sandbox":
+            instance_url = "http://public.eprocurement.systems/budgets/"
+        return f"{instance_url}{cp_id}", fs_id, fs_token
 
     @allure.step('Receive message in feed-point')
     def get_message_from_kafka(self):
