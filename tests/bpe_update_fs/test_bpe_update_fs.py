@@ -14,7 +14,8 @@ from tests.payloads.fs_payload import update_fs_payload_fs_obligatory_data_model
     update_fs_payload_fs_full_data_model_own_money, create_fs_payload_fs_full_data_model_treasury_money, \
     create_fs_payload_fs_obligatory_data_model_own_money
 from useful_functions import prepared_cp_id, compare_actual_result_and_expected_result, get_new_period, \
-    get_human_date_in_utc_format, get_access_token_for_platform_two, prepared_test_cp_id
+    get_human_date_in_utc_format, get_access_token_for_platform_two, prepared_test_cp_id, \
+    compare_human_date_and_set_new_value
 
 
 class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryObligatoryDataModel(object):
@@ -136,6 +137,12 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryObl
         message_from_kafka = fs.get_message_from_kafka()
         url_update = message_from_kafka['data']['url']
         fs_update = requests.get(url=url_update).json()
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=fs_update["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         release_list = list()
         for key, values in fs_update["releases"][0]["parties"][0].items():
             if key == "roles":
@@ -650,8 +657,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryObl
             actual_result=fs_update["releases"][0]["date"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=fs_update["releases"][0]["date"]
+            expected_result=expected_date,
+            actual_result=actual_date
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["tag"][0],
@@ -1024,6 +1031,12 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryFullDataM
         message_from_kafka = fs.get_message_from_kafka()
         url_update = message_from_kafka['data']['url']
         fs_update = requests.get(url=url_update).json()
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=fs_update["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         release_list = list()
         for key, values in fs_update["releases"][0]["parties"][0].items():
             if key == "roles":
@@ -1635,8 +1648,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryFullDataM
             actual_result=fs_update["releases"][0]["date"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=fs_update["releases"][0]["date"]
+            expected_result=expected_date,
+            actual_result=actual_date
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["tag"][0],
@@ -2066,6 +2079,12 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryFul
         message_from_kafka = fs.get_message_from_kafka()
         url_update = message_from_kafka['data']['url']
         fs_update = requests.get(url=url_update).json()
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=fs_update["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         release_list = list()
         for key, values in fs_update["releases"][0]["parties"][0].items():
             if key == "roles":
@@ -2632,8 +2651,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToTreasuryFul
             actual_result=fs_update["releases"][0]["date"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=fs_update["releases"][0]["date"]
+            expected_result=expected_date,
+            actual_result=actual_date
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["tag"][0],
@@ -2937,6 +2956,12 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryObligator
         message_from_kafka = fs.get_message_from_kafka()
         url_update = message_from_kafka['data']['url']
         fs_update = requests.get(url=url_update).json()
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=fs_update["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         release_list = list()
         for key, values in fs_update["releases"][0]["parties"][0].items():
             if key == "roles":
@@ -3500,8 +3525,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryFullDataModelToTreasuryObligator
             actual_result=fs_update["releases"][0]["date"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=fs_update["releases"][0]["date"]
+            expected_result=expected_date,
+            actual_result=actual_date
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["tag"][0],
@@ -3839,6 +3864,12 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnObligatoryDat
         message_from_kafka = fs.get_message_from_kafka()
         url_update = message_from_kafka['data']['url']
         fs_update = requests.get(url=url_update).json()
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=fs_update["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         release_list = list()
         for key, values in fs_update["releases"][0]["parties"][0].items():
             if key == "roles":
@@ -4516,8 +4547,8 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnObligatoryDat
             actual_result=fs_update["releases"][0]["date"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=fs_update["releases"][0]["date"]
+            expected_result=expected_date,
+            actual_result=actual_date
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["tag"][0],
@@ -5042,6 +5073,12 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnFullDataModel(objec
         message_from_kafka = fs.get_message_from_kafka()
         url_update = message_from_kafka['data']['url']
         fs_update = requests.get(url=url_update).json()
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=fs_update["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         release_list = list()
         for key, values in fs_update["releases"][0]["parties"][0].items():
             if key == "roles":
@@ -5882,8 +5919,8 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnFullDataModel(objec
             actual_result=fs_update["releases"][0]["date"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=fs_update["releases"][0]["date"]
+            expected_result=expected_date,
+            actual_result=actual_date
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["tag"][0],
@@ -6511,6 +6548,12 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnFullDataModel
         message_from_kafka = fs.get_message_from_kafka()
         url_update = message_from_kafka['data']['url']
         fs_update = requests.get(url=url_update).json()
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=fs_update["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         release_list = list()
         for key, values in fs_update["releases"][0]["parties"][0].items():
             if key == "roles":
@@ -7257,8 +7300,8 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToOwnFullDataModel
             actual_result=fs_update["releases"][0]["date"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=fs_update["releases"][0]["date"]
+            expected_result=expected_date,
+            actual_result=actual_date
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["tag"][0],
@@ -7662,6 +7705,12 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnObligatoryDataModel
         message_from_kafka = fs.get_message_from_kafka()
         url_update = message_from_kafka['data']['url']
         fs_update = requests.get(url=url_update).json()
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=fs_update["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         release_list = list()
         for key, values in fs_update["releases"][0]["parties"][0].items():
             if key == "roles":
@@ -8468,8 +8517,8 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnFullDataModelToOwnObligatoryDataModel
             actual_result=fs_update["releases"][0]["date"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=fs_update["releases"][0]["date"]
+            expected_result=expected_date,
+            actual_result=actual_date
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["tag"][0],
@@ -9062,7 +9111,12 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToOwnFullData
         message_from_kafka = fs.get_message_from_kafka()
         url_update = message_from_kafka['data']['url']
         fs_update = requests.get(url=url_update).json()
-
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=fs_update["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         release_list = list()
         for key, values in fs_update["releases"][0]["parties"][0].items():
             if key == "roles":
@@ -9628,8 +9682,8 @@ class TestCheckOnCorrectnessOfUpdatingFsTreasuryObligatoryDataModelToOwnFullData
             actual_result=fs_update["releases"][0]["date"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=fs_update["releases"][0]["date"]
+            expected_result=expected_date,
+            actual_result=actual_date
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["tag"][0],
@@ -10028,6 +10082,12 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullData
         message_from_kafka = fs.get_message_from_kafka()
         url_update = message_from_kafka['data']['url']
         fs_update = requests.get(url=url_update).json()
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=fs_update["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         release_list = list()
         for key, values in fs_update["releases"][0]["parties"][0].items():
             if key == "roles":
@@ -10781,8 +10841,8 @@ class TestCheckOnCorrectnessOfUpdatingFsOwnObligatoryDataModelToTreasuryFullData
             actual_result=fs_update["releases"][0]["date"]
         )
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=fs_update["releases"][0]["date"]
+            expected_result=expected_date,
+            actual_result=actual_date
         )
         assert compare_actual_result_and_expected_result(
             expected_result=fs_create["releases"][0]["tag"][0],

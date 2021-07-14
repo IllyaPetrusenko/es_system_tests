@@ -6,7 +6,7 @@ from pytest_testrail.plugin import pytestrail
 from tests.bpe_create_ei.payloads import payload_ei_full_data_model
 from tests.essences.ei import EI
 from useful_functions import compare_actual_result_and_expected_result, get_human_date_in_utc_format, is_it_uuid, \
-    calculated_new_date_for_request_sending
+    compare_human_date_and_set_new_value
 
 
 class TestCheckTheImpossibilityToCreateEIWithoutObligatoryData(object):
@@ -1328,10 +1328,16 @@ class TestCheckTheCpIdOfEIisFormedCorrectly(object):
         cp_id = message_from_kafka["data"]["outcomes"]["ei"][0]["id"]
         actual_result_date = get_human_date_in_utc_format(int(cp_id[15:28]))[0]
         expected_result_date = message_from_kafka["data"]["operationDate"]
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=expected_result_date,
+            human_date_second=actual_result_date
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         actual_result_cpid_first_part = cp_id[0:15]
         expected_result_cpid_first_part = "ocds-t1s2t3-MD-"
-        assert compare_actual_result_and_expected_result(expected_result=expected_result_date,
-                                                         actual_result=actual_result_date)
+        assert compare_actual_result_and_expected_result(expected_result=expected_date,
+                                                         actual_result=actual_date)
         assert compare_actual_result_and_expected_result(expected_result=expected_result_cpid_first_part,
                                                          actual_result=actual_result_cpid_first_part)
 
@@ -1380,8 +1386,14 @@ class TestCheckTheTimestampOfEiOcidOfCoincidesWithRequestSentDate(object):
         convert_date_to_human_date = convert_timestamp_to_date.strftime("%Y-%m-%dT%H:%M:%SZ")
         actual_result = convert_date_to_human_date
         expected_result = message_from_kafka["data"]["operationDate"]
-        assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                         actual_result=actual_result)
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=expected_result,
+            human_date_second=actual_result
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
+        assert compare_actual_result_and_expected_result(expected_result=expected_date,
+                                                         actual_result=actual_date)
 
 
 class TestCheckTheReleaseDateCoincidesWithRequestSentDate(object):
@@ -1425,8 +1437,14 @@ class TestCheckTheReleaseDateCoincidesWithRequestSentDate(object):
         ei_release = requests.get(url=ei_url).json()
         expected_result = message_from_kafka["data"]["operationDate"]
         actual_result = ei_release["releases"][0]["date"]
-        assert compare_actual_result_and_expected_result(expected_result=expected_result,
-                                                         actual_result=actual_result)
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=expected_result,
+            human_date_second=actual_result
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
+        assert compare_actual_result_and_expected_result(expected_result=expected_date,
+                                                         actual_result=actual_date)
 
 
 class TestCheckTheIdentificationOfTenderEqualsTheOCIDofTheEI(object):
@@ -1519,9 +1537,15 @@ class TestCheckTheIdInCompiledReleaseHasAnAppropriateValueInTheEiRecord(object):
         ei_release_id = ei_release["releases"][0]["id"]
         ei_release_timestamp = int(ei_release_id[29:42])
         convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=convert_timestamp_to_date[0],
+            human_date_second=ei_release["releases"][0]["date"]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
         assert compare_actual_result_and_expected_result(expected_result=cp_id, actual_result=ei_release_id[0:28])
-        assert compare_actual_result_and_expected_result(expected_result=convert_timestamp_to_date[0],
-                                                         actual_result=ei_release["releases"][0]["date"])
+        assert compare_actual_result_and_expected_result(expected_result=expected_date,
+                                                         actual_result=actual_date)
         assert compare_actual_result_and_expected_result(
             expected_result=f"{cp_id}" + f"-{str(ei_release_timestamp)}",
             actual_result=ei_release["releases"][0]["id"])
@@ -2429,6 +2453,18 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         ei_release = requests.get(url=ei_url).json()
         ei_release_timestamp = int(ei_release["releases"][0]["id"][29:42])
         convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
+        compare_dates = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=convert_timestamp_to_date[0]
+        )
+        expected_date = compare_dates[0]
+        actual_date = compare_dates[1]
+        compare_dates_ = compare_human_date_and_set_new_value(
+            human_date_first=message_from_kafka["data"]["operationDate"],
+            human_date_second=ei_release["releases"][0]["date"]
+        )
+        expected_date_ = compare_dates_[0]
+        actual_date_ = compare_dates_[1]
         keys_list = list()
 
         for i in ei_release.keys():
@@ -2840,10 +2876,10 @@ class TestCheckOnPossibilityToCreateEiWithFullDataModel(object):
         assert compare_actual_result_and_expected_result(
             expected_result=cpid, actual_result=ei_release["releases"][0]["id"][0:28])
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"], actual_result=convert_timestamp_to_date[0])
+            expected_result=expected_date, actual_result=actual_date)
         assert compare_actual_result_and_expected_result(
-            expected_result=message_from_kafka["data"]["operationDate"],
-            actual_result=ei_release["releases"][0]["date"])
+            expected_result=expected_date_,
+            actual_result=actual_date_)
         assert compare_actual_result_and_expected_result(expected_result="compiled",
                                                          actual_result=ei_release["releases"][0]["tag"][0])
         assert compare_actual_result_and_expected_result(expected_result=language,
