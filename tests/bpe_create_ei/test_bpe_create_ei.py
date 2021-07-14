@@ -1519,10 +1519,6 @@ class TestCheckTheIdInCompiledReleaseHasAnAppropriateValueInTheEiRecord(object):
         ei_release_id = ei_release["releases"][0]["id"]
         ei_release_timestamp = int(ei_release_id[29:42])
         convert_timestamp_to_date = get_human_date_in_utc_format(ei_release_timestamp)
-        if convert_timestamp_to_date[0] != ei_release["releases"][0]["date"]:
-            expected_date = calculated_new_date_for_request_sending(convert_timestamp_to_date[0], 1)
-            assert compare_actual_result_and_expected_result(expected_result=expected_date,
-                                                             actual_result=ei_release["releases"][0]["date"])
         assert compare_actual_result_and_expected_result(expected_result=cp_id, actual_result=ei_release_id[0:28])
         assert compare_actual_result_and_expected_result(expected_result=convert_timestamp_to_date[0],
                                                          actual_result=ei_release["releases"][0]["date"])
