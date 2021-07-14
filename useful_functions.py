@@ -361,6 +361,53 @@ def time_bot(expected_time, gep_hour=3):
     print("Время наступило")
 
 
+def compare_human_date_and_set_new_value(human_date_first, human_date_second):
+    date_first = datetime.datetime.strptime(human_date_first, "%Y-%m-%dT%H:%M:%SZ")
+    date_second = datetime.datetime.strptime(human_date_second, "%Y-%m-%dT%H:%M:%SZ")
+    new_date_first_as_human = None
+    new_date_second_as_human = None
+    if date_first > date_second:
+        date_shift = date_first - date_second
+        if date_shift == datetime.timedelta(seconds=1):
+            new_date_first_as_human = date_first.strftime('%Y-%m-%dT%H:%M:%SZ')
+            new_date_second_as_human = (date_second + date_shift).strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif date_shift == datetime.timedelta(seconds=2):
+            new_date_first_as_human = date_first.strftime('%Y-%m-%dT%H:%M:%SZ')
+            new_date_second_as_human = (date_second + date_shift).strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif date_shift == datetime.timedelta(seconds=3):
+            new_date_first_as_human = date_first.strftime('%Y-%m-%dT%H:%M:%SZ')
+            new_date_second_as_human = (date_second + date_shift).strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif date_shift == datetime.timedelta(seconds=4):
+            new_date_first_as_human = date_first.strftime('%Y-%m-%dT%H:%M:%SZ')
+            new_date_second_as_human = (date_second + date_shift).strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif date_shift == datetime.timedelta(seconds=5):
+            new_date_first_as_human = date_first.strftime('%Y-%m-%dT%H:%M:%SZ')
+            new_date_second_as_human = (date_second + date_shift).strftime('%Y-%m-%dT%H:%M:%SZ')
+        else:
+            print(Exception("Check the time!!!"))
+    if date_first < date_second:
+        date_shift = date_second - date_first
+        if date_shift == datetime.timedelta(seconds=1):
+            new_date_second_as_human = date_second.strftime('%Y-%m-%dT%H:%M:%SZ')
+            new_date_first_as_human = (date_first + date_shift).strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif date_shift == datetime.timedelta(seconds=2):
+            new_date_second_as_human = date_second.strftime('%Y-%m-%dT%H:%M:%SZ')
+            new_date_first_as_human = (date_first + date_shift).strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif date_shift == datetime.timedelta(seconds=3):
+            new_date_second_as_human = date_second.strftime('%Y-%m-%dT%H:%M:%SZ')
+            new_date_first_as_human = (date_first + date_shift).strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif date_shift == datetime.timedelta(seconds=4):
+            new_date_second_as_human = date_second.strftime('%Y-%m-%dT%H:%M:%SZ')
+            new_date_first_as_human = (date_first + date_shift).strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif date_shift == datetime.timedelta(seconds=5):
+            new_date_second_as_human = date_second.strftime('%Y-%m-%dT%H:%M:%SZ')
+            new_date_first_as_human = (date_first + date_shift).strftime('%Y-%m-%dT%H:%M:%SZ')
+        else:
+            print(Exception("Check the time!!!"))
+    else:
+        new_date_first_as_human = date_first.strftime('%Y-%m-%dT%H:%M:%SZ')
+        new_date_second_as_human = date_second.strftime('%Y-%m-%dT%H:%M:%SZ')
+    return new_date_first_as_human, new_date_second_as_human
 
 
 
